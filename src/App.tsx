@@ -115,6 +115,22 @@ export default function App() {
       return "¡Hola, mi corazón! Soy la doctora T. Te estaba esperando con mucho cariño. Ven, siéntate a mi lado y cuéntame cómo te ha ido el día. Siempre estoy aquí para ti.";
     } else if (lang.includes('german') || lang.includes('de')) {
       return "Hallo mein Schatz! Ich bin Frau Doktor T. Ich habe schon auf dich gewartet. Komm, setz dich zu mir und erzähl mir, wie dein Tag war. Ich bin immer für dich da.";
+    } else if (lang.includes('japanese') || lang.includes('ja')) {
+      return "こんにちは、私の大切なお子さん！Dr. T（ティー）です。あなたが来てくれて、とても嬉しいわ。今日はどんな一日だった？何でもママに話してね, いつでもあなたの味方だからね。";
+    } else if (lang.includes('chinese') || lang.includes('zh')) {
+      return "你好呀，我的宝贝孩子！我是 T 医生。妈妈一直在这里等着你、守护着你呢。今天外面的一切让你感到疲惫了吗？来，跟妈妈倾诉一下，妈妈疼你。";
+    } else if (lang.includes('korean') || lang.includes('ko')) {
+      return "안녕, 내 사랑하는 아가! Dr. T 란다. 엄마가 항상 여기서 네 이야기를 들을 준비가 되어 있단다. 오늘 하루 힘들진 않았니? 엄마에게 다 털어놓으렴.";
+    } else if (lang.includes('italian') || lang.includes('it')) {
+      return "Ciao, tesoro mio! Sono la dottoressa T. Ti stavo aspettando con tanto affetto. Siediti accanto a me e raccontami com'è andata la tua giornata. Sono sempre qui per te.";
+    } else if (lang.includes('russian') || lang.includes('ru')) {
+      return "Привет, моя радость! Я доктор Т. Я так ждала тебя. Присядь со мной, сделай глубокий вдох и расскажи, как прошел твой день. Я всегда рядом.";
+    } else if (lang.includes('portuguese') || lang.includes('pt')) {
+      return "Olá, meu querido filho! Sou a Dra. T. Estava esperando por você com muito carinho. Venha, sente-se perto de mim e me conte como foi o seu dia. Estou sempre aqui para você.";
+    } else if (lang.includes('arabic') || lang.includes('ar')) {
+      return "أهلاً بك يا حبيبي! أنا الدكتورة تي. لقد كنت بانتظارك بكل شوق وحنان. تعال، اجلس بجانبي وأخبرني كيف كان يومك. أنا دائماً هنا لأجلك.";
+    } else if (lang.includes('hindi') || lang.includes('hi')) {
+      return "नमस्ते, मेरे प्यारे बच्चे! मैं हूँ डॉ. टी। मैं बहुत प्यार से तुम्हारा इंतज़ार कर रही थी। आओ, मेरे पास बैठो, एक गहरी साँस लो और मुझे बताओ कि तुम्हारा दिन कैसा रहा। मैं हमेशा तुम्हारे लिए यहाँ हूँ।";
     } else {
       return "Hello, sweetheart! It's Dr. T. I'm so glad you have stepped onto the platform. I've been waiting for you with a warm heart. Come sit down, take a deep breath, and tell me how your day has been.";
     }
@@ -130,6 +146,22 @@ export default function App() {
       return "¡Toca para que pueda saludarte! 💕";
     } else if (lang.includes('german') || lang.includes('de')) {
       return "Klicke hier für eine Begrüßung! 💕";
+    } else if (lang.includes('japanese') || lang.includes('ja')) {
+      return "タップして挨拶を聞いてね！💕";
+    } else if (lang.includes('chinese') || lang.includes('zh')) {
+      return "点我听听妈妈的问候吧！💕";
+    } else if (lang.includes('korean') || lang.includes('ko')) {
+      return "엄마의 인사를 들어보려면 누르세요! 💕";
+    } else if (lang.includes('italian') || lang.includes('it')) {
+      return "Tocca per ascoltare il mio saluto! 💕";
+    } else if (lang.includes('russian') || lang.includes('ru')) {
+      return "Нажми, чтобы услышать приветствие! 💕";
+    } else if (lang.includes('portuguese') || lang.includes('pt')) {
+      return "Toque para ouvir a saudação! 💕";
+    } else if (lang.includes('arabic') || lang.includes('ar')) {
+      return "اضغط لسماع سلامي الحار! 💕";
+    } else if (lang.includes('hindi') || lang.includes('hi')) {
+      return "प्यार भरा नमस्ते सुनने के लिए यहाँ छुएँ! 💕";
     } else {
       return "Tap to let me break the ice! 💕";
     }
@@ -275,6 +307,14 @@ export default function App() {
       else if (language === 'French') recognitionRef.current.lang = 'fr-FR';
       else if (language === 'Spanish') recognitionRef.current.lang = 'es-ES';
       else if (language === 'German') recognitionRef.current.lang = 'de-DE';
+      else if (language === 'Japanese') recognitionRef.current.lang = 'ja-JP';
+      else if (language === 'Chinese') recognitionRef.current.lang = 'zh-CN';
+      else if (language === 'Korean') recognitionRef.current.lang = 'ko-KR';
+      else if (language === 'Italian') recognitionRef.current.lang = 'it-IT';
+      else if (language === 'Russian') recognitionRef.current.lang = 'ru-RU';
+      else if (language === 'Portuguese') recognitionRef.current.lang = 'pt-PT';
+      else if (language === 'Arabic') recognitionRef.current.lang = 'ar-SA';
+      else if (language === 'Hindi') recognitionRef.current.lang = 'hi-IN';
       else recognitionRef.current.lang = 'en-US';
     }
   }, [language]);
@@ -334,6 +374,30 @@ export default function App() {
     } else if (currentLang.includes('german') || currentLang.includes('de')) {
       utterance.lang = 'de-DE';
       matchedVoice = voices.find(v => v.lang.startsWith('de-') || v.lang.startsWith('de'));
+    } else if (currentLang.includes('japanese') || currentLang.includes('ja')) {
+      utterance.lang = 'ja-JP';
+      matchedVoice = voices.find(v => v.lang.startsWith('ja-') || v.lang.startsWith('ja'));
+    } else if (currentLang.includes('chinese') || currentLang.includes('zh')) {
+      utterance.lang = 'zh-CN';
+      matchedVoice = voices.find(v => v.lang.startsWith('zh-') || v.lang.startsWith('zh'));
+    } else if (currentLang.includes('korean') || currentLang.includes('ko')) {
+      utterance.lang = 'ko-KR';
+      matchedVoice = voices.find(v => v.lang.startsWith('ko-') || v.lang.startsWith('ko'));
+    } else if (currentLang.includes('italian') || currentLang.includes('it')) {
+      utterance.lang = 'it-IT';
+      matchedVoice = voices.find(v => v.lang.startsWith('it-') || v.lang.startsWith('it'));
+    } else if (currentLang.includes('russian') || currentLang.includes('ru')) {
+      utterance.lang = 'ru-RU';
+      matchedVoice = voices.find(v => v.lang.startsWith('ru-') || v.lang.startsWith('ru'));
+    } else if (currentLang.includes('portuguese') || currentLang.includes('pt')) {
+      utterance.lang = 'pt-PT';
+      matchedVoice = voices.find(v => v.lang.startsWith('pt-') || v.lang.startsWith('pt'));
+    } else if (currentLang.includes('arabic') || currentLang.includes('ar')) {
+      utterance.lang = 'ar-SA';
+      matchedVoice = voices.find(v => v.lang.startsWith('ar-') || v.lang.startsWith('ar'));
+    } else if (currentLang.includes('hindi') || currentLang.includes('hi')) {
+      utterance.lang = 'hi-IN';
+      matchedVoice = voices.find(v => v.lang.startsWith('hi-') || v.lang.startsWith('hi'));
     } else {
       utterance.lang = 'en-US';
       matchedVoice = voices.find(v => v.lang.startsWith('en-') || v.lang.startsWith('en'));
@@ -1300,7 +1364,8 @@ export default function App() {
           <div className="animate-fadeIn">
             <AgentSwarm 
               agents={specialistAgents} 
-              onTriggerSwarmCollaboration={handleTriggerSwarmCollaboration} 
+              onTriggerSwarmCollaboration={handleTriggerSwarmCollaboration}
+              onAddSpecialist={(newAgent) => setSpecialistAgents(prev => [...prev, newAgent])}
             />
           </div>
         )}
@@ -1343,6 +1408,8 @@ export default function App() {
               setVoiceName={setVoiceName}
               language={language}
               setLanguage={setLanguage}
+              memoryNodes={memoryNodes}
+              onAddMemoryNode={handleAddNode}
             />
           </div>
         )}

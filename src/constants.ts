@@ -80,6 +80,14 @@ export const LANGUAGES = [
   { code: 'French', name: '🇫🇷 Français', flag: '🇫🇷' },
   { code: 'Spanish', name: '🇪🇸 Español', flag: '🇪🇸' },
   { code: 'German', name: '🇩🇪 Deutsch', flag: '🇩🇪' },
+  { code: 'Japanese', name: '🇯🇵 日本語', flag: '🇯🇵' },
+  { code: 'Chinese', name: '🇨🇳 中文', flag: '🇨🇳' },
+  { code: 'Korean', name: '🇰🇷 한국어', flag: '🇰🇷' },
+  { code: 'Italian', name: '🇮🇹 Italiano', flag: '🇮🇹' },
+  { code: 'Russian', name: '🇷🇺 Русский', flag: '🇷🇺' },
+  { code: 'Portuguese', name: '🇵🇹 Português', flag: '🇵🇹' },
+  { code: 'Arabic', name: '🇸🇦 العربية', flag: '🇸🇦' },
+  { code: 'Hindi', name: '🇮🇳 हिन्दी', flag: '🇮🇳' },
 ];
 
 export const PRESETS = [

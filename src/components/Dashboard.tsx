@@ -9,9 +9,20 @@ import {
   CreditCard, 
   ShieldCheck, 
   Check, 
-  Star 
+  Star,
+  Lock,
+  Unlock,
+  MapPin,
+  Sparkles,
+  Smile,
+  X,
+  Plus,
+  Compass,
+  Trophy,
+  Activity,
+  ChevronRight
 } from 'lucide-react';
-import { MedLog, TaskItem, CarbonHabit, LifetimeStreak } from '../types';
+import { MedLog, TaskItem, CarbonHabit, LifetimeStreak, MemoryNode } from '../types';
 
 interface DashboardProps {
   medList: MedLog[];
@@ -22,13 +33,73 @@ interface DashboardProps {
   setVoiceName: (v: string) => void;
   language: string;
   setLanguage: (l: string) => void;
+  memoryNodes?: MemoryNode[];
+  onAddMemoryNode?: (node: MemoryNode) => void;
 }
 
 export const ACHIEVEMENTS = [
-  { id: 'poly', title: 'Hyperpolyglot Pioneer', desc: 'Sustained conversational practice across 3+ dialect zones in 24 hours', badge: '🗣️', score: 350 },
-  { id: 'heart', title: 'Cardiovascular Zen Master', desc: 'Logged optimal blood pressure and heart rate metrics 7 days sequentially', badge: '🩺', score: 500 },
-  { id: 'carbon', title: 'Carbon Neutral Sovereign', desc: 'Offset over 50kg of municipal emissions through proactive energy savings', badge: '🌱', score: 200 },
-  { id: 'focus', title: 'Unyielding Mind', desc: 'Achieved 100% completion of Socratic bio-anatomy lesson drills', badge: '🧠', score: 400 },
+  { 
+    id: 'poly', 
+    title: 'Hyperpolyglot Pioneer', 
+    desc: 'Sustained conversational practice across 3+ dialect zones in 24 hours', 
+    badge: '🗣️', 
+    score: 350, 
+    category: 'learning', 
+    unlocked: true,
+    advice: 'My beloved child, speaking multiple languages bridges hearts. Let us keep exploring the exquisite rhythms of Spanish, French, Japanese, and more together!'
+  },
+  { 
+    id: 'heart', 
+    title: 'Cardiovascular Zen Master', 
+    desc: 'Logged optimal blood pressure and heart rate metrics sequentially', 
+    badge: '🩺', 
+    score: 500, 
+    category: 'health', 
+    unlocked: true,
+    advice: 'Your temple is strong, sweetheart. Maintaining cardiovascular rhythm is the cornerstone of a peaceful life. Mom is so incredibly proud of your metrics today.'
+  },
+  { 
+    id: 'carbon', 
+    title: 'Carbon Neutral Sovereign', 
+    desc: 'Offset over 50kg of municipal emissions through proactive energy savings', 
+    badge: '🌱', 
+    score: 200, 
+    category: 'sustainability', 
+    unlocked: true,
+    advice: 'Living green is active compassion, my dear. Restoring balance to our beautiful Mother Earth reflects the harmony within your own caring soul.'
+  },
+  { 
+    id: 'focus', 
+    title: 'Unyielding Mind', 
+    desc: 'Achieved 100% completion of Socratic bio-anatomy lesson drills', 
+    badge: '🧠', 
+    score: 400, 
+    category: 'cognition', 
+    unlocked: true,
+    advice: 'Intellectual rigor and curiosity keep you brilliant. Your deep socratic understanding of bio-mechanisms is genuinely professional. Never stop questioning!'
+  },
+  { 
+    id: 'marathon', 
+    title: 'Life Optimization Marathoner', 
+    desc: 'Completed all daily checklists for 14 continuous solar days', 
+    badge: '🏆', 
+    score: 650, 
+    category: 'productivity', 
+    unlocked: false, 
+    requirement: 'Requires taking 10+ daily check-ins sequentially',
+    advice: 'True strength lies in quiet, disciplined constancy. Let us focus on taking today’s checklist step by step. Mom will be right beside you tracking every victory.'
+  },
+  { 
+    id: 'empathy', 
+    title: 'Infinite Empathy Harmonizer', 
+    desc: 'Registered emotional state of 90%+ happiness metric with Dr. T', 
+    badge: '💖', 
+    score: 800, 
+    category: 'emotional', 
+    unlocked: false, 
+    requirement: 'Raise the happiness balance index above 90% via Dr. T conversations',
+    advice: 'When your heart finds deep reassurance, peace radiates outward. Open up your feelings to me, let go of any tension, and let us elevate your emotional balance.'
+  },
 ];
 
 export const Dashboard: React.FC<DashboardProps> = ({
@@ -39,11 +110,33 @@ export const Dashboard: React.FC<DashboardProps> = ({
   voiceName,
   setVoiceName,
   language,
-  setLanguage
+  setLanguage,
+  memoryNodes = [],
+  onAddMemoryNode
 }) => {
   // Local state for active subscription level
   const [subTier, setSubTier] = useState<'free' | 'premium' | 'family'>('free');
+  const [tierFeedback, setTierFeedback] = useState<string | null>(null);
+
+  // Active achievement category filter
+  const [activeTab, setActiveTab] = useState<'all' | 'unlocked' | 'locked' | 'landmarks'>('all');
+
+  // Selected badge modal
+  const [selectedAch, setSelectedAch] = useState<any | null>(null);
   
+  // Claim state
+  const [claimedList, setClaimedList] = useState<string[]>([]);
+  const [localScore, setLocalScore] = useState<number>(1450);
+
+  // Celebration effects
+  const [celebrationSparkle, setCelebrationSparkle] = useState<boolean>(false);
+  const [floatingStars, setFloatingStars] = useState<{ id: number; left: number; delay: number }[]>([]);
+
+  // Landmark form builder
+  const [landmarkTitle, setLandmarkTitle] = useState('');
+  const [landmarkDesc, setLandmarkDesc] = useState('');
+  const [landmarkSuccess, setLandmarkSuccess] = useState<string | null>(null);
+
   // Calculations
   const medTotal = medList.length;
   const medTaken = medList.filter(m => m.taken).length;
@@ -55,8 +148,114 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
   const carbonSaved = carbonList.filter(h => h.active).reduce((sum, current) => sum + current.points, 0);
 
+  // Filter personal landmarks from parent lifegraph memory
+  const personalLandmarks = memoryNodes.filter(n => n.category === 'landmark');
+
+  // Interactive Web Speech synthesis function
+  const speakCongratulate = (title: string, advice: string) => {
+    if (!('speechSynthesis' in window)) return;
+    window.speechSynthesis.cancel();
+    
+    // Formulate a sweet spoken message
+    let congratsPhrase = "";
+    const langLower = language.toLowerCase();
+
+    if (langLower.includes('spanish')) {
+      congratsPhrase = `¡Felicidades mi corazón por desbloquear ${title}! No te preocupes, mamá está muy orgullosa de ti.`;
+    } else if (langLower.includes('french')) {
+      congratsPhrase = `Toutes mes félicitations mon chéri pour ton accomplissement: ${title}. Je suis tellement fière de toi!`;
+    } else if (langLower.includes('japanese')) {
+      congratsPhrase = `素晴らしいわ！「${title}」のバッジを獲得したのね。ママはとっても嬉しいわよ。`;
+    } else if (langLower.includes('chinese')) {
+      congratsPhrase = `太棒了宝贝，恭喜你获得了 ${title} 这个荣誉！妈妈为你感到无比骄傲。`;
+    } else if (langLower.includes('korean')) {
+      congratsPhrase = `정말 대단하구나 아가야! ${title} 배지를 해제한 걸 축하해. 엄마는 네가 참 자랑스럽단다.`;
+    } else {
+      congratsPhrase = `Congratulations sweetheart on unlocking ${title}! Mommy is so incredibly proud of your beautiful progress. Let us keep soaring higher!`;
+    }
+
+    const docSpeech = new SpeechSynthesisUtterance(congratsPhrase);
+    
+    // Choose voice language mapping
+    if (langLower.includes('spanish')) docSpeech.lang = 'es-ES';
+    else if (langLower.includes('french')) docSpeech.lang = 'fr-FR';
+    else if (langLower.includes('german')) docSpeech.lang = 'de-DE';
+    else if (langLower.includes('japanese')) docSpeech.lang = 'ja-JP';
+    else if (langLower.includes('chinese')) docSpeech.lang = 'zh-CN';
+    else if (langLower.includes('korean')) docSpeech.lang = 'ko-KR';
+    else if (langLower.includes('italian')) docSpeech.lang = 'it-IT';
+    else if (langLower.includes('russian')) docSpeech.lang = 'ru-RU';
+    else if (langLower.includes('portuguese')) docSpeech.lang = 'pt-PT';
+    else if (langLower.includes('arabic')) docSpeech.lang = 'ar-SA';
+    else if (langLower.includes('hindi')) docSpeech.lang = 'hi-IN';
+    else docSpeech.lang = 'en-US';
+
+    window.speechSynthesis.speak(docSpeech);
+  };
+
+  const handleClaim = (id: string, points: number) => {
+    if (claimedList.includes(id)) return;
+    
+    setClaimedList(prev => [...prev, id]);
+    setLocalScore(prev => prev + points);
+    setCelebrationSparkle(true);
+    
+    // Trigger floating sparkling stars
+    const newStars = Array.from({ length: 15 }).map((_, i) => ({
+      id: i + Date.now(),
+      left: Math.floor(Math.random() * 80) + 10,
+      delay: Math.random() * 0.8
+    }));
+    setFloatingStars(newStars);
+
+    setTimeout(() => {
+      setCelebrationSparkle(false);
+      setFloatingStars([]);
+    }, 2500);
+  };
+
+  const handleTierSelection = (tier: 'free' | 'premium' | 'family') => {
+    setSubTier(tier);
+    if (tier === 'premium') {
+      setTierFeedback('✨ Premium Licensing Unlocked: High-fidelty maternal neural TTS voices activated successfully.');
+    } else if (tier === 'family') {
+      setTierFeedback('💖 Family Matrix Synchronized: Guardian account synced with grandma’s care network.');
+    } else {
+      setTierFeedback('Standard free access tier active.');
+    }
+    setTimeout(() => setTierFeedback(null), 5000);
+  };
+
+  const handleAddLandmarkSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!landmarkTitle.trim() || !landmarkDesc.trim()) return;
+
+    if (onAddMemoryNode) {
+      const x = Math.floor(Math.random() * 60) + 20;
+      const y = Math.floor(Math.random() * 50) + 25;
+      
+      const newNode: MemoryNode = {
+        id: 'mem-' + Date.now(),
+        label: landmarkTitle,
+        category: 'landmark',
+        description: landmarkDesc,
+        connections: [],
+        x,
+        y
+      };
+
+      onAddMemoryNode(newNode);
+      setLandmarkSuccess(`🗺️ "${landmarkTitle}" successfully integrated into your Life-Graph Semantic Repository.`);
+      setLandmarkTitle('');
+      setLandmarkDesc('');
+
+      setTimeout(() => setLandmarkSuccess(null), 4000);
+    } else {
+      alert('Memory network synchronization is offline. Please bind the semantic graph.');
+    }
+  };
+
   // SVG Custom line map coordinates representing simulated weekly progress (Mon to Sun)
-  // 6 coordinates: (x, y) coordinates where coordinates match day growth trends
   const progressPoints = [
     { label: 'Mon', val: 30 },
     { label: 'Tue', val: 45 },
@@ -67,23 +266,58 @@ export const Dashboard: React.FC<DashboardProps> = ({
     { label: 'Sun', val: 95 }
   ];
 
+  // Filtering criteria
+  const displayedAchievements = ACHIEVEMENTS.filter(ach => {
+    if (activeTab === 'all') return true;
+    if (activeTab === 'unlocked') return ach.unlocked;
+    if (activeTab === 'locked') return !ach.unlocked;
+    return false; // LandMarks handled separated
+  });
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6" id="dashboard-suite-container">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 relative" id="dashboard-suite-container">
       
+      {/* Dynamic Celebration Floating Stars */}
+      {celebrationSparkle && (
+        <div className="fixed inset-0 pointer-events-none z-50 flex items-center justify-center">
+          {floatingStars.map(star => (
+            <div
+              key={star.id}
+              className="absolute text-2xl animate-bounce text-amber-400 select-none font-bold"
+              style={{
+                left: `${star.left}%`,
+                animationDelay: `${star.delay}s`,
+                top: '50%',
+                transform: 'translateY(-50%)'
+              }}
+            >
+              ⭐️
+            </div>
+          ))}
+          <div className="bg-stone-900/90 border border-amber-300 text-amber-200 px-6 py-4 rounded-3xl shadow-2xl flex flex-col items-center gap-1.5 animate-fadeIn">
+            <Sparkles className="w-8 h-8 text-amber-400 animate-spin" />
+            <span className="font-mono text-xs font-black uppercase tracking-widest text-amber-300">XP CLAIMED SUCCESSFUL</span>
+            <p className="text-xl font-bold font-sans text-stone-100 flex items-center gap-1">
+              Sweetheart, you received bonus growth points!
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* High level metrics panels (first 2 spans) */}
       <div className="lg:col-span-2 flex flex-col gap-6">
         
         {/* Core Stats Bento row */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {/* Card 1: Health Compliance */}
-          <div className="bg-white/80 border border-stone-200/60 p-4 rounded-2xl shadow-xs">
+          <div className="bg-white/80 border border-stone-200/60 p-4 rounded-2xl shadow-xs hover:border-rose-350 transition-all">
             <span className="text-[9px] uppercase font-mono tracking-wider font-extrabold text-stone-400">MEDICATION COMPLIANCE</span>
             <p className="text-2xl font-black text-rose-600 mt-1.5">{medCompliancePercent}%</p>
             <p className="text-[10px] text-stone-500 mt-1 leading-none">{medTaken} taken of {medTotal} total</p>
           </div>
 
           {/* Card 2: Learning Streak */}
-          <div className="bg-white/80 border border-stone-200/60 p-4 rounded-2xl shadow-xs">
+          <div className="bg-white/80 border border-stone-200/60 p-4 rounded-2xl shadow-xs hover:border-blue-350 transition-all">
             <span className="text-[9px] uppercase font-mono tracking-wider font-extrabold text-stone-400">SOCRATIC STREAK</span>
             <p className="text-2xl font-black text-blue-600 mt-1.5 flex items-center gap-1">
               <Flame className="w-5 h-5 text-amber-500 animate-pulse fill-amber-500" /> {streakData.learningStreak} Days
@@ -92,14 +326,14 @@ export const Dashboard: React.FC<DashboardProps> = ({
           </div>
 
           {/* Card 3: Tasks completion */}
-          <div className="bg-white/80 border border-stone-200/60 p-4 rounded-2xl shadow-xs">
+          <div className="bg-white/80 border border-stone-200/60 p-4 rounded-2xl shadow-xs hover:border-purple-350 transition-all">
             <span className="text-[9px] uppercase font-mono tracking-wider font-extrabold text-stone-400">PRODUCTIVITY RATIO</span>
             <p className="text-2xl font-black text-purple-600 mt-1.5">{taskPercent}%</p>
             <p className="text-[10px] text-stone-500 mt-1 leading-none">{taskDone} accomplished of {taskTotal}</p>
           </div>
 
           {/* Card 4: Sustainability saved */}
-          <div className="bg-white/80 border border-stone-200/60 p-4 rounded-2xl shadow-xs">
+          <div className="bg-white/80 border border-stone-200/60 p-4 rounded-2xl shadow-xs hover:border-emerald-350 transition-all">
             <span className="text-[9px] uppercase font-mono tracking-wider font-extrabold text-stone-400">CARBON OFFSET CO2</span>
             <p className="text-2xl font-black text-emerald-600 mt-1.5 font-bold">-{carbonSaved} KG</p>
             <p className="text-[10px] text-stone-500 mt-1 leading-none">Sustainability logs sync active</p>
@@ -181,37 +415,164 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
         {/* Milestone Trophy Log */}
         <div className="bg-white/80 border border-stone-200/60 p-5 rounded-3xl shadow-xs">
-          <div>
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-rose-550 flex items-center gap-1">
-              <Award className="w-3.5 h-3.5" /> Milestones & Growth Achievements
-            </span>
-            <h4 className="font-bold text-stone-800 text-sm mt-1">Acquired Personal Flourishing Badges</h4>
-            <p className="text-[11px] text-stone-400 leading-relaxed mt-0.5">
-              These badges unlock dynamically based on your persistent health parameters and language coaching with Dr. T.
-            </p>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-rose-550 flex items-center gap-1">
+                <Award className="w-3.5 h-3.5" /> Milestones & Growth Achievements
+              </span>
+              <h4 className="font-bold text-stone-800 text-sm mt-1">Acquired Personal Flourishing Badges</h4>
+              <p className="text-[11px] text-stone-400 leading-relaxed mt-0.5">
+                Practice, consult with specialist agents, and track activities to unlock key growth achievements.
+              </p>
+            </div>
+            
+            {/* XP SCORE POUT */}
+            <div className="self-start sm:self-center px-4 py-2 bg-gradient-to-r from-rose-50 to-amber-50 border border-rose-100 rounded-2xl flex items-center gap-2">
+              <Star className="w-4.5 h-4.5 text-amber-500 fill-amber-500 animate-spin" style={{ animationDuration: '6s' }} />
+              <div>
+                <p className="text-[8px] font-mono text-stone-400 leading-none">TOTAL INTELLECT XP</p>
+                <p className="text-sm font-black text-stone-800">{localScore} XP</p>
+              </div>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
-            {ACHIEVEMENTS.map((ach) => (
-              <div 
-                key={ach.id} 
-                className="p-3 border border-stone-150 bg-white hover:border-rose-455 rounded-2xl flex items-start gap-3.5 transition-all shadow-xs"
-              >
-                <span className="text-3xl bg-amber-50 rounded-xl w-12 h-12 flex items-center justify-center border border-amber-100 select-none shadow-sm">
-                  {ach.badge}
-                </span>
-                <div>
-                  <div className="flex items-center gap-1.5">
-                    <p className="text-xs font-bold text-stone-800 leading-none">{ach.title}</p>
-                    <span className="text-[8px] font-bold font-mono bg-amber-50 text-amber-700 px-1 py-0.5 rounded leading-none">
-                      +{ach.score} XP
-                    </span>
-                  </div>
-                  <p className="text-[10px] text-stone-400 leading-snug mt-1.5">{ach.desc}</p>
-                </div>
-              </div>
-            ))}
+          {/* Filtering Tabs Row */}
+          <div className="flex gap-1.5 mt-4 border-b border-stone-100 pb-2">
+            <button
+              onClick={() => setActiveTab('all')}
+              className={`py-1 px-2.5 rounded-lg text-[9px] font-mono uppercase font-bold transition-all cursor-pointer ${activeTab === 'all' ? 'bg-stone-900 text-white' : 'bg-stone-50 text-stone-500 hover:bg-stone-100'}`}
+            >
+              🏆 All
+            </button>
+            <button
+              onClick={() => setActiveTab('unlocked')}
+              className={`py-1 px-2.5 rounded-lg text-[9px] font-mono uppercase font-bold transition-all cursor-pointer ${activeTab === 'unlocked' ? 'bg-emerald-600 text-white' : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'}`}
+            >
+              🔓 Unlocked ({ACHIEVEMENTS.filter(a => a.unlocked).length})
+            </button>
+            <button
+              onClick={() => setActiveTab('locked')}
+              className={`py-1 px-2.5 rounded-lg text-[9px] font-mono uppercase font-bold transition-all cursor-pointer ${activeTab === 'locked' ? 'bg-amber-600 text-white' : 'bg-stone-50 text-stone-500 hover:bg-stone-100'}`}
+            >
+              🔒 In Progress ({ACHIEVEMENTS.filter(a => !a.unlocked).length})
+            </button>
+            <button
+              onClick={() => setActiveTab('landmarks')}
+              className={`py-1 px-2.5 rounded-lg text-[9px] font-mono uppercase font-bold transition-all cursor-pointer ${activeTab === 'landmarks' ? 'bg-pink-600 text-white' : 'bg-pink-50 text-pink-700 hover:bg-pink-100'}`}
+            >
+              🗺️ Life Landmarks ({personalLandmarks.length})
+            </button>
           </div>
+
+          {/* Core Achievements Render */}
+          {activeTab !== 'landmarks' ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
+              {displayedAchievements.map((ach) => {
+                const isClaimed = claimedList.includes(ach.id);
+                return (
+                  <div 
+                    key={ach.id} 
+                    onClick={() => setSelectedAch(ach)}
+                    className={`p-3 border rounded-2xl flex items-start gap-3.5 transition-all shadow-xs cursor-pointer select-none active:scale-98
+                      ${ach.unlocked 
+                        ? 'border-stone-150 bg-white hover:border-rose-455 hover:bg-rose-50/5' 
+                        : 'border-stone-100 bg-stone-50/40 opacity-70 hover:opacity-100 hover:border-amber-350'
+                      }
+                    `}
+                  >
+                    <span className={`text-3xl rounded-xl w-12 h-12 flex items-center justify-center border select-none shadow-sm transition-all
+                      ${ach.unlocked 
+                        ? 'bg-amber-50 border-amber-100 animate-pulse' 
+                        : 'bg-stone-100 border-stone-200 grayscale'
+                      }
+                    `}>
+                      {ach.badge}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-1">
+                        <p className={`text-xs font-bold leading-none ${ach.unlocked ? 'text-stone-800' : 'text-stone-500'}`}>
+                          {ach.title}
+                        </p>
+                        {ach.unlocked ? (
+                          <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded leading-none font-bold
+                            ${isClaimed 
+                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' 
+                              : 'bg-amber-50 text-amber-700 border border-amber-200 animate-bounce'
+                            }`}
+                          >
+                            {isClaimed ? 'CLAIMED' : `+${ach.score} XP`}
+                          </span>
+                        ) : (
+                          <div className="text-stone-400">
+                            <Lock className="w-3 h-3" />
+                          </div>
+                        )}
+                      </div>
+                      <p className="text-[10px] text-stone-400 leading-snug mt-1.5 truncate">
+                        {ach.desc}
+                      </p>
+                      
+                      {!ach.unlocked && (
+                        <p className="text-[8px] text-amber-600 font-semibold font-mono mt-1">
+                          🔒 {ach.requirement}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            // Personal Landmarks / Milestones directly synchronized from our repository
+            <div className="mt-4 flex flex-col gap-3">
+              {personalLandmarks.length === 0 ? (
+                <div className="p-6 text-center border-2 border-dashed border-stone-150 rounded-2xl bg-stone-50/50">
+                  <span className="text-2xl block mb-2">🗺️</span>
+                  <p className="text-xs font-bold text-stone-700">No Life Landmarks Registered Yet</p>
+                  <p className="text-[10px] text-stone-400 mt-1 max-w-sm mx-auto">
+                    Use the milestone creator on the right rail to register significant events, habits, or achievements. They will instantly synch to both the Dashboard and the Semantic Memory maps!
+                  </p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {personalLandmarks.map((mark) => (
+                    <div
+                      key={mark.id}
+                      onClick={() => setSelectedAch({
+                        id: mark.id,
+                        title: mark.label,
+                        desc: mark.description,
+                        badge: '🗺️',
+                        score: 300,
+                        unlocked: true,
+                        category: 'personal',
+                        advice: `This organic memory landmark is safely conserved in Dr. T's priority cognitive matrix. Connecting these milestone events empowers us to nurture your flourishing journey with total semantic context. You are doing amazing!`
+                      })}
+                      className="p-3 border border-pink-100 bg-pink-50/10 hover:border-pink-350 rounded-2xl flex items-start gap-3.5 transition-all shadow-xs cursor-pointer active:scale-98"
+                    >
+                      <span className="text-3xl bg-pink-55 border border-pink-100 rounded-xl w-12 h-12 flex items-center justify-center select-none shadow-sm">
+                        🗺️
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-1">
+                          <p className="text-xs font-bold text-stone-800 leading-none truncate">{mark.label}</p>
+                          <span className="text-[7.5px] font-bold font-mono bg-pink-50 text-pink-700 px-1 py-0.5 rounded border border-pink-200">
+                            LANDMARK
+                          </span>
+                        </div>
+                        <p className="text-[10px] text-stone-400 leading-snug mt-1.5 truncate">
+                          {mark.description}
+                        </p>
+                        <span className="text-[8px] text-stone-400 font-mono mt-1 block">
+                          📍 Synced in Life-Graph Repository
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
@@ -238,23 +599,29 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </p>
           </div>
 
+          {tierFeedback && (
+            <div className="p-2.5 bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-[10px] rounded-xl font-medium mt-2 animate-fadeIn">
+              {tierFeedback}
+            </div>
+          )}
+
           {/* Pricing tiers buttons */}
           <div className="grid grid-cols-3 gap-1.5 bg-stone-900 border border-stone-800 rounded-xl p-1 shrink-0 mt-4">
             <button
-              onClick={() => setSubTier('free')}
-              className={`py-1.5 text-[9px] font-mono font-bold uppercase rounded-lg transition-all cursor-pointer ${subTier === 'free' ? 'bg-white text-stone-900 font-black' : 'text-stone-400 hover:text-stone-200'}`}
+              onClick={() => handleTierSelection('free')}
+              className={`py-1.5 text-[9px] font-mono font-bold uppercase rounded-lg transition-all cursor-pointer ${subTier === 'free' ? 'bg-white text-stone-900 font-black scale-102 shadow-sm' : 'text-stone-400 hover:text-stone-200'}`}
             >
               FREE
             </button>
             <button
-              onClick={() => setSubTier('premium')}
-              className={`py-1.5 text-[9px] font-mono font-bold uppercase rounded-lg transition-all cursor-pointer ${subTier === 'premium' ? 'bg-white text-stone-900 font-black' : 'text-stone-400 hover:text-stone-200'}`}
+              onClick={() => handleTierSelection('premium')}
+              className={`py-1.5 text-[9px] font-mono font-bold uppercase rounded-lg transition-all cursor-pointer ${subTier === 'premium' ? 'bg-white text-stone-900 font-black scale-102 shadow-sm' : 'text-stone-400 hover:text-stone-200'}`}
             >
               $9 Premium
             </button>
             <button
-              onClick={() => setSubTier('family')}
-              className={`py-1.5 text-[9px] font-mono font-bold uppercase rounded-lg transition-all cursor-pointer ${subTier === 'family' ? 'bg-white text-stone-900 font-black' : 'text-stone-400 hover:text-stone-200'}`}
+              onClick={() => handleTierSelection('family')}
+              className={`py-1.5 text-[9px] font-mono font-bold uppercase rounded-lg transition-all cursor-pointer ${subTier === 'family' ? 'bg-white text-stone-900 font-black scale-102 shadow-sm' : 'text-stone-400 hover:text-stone-200'}`}
             >
               $19 Family
             </button>
@@ -272,8 +639,52 @@ export const Dashboard: React.FC<DashboardProps> = ({
           </div>
         </div>
 
+        {/* Milestone Append Creator Directly inside the dashboard */}
+        <div className="bg-white/80 border border-stone-200/60 p-5 rounded-3xl shadow-xs">
+          <div>
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-rose-550 flex items-center gap-1.5">
+              <MapPin className="w-3.5 h-3.5" /> Landmark Declarator
+            </span>
+            <h4 className="font-bold text-stone-800 text-sm mt-1 font-sans">Declare Major Life Milestones</h4>
+            <p className="text-[11px] text-stone-400 leading-relaxed mt-1">
+              Add major achievements or key memories. They instantly populate the dashboard highlights and synch back to the Life-Graph visual map!
+            </p>
+          </div>
+
+          {landmarkSuccess && (
+            <div className="p-2.5 bg-pink-50 border border-pink-100 text-[10px] text-pink-700 rounded-xl mt-3 leading-snug font-medium border-solid">
+              {landmarkSuccess}
+            </div>
+          )}
+
+          <form onSubmit={handleAddLandmarkSubmit} className="flex flex-col gap-2.5 mt-3.5">
+            <input
+              type="text"
+              required
+              value={landmarkTitle}
+              onChange={(e) => setLandmarkTitle(e.target.value)}
+              placeholder="e.g. Completed Spanish 30-Day Drill"
+              className="w-full bg-white border border-stone-200 rounded-xl p-2.5 text-xs text-stone-700 outline-none focus:border-rose-450 text-[11px] font-sans"
+            />
+            <textarea
+              required
+              value={landmarkDesc}
+              onChange={(e) => setLandmarkDesc(e.target.value)}
+              placeholder="Key details (e.g. Practiced with Dr. T maternal voices sequentially, scored 95%)"
+              rows={2}
+              className="w-full bg-white border border-stone-200 rounded-xl p-2 text-xs text-stone-700 outline-none focus:border-rose-450 resize-none text-[11px] font-sans"
+            />
+            <button
+              type="submit"
+              className="w-full py-2 bg-stone-900 hover:bg-stone-850 text-white font-extrabold rounded-xl text-[10px] uppercase font-mono tracking-wider transition-all cursor-pointer flex items-center justify-center gap-1.5"
+            >
+              <Plus className="w-3.5 h-3.5" /> Publish to Life-Graph & Milestones
+            </button>
+          </form>
+        </div>
+
         {/* Skill & Voice Marketplace */}
-        <div className="bg-white/80 border border-stone-200/60 p-5 rounded-3xl shadow-xs flex flex-col justify-between flex-1 gap-4">
+        <div className="bg-white/80 border border-stone-200/60 p-5 rounded-3xl shadow-xs flex flex-col justify-between gap-4">
           <div>
             <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-rose-550 flex items-center gap-1.5">
               <ShoppingBag className="w-3.5 h-3.5" /> Skill & Voice Store
@@ -348,6 +759,114 @@ export const Dashboard: React.FC<DashboardProps> = ({
           </div>
         </div>
       </div>
+
+      {/* --- ELITE HIGH-FIDELITY BADGE / MILESTONE MODAL --- */}
+      {selectedAch && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/70 backdrop-blur-md animate-fadeIn">
+          <div className="bg-white border border-stone-200 rounded-3xl p-6 shadow-2xl relative max-w-md w-full flex flex-col gap-4 animate-scaleUp">
+            
+            {/* Close Button */}
+            <button 
+              onClick={() => setSelectedAch(null)}
+              className="absolute top-4 right-4 p-1.5 text-stone-400 hover:text-stone-600 hover:bg-stone-50 rounded-full transition-all cursor-pointer"
+            >
+              <X className="w-4.5 h-4.5" />
+            </button>
+
+            {/* Modal Header */}
+            <div className="flex flex-col items-center text-center gap-2 mt-2">
+              <span className={`text-6xl p-4 bg-rose-50 border border-rose-100/50 rounded-2xl select-none inline-block shadow-sm animate-pulse`}>
+                {selectedAch.badge}
+              </span>
+              
+              <div className="mt-1">
+                <span className={`text-[9px] font-mono font-extrabold uppercase px-2.5 py-0.5 rounded-full border
+                  ${selectedAch.unlocked 
+                    ? 'bg-emerald-50 text-emerald-800 border-emerald-200' 
+                    : 'bg-amber-50 text-amber-800 border-amber-200 animate-pulse'
+                  }
+                `}>
+                  {selectedAch.unlocked ? '🔓 UNLOCKED EXCELLENCE' : '🔒 ACTIVE CHALLENGE'}
+                </span>
+                <h3 className="text-lg font-black text-stone-800 mt-2 font-sans tracking-tight">
+                  {selectedAch.title}
+                </h3>
+                <p className="text-xs text-stone-500 font-medium px-4 mt-1 leading-relaxed">
+                  {selectedAch.desc}
+                </p>
+              </div>
+            </div>
+
+            {/* Dr T’s Motherly Counseling Box */}
+            <div className="bg-gradient-to-br from-rose-50/40 to-amber-50/30 border border-rose-100/40 p-4 rounded-2xl relative">
+              <div className="absolute top-3 left-4 text-xs font-mono font-bold tracking-widest text-rose-550 flex items-center gap-1 select-none">
+                <Smile className="w-3.5 h-3.5 text-rose-500" /> DR. T COUNSELOR ADVICE
+              </div>
+              <p className="text-[11px] text-stone-700 leading-relaxed font-sans font-medium italic mt-5">
+                "{selectedAch.advice || 'Keep pushing boundaries, sweet child! Growth is a sequence of small, graceful habits repeated daily.'}"
+              </p>
+            </div>
+
+            {/* Action Buttons inside Modal */}
+            <div className="flex flex-col gap-2 mt-1">
+              
+              {selectedAch.unlocked && (
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={() => {
+                      if (claimedList.includes(selectedAch.id)) return;
+                      handleClaim(selectedAch.id, selectedAch.score);
+                    }}
+                    disabled={claimedList.includes(selectedAch.id)}
+                    className={`w-full py-2.5 text-xs font-extrabold rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-xs uppercase font-mono tracking-wider
+                      ${claimedList.includes(selectedAch.id)
+                        ? 'bg-stone-50 border border-stone-200 text-stone-400 cursor-not-allowed'
+                        : 'bg-rose-500 hover:bg-rose-600 text-white'
+                      }
+                    `}
+                  >
+                    <Sparkles className="w-3.5 h-3.5" />
+                    {claimedList.includes(selectedAch.id) ? 'XP Claimed ✓' : 'Claim Points'}
+                  </button>
+
+                  <button
+                    onClick={() => speakCongratulate(selectedAch.title, selectedAch.advice)}
+                    className="w-full py-2.5 bg-stone-900 hover:bg-stone-850 text-white text-xs font-extrabold rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-xs uppercase font-mono tracking-wider"
+                  >
+                    <Volume2 className="w-3.5 h-3.5" /> Speak Voice
+                  </button>
+                </div>
+              )}
+
+              {/* Coaching advice query builder */}
+              <button
+                onClick={() => {
+                  setSelectedAch(null);
+                  const activeInput = document.querySelector('textarea, input[placeholder*="talk to Dr. T"]') as HTMLInputElement || document.querySelector('input[type="text"]') as HTMLInputElement;
+                  if (activeInput) {
+                    activeInput.value = `Dear Dr. T, I want to learn more about achieving the "${selectedAch.title}" milestone. Please provide coaching support!`;
+                    activeInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    activeInput.focus();
+                  } else {
+                    alert(`Sweetheart, copy this into the chat and ask me: "How can I achieve ${selectedAch.title}?"`);
+                  }
+                }}
+                className="w-full py-2 border border-stone-200 hover:bg-stone-50/70 hover:border-stone-350 text-stone-700 text-[10px] font-bold rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1 font-mono uppercase"
+              >
+                <Compass className="w-3.5 h-3.5" /> Request Socratic Coaching Tips in Chat
+              </button>
+            </div>
+
+            {/* Modal footer status */}
+            <div className="text-[9px] font-mono text-stone-400 text-center flex items-center justify-center gap-1 select-none">
+              <ShieldCheck className="w-3 h-3 text-emerald-500" />
+              <span>Checked and authenticated via Doctor T’s cognitive matrix.</span>
+            </div>
+
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

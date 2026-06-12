@@ -5,9 +5,10 @@ import { SpecialistAgent } from '../types';
 interface AgentSwarmProps {
   agents: SpecialistAgent[];
   onTriggerSwarmCollaboration: (prompt: string, selectedAgentId: string) => Promise<string>;
+  onAddSpecialist?: (agent: SpecialistAgent) => void;
 }
 
-export const AgentSwarm: React.FC<AgentSwarmProps> = ({ agents, onTriggerSwarmCollaboration }) => {
+export const AgentSwarm: React.FC<AgentSwarmProps> = ({ agents, onTriggerSwarmCollaboration, onAddSpecialist }) => {
   const [selectedAgent, setSelectedAgent] = useState<SpecialistAgent>(agents[0]);
   const [userQuery, setUserQuery] = useState('');
   
@@ -15,6 +16,15 @@ export const AgentSwarm: React.FC<AgentSwarmProps> = ({ agents, onTriggerSwarmCo
   const [isSimulating, setIsSimulating] = useState(false);
   const [simulationLogs, setSimulationLogs] = useState<{ step: string; type: 'system' | 'agent' | 'success'; details: string }[]>([]);
   const [collaboratedResponse, setCollaboratedResponse] = useState<string | null>(null);
+
+  // Dynamic creator states
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newName, setNewName] = useState('');
+  const [newTitle, setNewTitle] = useState('');
+  const [newIcon, setNewIcon] = useState('🔮');
+  const [newDesc, setNewDesc] = useState('');
+  const [newLongDesc, setNewLongDesc] = useState('');
+  const [newCaps, setNewCaps] = useState('');
 
   const startSimulation = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -100,6 +110,123 @@ export const AgentSwarm: React.FC<AgentSwarmProps> = ({ agents, onTriggerSwarmCo
             The sub-agents operate silently under Dr. T's direction. Click any agent to audit their active status, profile, and intelligence capabilities.
           </p>
         </div>
+
+        <div className="flex justify-between items-center bg-stone-50 p-2.5 rounded-2xl border border-stone-150">
+          <span className="text-[9px] font-bold font-mono text-stone-500 uppercase">
+            Active: {agents.length} Domains
+          </span>
+          <button
+            onClick={() => setShowAddForm(!showAddForm)}
+            className="text-[9px] font-bold font-mono text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100/60 transition-all border border-rose-200 p-1 rounded-md flex items-center gap-1 cursor-pointer select-none"
+          >
+            {showAddForm ? '✕ Close Creator' : '➕ Declare Specialty'}
+          </button>
+        </div>
+
+        {/* Dynamic Custom Specialist Creator Form */}
+        {showAddForm && (
+          <div className="p-4 bg-rose-50/20 border border-[#fbcfe8]/40 rounded-2xl flex flex-col gap-3 animate-fadeIn">
+            <h5 className="text-[11px] font-extrabold text-stone-850 flex items-center gap-1">
+              ✨ Dynamic Specialty Provisioning
+            </h5>
+            
+            <div className="flex flex-col gap-1">
+              <label className="text-[8px] font-bold font-mono text-stone-500 uppercase">Specialist Name</label>
+              <input
+                type="text"
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
+                placeholder="e.g. Astrophysics Expert"
+                className="w-full p-2 text-xs bg-white border border-stone-200 rounded-lg outline-none focus:border-rose-350 font-sans"
+              />
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <label className="text-[8px] font-bold font-mono text-stone-500 uppercase">Core Specialty Subtitle / Role</label>
+              <input
+                type="text"
+                value={newTitle}
+                onChange={(e) => setNewTitle(e.target.value)}
+                placeholder="e.g. Socratic Quantum Educator"
+                className="w-full p-2 text-xs bg-white border border-stone-200 rounded-lg outline-none focus:border-rose-350 font-sans"
+              />
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <label className="text-[8px] font-bold font-mono text-stone-500 uppercase">Select Avatar Icon</label>
+              <div className="flex flex-wrap gap-1 max-h-[70px] overflow-y-auto p-1 bg-white border border-stone-100 rounded-lg">
+                {['🔮', '🧬', '🎨', '🚀', '💻', '🌿', '⚡', '🤖', '🩺', '🎮', '💡', '⚖️', '✈️', '💼'].map((em) => (
+                  <button
+                    key={em}
+                    type="button"
+                    onClick={() => setNewIcon(em)}
+                    className={`w-6 h-6 flex items-center justify-center text-xs rounded transition-all hover:bg-rose-50 cursor-pointer
+                      ${newIcon === em ? 'border border-rose-500 bg-rose-100 scale-110 font-bold' : 'border border-transparent bg-stone-50'}
+                    `}
+                  >
+                    {em}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <label className="text-[8px] font-bold font-mono text-stone-500 uppercase">Capabilities (comma separated)</label>
+              <input
+                type="text"
+                value={newCaps}
+                onChange={(e) => setNewCaps(e.target.value)}
+                placeholder="e.g. Black hole analysis, orbital design"
+                className="w-full p-2 text-xs bg-white border border-stone-200 rounded-lg outline-none focus:border-rose-350 font-sans"
+              />
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <label className="text-[8px] font-bold font-mono text-stone-500 uppercase">Sleek Short Description</label>
+              <input
+                type="text"
+                value={newDesc}
+                onChange={(e) => setNewDesc(e.target.value)}
+                placeholder="e.g. Enters dialogue maps about physics..."
+                className="w-full p-2 text-xs bg-white border border-stone-200 rounded-lg outline-none focus:border-rose-350 font-sans"
+              />
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                if (!newName || !newTitle) {
+                  alert('Sweet child, please fill in at least the Specialist Name and Subtitle to properly align the neural network.');
+                  return;
+                }
+                const capArray = newCaps.split(',').map(c => c.trim()).filter(Boolean);
+                const newA: SpecialistAgent = {
+                  id: 'custom-' + Date.now(),
+                  name: newName,
+                  title: newTitle,
+                  avatarIcon: newIcon,
+                  description: newDesc || `${newName} specialist guidance.`,
+                  longDescription: newLongDesc || `A premium dynamic sub-agent provisioned to cover advanced Socratic analytics regarding ${newName} under Dr. T's loving parental matrix.`,
+                  status: 'idle',
+                  capabilities: capArray.length > 0 ? capArray : [`${newName} Consulting`, 'Dynamic synthesis']
+                };
+                onAddSpecialist?.(newA);
+                setSelectedAgent(newA);
+                
+                // reset
+                setNewName('');
+                setNewTitle('');
+                setNewDesc('');
+                setNewLongDesc('');
+                setNewCaps('');
+                setShowAddForm(false);
+              }}
+              className="w-full py-1.5 bg-rose-500 hover:bg-rose-600 text-white font-extrabold rounded-lg text-[10px] transition-all cursor-pointer shadow-xs active:scale-97 select-none uppercase font-mono tracking-wider"
+            >
+              🚀 BOOT & INTERFACE DOMAIN AGENT
+            </button>
+          </div>
+        )}
 
         {/* Directory List of Agents */}
         <div className="flex flex-col gap-1.5 max-h-[340px] overflow-y-auto pr-1">
