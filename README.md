@@ -6,7 +6,7 @@
 
 This contains everything you need to run your app locally.
 
-View your app: https://dr-t-764082783379.us-west1.run.app
+View your app in AI Studio: https://ai.studio/apps/2e1619d9-9932-4538-9b6c-26b489ebfec2
 
 ## Run Locally
 

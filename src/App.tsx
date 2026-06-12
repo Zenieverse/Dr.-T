@@ -26,20 +26,37 @@ import {
   CheckCircle,
   Headphones,
   User,
-  Activity
+  Activity,
+  Database,
+  ListTodo,
+  Leaf,
+  Users,
+  Grid,
+  Upload,
+  Clock,
+  ArrowRight
 } from 'lucide-react';
-import { VIBES, VOICES, LANGUAGES, PRESETS } from './constants';
-import { Message, DrTVibe } from './types';
+import { VIBES, VOICES, LANGUAGES, INITIAL_MEMORY_NODES, INITIAL_SPECIALIST_AGENTS, INITIAL_MED_LIST, INITIAL_HEALTH_METRICS, INITIAL_SKILL_NODES, INITIAL_TASK_LIST, INITIAL_CALENDAR_EVENTS, INITIAL_SMART_NOTES, INITIAL_CARBON_HABITS } from './constants';
+import { Message, DrTVibe, DrTAppearance, MemoryNode, SpecialistAgent, MedLog, HealthMetric, SkillNode, TaskItem, CalendarEvent, SmartNote, CarbonHabit, LifetimeStreak } from './types';
+import { AvatarSettings, APPEARANCES } from './components/AvatarSettings';
+import { LifeGraph } from './components/LifeGraph';
+import { AgentSwarm } from './components/AgentSwarm';
+import { Trackers } from './components/Trackers';
+import { Dashboard } from './components/Dashboard';
 
 const drTAvatar = "/src/assets/images/dr_t_avatar_1781184840352.jpg";
 
 export default function App() {
+  // Navigation
+  const [activeTab, setActiveTab] = useState<'hub' | 'graph' | 'swarm' | 'trackers' | 'dashboard' | 'avatar'>('hub');
+
   // State
   const [messages, setMessages] = useState<Message[]>([]);
   const [vibe, setVibe] = useState<DrTVibe>('empathetic');
   const [voiceName, setVoiceName] = useState<string>('Kore');
   const [language, setLanguage] = useState<string>('auto');
   const [hasGreeted, setHasGreeted] = useState<boolean>(false);
+  const [inputVal, setInputVal] = useState<string>('');
   
   // Real-time voice states
   const [isRecording, setIsRecording] = useState<boolean>(false);
@@ -47,6 +64,39 @@ export default function App() {
   const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
   const [autoSpeak, setAutoSpeak] = useState<boolean>(true);
   const [ttsEngine, setTtsEngine] = useState<'gemini' | 'browser'>('gemini');
+
+  // Customize settings defaults
+  const [avatarAppearance, setAvatarAppearance] = useState<DrTAppearance>('professional');
+  const [tGender, setTGender] = useState<'female' | 'male'>('female');
+  const [tAge, setTAge] = useState<'young' | 'mature' | 'elder'>('mature');
+
+  // Persistent ecosystem states
+  const [memoryNodes, setMemoryNodes] = useState<MemoryNode[]>(INITIAL_MEMORY_NODES);
+  const [specialistAgents, setSpecialistAgents] = useState<SpecialistAgent[]>(INITIAL_SPECIALIST_AGENTS);
+  const [medicationList, setMedicationList] = useState<MedLog[]>(INITIAL_MED_LIST);
+  const [healthMetrics, setHealthMetrics] = useState<HealthMetric[]>(INITIAL_HEALTH_METRICS);
+  const [skillNodes, setSkillNodes] = useState<SkillNode[]>(INITIAL_SKILL_NODES);
+  const [tasks, setTasks] = useState<TaskItem[]>(INITIAL_TASK_LIST);
+  const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>(INITIAL_CALENDAR_EVENTS);
+  const [smartNotes, setSmartNotes] = useState<SmartNote[]>(INITIAL_SMART_NOTES);
+  const [carbonHabits, setCarbonHabits] = useState<CarbonHabit[]>(INITIAL_CARBON_HABITS);
+  const [streakData, setStreakData] = useState<LifetimeStreak>({
+    healthStreak: 6,
+    learningStreak: 12,
+    productivityStreak: 8,
+    carbonSavedKg: 94
+  });
+
+  // Emotional detection metrics
+  const [emotionMeter, setEmotionMeter] = useState<{ stress: number; fatigue: number; happiness: number }>({
+    stress: 25,
+    fatigue: 40,
+    happiness: 70
+  });
+
+  // Attachments simulation state
+  const [attachedFile, setAttachedFile] = useState<{ name: string; type: 'image' | 'document'; url: string } | null>(null);
+  const [uploadNotice, setUploadNotice] = useState<string | null>(null);
 
   // Load and pre-cache browser synthesis voices early
   useEffect(() => {
@@ -142,9 +192,9 @@ export default function App() {
     const newItems = Array.from({ length: count }).map((_, i) => ({
       id: Date.now() + Math.random() + i,
       char: pool[Math.floor(Math.random() * pool.length)],
-      left: Math.random() * 85 + 5, // percentage across screen
-      size: Math.floor(Math.random() * 26) + 18, // px
-      delay: Math.random() * 0.4, // delayed entrance
+      left: Math.random() * 85 + 5,
+      size: Math.floor(Math.random() * 26) + 18,
+      delay: Math.random() * 0.4,
     }));
     setFloatingEmojis(prev => [...prev.slice(-40), ...newItems]);
   };
@@ -155,15 +205,15 @@ export default function App() {
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const recognitionRef = useRef<any>(null);
 
-  // Soundwave animation frame / heights
+  // Soundwave heights
   const [waveHeights, setWaveHeights] = useState<number[]>(Array(16).fill(4));
 
-  // Auto-scroll to latest response
+  // Auto-scroll inside core chat console
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isThinking]);
 
-  // Handle active listening/recording animation or playback animation
+  // Soundwave animation dispatcher
   useEffect(() => {
     let interval: any;
     if (isSpeaking) {
@@ -180,7 +230,7 @@ export default function App() {
     return () => clearInterval(interval);
   }, [isSpeaking, isRecording]);
 
-  // Initializing Web Speech Recognition in browser
+  // Initializing Web Speech Recognition
   useEffect(() => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (SpeechRecognition) {
@@ -190,7 +240,6 @@ export default function App() {
       
       recognition.onstart = () => {
         setIsRecording(true);
-        // Pause current audio speaking if any
         stopAudio();
       };
 
@@ -216,12 +265,10 @@ export default function App() {
       };
 
       recognitionRef.current = recognition;
-    } else {
-      console.warn('Speech recognition not supported in this browser.');
     }
   }, [vibe, voiceName, language, messages, autoSpeak]);
 
-  // Update speech recognition parameters on language changes
+  // Update languages on Web Speech
   useEffect(() => {
     if (recognitionRef.current) {
       if (language === 'Vietnamese') recognitionRef.current.lang = 'vi-VN';
@@ -259,14 +306,11 @@ export default function App() {
       window.speechSynthesis.cancel();
     }
     setIsSpeaking(false);
-    // Remove "vocalizing" flags from messages
     setMessages(prev => prev.map(m => ({ ...m, isVoicePlaying: false })));
   };
 
-  // Speaks out a message using native browser Web Speech synthesis helper
   const speakViaWebSpeechAPI = (cleanedText: string, messageId: string) => {
     if (typeof window === 'undefined' || !window.speechSynthesis) {
-      console.warn("Web Speech synthesis is not supported on this device/browser.");
       return;
     }
 
@@ -274,8 +318,6 @@ export default function App() {
     setMessages(prev => prev.map(m => m.id === messageId ? { ...m, isVoicePlaying: true } : m));
 
     const utterance = new SpeechSynthesisUtterance(cleanedText);
-
-    // Dynamic voice selection matching selected language
     const voices = window.speechSynthesis.getVoices();
     let matchedVoice = null;
     const currentLang = language?.toLowerCase() || 'auto';
@@ -301,7 +343,6 @@ export default function App() {
       utterance.voice = matchedVoice;
     }
 
-    // Gentle motherly speech style settings
     utterance.rate = 1.0;
     utterance.pitch = 1.05;
 
@@ -310,8 +351,7 @@ export default function App() {
       setMessages(prev => prev.map(m => m.id === messageId ? { ...m, isVoicePlaying: false } : m));
     };
 
-    utterance.onerror = (e) => {
-      console.error('Web Speech Playback error:', e);
+    utterance.onerror = () => {
       setIsSpeaking(false);
       setMessages(prev => prev.map(m => m.id === messageId ? { ...m, isVoicePlaying: false } : m));
     };
@@ -319,16 +359,12 @@ export default function App() {
     window.speechSynthesis.speak(utterance);
   };
 
-  // Speaks out a message using Dr. T's backend speech generation with local fallback
   const speakMessage = async (messageId: string, textToSpeak: string) => {
     stopAudio();
     setIsSpeaking(true);
     setAudioError(null);
 
-    // Filter out some symbols / formatting
-    const cleanedText = textToSpeak
-      .replace(/[\*\_\`\-\#]/g, '') // remove markdown artifacts
-      .trim();
+    const cleanedText = textToSpeak.replace(/[\*\_\`\-\#]/g, '').trim();
 
     if (ttsEngine === 'browser') {
       speakViaWebSpeechAPI(cleanedText, messageId);
@@ -350,10 +386,7 @@ export default function App() {
       if (!response.ok) {
         const errObj = await response.json().catch(() => ({}));
         const errMsg = errObj.error || 'Failed to synthesize voice.';
-        
-        // Quota Limit Exception is handled seamlessly!
         if (response.status === 429 || errMsg.toLowerCase().includes('quota') || errMsg.toLowerCase().includes('rate')) {
-          console.warn("Gemini TTS free-tier rate limit reached. Falling back to local device voice.");
           speakViaWebSpeechAPI(cleanedText, messageId);
           setAudioError("Defaulted to local device voice (Gemini TTS limit reached).");
           return;
@@ -363,10 +396,9 @@ export default function App() {
 
       const data = await response.json();
       if (!data.audioBase64) {
-        throw new Error('No audio synthesized from server.');
+        throw new Error('No audio synthesized.');
       }
 
-      // Convert base64 audio to object URL for smooth HTML5 playback
       const audioBytes = atob(data.audioBase64);
       const arrayBuffer = new Uint8Array(audioBytes.length);
       for (let i = 0; i < audioBytes.length; i++) {
@@ -375,7 +407,6 @@ export default function App() {
       
       const audioBlob = new Blob([arrayBuffer], { type: 'audio/wav' });
       const audioUrl = URL.createObjectURL(audioBlob);
-
       const audio = new Audio(audioUrl);
       audioRef.current = audio;
 
@@ -384,33 +415,29 @@ export default function App() {
         setMessages(prev => prev.map(m => m.id === messageId ? { ...m, isVoicePlaying: false } : m));
       };
 
-      audio.onerror = (e) => {
-        console.error('Audio playback error:', e);
-        console.warn('Audio playback failed; falling back to local device voice.');
+      audio.onerror = () => {
         speakViaWebSpeechAPI(cleanedText, messageId);
       };
 
       try {
         await audio.play();
-      } catch (playErr: any) {
-        console.warn('Autoplay blocked audio play:', playErr);
-        // Fall back gracefully to local speech synthesis so the experience behaves seamlessly
+      } catch (playErr) {
         speakViaWebSpeechAPI(cleanedText, messageId);
       }
-    } catch (err: any) {
-      console.error('TTS execution error, falling back:', err);
+    } catch (err) {
       speakViaWebSpeechAPI(cleanedText, messageId);
       setAudioError("Defaulted to local device voice (Gemini TTS limit or connection error).");
     }
   };
 
-  // Primary sending handle
+  // Main Handle Send
   const handleSend = async (forcedText?: string) => {
-    const textToSend = forcedText || '';
-    if (!textToSend.trim()) return;
+    const textToSend = forcedText !== undefined ? forcedText : inputVal;
+    if (!textToSend.trim() && !attachedFile) return;
 
     setAudioError(null);
     stopAudio();
+    setInputVal('');
 
     const userMsgId = 'user-' + Date.now();
     const modelMsgId = 'model-' + Date.now();
@@ -418,20 +445,49 @@ export default function App() {
     const newUserMsg: Message = {
       id: userMsgId,
       role: 'user',
-      content: textToSend,
+      content: textToSend || `Analyzing attachment: ${attachedFile?.name}`,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      attachment: attachedFile ? attachedFile : undefined
     };
 
     setMessages(prev => [...prev, newUserMsg]);
     setHasGreeted(true);
     setIsThinking(true);
 
+    // Build emotional meter adaptation simulator based on wording
+    const lowerText = textToSend.toLowerCase();
+    let stressChange = 0;
+    let fatigueChange = 0;
+    let happyChange = 0;
+
+    if (lowerText.includes('stress') || lowerText.includes('sad') || lowerText.includes('hurt') || lowerText.includes('overwhelmed') || lowerText.includes('mệt')) {
+      stressChange = 30;
+      fatigueChange = 20;
+      happyChange = -30;
+    } else if (lowerText.includes('happy') || lowerText.includes('good') || lowerText.includes('great') || lowerText.includes('vui') || lowerText.includes('yêu')) {
+      stressChange = -15;
+      fatigueChange = -10;
+      happyChange = 25;
+    }
+    setEmotionMeter(prev => ({
+      stress: Math.max(Math.min(prev.stress + stressChange, 100), 5),
+      fatigue: Math.max(Math.min(prev.fatigue + fatigueChange, 100), 5),
+      happiness: Math.max(Math.min(prev.happiness + happyChange, 100), 5),
+    }));
+
     try {
-      // Build previous messages list context for Gemini conversation memory
-      const chatHistory = [...messages, newUserMsg].map(m => ({
+      let finalPrompt = textToSend;
+      if (attachedFile) {
+        finalPrompt = `[MULTIMODAL ATTACHMENT ANALYZER DIRECTIVE: The user uploaded file name "${attachedFile.name}" of type "${attachedFile.type}". Dr. T, provide a detailed empathetic summary regarding this specific file context and relate it to our workspace!] ${textToSend || "Here is the file."}`;
+      }
+
+      const chatHistory = [...messages, { ...newUserMsg, content: finalPrompt }].map(m => ({
         role: m.role,
         content: m.content
       }));
+
+      // Flush attachment
+      setAttachedFile(null);
 
       const res = await fetch('/api/chat', {
         method: 'POST',
@@ -460,11 +516,9 @@ export default function App() {
       setMessages(prev => [...prev, newModelMsg]);
       setIsThinking(false);
       
-      // Update interactive meter & emit funny colors
       setLoveLevel(prev => Math.min(prev + 8, 100));
       triggerEmojis();
 
-      // Speak automatically if enabled
       if (autoSpeak) {
         setTimeout(() => {
           speakMessage(modelMsgId, replyText);
@@ -500,21 +554,145 @@ export default function App() {
     await handleSend(prompt);
   };
 
+  // MULTIMODAL SIMULATION HANDLERS
+  const triggerSimulationAttachment = (choiceType: 'symptom_rash' | 'blood_report' | 'passport_expire' | 'energy_audit') => {
+    setUploadNotice(null);
+    let name = '';
+    let type: 'image' | 'document' = 'image';
+    let label = '';
+
+    if (choiceType === 'symptom_rash') {
+      name = 'stress_skin_symptom.jpg';
+      type = 'image';
+      label = 'Skin irritation photo captured directly via camera.';
+    } else if (choiceType === 'blood_report') {
+      name = 'annual_blood_chemistry_report.pdf';
+      type = 'document';
+      label = 'Biochemistry laboratory panels uploaded safely.';
+    } else if (choiceType === 'passport_expire') {
+      name = 'us_passport_main_page.jpg';
+      type = 'image';
+      label = 'Passport biometric details scanned.';
+    } else if (choiceType === 'energy_audit') {
+      name = 'utility_monthly_electricity_usage.pdf';
+      type = 'document';
+      label = 'Home heating grid audit documentation attached.';
+    }
+
+    setAttachedFile({
+      name,
+      type,
+      url: '#'
+    });
+
+    setUploadNotice(`Linked attachment: "${name}" [${type.toUpperCase()}]. Submit your message to trigger Dr. T analysis!`);
+  };
+
+  // Dropzone file select simulator
+  const handleCustomFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const isImage = file.type.startsWith('image/');
+    setAttachedFile({
+      name: file.name,
+      type: isImage ? 'image' : 'document',
+      url: '#'
+    });
+    setUploadNotice(`Linked custom file: "${file.name}" [${isImage ? 'IMAGE' : 'DOCUMENT'}]. Submit your message to trigger Dr. T analysis!`);
+  };
+
+  // LOCAL MEMORY HANDLERS
+  const handleAddNode = (node: MemoryNode) => {
+    setMemoryNodes(prev => [...prev, node]);
+  };
+  const handleDeleteNode = (id: string) => {
+    setMemoryNodes(prev => prev.filter(n => n.id !== id));
+  };
+
+  // AGENT SWARM SIMULATOR
+  const handleTriggerSwarmCollaboration = async (prompt: string, selectedAgentId: string): Promise<string> => {
+    const agent = specialistAgents.find(a => a.id === selectedAgentId);
+    const agentName = agent ? agent.name : "Specialist Agent";
+    
+    const combinedPrompt = `You are playing the role of ${agentName} collaborating under Dr. T's supervision. Provide an authoritative, detailed interdisciplinary master analysis with specific action recommendations regarding: ${prompt}. Speak with comforting mommy tone but keep it highly structured as a specialist report.`;
+    
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        messages: [{ role: 'user', content: combinedPrompt }],
+        vibe: vibe,
+        language: language
+      })
+    });
+    
+    if (!res.ok) throw new Error("Swarm communication offline.");
+    const data = await res.json();
+    return data.reply;
+  };
+
+  // ECOSYSTEM TRACKERS HANDLERS
+  const handleToggleMedication = (id: string) => {
+    setMedicationList(prev => prev.map(m => m.id === id ? { ...m, taken: !m.taken } : m));
+  };
+  const handleAddMedication = (name: string, dosage: string, time: string) => {
+    const newMed: MedLog = { id: 'med-' + Date.now(), name, dosage, time, taken: false };
+    setMedicationList(prev => [...prev, newMed]);
+  };
+  const handleAddMetric = (type: any, value: string) => {
+    const newMet: HealthMetric = { id: 'met-' + Date.now(), type, value, date: 'Today', status: 'optimal' };
+    setHealthMetrics(prev => [newMet, ...prev]);
+  };
+  const handleAdvanceSkill = (id: string) => {
+    setSkillNodes(prev => prev.map(s => s.id === id ? { ...s, level: 2 } : s));
+    setStreakData(prev => ({ ...prev, learningStreak: prev.learningStreak + 1 }));
+  };
+  const handleAddTask = (title: string, priority: any) => {
+    const newTsk: TaskItem = { id: 'tsk-' + Date.now(), title, status: 'todo', priority };
+    setTasks(prev => [newTsk, ...prev]);
+  };
+  const handleToggleTaskState = (id: string) => {
+    setTasks(prev => prev.map(t => {
+      if (t.id === id) {
+        const nextStatus = t.status === 'todo' ? 'in_progress' : t.status === 'in_progress' ? 'done' : 'todo';
+        return { ...t, status: nextStatus };
+      }
+      return t;
+    }));
+  };
+  const handleDeleteTask = (id: string) => {
+    setTasks(prev => prev.filter(t => t.id !== id));
+  };
+  const handleAddEvent = (title: string, time: string, type: any) => {
+    const newEvt: CalendarEvent = { id: 'evt-' + Date.now(), title, time, type };
+    setCalendarEvents(prev => [...prev, newEvt]);
+  };
+  const handleAddNote = (title: string, content: string, tag: string) => {
+    const newNote: SmartNote = { id: 'not-' + Date.now(), title, content, updatedAt: 'Just Now', tag };
+    setSmartNotes(prev => [newNote, ...prev]);
+  };
+  const handleDeleteNote = (id: string) => {
+    setSmartNotes(prev => prev.filter(n => n.id !== id));
+  };
+  const handleToggleCarbonHabit = (id: string) => {
+    setCarbonHabits(prev => prev.map(h => h.id === id ? { ...h, active: !h.active } : h));
+  };
+
   const clearChat = () => {
     stopAudio();
     setMessages([]);
   };
 
   const currentVibeConfig = VIBES.find(v => v.id === vibe) || VIBES[0];
-
   const averageSpeakIntensity = isSpeaking 
     ? Math.min(Math.max((waveHeights.reduce((a, b) => a + b, 0) / waveHeights.length - 4) / 20, 0), 1) 
     : 0;
 
   return (
-    <div className={`min-h-screen bg-[#faf8f5] font-sans text-zinc-800 flex flex-col transition-all duration-1000 bg-gradient-to-b ${currentVibeConfig.bgGradient}`}>
+    <div className={`min-h-screen bg-[#faf8f5] font-sans text-stone-850 flex flex-col transition-all duration-1000 bg-gradient-to-b ${currentVibeConfig.bgGradient}`}>
       
-      {/* Dynamic Floating Emojis Overlay */}
+      {/* Floating Emojis */}
       <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden select-none">
         {floatingEmojis.map((emoji) => (
           <div
@@ -531,21 +709,11 @@ export default function App() {
         ))}
       </div>
 
-      {/* Dynamic Background Glowing Orbs representing Dr. T's vibe state */}
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
-        <div className={`absolute -top-40 left-1/4 w-[500px] h-[500px] rounded-full blur-[160px] opacity-15 transition-all duration-1000
-          ${vibe === 'empathetic' ? 'bg-rose-400' : vibe === 'witty' ? 'bg-amber-400' : vibe === 'philosophical' ? 'bg-indigo-400' : 'bg-purple-400'}
-        `}></div>
-        <div className={`absolute top-1/3 -right-40 w-[400px] h-[400px] rounded-full blur-[150px] opacity-10 transition-all duration-1000
-          ${vibe === 'empathetic' ? 'bg-rose-300' : vibe === 'witty' ? 'bg-amber-300' : vibe === 'philosophical' ? 'bg-indigo-300' : 'bg-purple-300'}
-        `}></div>
-      </div>
-
       {/* Main Header */}
-      <header className="border-b border-rose-100 bg-white/80 backdrop-blur-md sticky top-0 z-40 px-4 py-3.5 shadow-xs">
-        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+      <header className="border-b border-rose-100/70 bg-white/80 backdrop-blur-md sticky top-0 z-40 px-4 py-3 shadow-xs">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           
-          {/* Logo & Agent Tag */}
+          {/* Logo & Platform Descriptor */}
           <div className="flex items-center gap-3">
             <div className={`w-10 h-10 rounded-full flex items-center justify-center border transition-all duration-500 bg-white
               ${vibe === 'empathetic' ? 'border-rose-300 text-rose-500 glow-rose' : 
@@ -553,27 +721,86 @@ export default function App() {
                 vibe === 'philosophical' ? 'border-indigo-300 text-indigo-500 glow-indigo' : 
                 'border-purple-300 text-purple-500 glow-purple'}
             `}>
-              <InfinityIcon className="w-6 h-6 animate-pulse-slow" />
+              <InfinityIcon className="w-5 h-5 animate-pulse-slow" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="font-display font-bold text-xl sm:text-2xl tracking-wide bg-gradient-to-r from-rose-600 via-pink-600 to-amber-600 bg-clip-text text-transparent">
-                  Dr. T
+                <h1 className="font-display font-black text-xl sm:text-2xl tracking-tight bg-gradient-to-r from-stone-900 via-stone-800 to-rose-600 bg-clip-text text-transparent">
+                  Dr. T <span className="font-medium text-sm text-stone-400 font-mono tracking-widest lowercase">infinity</span>
                 </h1>
               </div>
+              <p className="text-[9px] text-stone-400 font-mono font-bold tracking-widest uppercase leading-none mt-0.5">THE WORLD'S MOST HUMAN COMPANION AI</p>
             </div>
           </div>
 
-          {/* Quick Voice Controls */}
-          <div className="flex flex-wrap items-center gap-3 self-stretch sm:self-auto justify-end">
+          {/* Core App Tab Swapping */}
+          <nav className="flex items-center gap-1.5 p-1 bg-stone-100 border border-stone-200/50 rounded-2xl">
+            <button
+              onClick={() => { stopAudio(); setActiveTab('hub'); }}
+              className={`p-1.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer
+                ${activeTab === 'hub' ? 'bg-white shadow-xs text-rose-600' : 'text-stone-500 hover:text-stone-800'}
+              `}
+              id="tab-hub-btn"
+            >
+              <span>🌸</span> <span className="hidden sm:inline">Hub</span>
+            </button>
+            <button
+              onClick={() => { stopAudio(); setActiveTab('graph'); }}
+              className={`p-1.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer
+                ${activeTab === 'graph' ? 'bg-white shadow-xs text-rose-600' : 'text-stone-500 hover:text-stone-800'}
+              `}
+              id="tab-graph-btn"
+            >
+              <span>🧠</span> <span className="hidden sm:inline">Memory</span>
+            </button>
+            <button
+              onClick={() => { stopAudio(); setActiveTab('swarm'); }}
+              className={`p-1.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer
+                ${activeTab === 'swarm' ? 'bg-white shadow-xs text-rose-600' : 'text-stone-500 hover:text-stone-800'}
+              `}
+              id="tab-swarm-btn"
+            >
+              <span>🤵</span> <span className="hidden sm:inline">Swarm</span>
+            </button>
+            <button
+              onClick={() => { stopAudio(); setActiveTab('trackers'); }}
+              className={`p-1.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer
+                ${activeTab === 'trackers' ? 'bg-white shadow-xs text-rose-600' : 'text-stone-500 hover:text-stone-800'}
+              `}
+              id="tab-trackers-btn"
+            >
+              <span>📊</span> <span className="hidden sm:inline">Ecosystems</span>
+            </button>
+            <button
+              onClick={() => { stopAudio(); setActiveTab('dashboard'); }}
+              className={`p-1.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer
+                ${activeTab === 'dashboard' ? 'bg-white shadow-xs text-rose-600' : 'text-stone-500 hover:text-stone-800'}
+              `}
+              id="tab-dashboard-btn"
+            >
+              <span>📈</span> <span className="hidden sm:inline">Diagnostics</span>
+            </button>
+            <button
+              onClick={() => { stopAudio(); setActiveTab('avatar'); }}
+              className={`p-1.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer
+                ${activeTab === 'avatar' ? 'bg-white shadow-xs text-rose-600' : 'text-stone-500 hover:text-stone-800'}
+              `}
+              id="tab-avatar-btn"
+            >
+              <span>⚙️</span> <span className="hidden lg:inline">Settings</span>
+            </button>
+          </nav>
+
+          {/* Quick global selectors */}
+          <div className="flex flex-wrap items-center gap-2 self-stretch md:self-auto justify-end">
             
             {/* Lang Dropdown */}
-            <div className="flex items-center gap-1.5 bg-white border border-stone-200 rounded-xl px-2.5 py-1.5 text-xs shadow-xs">
-              <Globe className="w-3.5 h-3.5 text-zinc-500" />
+            <div className="flex items-center gap-1 bg-white border border-stone-200/60 rounded-xl px-2 py-1 text-xs shadow-xs">
+              <Globe className="w-3 h-3 text-zinc-550" />
               <select 
                 value={language} 
                 onChange={(e) => setLanguage(e.target.value)}
-                className="bg-transparent focus:outline-none text-zinc-700 font-bold cursor-pointer"
+                className="bg-transparent focus:outline-none text-zinc-700 font-bold cursor-pointer text-[11px]"
               >
                 {LANGUAGES.map((lang) => (
                   <option key={lang.code} value={lang.code} className="bg-white text-zinc-800">
@@ -583,61 +810,26 @@ export default function App() {
               </select>
             </div>
 
-            {/* Voice Dropdown */}
-            <div className="flex items-center gap-1.5 bg-white border border-stone-200 rounded-xl px-2.5 py-1.5 text-xs shadow-xs">
-              <Headphones className="w-3.5 h-3.5 text-zinc-500" />
-              <select 
-                value={voiceName} 
-                disabled={ttsEngine === 'browser'}
-                onChange={(e) => setVoiceName(e.target.value)}
-                className="bg-transparent focus:outline-none text-zinc-700 font-bold cursor-pointer disabled:opacity-50"
-              >
-                {VOICES.map((v) => (
-                  <option key={v.id} value={v.id} className="bg-white text-zinc-800">
-                    {v.name} ({v.accent})
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* TTS Engine Toggle */}
-            <div className="flex items-center gap-1.5 bg-white border border-stone-200 rounded-xl px-2.5 py-1.5 text-xs shadow-xs">
-              <Sparkles className="w-3.5 h-3.5 text-zinc-500" />
-              <select 
-                value={ttsEngine} 
-                onChange={(e) => {
-                  setTtsEngine(e.target.value as 'gemini' | 'browser');
-                  stopAudio();
-                }}
-                className="bg-transparent focus:outline-none text-zinc-700 font-bold cursor-pointer"
-              >
-                <option value="gemini" className="bg-white text-zinc-800">Neural Voice (Gemini)</option>
-                <option value="browser" className="bg-white text-zinc-800">Local Voice (Device)</option>
-              </select>
-            </div>
-
             {/* TTS Auto-Speak Toggle */}
             <button 
               onClick={() => {
                 setAutoSpeak(!autoSpeak);
                 if (autoSpeak) stopAudio();
               }}
-              className={`p-2 rounded-xl border text-xs flex items-center gap-1.5 hover:bg-stone-50 transition-all shadow-xs cursor-pointer
-                ${autoSpeak ? 'bg-rose-50 border-rose-200 text-rose-600 font-bold' : 'bg-white border-stone-200 text-zinc-500'}
+              className={`p-1.5 rounded-xl border text-[10px] flex items-center gap-1 hover:bg-stone-50 transition-all shadow-xs cursor-pointer
+                ${autoSpeak ? 'bg-rose-50 border-rose-200 text-rose-600 font-bold' : 'bg-white border-stone-200 text-zinc-550'}
               `}
               title="Automatically read aloud responses"
-              id="btn-autospeak-toggle"
             >
-              {autoSpeak ? <Volume2 className="w-4 h-4 text-rose-500" /> : <VolumeX className="w-4 h-4 text-zinc-400" />}
-              <span className="hidden md:inline font-mono text-[10px]">AUTO-SPEAK</span>
+              {autoSpeak ? <Volume2 className="w-3.5 h-3.5 text-rose-500" /> : <VolumeX className="w-3.5 h-3.5 text-zinc-400" />}
+              <span className="hidden lg:inline font-mono text-[9px]">SPEECH ACTIVE</span>
             </button>
 
-            {/* Clear History */}
+            {/* Reset chat */}
             <button 
               onClick={clearChat}
-              className="p-2 text-zinc-500 hover:text-rose-600 bg-white hover:bg-rose-50/50 border border-stone-200 hover:border-rose-300 rounded-xl transition-all shadow-xs cursor-pointer"
+              className="p-1.5 text-zinc-550 hover:text-rose-600 bg-white hover:bg-rose-50 border border-stone-200 rounded-xl transition-all shadow-xs cursor-pointer"
               title="Reset conversation state"
-              id="btn-clear-chat"
             >
               <Trash2 className="w-4 h-4" />
             </button>
@@ -646,278 +838,539 @@ export default function App() {
       </header>
 
       {/* Main Container */}
-      <main className="flex-1 max-w-md w-full mx-auto p-4 flex flex-col gap-5 relative z-10 justify-center items-center">
+      <main className="flex-1 max-w-6xl w-full mx-auto p-4 md:p-6 flex flex-col gap-6 relative z-10">
         
-        {/* Error/Notice notifications */}
+        {/* Error notification wrapper */}
         {audioError && (() => {
-          const isFallbackNotice = audioError.toLowerCase().includes('defaulted') || audioError.toLowerCase().includes('browser') || audioError.toLowerCase().includes('local');
+          const isFallbackNotice = audioError?.toLowerCase().includes('defaulted') || audioError?.toLowerCase().includes('browser') || audioError?.toLowerCase().includes('local');
           return (
-            <div className={`w-full p-3 rounded-xl flex items-start gap-2 text-xs animate-fadeIn shadow-xs relative border ${
+            <div className={`w-full p-3 rounded-2xl flex items-start gap-2.5 text-xs animate-fadeIn shadow-sm border ${
               isFallbackNotice 
-                ? 'bg-amber-50/90 border-amber-200 text-amber-800' 
-                : 'bg-rose-50 border-rose-200 text-rose-700'
+                ? 'bg-amber-50 border-amber-200 text-amber-800' 
+                : 'bg-rose-50 border-rose-200 text-rose-750'
             }`}>
-              {isFallbackNotice ? <Sparkles className="w-4 h-4 mt-0.5 shrink-0 text-amber-500" /> : <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />}
+              {isFallbackNotice ? <Sparkles className="w-4 h-4 mt-0.5 shrink-0 text-amber-500 animate-pulse" /> : <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />}
               <div className="flex-1">
-                <p className="font-semibold">{isFallbackNotice ? "Maternal Support Mode Activated" : "Speech Module Notice"}</p>
+                <p className="font-extrabold">{isFallbackNotice ? "Comfort Voice Synced" : "Speech Systems Calibration Option"}</p>
                 <p className="opacity-95">{audioError}</p>
               </div>
-              <button 
-                onClick={() => setAudioError(null)} 
-                className={`text-xs font-mono font-bold leading-none ${isFallbackNotice ? 'text-amber-500 hover:text-amber-700' : 'text-rose-500 hover:text-rose-700'}`}
-              >
+              <button onClick={() => setAudioError(null)} className="text-xs font-mono font-bold leading-none shrink-0 opacity-70 hover:opacity-100">
                 ✕
               </button>
             </div>
           );
         })()}
 
-        {/* Main Voice Panel */}
-        <div className="w-full bg-white/80 border border-rose-100 rounded-3xl p-6 shadow-md flex flex-col items-center justify-between min-h-[440px]">
-          <div className="w-full text-center">
-            <span className="text-zinc-500 font-mono text-[10px] tracking-widest uppercase font-bold">
-              Presence Connection
-            </span>
-            <div className="h-4 flex justify-center items-center mt-2">
-              {isThinking ? (
-                <span className="text-xs text-amber-600 font-mono font-bold animate-pulse flex items-center gap-1">
-                  <RefreshCw className="w-3 h-3 animate-spin text-amber-500" /> Alignment of thoughts...
-                </span>
-              ) : isSpeaking ? (
-                <span className="text-xs text-emerald-600 font-mono font-bold animate-pulse flex items-center gap-1.5">
-                  <Activity className="w-3 h-3 text-emerald-550 animate-pulse" /> Dr. T is vocalizing wisdom...
-                </span>
-              ) : isRecording ? (
-                <span className="text-xs text-rose-550 font-mono font-bold animate-pulse-fast">
-                  🎤 Listening to your warm speech...
-                </span>
-              ) : !hasGreeted ? (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    triggerGreeting();
-                  }}
-                  className="text-xs text-rose-600 font-mono font-semibold animate-pulse flex items-center gap-1 hover:text-rose-700 underline decoration-dashed cursor-pointer"
-                >
-                  👋 Click here to break the ice!
-                </button>
-              ) : (
-                <span className="text-xs text-zinc-450 font-mono">
-                  Waiting for your spark
-                </span>
-              )}
-            </div>
-          </div>
-
-          {/* Cosmic Orb Visual representing Dr. T's status */}
-          <div 
-            onClick={!hasGreeted ? () => triggerGreeting() : undefined}
-            className={`relative my-6 flex items-center justify-center w-36 h-36 ${!hasGreeted ? 'cursor-pointer hover:scale-103' : ''} transition-transform duration-300`}
-          >
-            {/* Soft pointing bubble arrow */}
-            {!hasGreeted && (
-              <div 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  triggerGreeting();
-                }}
-                className="absolute -top-11 z-20 bg-white/95 border border-rose-100 px-3 py-1.5 rounded-2xl shadow-md text-[11px] font-semibold text-rose-700 animate-bounce cursor-pointer whitespace-nowrap flex items-center gap-1.5 transition-all hover:scale-105 active:scale-95"
-              >
-                <span>👋</span>
-                <span>{getSpeechBubbleText(language)}</span>
-                <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-0.5 w-1.5 h-1.5 bg-white border-r border-b border-rose-100 rotate-45"></div>
-              </div>
-            )}
-            {/* Outer Neon Glow Halo */}
-            <div className={`absolute inset-0 rounded-full blur-3xl transition-all duration-1000 opacity-55 scale-125
-              ${vibe === 'empathetic' ? 'bg-gradient-to-tr from-rose-400 to-pink-400' : vibe === 'witty' ? 'bg-gradient-to-tr from-amber-300 to-yellow-400' : vibe === 'philosophical' ? 'bg-gradient-to-tr from-indigo-300 to-sky-350' : 'bg-gradient-to-tr from-purple-300 to-fuchsia-450'}
-              ${isThinking ? 'animate-pulse' : ''}
-            `}></div>
+        {/* Tab 1: DR. T COMPANION HUB DEVELOPMENT WORKSPACE */}
+        {activeTab === 'hub' && (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 animate-fadeIn" id="dr-t-infinity-hub">
             
-            {/* Spinning star dust ring */}
-            <div className={`absolute inset-1 rounded-full border border-dashed animate-spin-slow opacity-60
-              ${vibe === 'empathetic' ? 'border-rose-450/40' : vibe === 'witty' ? 'border-amber-450/40' : vibe === 'philosophical' ? 'border-indigo-455/40' : 'border-purple-450/40'}
-            `}></div>
-
-            {/* Reverse spinning star dust ring */}
-            <div className={`absolute inset-4 rounded-full border border-dotted animate-spin-reverse opacity-40
-              ${vibe === 'empathetic' ? 'border-pink-400/35' : vibe === 'witty' ? 'border-yellow-400/35' : vibe === 'philosophical' ? 'border-sky-400/35' : 'border-fuchsia-400/35'}
-            `}></div>
-
-            <div className={`w-28 h-28 rounded-full border overflow-hidden flex items-center justify-center transition-all duration-1000 z-10 bg-white relative
-              ${vibe === 'empathetic' ? 'border-rose-300 hover:border-pink-400 ring-rose-550/10 glow-rose' : 
-                vibe === 'witty' ? 'border-amber-300 hover:border-yellow-400 ring-amber-550/10 glow-amber' : 
-                vibe === 'philosophical' ? 'border-indigo-300 hover:border-purple-400 ring-indigo-550/10 glow-indigo' : 
-                'border-purple-300 hover:border-fuchsia-400 ring-purple-550/10 glow-purple'}
-              ring-8 ring-offset-4 ring-offset-white
-              ${isRecording ? 'scale-105 border-rose-400' : isSpeaking ? 'scale-110' : 'scale-100'}
-            `}>
-              <img 
-                src={drTAvatar}
-                alt="Dr. T Avatar" 
-                referrerPolicy="no-referrer"
-                className="w-full h-full object-cover select-none pointer-events-none"
-              />
-
-              {/* Animated Dynamic Lips Sync Overlay */}
-              {isSpeaking && (
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  {/* Positioned precisely over the original avatar mouth area */}
-                  <div className="absolute top-[61.5%] left-[49.5%] -translate-x-1/2 -translate-y-1/2 w-6 h-5 flex flex-col justify-center items-center">
-                    {/* Upper Lip */}
-                    <svg 
-                      viewBox="0 0 100 40" 
-                      className="w-4.5 text-rose-500 fill-current drop-shadow-xs transition-transform duration-75"
-                      style={{ transform: `translateY(-${averageSpeakIntensity * 2.5}px) scaleY(${1 - averageSpeakIntensity * 0.1})` }}
-                    >
-                      <path d="M 0 20 Q 25 10 50 15 Q 75 10 100 20 Q 75 15 50 22 Q 25 15 0 20 Z" />
-                    </svg>
-                    
-                    {/* Inner mouth background space */}
-                    <div 
-                      className="w-3 bg-rose-950 rounded-full transition-all duration-75 my-[0.5px]" 
-                      style={{ height: `${averageSpeakIntensity * 4.5}px` }}
-                    />
-                    
-                    {/* Lower Lip */}
-                    <svg 
-                      viewBox="0 0 100 40" 
-                      className="w-4.5 text-rose-500 fill-current drop-shadow-xs transition-transform duration-75"
-                      style={{ transform: `translateY(${averageSpeakIntensity * 2.5}px) scaleY(${1 - averageSpeakIntensity * 0.1})` }}
-                    >
-                      <path d="M 0 20 Q 50 40 100 20 Q 50 25 0 20 Z" />
-                    </svg>
+            {/* Left Spatial Voice & Parameter Dashboard Panel (span 5) */}
+            <div className="lg:col-span-5 flex flex-col gap-6">
+              
+              {/* Giant Live Orb card */}
+              <div className="w-full bg-white/80 border border-rose-100/70 rounded-3xl p-6 shadow-md flex flex-col items-center justify-between min-h-[460px]">
+                <div className="w-full text-center">
+                  <span className="text-stone-400 font-mono text-[9px] tracking-widest uppercase font-bold">
+                    BIOMETRIC CORE PRESENCE
+                  </span>
+                  
+                  {/* Active verbal response description indicator */}
+                  <div className="h-5 flex justify-center items-center mt-1.5">
+                    {isThinking ? (
+                      <span className="text-xs text-amber-600 font-mono font-bold animate-pulse flex items-center gap-1">
+                        <RefreshCw className="w-3.5 h-3.5 animate-spin text-amber-500" /> Synthesizing deep research...
+                      </span>
+                    ) : isSpeaking ? (
+                      <span className="text-xs text-emerald-600 font-mono font-bold animate-pulse flex items-center gap-1.5">
+                        <Activity className="w-3.5 h-3.5 text-emerald-500 animate-pulse" /> Vocalizing Socratic comfort ({VOICES.find(v => v.id === voiceName)?.name})...
+                      </span>
+                    ) : isRecording ? (
+                      <span className="text-xs text-rose-600 font-mono font-bold animate-pulse-fast flex items-center gap-1">
+                        🎤 Listening to speech inputs...
+                      </span>
+                    ) : !hasGreeted ? (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          triggerGreeting();
+                        }}
+                        className="text-xs text-rose-600 font-mono font-extrabold animate-pulse flex items-center gap-1 hover:text-rose-700 underline decoration-dashed cursor-pointer"
+                      >
+                        👋 Click to break the ice!
+                      </button>
+                    ) : (
+                      <span className="text-[10px] text-stone-400 font-mono font-bold uppercase tracking-wider flex items-center gap-1">
+                        <CheckCircle className="w-3 h-3 text-emerald-500" /> Core Synced & Safe
+                      </span>
+                    )}
                   </div>
                 </div>
-              )}
+
+                {/* Core animated neon orb wrapper */}
+                <div 
+                  onClick={!hasGreeted ? () => triggerGreeting() : undefined}
+                  className={`relative my-6 flex items-center justify-center w-36 h-36 ${!hasGreeted ? 'cursor-pointer hover:scale-103' : ''} transition-all duration-300`}
+                >
+                  {/* Speech bubble indicator callout */}
+                  {!hasGreeted && (
+                    <div 
+                      onClick={(e) => { e.stopPropagation(); triggerGreeting(); }}
+                      className="absolute -top-11 z-20 bg-white/95 border border-rose-100 px-3.5 py-1.5 rounded-2xl shadow-md text-[11px] font-extrabold text-rose-700 animate-bounce cursor-pointer whitespace-nowrap flex items-center gap-1"
+                    >
+                      <span>👋</span>
+                      <span>{getSpeechBubbleText(language)}</span>
+                      <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-0.5 w-1.5 h-1.5 bg-white border-r border-b border-rose-100 rotate-45"></div>
+                    </div>
+                  )}
+
+                  {/* Outer glowing backdrops */}
+                  <div className={`absolute inset-0 rounded-full blur-3xl transition-all duration-1000 opacity-60 scale-125
+                    ${vibe === 'empathetic' ? 'bg-gradient-to-tr from-rose-400 to-pink-400 animate-pulse' : vibe === 'witty' ? 'bg-gradient-to-tr from-amber-300 to-yellow-400 animate-pulse' : vibe === 'philosophical' ? 'bg-gradient-to-tr from-indigo-300 to-sky-450 animate-pulse' : 'bg-gradient-to-tr from-purple-300 to-fuchsia-450 animate-pulse'}
+                    ${isThinking ? 'scale-135' : ''}
+                  `}></div>
+                  
+                  {/* Spatial coordinate dashed lines */}
+                  <div className={`absolute inset-0 rounded-full border border-dashed animate-spin-slow opacity-60
+                    ${vibe === 'empathetic' ? 'border-rose-400/40' : vibe === 'witty' ? 'border-amber-400/40' : vibe === 'philosophical' ? 'border-indigo-400/40' : 'border-purple-400/40'}
+                  `}></div>
+
+                  <div className={`absolute inset-3 rounded-full border border-dotted animate-spin-reverse opacity-40
+                    ${vibe === 'empathetic' ? 'border-pink-400/35' : vibe === 'witty' ? 'border-yellow-400/35' : vibe === 'philosophical' ? 'border-indigo-400/35' : 'border-fuchsia-400/35'}
+                  `}></div>
+
+                  {/* Dr. T Avatar Visual frame */}
+                  <div className={`w-28 h-28 rounded-full border overflow-hidden flex items-center justify-center transition-all duration-1000 z-10 bg-white relative
+                    ${vibe === 'empathetic' ? 'border-rose-300 hover:border-pink-400 ring-rose-500/10' : 
+                      vibe === 'witty' ? 'border-amber-300 hover:border-yellow-400 ring-amber-500/10' : 
+                      vibe === 'philosophical' ? 'border-indigo-300 hover:border-indigo-400 ring-indigo-500/10' : 
+                      'border-purple-300 hover:border-fuchsia-400 ring-purple-500/10'}
+                    ring-8 ring-offset-4 ring-offset-white
+                    ${isRecording ? 'scale-105 border-rose-455' : isSpeaking ? 'scale-110' : 'scale-100'}
+                  `}>
+                    <img 
+                      src={drTAvatar}
+                      alt="Dr. T Avatar" 
+                      referrerPolicy="no-referrer"
+                      className="w-full h-full object-cover select-none pointer-events-none"
+                    />
+
+                    {/* Mouth movement synchronous sync overlay */}
+                    {isSpeaking && (
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <div className="absolute top-[61.5%] left-[49.5%] -translate-x-1/2 -translate-y-1/2 w-6 h-5 flex flex-col justify-center items-center">
+                          <svg 
+                            viewBox="0 0 100 40" 
+                            className="w-4.5 text-rose-500 fill-current drop-shadow-xs transition-transform duration-75"
+                            style={{ transform: `translateY(-${averageSpeakIntensity * 2.5}px) scaleY(${1 - averageSpeakIntensity * 0.1})` }}
+                          >
+                            <path d="M 0 20 Q 25 10 50 15 Q 75 10 100 20 Q 75 15 50 22 Q 25 15 0 20 Z" />
+                          </svg>
+                          <div 
+                            className="w-2.5 bg-rose-950 rounded-full transition-all duration-75 my-[0.5px]" 
+                            style={{ height: `${averageSpeakIntensity * 4.5}px` }}
+                          />
+                          <svg 
+                            viewBox="0 0 100 40" 
+                            className="w-4.5 text-rose-500 fill-current drop-shadow-xs transition-transform duration-75"
+                            style={{ transform: `translateY(${averageSpeakIntensity * 2.5}px) scaleY(${1 - averageSpeakIntensity * 0.1})` }}
+                          >
+                            <path d="M 0 20 Q 50 40 100 20 Q 50 25 0 20 Z" />
+                          </svg>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Visual Audio Soundwave */}
+                <div className="w-full flex items-center justify-center gap-1.5 h-8 px-4 mb-4">
+                  {waveHeights.map((h, idx) => (
+                    <span 
+                      key={idx} 
+                      className={`w-1 rounded-full transition-all duration-150
+                        ${vibe === 'empathetic' ? 'bg-rose-400' : vibe === 'witty' ? 'bg-amber-400' : vibe === 'philosophical' ? 'bg-indigo-400' : 'bg-purple-400'}
+                      `}
+                      style={{ height: `${h}px` }}
+                    ></span>
+                  ))}
+                </div>
+
+                {/* Voice controls */}
+                <div className="w-full flex flex-col items-center gap-3">
+                  <button
+                    onClick={toggleRecording}
+                    disabled={isThinking}
+                    className={`w-16 h-16 rounded-full flex items-center justify-center transition-all duration-300 relative border cursor-pointer shadow-md group
+                      ${isRecording 
+                        ? 'bg-rose-600 border-rose-500 text-white animate-pulse shadow-rose-600/30' 
+                        : 'bg-white border-stone-200 text-rose-500 hover:text-rose-600 hover:scale-105 active:scale-95 disabled:opacity-50'
+                      }
+                    `}
+                    title="Speak out loud"
+                  >
+                    {isRecording ? <MicOff className="w-7 h-7" /> : <Mic className="w-7 h-7" />}
+                    {isRecording && (
+                      <span className="absolute inset-0 rounded-full border-4 border-rose-400 animate-ping opacity-60"></span>
+                    )}
+                  </button>
+
+                  <div className="text-center">
+                    <span className="text-[10px] font-mono font-black uppercase tracking-widest text-stone-400">
+                      {isRecording ? "STATION STREAMING" : "TAP MIC TO ENGAGE SOCRATIC AUDIO"}
+                    </span>
+                    <p className="text-[10px] text-stone-400 mt-1 max-w-[260px] leading-relaxed italic">
+                      "Appearance apparel choice: {APPEARANCES.find(a => a.id === avatarAppearance)?.name}. Age range: {tAge === 'young' ? 'Young Specialist' : tAge === 'mature' ? 'Expert Clinical Partner' : 'Emeritus Socratic Mentor'}."
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Real-time Emotional Intelligence detection meters */}
+              <div className="bg-white/80 border border-rose-100/70 rounded-3xl p-5 shadow-xs flex flex-col gap-3">
+                <span className="text-[10px] font-mono font-bold tracking-widest text-rose-550 uppercase flex items-center gap-1.5">
+                  <Activity className="w-3.5 h-3.5 text-rose-500" /> EMOTIONAL INTELLIGENCE DETECTION
+                </span>
+                
+                <div className="flex flex-col gap-2.5 mt-1 text-xs">
+                  {/* Stress */}
+                  <div>
+                    <div className="flex justify-between font-mono text-[9px] text-stone-500">
+                      <span>STRESS ANALYSIS INDEX</span>
+                      <span className="font-bold text-rose-600">{emotionMeter.stress}%</span>
+                    </div>
+                    <div className="w-full bg-stone-100 h-2 rounded-full overflow-hidden mt-1 relative">
+                      <div className="absolute top-0 left-0 h-full bg-rose-500 transition-all duration-500" style={{ width: `${emotionMeter.stress}%` }} />
+                    </div>
+                  </div>
+
+                  {/* Fatigue */}
+                  <div>
+                    <div className="flex justify-between font-mono text-[9px] text-stone-500">
+                      <span>VIBRATIONAL FATIGUE LOG</span>
+                      <span className="font-bold text-amber-600">{emotionMeter.fatigue}%</span>
+                    </div>
+                    <div className="w-full bg-stone-100 h-2 rounded-full overflow-hidden mt-1 relative">
+                      <div className="absolute top-0 left-0 h-full bg-amber-500 transition-all duration-500" style={{ width: `${emotionMeter.fatigue}%` }} />
+                    </div>
+                  </div>
+
+                  {/* Happiness */}
+                  <div>
+                    <div className="flex justify-between font-mono text-[9px] text-stone-500">
+                      <span>SEROTONIN COMPOSURE STATS</span>
+                      <span className="font-bold text-emerald-600">{emotionMeter.happiness}%</span>
+                    </div>
+                    <div className="w-full bg-stone-100 h-2 rounded-full overflow-hidden mt-1 relative">
+                      <div className="absolute top-0 left-0 h-full bg-emerald-500 transition-all duration-500" style={{ width: `${emotionMeter.happiness}%` }} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
             </div>
 
-            {/* Orbiting particles/energy items */}
-            {isSpeaking && (
-              <div className={`absolute w-full h-full rounded-full border border-dashed animate-spin transition-colors duration-1000
-                ${vibe === 'empathetic' ? 'border-rose-400/50' : vibe === 'witty' ? 'border-amber-400/50' : vibe === 'philosophical' ? 'border-indigo-400/50' : 'border-purple-400/50'}
-              `} style={{ animationDuration: '8s' }}></div>
-            )}
-          </div>
+            {/* Right Multimodal Conversation Console Panel (span 7) */}
+            <div className="lg:col-span-7 flex flex-col gap-6 h-full">
 
-          {/* Vocal Audio Soundwave Animations */}
-          <div className="w-full flex items-center justify-center gap-1 h-8 px-4 mb-4">
-            {waveHeights.map((h, idx) => (
-              <span 
-                key={idx} 
-                className={`w-1 rounded-full transition-all duration-150
-                  ${vibe === 'empathetic' ? 'bg-rose-400' : vibe === 'witty' ? 'bg-amber-400' : vibe === 'philosophical' ? 'bg-indigo-400' : 'bg-purple-400'}
-                `}
-                style={{ height: `${h}px` }}
-              ></span>
-            ))}
-          </div>
+              {/* Main chat log */}
+              <div className="bg-white/85 border border-stone-200/50 rounded-3xl p-5 shadow-md flex flex-col justify-between min-h-[460px] max-h-[580px] h-full relative">
+                
+                {/* Chat header */}
+                <div className="flex items-center justify-between border-b border-stone-150 pb-3 mb-3">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <p className="text-xs font-mono font-bold tracking-wider text-stone-600 uppercase">Interactive Dialogue Console</p>
+                  </div>
+                  <span className="text-[10px] font-mono text-stone-400">Total conversation sync: {messages.length}</span>
+                </div>
 
-          {/* Controller Voice Hub */}
-          <div className="w-full flex flex-col items-center gap-3">
-            {/* Massive Nurturing Mic Trigger */}
-            <button
-              onClick={toggleRecording}
-              disabled={isThinking}
-              className={`w-20 h-20 rounded-full flex items-center justify-center transition-all duration-300 relative border cursor-pointer shadow-md group
-                ${isRecording 
-                  ? 'bg-rose-600 border-rose-500 text-white animate-pulse shadow-lg shadow-rose-600/30 grow-or-glow' 
-                  : 'bg-white border-stone-200 text-rose-500 hover:text-rose-600 hover:border-rose-350 hover:bg-rose-50/40 hover:scale-105 active:scale-95 disabled:opacity-50'
-                }
-              `}
-              title={isRecording ? "Stop recording voice" : "Talk via Mic Voice Activation"}
-              id="btn-voice-mic"
-            >
-              {isRecording ? <MicOff className="w-8 h-8" /> : <Mic className="w-8 h-8" />}
-              
-              {isRecording && (
-                <span className="absolute inset-0 rounded-full border-4 border-rose-450 animate-ping opacity-70"></span>
-              )}
-            </button>
+                {/* Messages scrollarea */}
+                <div className="flex-1 overflow-y-auto pr-1 flex flex-col gap-3.5 max-h-[380px]">
+                  {messages.length === 0 ? (
+                    <div className="flex-1 flex flex-col items-center justify-center text-center p-6 text-stone-400">
+                      <InfinityIcon className="w-9 h-9 text-rose-300 animate-pulse mb-2" />
+                      <p className="text-xs font-extrabold text-stone-600">Pure Emotionally Intelligent Dialogue</p>
+                      <p className="text-[11px] leading-relaxed text-stone-400 max-w-[340px] mt-1">
+                        Speak into the micro or type below. Dr. T remembers prior details and coordinates specialists automatically.
+                      </p>
+                    </div>
+                  ) : (
+                    messages.map((m) => (
+                      <div 
+                        key={m.id}
+                        className={`flex flex-col max-w-[85%]
+                          ${m.role === 'user' ? 'self-end items-end' : 'self-start items-start'}
+                        `}
+                      >
+                        {/* Sender info */}
+                        <span className="text-[9px] text-stone-400 font-mono font-extrabold mb-1 uppercase">
+                          {m.role === 'user' ? 'Sweet Child (You)' : `Dr. T (${VIBES.find(v => v.id === vibe)?.name})`} • {m.timestamp}
+                        </span>
 
-            {/* Dynamic Status Tagline */}
-            <div className="text-center">
-              <span className={`text-xs font-mono font-extrabold tracking-wider uppercase transition-colors duration-300
-                ${isRecording 
-                  ? 'text-rose-600'
-                  : isThinking 
-                    ? 'text-amber-600'
-                    : isSpeaking
-                      ? 'text-emerald-600'
-                      : 'text-stone-500 hover:text-stone-700'
-                }
-              `}>
-                {isRecording 
-                  ? "Listening... Speak now" 
-                  : isThinking 
-                    ? "Pondering reply..." 
-                    : isSpeaking
-                      ? "Speaking out loud..."
-                      : "Tap microphone to speak"}
-              </span>
-              <p className="text-[11px] text-stone-400 mt-1 max-w-[280px] mx-auto leading-relaxed">
-                {isRecording 
-                  ? "Your voice is processed automatically when you pause speaking" 
-                  : "Pure voice application. Speak Vietnamese, English or French naturally."}
-              </p>
+                        {/* Bubble */}
+                        <div 
+                          className={`p-3 rounded-2xl text-xs leading-relaxed transition-all shadow-xs
+                            ${m.role === 'user' 
+                              ? 'bg-stone-900 border border-stone-950 text-white rounded-tr-none' 
+                              : vibe === 'empathetic' ? 'bg-rose-50/70 border border-rose-100 text-rose-950 rounded-tl-none' 
+                                : vibe === 'witty' ? 'bg-amber-50/70 border border-amber-100 text-amber-950 rounded-tl-none' 
+                                : vibe === 'philosophical' ? 'bg-indigo-50/70 border border-indigo-100 text-indigo-950 rounded-tl-none' 
+                                : 'bg-purple-50/70 border border-purple-100 text-purple-950 rounded-tl-none'
+                            }
+                          `}
+                        >
+                          {/* Attachment rendering inside bubble */}
+                          {m.attachment && (
+                            <div className="mb-2 p-2 bg-stone-950/20 border border-white/10 rounded-xl flex items-center gap-2.5 text-[10px] text-stone-250 font-mono">
+                              <span className="text-xl leading-none">📎</span>
+                              <div className="truncate">
+                                <p className="font-bold truncate">{m.attachment.name}</p>
+                                <p className="opacity-80">Type: {m.attachment.type.toUpperCase()}</p>
+                              </div>
+                            </div>
+                          )}
+
+                          <p className="whitespace-pre-line select-text font-serif leading-relaxed text-sm">{m.content}</p>
+                        </div>
+
+                        {/* TTS Play controls for model answers */}
+                        {m.role === 'model' && (
+                          <div className="flex items-center gap-1.5 mt-1.5">
+                            <button
+                              onClick={() => speakMessage(m.id, m.content)}
+                              className={`text-[9px] px-2 py-0.5 rounded-md font-mono font-bold tracking-wider cursor-pointer border transition-all flex items-center gap-1
+                                ${m.isVoicePlaying 
+                                  ? 'bg-rose-50 border-rose-200 text-rose-600 font-extrabold animate-pulse' 
+                                  : 'bg-white hover:bg-stone-50 border-stone-150 text-stone-500'
+                                }
+                              `}
+                            >
+                              <span>🔊</span> <span>{m.isVoicePlaying ? 'SPEAKING' : 'READ ALOUD'}</span>
+                            </button>
+                            {isSpeaking && m.isVoicePlaying && (
+                              <button
+                                onClick={stopAudio}
+                                className="text-[9px] p-0.5 px-1.5 hover:bg-red-50 text-red-500 rounded border border-red-150 font-mono cursor-pointer"
+                              >
+                                STOP
+                              </button>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    ))
+                  )}
+                  {isThinking && (
+                    <div className="self-start flex flex-col items-start max-w-[80%] animate-fadeIn">
+                      <span className="text-[9px] text-stone-400 font-mono font-extrabold mb-1 uppercase">DR. T IS PONDERING...</span>
+                      <div className="p-3 bg-stone-100 border border-stone-200/50 rounded-2xl rounded-tl-none flex items-center gap-2.5 text-xs">
+                        <RefreshCw className="w-3.5 h-3.5 animate-spin text-rose-500" />
+                        <span className="text-[11px] text-stone-500 font-mono tracking-wide animate-pulse">Syncing semantic network...</span>
+                      </div>
+                    </div>
+                  )}
+                  <div ref={messagesEndRef} />
+                </div>
+
+                {/* Proactive alert scrolling advisory banner */}
+                <div className="my-2.5 p-2 bg-gradient-to-r from-rose-50/50 via-amber-50/50 to-emerald-50/50 border border-stone-150 rounded-xl text-[10px] text-stone-500 flex items-center justify-between shadow-internal z-10 animate-pulse">
+                  <span className="flex items-center gap-1.5 truncate">
+                    <span className="w-1.5 h-1.5 rounded-full bg-rose-500 tracking-wider"></span>
+                    <span className="font-extrabold text-stone-700 uppercase">PROACTIVE INTELLIGENCE:</span>
+                    <span className="truncate leading-none">Your passport expires in 5 months. You have not logged steps today.</span>
+                  </span>
+                  <button 
+                    onClick={() => { stopAudio(); selectPreset("Prepare checklist to renew passport and plan local transport.", "philosophical"); }}
+                    className="text-[9px] font-black text-rose-600 hover:text-rose-800 shrink-0 font-mono ml-2 underline underline-offset-2 cursor-pointer"
+                  >
+                    RESOLVE NOW
+                  </button>
+                </div>
+
+                {/* Link uploaded notification notice */}
+                {uploadNotice && (
+                  <div className="mb-2 p-2 text-[10px] font-mono text-emerald-800 bg-emerald-50 rounded-lg flex items-center justify-between border border-emerald-100 animate-fadeIn">
+                    <span className="flex items-center gap-1">📎 {uploadNotice}</span>
+                    <button onClick={() => { setAttachedFile(null); setUploadNotice(null); }} className="text-stone-400 hover:text-stone-700">✕</button>
+                  </div>
+                )}
+
+                {/* Input station bar */}
+                <div className="border-t border-stone-150 pt-3 z-10">
+                  <div className="flex gap-2">
+                    
+                    {/* Multimodal Quick Attachment simulation tray trigger */}
+                    <div className="relative group/tray">
+                      <button
+                        type="button"
+                        className="h-10 w-10 shrink-0 rounded-xl bg-stone-50 hover:bg-stone-100 text-stone-500 border border-stone-200 flex items-center justify-center transition-all cursor-pointer shadow-xs"
+                        title="Simulate snapping photo / document upload"
+                      >
+                        <Upload className="w-4 h-4" />
+                      </button>
+                      
+                      {/* Floating custom simulator list */}
+                      <div className="absolute bottom-11 left-0 bg-white border border-stone-200 rounded-2xl p-2.5 shadow-md flex-col gap-1.5 w-[240px] hidden group-hover/tray:flex group-focus-within/tray:flex animate-fadeIn z-50">
+                        <span className="text-[8px] font-mono font-bold tracking-wider text-stone-400 uppercase border-b border-stone-100 pb-1 mb-1 block">ATTACH SIMULATOR BIO-DATA</span>
+                        <button
+                          type="button"
+                          onClick={() => triggerSimulationAttachment('symptom_rash')}
+                          className="p-1 px-2 hover:bg-stone-50 rounded-lg text-[10px] text-stone-700 font-extrabold text-left flex items-center gap-2 cursor-pointer"
+                        >
+                          🩺 Skin irritation stress rash photo
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => triggerSimulationAttachment('blood_report')}
+                          className="p-1 px-2 hover:bg-stone-50 rounded-lg text-[10px] text-stone-700 font-extrabold text-left flex items-center gap-2 cursor-pointer"
+                        >
+                          🧪 Lab Report panel (Blood chem)
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => triggerSimulationAttachment('passport_expire')}
+                          className="p-1 px-2 hover:bg-stone-50 rounded-lg text-[10px] text-stone-700 font-extrabold text-left flex items-center gap-2 cursor-pointer"
+                        >
+                          🗺️ Scanned US Passport page
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => triggerSimulationAttachment('energy_audit')}
+                          className="p-1 px-2 hover:bg-stone-50 rounded-lg text-[10px] text-stone-700 font-extrabold text-left flex items-center gap-2 cursor-pointer"
+                        >
+                          🌱 Home heating & electric audit report
+                        </button>
+
+                        <div className="border-t border-stone-100 pt-2 mt-1 relative">
+                          <label className="text-[8px] font-mono font-extrabold text-stone-400 block mb-1">UPLOAD OWN FILE</label>
+                          <input
+                            type="file"
+                            onChange={handleCustomFileChange}
+                            className="text-[9px] w-full cursor-pointer text-stone-500 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-[9px] file:font-bold file:bg-stone-100 file:text-stone-700"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Message input */}
+                    <input
+                      type="text"
+                      required
+                      value={inputVal}
+                      onChange={(e) => setInputVal(e.target.value)}
+                      onKeyDown={(e) => { if (e.key === 'Enter') handleSend(); }}
+                      placeholder="Ask Dr. T anything, vent, or attach documents above..."
+                      className="flex-1 bg-stone-50 border border-stone-200 rounded-xl p-2 px-3 text-xs outline-none focus:bg-white focus:border-rose-455 transition-all text-stone-800"
+                    />
+
+                    {/* Send button */}
+                    <button
+                      type="button"
+                      onClick={() => handleSend()}
+                      className="h-10 p-2.5 px-4 rounded-xl bg-stone-900 border border-stone-950 text-white font-black text-xs flex items-center justify-center gap-1.5 hover:bg-stone-850 active:scale-95 transition-all cursor-pointer shadow-xs select-none"
+                    >
+                      <Send className="w-3.5 h-3.5" /> <span className="hidden sm:inline">SEND</span>
+                    </button>
+                  </div>
+                </div>
+
+              </div>
+
+
+
             </div>
+
           </div>
-        </div>
+        )}
 
-        {/* Interactive Comfort Actions Station */}
-        <div className="w-full bg-white/80 border border-rose-100 rounded-3xl p-5 shadow-md flex flex-col gap-3 relative overflow-hidden">
-          
-          {/* Background glowing soft aura */}
-          <div className="absolute -right-20 -top-20 w-44 h-44 rounded-full bg-pink-500/5 blur-3xl pointer-events-none"></div>
-
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-mono font-bold tracking-wider text-rose-550 uppercase flex items-center gap-1.5">
-              💖 Nurturing Quick-Triggers
-            </span>
+        {/* Tab 2: LIFE GRAPH MEMORY CANVAS */}
+        {activeTab === 'graph' && (
+          <div className="animate-fadeIn">
+            <LifeGraph 
+              memoryNodes={memoryNodes} 
+              onAddNode={handleAddNode} 
+              onDeleteNode={handleDeleteNode} 
+            />
           </div>
+        )}
 
-          {/* Grid of fun interactive maternal triggers */}
-          <div className="grid grid-cols-2 gap-2 mt-0.5 z-10">
-            <button
-              onClick={() => requestSpecialAction('hug')}
-              className="py-2.5 px-3 rounded-xl border border-rose-200 hover:border-rose-400 bg-rose-50/50 hover:bg-rose-50 text-rose-700 font-bold text-xs flex items-center justify-center gap-1.5 transition-all duration-300 active:scale-95 cursor-pointer shadow-sm select-none group"
-            >
-              <span className="transition-transform duration-300 group-hover:scale-125">🤗</span> <span>Virtual Hug</span>
-            </button>
-            <button
-              onClick={() => requestSpecialAction('cookie')}
-              className="py-2.5 px-3 rounded-xl border border-amber-200 hover:border-amber-400 bg-amber-50/50 hover:bg-amber-50 text-amber-800 font-bold text-xs flex items-center justify-center gap-1.5 transition-all duration-300 active:scale-95 cursor-pointer shadow-sm select-none group"
-            >
-              <span className="transition-transform duration-300 group-hover:scale-125">🍪</span> <span>Sweet Treats</span>
-            </button>
-            <button
-              onClick={() => requestSpecialAction('lullaby')}
-              className="py-2.5 px-3 rounded-xl border border-purple-200 hover:border-purple-400 bg-purple-50/50 hover:bg-purple-50 text-purple-700 font-bold text-xs flex items-center justify-center gap-1.5 transition-all duration-300 active:scale-95 cursor-pointer shadow-sm select-none group"
-            >
-              <span className="transition-transform duration-300 group-hover:scale-125">🍼</span> <span>Lullaby Ru</span>
-            </button>
-            <button
-              onClick={() => requestSpecialAction('tease')}
-              className="py-2.5 px-3 rounded-xl border border-teal-200 hover:border-teal-400 bg-teal-50/50 hover:bg-teal-50 text-teal-700 font-bold text-xs flex items-center justify-center gap-1.5 transition-all duration-300 active:scale-95 cursor-pointer shadow-sm select-none group"
-            >
-              <span className="transition-transform duration-300 group-hover:scale-125">😜</span> <span>Roast/Tease Me</span>
-            </button>
+        {/* Tab 3: AGENT SWARM WORKSTATION */}
+        {activeTab === 'swarm' && (
+          <div className="animate-fadeIn">
+            <AgentSwarm 
+              agents={specialistAgents} 
+              onTriggerSwarmCollaboration={handleTriggerSwarmCollaboration} 
+            />
           </div>
-        </div>
+        )}
 
-        {/* Bottom Tip */}
-        <div className="flex items-center justify-between text-[10px] text-zinc-500 font-mono w-full px-1 border-t border-stone-150 pt-2.5 mt-1">
-          <span className="flex items-center gap-1">
-            <HelpCircle className="w-3 h-3" /> Dedicated full-conversational voice mode active
-          </span>
-          <span>
-            Engine: {ttsEngine === 'gemini' ? 'Gemini 3.5 & 3.1 Neural' : 'Browser Native'} synthesizer
-          </span>
-        </div>
+        {/* Tab 4: ECOSYSTEM METRIC TRACKERS */}
+        {activeTab === 'trackers' && (
+          <div className="animate-fadeIn">
+            <Trackers
+              medicationList={medicationList}
+              toggleMedication={handleToggleMedication}
+              onAddMedication={handleAddMedication}
+              healthMetrics={healthMetrics}
+              onAddMetric={handleAddMetric}
+              skillNodes={skillNodes}
+              onAdvanceSkill={handleAdvanceSkill}
+              tasks={tasks}
+              onAddTask={handleAddTask}
+              onToggleTaskState={handleToggleTaskState}
+              onDeleteTask={handleDeleteTask}
+              calendarEvents={calendarEvents}
+              onAddEvent={handleAddEvent}
+              smartNotes={smartNotes}
+              onAddNote={handleAddNote}
+              onDeleteNote={handleDeleteNote}
+              carbonHabits={carbonHabits}
+              onToggleCarbonHabit={handleToggleCarbonHabit}
+            />
+          </div>
+        )}
+
+        {/* Tab 5: PROGRESS DIAGNOSTICS & ANALYTICS */}
+        {activeTab === 'dashboard' && (
+          <div className="animate-fadeIn">
+            <Dashboard
+              medList={medicationList}
+              taskList={tasks}
+              carbonList={carbonHabits}
+              streakData={streakData}
+              voiceName={voiceName}
+              setVoiceName={setVoiceName}
+              language={language}
+              setLanguage={setLanguage}
+            />
+          </div>
+        )}
+
+        {/* Tab 6: SETTINGS / CUSTOM APPEARANCE */}
+        {activeTab === 'avatar' && (
+          <div className="animate-fadeIn">
+            <AvatarSettings
+              vibe={vibe}
+              setVibe={setVibe}
+              voiceName={voiceName}
+              setVoiceName={setVoiceName}
+              voices={VOICES}
+              appearance={avatarAppearance}
+              setAppearance={setAvatarAppearance}
+              tGender={tGender}
+              setTGender={setTGender}
+              tAge={tAge}
+              setTAge={setTAge}
+              vibeConfig={currentVibeConfig}
+              vibes={VIBES}
+            />
+          </div>
+        )}
 
       </main>
 
-      {/* Invisible HTML5 Audio play state container */}
+      {/* Invisible HTML5 Audio */}
       <audio className="hidden" ref={audioRef} />
     </div>
   );
