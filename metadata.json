@@ -1,0 +1,6 @@
+{
+  "name": "Dr. T - Multilingual Soulmate",
+  "description": "A comforting, witty, and multilingual voice agent knowing all domains—literature, medical, philosophy, and more. Dr. T is your counselor, agony aunt, and soulmate, speaking Vietnamese, English, French, and more.",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
