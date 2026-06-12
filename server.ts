@@ -161,11 +161,25 @@ app.post("/api/tts", async (req: any, res: any) => {
     if (!text) {
       return res.status(400).json({ error: "No text provided for voice synthesis." });
     }
+
+    // Smart truncation under 250 characters to prevent high latency and HeadersTimeoutError in TTS preview model
+    let ttsText = text.trim().replace(/[\*\_\`\#\-]/g, ''); // strip markdown syntax
+    if (ttsText.length > 250) {
+      const truncatedSlice = ttsText.substring(0, 250);
+      const lastSentenceMatch = truncatedSlice.match(/.*[.!?:]/);
+      if (lastSentenceMatch && lastSentenceMatch[0].length > 50) {
+        ttsText = lastSentenceMatch[0];
+      } else {
+        const lastSpace = truncatedSlice.lastIndexOf(' ');
+        ttsText = lastSpace > 100 ? truncatedSlice.substring(0, lastSpace) + "..." : truncatedSlice + "...";
+      }
+    }
+
     const ai = getGenAI();
 
     const response = await ai.models.generateContent({
       model: "gemini-3.1-flash-tts-preview",
-      contents: [{ parts: [{ text: text }] }],
+      contents: [{ parts: [{ text: ttsText }] }],
       config: {
         responseModalities: ["AUDIO"],
         speechConfig: {
@@ -183,7 +197,7 @@ app.post("/api/tts", async (req: any, res: any) => {
 
     res.json({ audioBase64: base64Audio });
   } catch (error: any) {
-    console.error("TTS API error:", error);
+    console.warn("TTS API handled warning:", error.message || error);
     res.status(500).json({ error: error.message || "The speech module failed to synthesize audio." });
   }
 });

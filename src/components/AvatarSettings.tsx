@@ -42,7 +42,27 @@ export const AvatarSettings: React.FC<AvatarSettingsProps> = ({
   vibes
 }) => {
   return (
-    <div className="bg-white/80 backdrop-blur-md border border-stone-200/65 rounded-3xl p-6 shadow-md flex flex-col gap-6" id="avatar-settings-container">
+    <div className="bg-white/80 backdrop-blur-md border border-stone-200/65 rounded-3xl p-6 shadow-md flex flex-col gap-6 overflow-hidden" id="avatar-settings-container">
+      
+      {/* Beautiful Hero Cover Banner */}
+      <div className="relative w-full h-44 rounded-2xl overflow-hidden shadow-inner border border-stone-200/50">
+        <img 
+          src="/src/assets/images/dr_t_cover_1781255193776.jpg" 
+          alt="Doctor T Maternal Polymath Cover" 
+          className="w-full h-full object-cover select-none"
+          referrerPolicy="no-referrer"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-stone-950/80 via-stone-900/40 to-transparent flex flex-col justify-end p-5">
+          <span className="text-[9px] font-mono font-bold tracking-widest text-[#fecdd3] uppercase">INTELLIGENT COGNITIVE MATRICES</span>
+          <h2 className="text-xl font-black text-white leading-tight font-sans mt-1">
+            Doctor T: Core Polymath Identity
+          </h2>
+          <p className="text-[10px] text-stone-200 leading-normal mt-1 opacity-90 max-w-sm">
+            Nurturing human potential across healthcare, science, psychology, humanities, and lifestyle consulting under cozy maternal warmth.
+          </p>
+        </div>
+      </div>
+
       {/* Title */}
       <div>
         <h3 className="text-lg font-bold tracking-tight text-stone-800 flex items-center gap-2">
