@@ -39,12 +39,89 @@ export default function App() {
   const [vibe, setVibe] = useState<DrTVibe>('empathetic');
   const [voiceName, setVoiceName] = useState<string>('Kore');
   const [language, setLanguage] = useState<string>('auto');
+  const [hasGreeted, setHasGreeted] = useState<boolean>(false);
   
   // Real-time voice states
   const [isRecording, setIsRecording] = useState<boolean>(false);
   const [isThinking, setIsThinking] = useState<boolean>(false);
   const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
   const [autoSpeak, setAutoSpeak] = useState<boolean>(true);
+  const [ttsEngine, setTtsEngine] = useState<'gemini' | 'browser'>('gemini');
+
+  // Load and pre-cache browser synthesis voices early
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.speechSynthesis) {
+      window.speechSynthesis.getVoices();
+    }
+  }, []);
+
+  const getIcebreakerText = (currentLang: string) => {
+    const lang = currentLang?.toLowerCase() || 'auto';
+    if (lang.includes('vietnamese') || lang.includes('vi')) {
+      return "Chào con yêu thương của mẹ! Mẹ là tiến sĩ T, người luôn ở đây ôm ấp lắng nghe con. Hôm nay thế giới bên ngoài có làm con thấy mệt mỏi dạo quanh cuộc đời dạo này không? Nói với mẹ nghe nào, ngoan nè mẹ thương.";
+    } else if (lang.includes('french') || lang.includes('fr')) {
+      return "Bonjour mon chéri ! C'est le docteur T. Je t'attendais avec impatience. Installe-toi confortablement et raconte-moi comment s'est passée ta journée. Je suis là pour toi.";
+    } else if (lang.includes('spanish') || lang.includes('es')) {
+      return "¡Hola, mi corazón! Soy la doctora T. Te estaba esperando con mucho cariño. Ven, siéntate a mi lado y cuéntame cómo te ha ido el día. Siempre estoy aquí para ti.";
+    } else if (lang.includes('german') || lang.includes('de')) {
+      return "Hallo mein Schatz! Ich bin Frau Doktor T. Ich habe schon auf dich gewartet. Komm, setz dich zu mir und erzähl mir, wie dein Tag war. Ich bin immer für dich da.";
+    } else {
+      return "Hello, sweetheart! It's Dr. T. I'm so glad you have stepped onto the platform. I've been waiting for you with a warm heart. Come sit down, take a deep breath, and tell me how your day has been.";
+    }
+  };
+
+  const getSpeechBubbleText = (currentLang: string) => {
+    const lang = currentLang?.toLowerCase() || 'auto';
+    if (lang.includes('vietnamese') || lang.includes('vi')) {
+      return "Nhập để nghe mẹ chào con đầu tiên nhé! 💕";
+    } else if (lang.includes('french') || lang.includes('fr')) {
+      return "Clique pour entendre mon bonjour ! 💕";
+    } else if (lang.includes('spanish') || lang.includes('es')) {
+      return "¡Toca para que pueda saludarte! 💕";
+    } else if (lang.includes('german') || lang.includes('de')) {
+      return "Klicke hier für eine Begrüßung! 💕";
+    } else {
+      return "Tap to let me break the ice! 💕";
+    }
+  };
+
+  const triggerGreeting = () => {
+    if (hasGreeted) return;
+    setHasGreeted(true);
+    setAudioError(null);
+    const greetingText = getIcebreakerText(language);
+    const greetingId = 'greeting-' + Date.now();
+    const newGreeting: Message = {
+      id: greetingId,
+      role: 'model',
+      content: greetingText,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    };
+    setMessages([newGreeting]);
+    setTimeout(() => {
+      speakMessage(greetingId, greetingText);
+    }, 200);
+  };
+
+  // Automatically trigger the greeting on the first mouse click, touch gesture or key press in the document
+  useEffect(() => {
+    const handleGesture = () => {
+      triggerGreeting();
+      window.removeEventListener('click', handleGesture);
+      window.removeEventListener('touchstart', handleGesture);
+      window.removeEventListener('keydown', handleGesture);
+    };
+    if (!hasGreeted) {
+      window.addEventListener('click', handleGesture);
+      window.addEventListener('touchstart', handleGesture);
+      window.addEventListener('keydown', handleGesture);
+    }
+    return () => {
+      window.removeEventListener('click', handleGesture);
+      window.removeEventListener('touchstart', handleGesture);
+      window.removeEventListener('keydown', handleGesture);
+    };
+  }, [hasGreeted, language]);
   
   // Colorful interaction & game states
   const [floatingEmojis, setFloatingEmojis] = useState<{ id: number; char: string; left: number; size: number; delay: number }[]>([]);
@@ -178,12 +255,71 @@ export default function App() {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
     }
+    if (typeof window !== 'undefined' && window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+    }
     setIsSpeaking(false);
     // Remove "vocalizing" flags from messages
     setMessages(prev => prev.map(m => ({ ...m, isVoicePlaying: false })));
   };
 
-  // Speaks out a message using Dr. T's backend speech generation
+  // Speaks out a message using native browser Web Speech synthesis helper
+  const speakViaWebSpeechAPI = (cleanedText: string, messageId: string) => {
+    if (typeof window === 'undefined' || !window.speechSynthesis) {
+      console.warn("Web Speech synthesis is not supported on this device/browser.");
+      return;
+    }
+
+    setIsSpeaking(true);
+    setMessages(prev => prev.map(m => m.id === messageId ? { ...m, isVoicePlaying: true } : m));
+
+    const utterance = new SpeechSynthesisUtterance(cleanedText);
+
+    // Dynamic voice selection matching selected language
+    const voices = window.speechSynthesis.getVoices();
+    let matchedVoice = null;
+    const currentLang = language?.toLowerCase() || 'auto';
+
+    if (currentLang.includes('vietnamese') || currentLang.includes('vi')) {
+      utterance.lang = 'vi-VN';
+      matchedVoice = voices.find(v => v.lang.startsWith('vi-') || v.lang.startsWith('vi'));
+    } else if (currentLang.includes('french') || currentLang.includes('fr')) {
+      utterance.lang = 'fr-FR';
+      matchedVoice = voices.find(v => v.lang.startsWith('fr-') || v.lang.startsWith('fr'));
+    } else if (currentLang.includes('spanish') || currentLang.includes('es')) {
+      utterance.lang = 'es-ES';
+      matchedVoice = voices.find(v => v.lang.startsWith('es-') || v.lang.startsWith('es'));
+    } else if (currentLang.includes('german') || currentLang.includes('de')) {
+      utterance.lang = 'de-DE';
+      matchedVoice = voices.find(v => v.lang.startsWith('de-') || v.lang.startsWith('de'));
+    } else {
+      utterance.lang = 'en-US';
+      matchedVoice = voices.find(v => v.lang.startsWith('en-') || v.lang.startsWith('en'));
+    }
+
+    if (matchedVoice) {
+      utterance.voice = matchedVoice;
+    }
+
+    // Gentle motherly speech style settings
+    utterance.rate = 1.0;
+    utterance.pitch = 1.05;
+
+    utterance.onend = () => {
+      setIsSpeaking(false);
+      setMessages(prev => prev.map(m => m.id === messageId ? { ...m, isVoicePlaying: false } : m));
+    };
+
+    utterance.onerror = (e) => {
+      console.error('Web Speech Playback error:', e);
+      setIsSpeaking(false);
+      setMessages(prev => prev.map(m => m.id === messageId ? { ...m, isVoicePlaying: false } : m));
+    };
+
+    window.speechSynthesis.speak(utterance);
+  };
+
+  // Speaks out a message using Dr. T's backend speech generation with local fallback
   const speakMessage = async (messageId: string, textToSpeak: string) => {
     stopAudio();
     setIsSpeaking(true);
@@ -193,6 +329,11 @@ export default function App() {
     const cleanedText = textToSpeak
       .replace(/[\*\_\`\-\#]/g, '') // remove markdown artifacts
       .trim();
+
+    if (ttsEngine === 'browser') {
+      speakViaWebSpeechAPI(cleanedText, messageId);
+      return;
+    }
 
     try {
       setMessages(prev => prev.map(m => m.id === messageId ? { ...m, isVoicePlaying: true } : m));
@@ -207,8 +348,17 @@ export default function App() {
       });
 
       if (!response.ok) {
-        const errObj = await response.json();
-        throw new Error(errObj.error || 'Failed to synthesize voice.');
+        const errObj = await response.json().catch(() => ({}));
+        const errMsg = errObj.error || 'Failed to synthesize voice.';
+        
+        // Quota Limit Exception is handled seamlessly!
+        if (response.status === 429 || errMsg.toLowerCase().includes('quota') || errMsg.toLowerCase().includes('rate')) {
+          console.warn("Gemini TTS free-tier rate limit reached. Falling back to local device voice.");
+          speakViaWebSpeechAPI(cleanedText, messageId);
+          setAudioError("Defaulted to local device voice (Gemini TTS limit reached).");
+          return;
+        }
+        throw new Error(errMsg);
       }
 
       const data = await response.json();
@@ -223,7 +373,6 @@ export default function App() {
         arrayBuffer[i] = audioBytes.charCodeAt(i);
       }
       
-      // Standard audio format from gemini-tts is wav / raw audio
       const audioBlob = new Blob([arrayBuffer], { type: 'audio/wav' });
       const audioUrl = URL.createObjectURL(audioBlob);
 
@@ -237,17 +386,21 @@ export default function App() {
 
       audio.onerror = (e) => {
         console.error('Audio playback error:', e);
-        setAudioError('Failed playing audio. Codec or network mismatch.');
-        setIsSpeaking(false);
-        setMessages(prev => prev.map(m => m.id === messageId ? { ...m, isVoicePlaying: false } : m));
+        console.warn('Audio playback failed; falling back to local device voice.');
+        speakViaWebSpeechAPI(cleanedText, messageId);
       };
 
-      await audio.play();
+      try {
+        await audio.play();
+      } catch (playErr: any) {
+        console.warn('Autoplay blocked audio play:', playErr);
+        // Fall back gracefully to local speech synthesis so the experience behaves seamlessly
+        speakViaWebSpeechAPI(cleanedText, messageId);
+      }
     } catch (err: any) {
-      console.error('TTS execution error:', err);
-      setAudioError(`Speech synthesis error: ${err.message || err}`);
-      setIsSpeaking(false);
-      setMessages(prev => prev.map(m => m.id === messageId ? { ...m, isVoicePlaying: false } : m));
+      console.error('TTS execution error, falling back:', err);
+      speakViaWebSpeechAPI(cleanedText, messageId);
+      setAudioError("Defaulted to local device voice (Gemini TTS limit or connection error).");
     }
   };
 
@@ -270,6 +423,7 @@ export default function App() {
     };
 
     setMessages(prev => [...prev, newUserMsg]);
+    setHasGreeted(true);
     setIsThinking(true);
 
     try {
@@ -434,14 +588,31 @@ export default function App() {
               <Headphones className="w-3.5 h-3.5 text-zinc-500" />
               <select 
                 value={voiceName} 
+                disabled={ttsEngine === 'browser'}
                 onChange={(e) => setVoiceName(e.target.value)}
-                className="bg-transparent focus:outline-none text-zinc-700 font-bold cursor-pointer"
+                className="bg-transparent focus:outline-none text-zinc-700 font-bold cursor-pointer disabled:opacity-50"
               >
                 {VOICES.map((v) => (
                   <option key={v.id} value={v.id} className="bg-white text-zinc-800">
                     {v.name} ({v.accent})
                   </option>
                 ))}
+              </select>
+            </div>
+
+            {/* TTS Engine Toggle */}
+            <div className="flex items-center gap-1.5 bg-white border border-stone-200 rounded-xl px-2.5 py-1.5 text-xs shadow-xs">
+              <Sparkles className="w-3.5 h-3.5 text-zinc-500" />
+              <select 
+                value={ttsEngine} 
+                onChange={(e) => {
+                  setTtsEngine(e.target.value as 'gemini' | 'browser');
+                  stopAudio();
+                }}
+                className="bg-transparent focus:outline-none text-zinc-700 font-bold cursor-pointer"
+              >
+                <option value="gemini" className="bg-white text-zinc-800">Neural Voice (Gemini)</option>
+                <option value="browser" className="bg-white text-zinc-800">Local Voice (Device)</option>
               </select>
             </div>
 
@@ -477,22 +648,29 @@ export default function App() {
       {/* Main Container */}
       <main className="flex-1 max-w-md w-full mx-auto p-4 flex flex-col gap-5 relative z-10 justify-center items-center">
         
-        {/* Error notifications */}
-        {audioError && (
-          <div className="w-full p-3 bg-rose-50 border border-rose-200 rounded-xl flex items-start gap-2 text-rose-700 text-xs animate-fadeIn shadow-xs relative">
-            <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
-            <div className="flex-1">
-              <p className="font-semibold">Speech Module Warning</p>
-              <p className="opacity-90">{audioError}</p>
+        {/* Error/Notice notifications */}
+        {audioError && (() => {
+          const isFallbackNotice = audioError.toLowerCase().includes('defaulted') || audioError.toLowerCase().includes('browser') || audioError.toLowerCase().includes('local');
+          return (
+            <div className={`w-full p-3 rounded-xl flex items-start gap-2 text-xs animate-fadeIn shadow-xs relative border ${
+              isFallbackNotice 
+                ? 'bg-amber-50/90 border-amber-200 text-amber-800' 
+                : 'bg-rose-50 border-rose-200 text-rose-700'
+            }`}>
+              {isFallbackNotice ? <Sparkles className="w-4 h-4 mt-0.5 shrink-0 text-amber-500" /> : <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />}
+              <div className="flex-1">
+                <p className="font-semibold">{isFallbackNotice ? "Maternal Support Mode Activated" : "Speech Module Notice"}</p>
+                <p className="opacity-95">{audioError}</p>
+              </div>
+              <button 
+                onClick={() => setAudioError(null)} 
+                className={`text-xs font-mono font-bold leading-none ${isFallbackNotice ? 'text-amber-500 hover:text-amber-700' : 'text-rose-500 hover:text-rose-700'}`}
+              >
+                ✕
+              </button>
             </div>
-            <button 
-              onClick={() => setAudioError(null)} 
-              className="text-rose-500 hover:text-rose-700 text-xs font-mono font-bold"
-            >
-              ✕
-            </button>
-          </div>
-        )}
+          );
+        })()}
 
         {/* Main Voice Panel */}
         <div className="w-full bg-white/80 border border-rose-100 rounded-3xl p-6 shadow-md flex flex-col items-center justify-between min-h-[440px]">
@@ -513,6 +691,16 @@ export default function App() {
                 <span className="text-xs text-rose-550 font-mono font-bold animate-pulse-fast">
                   🎤 Listening to your warm speech...
                 </span>
+              ) : !hasGreeted ? (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    triggerGreeting();
+                  }}
+                  className="text-xs text-rose-600 font-mono font-semibold animate-pulse flex items-center gap-1 hover:text-rose-700 underline decoration-dashed cursor-pointer"
+                >
+                  👋 Click here to break the ice!
+                </button>
               ) : (
                 <span className="text-xs text-zinc-450 font-mono">
                   Waiting for your spark
@@ -522,7 +710,24 @@ export default function App() {
           </div>
 
           {/* Cosmic Orb Visual representing Dr. T's status */}
-          <div className="relative my-6 flex items-center justify-center w-36 h-36">
+          <div 
+            onClick={!hasGreeted ? () => triggerGreeting() : undefined}
+            className={`relative my-6 flex items-center justify-center w-36 h-36 ${!hasGreeted ? 'cursor-pointer hover:scale-103' : ''} transition-transform duration-300`}
+          >
+            {/* Soft pointing bubble arrow */}
+            {!hasGreeted && (
+              <div 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  triggerGreeting();
+                }}
+                className="absolute -top-11 z-20 bg-white/95 border border-rose-100 px-3 py-1.5 rounded-2xl shadow-md text-[11px] font-semibold text-rose-700 animate-bounce cursor-pointer whitespace-nowrap flex items-center gap-1.5 transition-all hover:scale-105 active:scale-95"
+              >
+                <span>👋</span>
+                <span>{getSpeechBubbleText(language)}</span>
+                <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-0.5 w-1.5 h-1.5 bg-white border-r border-b border-rose-100 rotate-45"></div>
+              </div>
+            )}
             {/* Outer Neon Glow Halo */}
             <div className={`absolute inset-0 rounded-full blur-3xl transition-all duration-1000 opacity-55 scale-125
               ${vibe === 'empathetic' ? 'bg-gradient-to-tr from-rose-400 to-pink-400' : vibe === 'witty' ? 'bg-gradient-to-tr from-amber-300 to-yellow-400' : vibe === 'philosophical' ? 'bg-gradient-to-tr from-indigo-300 to-sky-350' : 'bg-gradient-to-tr from-purple-300 to-fuchsia-450'}
@@ -706,7 +911,7 @@ export default function App() {
             <HelpCircle className="w-3 h-3" /> Dedicated full-conversational voice mode active
           </span>
           <span>
-            Engine: Gemini 3.5 & 3.1 TTS
+            Engine: {ttsEngine === 'gemini' ? 'Gemini 3.5 & 3.1 Neural' : 'Browser Native'} synthesizer
           </span>
         </div>
 
