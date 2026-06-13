@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { 
   Sparkles, 
   Mic, 
@@ -34,7 +35,8 @@ import {
   Grid,
   Upload,
   Clock,
-  ArrowRight
+  ArrowRight,
+  X
 } from 'lucide-react';
 import { VIBES, VOICES, LANGUAGES, INITIAL_MEMORY_NODES, INITIAL_SPECIALIST_AGENTS, INITIAL_MED_LIST, INITIAL_HEALTH_METRICS, INITIAL_SKILL_NODES, INITIAL_TASK_LIST, INITIAL_CALENDAR_EVENTS, INITIAL_SMART_NOTES, INITIAL_CARBON_HABITS } from './constants';
 import { Message, DrTVibe, DrTAppearance, MemoryNode, SpecialistAgent, MedLog, HealthMetric, SkillNode, TaskItem, CalendarEvent, SmartNote, CarbonHabit, LifetimeStreak } from './types';
@@ -94,9 +96,57 @@ export default function App() {
     happiness: 70
   });
 
+  // Guided Breathing Overlay states
+  const [showBreathing, setShowBreathing] = useState<boolean>(false);
+  const [breathingPhase, setBreathingPhase] = useState<'inhale' | 'hold' | 'exhale' | 'complete'>('inhale');
+  const [breathingSeconds, setBreathingSeconds] = useState<number>(60);
+  const [breathingCycleSeconds, setBreathingCycleSeconds] = useState<number>(0);
+
   // Attachments simulation state
   const [attachedFile, setAttachedFile] = useState<{ name: string; type: 'image' | 'document'; url: string } | null>(null);
   const [uploadNotice, setUploadNotice] = useState<string | null>(null);
+
+  // Guided Breathing Timer & Synchronous Voice Logic
+  useEffect(() => {
+    let timer: any = null;
+    if (showBreathing && breathingSeconds > 0) {
+      timer = setInterval(() => {
+        setBreathingSeconds(prev => {
+          if (prev <= 1) {
+            setBreathingPhase('complete');
+            speakBreathing('complete');
+            return 0;
+          }
+          return prev - 1;
+        });
+
+        setBreathingCycleSeconds(prevCycle => {
+          const nextCycle = (prevCycle + 1) % 10;
+          
+          if (nextCycle === 0) {
+            setBreathingPhase('inhale');
+            speakBreathing('inhale');
+          } else if (nextCycle === 4) {
+            setBreathingPhase('hold');
+            speakBreathing('hold');
+          } else if (nextCycle === 6) {
+            setBreathingPhase('exhale');
+            speakBreathing('exhale');
+          }
+          
+          return nextCycle;
+        });
+      }, 1000);
+    } else if (!showBreathing) {
+      if (typeof window !== 'undefined' && window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+    }
+
+    return () => {
+      if (timer) clearInterval(timer);
+    };
+  }, [showBreathing, breathingSeconds, language]);
 
   // Load and pre-cache browser synthesis voices early
   useEffect(() => {
@@ -491,6 +541,92 @@ export default function App() {
     } catch (err) {
       speakViaWebSpeechAPI(cleanedText, messageId);
       setAudioError("Defaulted to local device voice (Gemini TTS limit or connection error).");
+    }
+  };
+
+  const speakBreathing = (phase: 'inhale' | 'hold' | 'exhale' | 'complete') => {
+    if (typeof window === 'undefined' || !window.speechSynthesis) return;
+    
+    // Stop previous utterances to prevent speech overlap at boundaries
+    window.speechSynthesis.cancel();
+
+    const langLower = (language || 'auto').toLowerCase();
+    let text = "";
+
+    if (langLower.includes('spanish') || langLower.includes('es')) {
+      if (phase === 'inhale') text = "Inhala suavemente, mi cielo. Siente cómo se llena tu pecho de paz.";
+      else if (phase === 'hold') text = "Mantén el aire... descansa en este momento de calma.";
+      else if (phase === 'exhale') text = "Exhala despacio, soltando toda la tensión. Todo está bien, mamá está aquí contigo.";
+      else text = "¡Excelente, mi amor! Lo has hecho de maravilla. Siente esa hermosa serenidad.";
+    } else if (langLower.includes('french') || langLower.includes('fr')) {
+      if (phase === 'inhale') text = "Inspire profondément, mon chéri. Laisse le calme t'envahir.";
+      else if (phase === 'hold') text = "Retiens ton souffle doucement... savoure cet instant.";
+      else if (phase === 'exhale') text = "Expire lentement, relâche toutes tes inquiétudes. Je suis fière de toi.";
+      else text = "C'est magnifique, mon cœur. Tu as fait un traitement formidable.";
+    } else {
+      // Default English
+      if (phase === 'inhale') text = "Breathe in deeply, sweetheart. Feel the clean, calming air fill your lungs.";
+      else if (phase === 'hold') text = "Gently hold... rest in this space of pure, unbothered peace.";
+      else if (phase === 'exhale') text = "Now exhale slowly, let go of all today's tightness. Mommy is right here.";
+      else text = "Wonderful session, my child. Look at how beautifully you calmed your mind. Mommy is so proud of you.";
+    }
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    const voices = window.speechSynthesis.getVoices();
+    let matchedVoice = null;
+    
+    if (langLower.includes('spanish') || langLower.includes('es')) {
+      utterance.lang = 'es-ES';
+      matchedVoice = voices.find(v => v.lang.startsWith('es-') || v.lang.startsWith('es'));
+    } else if (langLower.includes('french') || langLower.includes('fr')) {
+      utterance.lang = 'fr-FR';
+      matchedVoice = voices.find(v => v.lang.startsWith('fr-') || v.lang.startsWith('fr'));
+    } else {
+      utterance.lang = 'en-US';
+      matchedVoice = voices.find(v => v.lang.startsWith('en-') || v.lang.startsWith('en'));
+    }
+
+    if (matchedVoice) {
+      utterance.voice = matchedVoice;
+    }
+
+    utterance.rate = 0.82; // Speeches are soothing and relaxed
+    utterance.pitch = 1.08; // Cozy maternal tone
+
+    window.speechSynthesis.speak(utterance);
+  };
+
+  const startBreathingOverlay = () => {
+    stopAudio();
+    setIsSpeaking(false);
+    
+    setBreathingSeconds(60);
+    setBreathingCycleSeconds(0);
+    setBreathingPhase('inhale');
+    setShowBreathing(true);
+    
+    setTimeout(() => {
+      speakBreathing('inhale');
+    }, 200);
+  };
+
+  const getBreathingSubtitle = () => {
+    const langLower = (language || 'auto').toLowerCase();
+    if (langLower.includes('spanish') || langLower.includes('es')) {
+      if (breathingPhase === 'inhale') return "Inhala suavemente, mi cielo. Siente cómo se llena tu pecho de paz.";
+      if (breathingPhase === 'hold') return "Mantén el aire... descansa en este momento de calma.";
+      if (breathingPhase === 'exhale') return "Exhala despacio, soltando toda la tensión. Todo está bien, mamá está aquí contigo.";
+      return "¡Excelente, mi amor! Lo has hecho de maravilla. Siente esa hermosa serenidad.";
+    } else if (langLower.includes('french') || langLower.includes('fr')) {
+      if (breathingPhase === 'inhale') return "Inspire profondément, mon chéri. Laisse le calme t'envahir.";
+      if (breathingPhase === 'hold') return "Retiens ton souffle doucement... savoure cet instant.";
+      if (breathingPhase === 'exhale') return "Expire lentement, relâche toutes tes inquiétudes. Je suis fière de toi.";
+      return "C'est magnifique, mon cœur. Tu as fait un traitement formidable.";
+    } else {
+      if (breathingPhase === 'inhale') return "Breathe in deeply, sweetheart. Feel the clean, calming air fill your lungs.";
+      if (breathingPhase === 'hold') return "Gently hold... rest in this space of pure, unbothered peace.";
+      if (breathingPhase === 'exhale') return "Now exhale slowly, let go of all today's tightness. Mommy is right here.";
+      return "Wonderful session, my child. Look at how beautifully you calmed your mind. Mommy is so proud of you.";
     }
   };
 
@@ -1087,6 +1223,14 @@ export default function App() {
                       "Appearance apparel choice: {APPEARANCES.find(a => a.id === avatarAppearance)?.name}. Age range: {tAge === 'young' ? 'Young Specialist' : tAge === 'mature' ? 'Expert Clinical Partner' : 'Emeritus Socratic Mentor'}."
                     </p>
                   </div>
+
+                  {/* Guided Breathing Trigger Button */}
+                  <button
+                    onClick={startBreathingOverlay}
+                    className="mt-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-rose-50/80 to-pink-50/80 hover:from-rose-100/90 hover:to-pink-100/90 border border-rose-100/80 rounded-2xl w-full text-xs font-bold text-rose-700 transition-all cursor-pointer shadow-xs uppercase font-mono tracking-wider active:scale-98"
+                  >
+                    🧘 Guided Breathing Exercise
+                  </button>
                 </div>
               </div>
 
@@ -1436,6 +1580,157 @@ export default function App() {
         )}
 
       </main>
+
+      {/* Guided Breathing Simulation Overlay */}
+      <AnimatePresence>
+        {showBreathing && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+            className="fixed inset-0 z-50 flex flex-col justify-between items-center p-6 bg-stone-950/98 backdrop-blur-2xl text-stone-100 select-none overflow-hidden"
+            id="guided-breathing-overlay"
+          >
+            {/* Top 60-Second Linear Progress Bar */}
+            <div className="absolute top-0 left-0 right-0 h-1.5 bg-stone-800">
+              <motion.div 
+                initial={{ width: "100%" }}
+                animate={{ width: `${(breathingSeconds / 60) * 100}%` }}
+                transition={{ duration: 1, ease: "linear" }}
+                className={`h-full ${vibe === 'empathetic' ? 'bg-rose-500' : vibe === 'witty' ? 'bg-amber-500' : vibe === 'philosophical' ? 'bg-indigo-500' : 'bg-purple-500'}`}
+              />
+            </div>
+
+            {/* Top Bar Header */}
+            <div className="w-full max-w-4xl flex justify-between items-center mt-4">
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="text-[10px] font-mono font-bold tracking-widest text-[#fecdd3] uppercase">
+                  HEALTH HYPOTHESIS LABS • SOOTHING MEDITATION
+                </span>
+              </div>
+              
+              <button 
+                onClick={() => {
+                  setShowBreathing(false);
+                  if (typeof window !== 'undefined' && window.speechSynthesis) {
+                    window.speechSynthesis.cancel();
+                  }
+                }}
+                className="w-10 h-10 rounded-full bg-stone-900 border border-stone-800 flex items-center justify-center hover:bg-stone-800 hover:text-white transition-all cursor-pointer shadow-md text-stone-400"
+                id="close-breathing-btn"
+                title="Exit Exercise"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Main Interactive Circle Stage */}
+            <div className="flex-1 flex flex-col items-center justify-center gap-8 py-8">
+              
+              {/* Dynamic Breathing Sphere wrapper */}
+              <div className="relative w-72 h-72 flex items-center justify-center">
+                
+                {/* Visual expansion pulse indicator background */}
+                <div className={`absolute inset-0 rounded-full blur-3xl transition-all duration-1000 opacity-30 scale-150
+                  ${vibe === 'empathetic' ? 'bg-gradient-to-tr from-rose-500 to-pink-500' : vibe === 'witty' ? 'bg-gradient-to-tr from-amber-400 to-yellow-450' : vibe === 'philosophical' ? 'bg-gradient-to-tr from-indigo-400 to-sky-450' : 'bg-gradient-to-tr from-purple-400 to-fuchsia-450'}
+                  ${breathingPhase === 'inhale' ? 'scale-175 opacity-40' : breathingPhase === 'hold' ? 'scale-190 opacity-50' : 'scale-130 opacity-20'}
+                `} />
+
+                {/* Outer spinning dashed orbital ring */}
+                <div className={`absolute inset-0 rounded-full border border-dashed animate-spin-slow opacity-20
+                  ${vibe === 'empathetic' ? 'border-rose-400' : vibe === 'witty' ? 'border-amber-400' : vibe === 'philosophical' ? 'border-indigo-400' : 'border-purple-400'}
+                `} />
+
+                {/* Inner spinner dotted ring */}
+                <div className={`absolute inset-8 rounded-full border border-dotted animate-spin-reverse opacity-15
+                  ${vibe === 'empathetic' ? 'border-pink-300' : vibe === 'witty' ? 'border-yellow-300' : vibe === 'philosophical' ? 'border-sky-300' : 'border-fuchsia-300'}
+                `} />
+
+                {/* Synchronized Expanding Breathing Circle container */}
+                <motion.div
+                  animate={{ 
+                    scale: breathingPhase === 'inhale' 
+                      ? 1.0 + (breathingCycleSeconds * 1.0 / 4) 
+                      : breathingPhase === 'hold' 
+                        ? 2.0 
+                        : 2.0 - ((breathingCycleSeconds - 6) * 1.0 / 4)
+                  }}
+                  transition={{ duration: 0.95, ease: "easeInOut" }}
+                  className={`w-32 h-32 rounded-full flex flex-col items-center justify-center relative shadow-3xl text-center border-4 backdrop-blur-md z-10
+                    ${vibe === 'empathetic' ? 'bg-rose-500/15 border-rose-300/60 shadow-rose-500/20' : 
+                      vibe === 'witty' ? 'bg-amber-500/15 border-amber-300/60 shadow-amber-500/20' : 
+                      vibe === 'philosophical' ? 'bg-indigo-500/15 border-indigo-300/60 shadow-indigo-500/20' : 
+                      'bg-purple-500/15 border-purple-300/60 shadow-purple-500/20'}
+                  `}
+                >
+                  {/* Glowing core sphere */}
+                  <div className={`absolute inset-2.5 rounded-full opacity-80 flex items-center justify-center animate-pulse
+                    ${vibe === 'empathetic' ? 'bg-rose-400 shadow-lg shadow-rose-400/50' : 
+                      vibe === 'witty' ? 'bg-amber-400 shadow-lg shadow-amber-400/50' : 
+                      vibe === 'philosophical' ? 'bg-indigo-400 shadow-lg shadow-indigo-400/50' : 
+                      'bg-purple-400 shadow-lg shadow-purple-400/50'}
+                  `}>
+                    <span className="text-2xl text-stone-900 select-none">🧘</span>
+                  </div>
+                </motion.div>
+                
+              </div>
+
+              {/* Phase Title Indicator */}
+              <div className="text-center mt-6">
+                <span className="text-[10px] font-mono font-black tracking-widest text-stone-400 uppercase">
+                  CURRENT PATTERN: 4s INHALE • 2s HOLD • 4s EXHALE
+                </span>
+                <h3 className={`text-4xl font-extrabold tracking-widest uppercase mt-2
+                  ${vibe === 'empathetic' ? 'text-rose-300' : vibe === 'witty' ? 'text-amber-300' : vibe === 'philosophical' ? 'text-indigo-300' : 'text-purple-300'}
+                `}>
+                  {breathingPhase === 'inhale' ? 'Breathe In' : breathingPhase === 'hold' ? 'Hold' : breathingPhase === 'exhale' ? 'Breathe Out' : 'Serenity Rest'}
+                </h3>
+                
+                {/* Beautiful custom-tailored dialogue overlay text */}
+                <p className="text-base text-stone-200 mt-4 max-w-lg mx-auto font-sans font-medium italic leading-relaxed px-6 filter drop-shadow-xs">
+                  "{getBreathingSubtitle()}"
+                </p>
+              </div>
+
+            </div>
+
+            {/* Bottom Timer Status Cards */}
+            <div className="w-full max-w-4xl border-t border-stone-800/80 pt-6 mb-4 flex flex-col md:flex-row gap-6 justify-between items-center text-xs">
+              
+              <div className="flex gap-6 items-center">
+                <div className="bg-stone-900 border border-stone-800 rounded-2xl px-4 py-2.5 flex items-center gap-3">
+                  <div className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping" />
+                  <div>
+                    <p className="text-[9px] font-mono text-stone-500 uppercase leading-none">TIME ELAPSED</p>
+                    <p className="font-mono font-bold text-stone-200 mt-1">{60 - breathingSeconds}s / 60s</p>
+                  </div>
+                </div>
+
+                <div className="bg-stone-900 border border-stone-800 rounded-2xl px-4 py-2.5 flex items-center gap-3">
+                  <Clock className="w-4 h-4 text-stone-400" />
+                  <div>
+                    <p className="text-[9px] font-mono text-stone-500 uppercase leading-none">TIME REMAINING</p>
+                    <p className="font-mono font-bold text-stone-200 mt-1">{breathingSeconds}s</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="text-center md:text-right">
+                <span className="text-[9px] font-mono font-extrabold text-[#fecdd3] tracking-widest uppercase">
+                  DR. T SOCRATIC CONVERSATIONAL COGNITION
+                </span>
+                <p className="text-[10px] text-stone-400 mt-1">
+                  Maternal voice frequency customized for {VIBES.find(v => v.id === vibe)?.name} Composure mode
+                </p>
+              </div>
+
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Invisible HTML5 Audio */}
       <audio className="hidden" ref={audioRef} />
