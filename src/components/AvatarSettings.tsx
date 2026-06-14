@@ -1,6 +1,7 @@
 import React from 'react';
 import { Sparkles, Check, ShieldCheck, User, Headphones, Award } from 'lucide-react';
 import { DrTAppearance, DrTVibe, VoiceChoice } from '../types';
+import drTCover from '../assets/images/dr_t_cover_1781255193776.jpg';
 
 interface AvatarSettingsProps {
   vibe: DrTVibe;
@@ -47,7 +48,7 @@ export const AvatarSettings: React.FC<AvatarSettingsProps> = ({
       {/* Beautiful Hero Cover Banner */}
       <div className="relative w-full h-44 rounded-2xl overflow-hidden shadow-inner border border-stone-200/50">
         <img 
-          src="/src/assets/images/dr_t_cover_1781255193776.jpg" 
+          src={drTCover} 
           alt="Doctor T Maternal Polymath Cover" 
           className="w-full h-full object-cover select-none"
           referrerPolicy="no-referrer"

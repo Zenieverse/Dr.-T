@@ -45,8 +45,7 @@ import { LifeGraph } from './components/LifeGraph';
 import { AgentSwarm } from './components/AgentSwarm';
 import { Trackers } from './components/Trackers';
 import { Dashboard } from './components/Dashboard';
-
-const drTAvatar = "/src/assets/images/dr_t_avatar_1781184840352.jpg";
+import drTAvatar from './assets/images/dr_t_avatar_1781184840352.jpg';
 
 export default function App() {
   // Navigation
