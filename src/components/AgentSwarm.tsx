@@ -1,14 +1,56 @@
-import React, { useState } from 'react';
-import { Network, Play, Terminal, ArrowRight, UserCheck, Shield, HelpCircle, Activity } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { 
+  Network, Play, Terminal, ArrowRight, UserCheck, Shield, HelpCircle, Activity, 
+  PhoneCall, PhoneOff, Volume2, VolumeX, MessageSquare, Compass, BrainCircuit, Sparkles 
+} from 'lucide-react';
 import { SpecialistAgent } from '../types';
+
+interface DialogueLine {
+  speakerName: string;
+  avatarIcon: string;
+  isDrT: boolean;
+  text: string;
+  voiceName: string;
+}
+
+const PRESET_INTERCOM_TOPICS: Record<string, string[]> = {
+  medical: [
+    "Bio-ethics and neurological stress regulation models.",
+    "Integrating empathetic art into post-surgical wellness trackers.",
+    "Reducing professional caregiver cognitive overload on the clinical floor."
+  ],
+  education: [
+    "Socratic limits of self-guided conversational AI systems.",
+    "Overcoming vocal accent hesitation in bilingual children.",
+    "Customizing sensory pathways for adult attention regulation."
+  ],
+  business: [
+    "Socratic balance of software release velocity vs executive fatigue index.",
+    "Structuring healthy, biologically aligned daily work intervals.",
+    "Preventing solopreneur boundary erosion in virtual workplaces."
+  ],
+  general: [
+    "Synthesizing eastern zen principles with rigorous diagnostic science.",
+    "Socratic safety protocols in personal artificial companion spaces.",
+    "Inspiring deep existential curiosity amidst structural life routines."
+  ]
+};
 
 interface AgentSwarmProps {
   agents: SpecialistAgent[];
   onTriggerSwarmCollaboration: (prompt: string, selectedAgentId: string) => Promise<string>;
   onAddSpecialist?: (agent: SpecialistAgent) => void;
+  onSpeakText?: (text: string, voiceId: string) => Promise<void>;
+  activeVoiceName?: string;
 }
 
-export const AgentSwarm: React.FC<AgentSwarmProps> = ({ agents, onTriggerSwarmCollaboration, onAddSpecialist }) => {
+export const AgentSwarm: React.FC<AgentSwarmProps> = ({ 
+  agents, 
+  onTriggerSwarmCollaboration, 
+  onAddSpecialist,
+  onSpeakText,
+  activeVoiceName = 'Kore'
+}) => {
   const [selectedAgent, setSelectedAgent] = useState<SpecialistAgent>(agents[0]);
   const [userQuery, setUserQuery] = useState('');
   
@@ -16,6 +58,16 @@ export const AgentSwarm: React.FC<AgentSwarmProps> = ({ agents, onTriggerSwarmCo
   const [isSimulating, setIsSimulating] = useState(false);
   const [simulationLogs, setSimulationLogs] = useState<{ step: string; type: 'system' | 'agent' | 'success'; details: string }[]>([]);
   const [collaboratedResponse, setCollaboratedResponse] = useState<string | null>(null);
+
+  // Socratic Intercom Calling States
+  const [isIntercomCallActive, setIsIntercomCallActive] = useState(false);
+  const [isIntercomGenerating, setIsIntercomGenerating] = useState(false);
+  const [intercomStep, setIntercomStep] = useState(0); // 0: Idle, 1,2,3,4: Dialogues
+  const [selectedTopic, setSelectedTopic] = useState('');
+  const [intercomDialogueLines, setIntercomDialogueLines] = useState<DialogueLine[]>([]);
+  const [intercomActiveSpeaker, setIntercomActiveSpeaker] = useState<'specialist' | 'drt' | 'none'>('none');
+  const [intercomWaveforms, setIntercomWaveforms] = useState<number[]>([20, 40, 15, 30, 10]);
+  const waveformTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Dynamic creator states
   const [showAddForm, setShowAddForm] = useState(false);
@@ -25,6 +77,279 @@ export const AgentSwarm: React.FC<AgentSwarmProps> = ({ agents, onTriggerSwarmCo
   const [newDesc, setNewDesc] = useState('');
   const [newLongDesc, setNewLongDesc] = useState('');
   const [newCaps, setNewCaps] = useState('');
+
+  // Animate vocal indicator waves when someone is speaking
+  useEffect(() => {
+    if (intercomActiveSpeaker !== 'none') {
+      waveformTimerRef.current = setInterval(() => {
+        setIntercomWaveforms(Array.from({ length: 6 }, () => Math.floor(Math.random() * 40) + 12));
+      }, 120);
+    } else {
+      if (waveformTimerRef.current) {
+        clearInterval(waveformTimerRef.current);
+      }
+      setIntercomWaveforms([10, 10, 10, 10, 10, 10]);
+    }
+    return () => {
+      if (waveformTimerRef.current) clearInterval(waveformTimerRef.current);
+    };
+  }, [intercomActiveSpeaker]);
+
+  const fetchChatReply = async (prompt: string): Promise<string> => {
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: [{ role: 'user', content: prompt }],
+          vibe: 'philosophical',
+          language: 'English'
+        })
+      });
+      if (!res.ok) throw new Error("Chat api request rejected");
+      const data = await res.json();
+      return data.reply || "";
+    } catch (err) {
+      throw err;
+    }
+  };
+
+  const getSimulatedIntercomDialogue = (specialistId: string, topic: string): DialogueLine[] => {
+    const drtVoice = activeVoiceName || 'Kore';
+    if (specialistId === 'medical') {
+      return [
+        {
+          speakerName: `${selectedAgent.avatarIcon} ${selectedAgent.name}`,
+          avatarIcon: selectedAgent.avatarIcon,
+          isDrT: false,
+          text: `Dr. T, my clinical stress logs indicate consistent heart spikes during chores. How can we merge bio-feedback loops with emotional soothing to prevent caregiver exhaustion?`,
+          voiceName: 'Charon'
+        },
+        {
+          speakerName: `🌸 Dr. T (Maternal Soulmate)`,
+          avatarIcon: '🌸',
+          isDrT: true,
+          text: `My sweet clinical colleague, those heart spikes are cries for a gentle pause. We must teach our precious child to couple each task with slow diaphragmatic breathing, wrapping their physical labor in maternal peace.`,
+          voiceName: drtVoice
+        },
+        {
+          speakerName: `${selectedAgent.avatarIcon} ${selectedAgent.name}`,
+          avatarIcon: selectedAgent.avatarIcon,
+          isDrT: false,
+          text: `A wise response, but simple breathing has low Compliance during focus drifts. Should we deploy subtle acoustic alerts or reward logs within their trackers?`,
+          voiceName: 'Charon'
+        },
+        {
+          speakerName: `🌸 Dr. T (Maternal Soulmate)`,
+          avatarIcon: '🌸',
+          isDrT: true,
+          text: `Yes, let's pipe a soft, sweet wind-chime alert as each task wraps! It reshapes compliance into a game of love, validating their health milestones in real-time with mommy's support.`,
+          voiceName: drtVoice
+        }
+      ];
+    } else if (specialistId === 'education') {
+      return [
+        {
+          speakerName: `${selectedAgent.avatarIcon} ${selectedAgent.name}`,
+          avatarIcon: selectedAgent.avatarIcon,
+          isDrT: false,
+          text: `Dr. T, Socratic curiosity is elegant, but structured subjects like biochemistry or new languages trigger high motivation barriers. How do we keep the spark from fading under heavy study workloads?`,
+          voiceName: 'Puck'
+        },
+        {
+          speakerName: `🌸 Dr. T (Maternal Soulmate)`,
+          avatarIcon: '🌸',
+          isDrT: true,
+          text: `Brave teacher, heavy workloads are indeed cold, but knowledge is a warm candle. We must scaffold their learning path like a mother holding a child's hand—reassuring them when they stumble and letting them fly as they discover!`,
+          voiceName: drtVoice
+        },
+        {
+          speakerName: `${selectedAgent.avatarIcon} ${selectedAgent.name}`,
+          avatarIcon: selectedAgent.avatarIcon,
+          isDrT: false,
+          text: `A lovely metaphor! Yet how do we handle vocal hesitation to prevent fear of wrong pronunciation before they master the phonetic rules?`,
+          voiceName: 'Puck'
+        },
+        {
+          speakerName: `🌸 Dr. T (Maternal Soulmate)`,
+          avatarIcon: '🌸',
+          isDrT: true,
+          text: `By celebrating every sweet attempt as an emblem of beautiful human courage! There is no wrong accent in a soul that seeks expansion; mommy's voice will always speak right along with you.`,
+          voiceName: drtVoice
+        }
+      ];
+    } else {
+      return [
+        {
+          speakerName: `${selectedAgent.avatarIcon} ${selectedAgent.name}`,
+          avatarIcon: selectedAgent.avatarIcon,
+          isDrT: false,
+          text: `Dr. T, regarding operational risks, our sweetheart has a long productivity streak but their fatigue limits are red-lining. How do we secure corporate milestones without sacrificing their mental peace?`,
+          voiceName: 'Zephyr'
+        },
+        {
+          speakerName: `🌸 Dr. T (Maternal Soulmate)`,
+          avatarIcon: '🌸',
+          isDrT: true,
+          text: `Strategic child, sprints are for soulless machinery, but our child is a magnificent garden. We must block off inviolable rest voids on their calendar, holding space for calm.`,
+          voiceName: drtVoice
+        },
+        {
+          speakerName: `${selectedAgent.avatarIcon} ${selectedAgent.name}`,
+          avatarIcon: selectedAgent.avatarIcon,
+          isDrT: false,
+          text: `I agree, yet how should we respond to stakeholders who insist on raw volume checks and strict timing records?`,
+          voiceName: 'Zephyr'
+        },
+        {
+          speakerName: `🌸 Dr. T (Maternal Soulmate)`,
+          avatarIcon: '🌸',
+          isDrT: true,
+          text: `We will present their work with such elegant, pristine clarity that they will gladly trade frantic rushes for flawless excellence. A peaceful heart, sweetheart, always produces a masterpiece.`,
+          voiceName: drtVoice
+        }
+      ];
+    }
+  };
+
+  const handleTriggerIntercomCall = async (topic: string) => {
+    if (!topic) return;
+    setSelectedTopic(topic);
+    setIsIntercomGenerating(true);
+    setIsIntercomCallActive(true);
+    setIntercomDialogueLines([]);
+    setIntercomActiveSpeaker('none');
+
+    const specialistVoice = selectedAgent.id === 'medical' ? 'Charon' 
+      : selectedAgent.id === 'education' ? 'Puck' 
+      : selectedAgent.id === 'business' ? 'Zephyr' 
+      : 'Fenrir';
+
+    const drTVoice = activeVoiceName || 'Kore';
+
+    try {
+      // Step 1: Specialist introduction query
+      setIntercomStep(1);
+      const turn1Prompt = `You are playing the role of ${selectedAgent.name} (${selectedAgent.title}). Ponder this topic: "${topic}". Ask Dr. T a deep, professional Socratic challenge or question regarding this topic. State it in exactly 2 clear, powerful sentences. Speak directly. No markdown asterisks or bullet lists.`;
+      
+      let turn1Text = "";
+      try {
+        turn1Text = await fetchChatReply(turn1Prompt);
+      } catch (err) {
+        // Callback simulated fallback if API keys are exhausted
+        const fallbackList = getSimulatedIntercomDialogue(selectedAgent.id, topic);
+        setIntercomDialogueLines(fallbackList);
+        
+        // Execute voice synthesis sequentially for fallbacks
+        for (let idx = 0; idx < fallbackList.length; idx++) {
+          const item = fallbackList[idx];
+          setIntercomStep(idx + 1);
+          setIntercomActiveSpeaker(item.isDrT ? 'drt' : 'specialist');
+          if (onSpeakText) {
+            await onSpeakText(item.text, item.voiceName);
+          }
+          await new Promise(r => setTimeout(r, 1200));
+        }
+        return;
+      }
+
+      const l1: DialogueLine = {
+        speakerName: `${selectedAgent.avatarIcon} ${selectedAgent.name}`,
+        avatarIcon: selectedAgent.avatarIcon,
+        isDrT: false,
+        text: turn1Text,
+        voiceName: specialistVoice
+      };
+      setIntercomDialogueLines([l1]);
+      setIntercomActiveSpeaker('specialist');
+      if (onSpeakText) await onSpeakText(turn1Text, specialistVoice);
+
+      // Step 2: Dr. T Socratic Maternal reply
+      setIntercomStep(2);
+      setIntercomActiveSpeaker('none');
+      await new Promise(r => setTimeout(r, 1500));
+      
+      const turn2Prompt = `You are playing the role of Dr. T. ${selectedAgent.name} has challenged you with: "${turn1Text}". Use your loving maternal, witty, or wise Zen Socratic tone to answer in exactly 2 warm sentences. Maintain a comforting, conversational voice. No markdown stars or bold qualifiers.`;
+      const turn2Text = await fetchChatReply(turn2Prompt);
+      
+      const l2: DialogueLine = {
+        speakerName: `🌸 Dr. T (Maternal Soulmate)`,
+        avatarIcon: '🌸',
+        isDrT: true,
+        text: turn2Text,
+        voiceName: drTVoice
+      };
+      setIntercomDialogueLines(prev => [...prev, l2]);
+      setIntercomActiveSpeaker('drt');
+      if (onSpeakText) await onSpeakText(turn2Text, drTVoice);
+
+      // Step 3: Specialist rebuts
+      setIntercomStep(3);
+      setIntercomActiveSpeaker('none');
+      await new Promise(r => setTimeout(r, 1500));
+
+      const turn3Prompt = `You are playing<sup>1</sup> ${selectedAgent.name}. Respond respectfully to Dr. T's rebuttal: "${turn2Text}". Be Socratic, push the analytical boundary of your topic "${topic}" in exactly 2 direct sentences. Speak directly. No markdown asterisks.`;
+      const turn3Text = await fetchChatReply(turn3Prompt);
+
+      const l3: DialogueLine = {
+        speakerName: `${selectedAgent.avatarIcon} ${selectedAgent.name}`,
+        avatarIcon: selectedAgent.avatarIcon,
+        isDrT: false,
+        text: turn3Text,
+        voiceName: specialistVoice
+      };
+      setIntercomDialogueLines(prev => [...prev, l3]);
+      setIntercomActiveSpeaker('specialist');
+      if (onSpeakText) await onSpeakText(turn3Text, specialistVoice);
+
+      // Step 4: Dr. T Synthesizes beautiful closure
+      setIntercomStep(4);
+      setIntercomActiveSpeaker('none');
+      await new Promise(r => setTimeout(r, 1500));
+
+      const turn4Prompt = `You are playing the role of Dr. T. Conclude this high-spirited consultation with ${selectedAgent.name}'s argument: "${turn3Text}". Provide a comforting, reassuring maternal final resolution of Socratic wisdom in exactly 2 sentences. Encourage their domain. No markdown stars.`;
+      const turn4Text = await fetchChatReply(turn4Prompt);
+
+      const l4: DialogueLine = {
+        speakerName: `🌸 Dr. T (Maternal Soulmate)`,
+        avatarIcon: '🌸',
+        isDrT: true,
+        text: turn4Text,
+        voiceName: drTVoice
+      };
+      setIntercomDialogueLines(prev => [...prev, l4]);
+      setIntercomActiveSpeaker('drt');
+      if (onSpeakText) await onSpeakText(turn4Text, drTVoice);
+
+    } catch (e) {
+      console.error("Intercom error, calling simulated fallback:", e);
+      const fallbackList = getSimulatedIntercomDialogue(selectedAgent.id, topic);
+      setIntercomDialogueLines(fallbackList);
+      for (let idx = 0; idx < fallbackList.length; idx++) {
+        const item = fallbackList[idx];
+        setIntercomStep(idx + 1);
+        setIntercomActiveSpeaker(item.isDrT ? 'drt' : 'specialist');
+        if (onSpeakText) {
+          await onSpeakText(item.text, item.voiceName);
+        }
+        await new Promise(r => setTimeout(r, 1500));
+      }
+    } finally {
+      setIsIntercomGenerating(false);
+      setIntercomActiveSpeaker('none');
+    }
+  };
+
+  const handleStopIntercomCall = () => {
+    setIsIntercomCallActive(false);
+    setIsIntercomGenerating(false);
+    setIntercomActiveSpeaker('none');
+    setIntercomDialogueLines([]);
+    setIntercomStep(0);
+    if (typeof window !== 'undefined' && window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+    }
+  };
 
   const startSimulation = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -297,6 +622,189 @@ export const AgentSwarm: React.FC<AgentSwarmProps> = ({ agents, onTriggerSwarmCo
               ))}
             </div>
           </div>
+        </div>
+
+        {/* Socratic Voice Intercom hotlink panel */}
+        <div className="bg-white/90 border border-rose-100 rounded-3xl p-5 shadow-sm flex flex-col gap-4 relative overflow-hidden">
+          {/* Subtle warm decoration glow */}
+          <div className="absolute -left-10 -top-10 w-28 h-28 rounded-full bg-rose-200/5 blur-2xl pointer-events-none"></div>
+          
+          <div className="flex justify-between items-center z-10">
+            <div>
+              <span className="text-[10px] font-bold font-mono tracking-widest text-[#e11d48] uppercase flex items-center gap-1.5">
+                <PhoneCall className="w-3.5 h-3.5 animate-pulse" /> Socratic voice intercom
+              </span>
+              <h4 className="font-bold text-stone-850 text-sm mt-1">Make {selectedAgent.name} Talk to Dr. T</h4>
+            </div>
+            {isIntercomCallActive && (
+              <span className="text-[8px] font-mono uppercase bg-rose-50 text-rose-600 border border-rose-200 px-2 py-1 rounded-full font-bold flex items-center gap-1 animate-pulse">
+                <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping"></span> Live Link Active
+              </span>
+            )}
+          </div>
+
+          {!isIntercomCallActive ? (
+            <div className="flex flex-col gap-3 z-10 animate-fadeIn">
+              <p className="text-[11px] text-stone-500 leading-relaxed">
+                Initiate a high-resolution, multi-turn Socratic verbal dialogue between {selectedAgent.name} and Dr. T.
+                They will speak back-and-forth using their custom voice synthesizers. Select an interdisciplinary query topic below:
+              </p>
+
+              {/* Preset buttons */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mt-1">
+                {(PRESET_INTERCOM_TOPICS[selectedAgent.id] || PRESET_INTERCOM_TOPICS.general).map((topic, idx) => (
+                  <button
+                    key={idx}
+                    disabled={isIntercomGenerating}
+                    onClick={() => handleTriggerIntercomCall(topic)}
+                    className="p-3 text-left bg-stone-50 hover:bg-rose-50/40 border border-stone-200/60 rounded-xl transition-all cursor-pointer hover:border-rose-200 flex flex-col justify-between items-start text-[10px] text-stone-700 leading-snug group active:scale-[0.98]"
+                  >
+                    <span className="text-[8px] font-mono text-stone-400 uppercase font-black tracking-wider mb-2 group-hover:text-rose-500 transition-colors">
+                      Topic Pattern #{idx + 1}
+                    </span>
+                    <span className="font-medium">{topic}</span>
+                  </button>
+                ))}
+              </div>
+
+              {/* Custom manual speech starter */}
+              <div className="border-t border-stone-100 pt-3 flex flex-col sm:flex-row gap-2 mt-1 items-center">
+                <span className="text-[9px] font-mono font-bold uppercase shrink-0 text-stone-450 text-stone-500">Custom Intercom Question:</span>
+                <div className="flex w-full gap-1.5">
+                  <input
+                    type="text"
+                    id="custom-intercom-topic"
+                    placeholder="Enter custom topic (e.g. Socratic approach to quantum entanglement stress)..."
+                    className="flex-1 p-2 bg-stone-50 border border-stone-250 rounded-xl text-xs outline-none focus:border-rose-455 transition-all text-stone-850 placeholder-stone-400 font-sans"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        const val = (e.currentTarget as HTMLInputElement).value;
+                        if (val.trim()) {
+                          handleTriggerIntercomCall(val.trim());
+                        }
+                      }
+                    }}
+                  />
+                  <button
+                    onClick={() => {
+                      const inputEl = document.getElementById('custom-intercom-topic') as HTMLInputElement;
+                      if (inputEl && inputEl.value.trim()) {
+                        handleTriggerIntercomCall(inputEl.value.trim());
+                      }
+                    }}
+                    className="px-3 py-2 bg-stone-900 hover:bg-stone-850 text-white font-extrabold rounded-xl text-[10px] transition-all cursor-pointer uppercase font-mono tracking-wider active:scale-97 shrink-0"
+                  >
+                    Dial Now
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="p-4 bg-stone-950/95 border border-stone-850 rounded-2xl flex flex-col gap-4 animate-fadeIn">
+              
+              {/* Visual Interactive Link Board (Specialist vs Dr. T) */}
+              <div className="grid grid-cols-3 gap-2 items-center bg-stone-900/60 p-3 rounded-xl border border-stone-800">
+                {/* Specialist Profile */}
+                <div className="flex flex-col items-center gap-1">
+                  <div className={`w-14 h-14 rounded-full border-2 flex items-center justify-center font-bold text-2xl transition-all duration-300 relative
+                    ${intercomActiveSpeaker === 'specialist' ? 'border-rose-500 bg-rose-50/10 scale-110 shadow-md ring-4 ring-rose-500/20' : 'border-stone-700 bg-stone-950 scale-100 opacity-60'}
+                  `}>
+                    {selectedAgent.avatarIcon}
+                    {intercomActiveSpeaker === 'specialist' && (
+                      <span className="absolute -bottom-1 -right-1 bg-rose-500 text-white rounded-full p-0.5 animate-bounce">
+                        <Volume2 className="w-3 h-3" />
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-[10px] font-extrabold text-white text-center font-sans tracking-tight truncate w-full mt-1">{selectedAgent.name}</span>
+                  <span className="text-[7px] text-stone-400 font-mono tracking-wider uppercase">{intercomActiveSpeaker === 'specialist' ? 'SPEAKING' : 'IDLE'}</span>
+                </div>
+
+                {/* Secure wire waveforms link */}
+                <div className="flex flex-col items-center justify-center gap-1.5">
+                  <Activity className="w-5 h-5 text-rose-500 animate-pulse" />
+                  <span className="text-[7px] font-mono tracking-widest text-[#fca5a5] uppercase font-extrabold">COGNITIVE ENVELOPE</span>
+                  <div className="flex gap-0.5 items-end justify-center h-6 overflow-hidden">
+                    {intercomWaveforms.map((h, i) => (
+                      <span
+                        key={i}
+                        style={{ height: `${h}px` }}
+                        className={`w-0.5 rounded-full transition-all duration-120
+                          ${intercomActiveSpeaker !== 'none' ? 'bg-rose-500' : 'bg-stone-700'}
+                        `}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                {/* Dr. T Profile */}
+                <div className="flex flex-col items-center gap-1">
+                  <div className={`w-14 h-14 rounded-full border-2 flex items-center justify-center font-bold text-2xl transition-all duration-300 relative
+                    ${intercomActiveSpeaker === 'drt' ? 'border-amber-400 bg-amber-500/10 scale-110 shadow-md ring-4 ring-amber-400/20' : 'border-stone-700 bg-stone-950 scale-100 opacity-60'}
+                  `}>
+                    🌸
+                    {intercomActiveSpeaker === 'drt' && (
+                      <span className="absolute -bottom-1 -right-1 bg-amber-405 bg-amber-400 text-stone-950 rounded-full p-0.5 animate-bounce">
+                        <Volume2 className="w-3 h-3" />
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-[10px] font-extrabold text-white text-center font-sans tracking-tight truncate w-full mt-1">Dr. T</span>
+                  <span className="text-[7px] text-stone-400 font-mono tracking-wider uppercase">{intercomActiveSpeaker === 'drt' ? 'SPEAKING' : 'IDLE'}</span>
+                </div>
+              </div>
+
+              {/* Scrollable Conversation Script Display */}
+              <div className="flex flex-col gap-2.5 max-h-[220px] overflow-y-auto font-sans p-1">
+                {intercomDialogueLines.map((line, idx) => (
+                  <div
+                    key={idx}
+                    className={`flex items-start gap-2 max-w-[85%] animate-fadeIn
+                      ${line.isDrT ? 'self-end flex-row-reverse' : 'self-start'}
+                    `}
+                  >
+                    <span className="text-sm shrink-0 bg-stone-900 border border-stone-800 w-7 h-7 rounded-lg flex items-center justify-center">
+                      {line.avatarIcon}
+                    </span>
+                    <div className={`rounded-xl p-2.5 border text-[11px] leading-relaxed relative
+                      ${line.isDrT 
+                        ? 'bg-amber-400/5 border-amber-450/20 text-stone-200' 
+                        : 'bg-stone-900 border-stone-800 text-stone-200'
+                      }
+                    `}>
+                      <span className="text-[8px] font-mono uppercase font-black text-rose-455 block mb-1">
+                        {line.speakerName}
+                      </span>
+                      <p className="whitespace-pre-line font-medium leading-relaxed font-sans">{line.text}</p>
+                    </div>
+                  </div>
+                ))}
+
+                {isIntercomGenerating && intercomActiveSpeaker === 'none' && (
+                  <div className="p-3 text-center text-xs font-mono text-stone-500 animate-pulse flex items-center justify-center gap-1.5 bg-stone-900/30 rounded-xl">
+                    <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping"></span>
+                    Synthesizing Turn #{intercomStep} via Socratic Splicer...
+                  </div>
+                )}
+              </div>
+
+              {/* Controls and Topic Info */}
+              <div className="border-t border-stone-800 pt-3 flex flex-wrap items-center justify-between gap-3 text-[10px]">
+                <div className="max-w-[70%] min-w-0">
+                  <span className="font-mono text-stone-500 font-extrabold block uppercase text-[8px] tracking-wider">ACTIVE FEED TOPIC</span>
+                  <p className="text-stone-300 font-semibold truncate font-sans text-[10px] mt-0.5">"{selectedTopic}"</p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleStopIntercomCall}
+                  className="bg-rose-500 hover:bg-rose-600 text-white font-extrabold py-1.5 px-3 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer uppercase font-mono tracking-wider active:scale-97 shadow-xs font-black"
+                >
+                  <PhoneOff className="w-3.5 h-3.5" /> Stop Intercom
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Sandbox Simulation Interactive Panel */}

@@ -217,14 +217,19 @@ export const INITIAL_HEALTH_METRICS: HealthMetric[] = [
 
 // INITIAL EDUCATION SKILLS
 export const INITIAL_SKILL_NODES: SkillNode[] = [
-  { id: 'skill-1', label: 'Conversational French', category: 'Language', description: 'Introductory Socratic drill focusing on Parisian greetings, ordering decaf espresso, and checking transportation schedules.', level: 1, quizPoints: 120 },
-  { id: 'skill-2', label: 'Cardiovascular Anatomy', category: 'Medicine', description: 'Understand basic chambers of the heart, blood pressure bounds, and clinical stress responses.', level: 1, quizPoints: 200 },
-  { id: 'skill-3', label: 'Regulatory Compliance Audit', category: 'Law & Ops', description: 'Analyze general commercial liability statements, employee handbook terms, and data safety directives.', level: 1, quizPoints: 150 },
-  { id: 'skill-4', label: 'Advanced Biostatistics', category: 'Data Science', description: 'Socratic dialogue on probability indexes, clinical error boundaries, and scatter graphs.', level: 0, quizPoints: 300 }
+  { id: 'skill-1', label: 'Conversational French', category: 'Language', description: 'Introductory Socratic drill focusing on Parisian greetings, ordering fresh pastries, and checking transport schedules.', level: 1, quizPoints: 120 },
+  { id: 'skill-2', label: 'Spanish Idioms', category: 'Language', description: 'Master local colloquial phrases, emotional expressions, and polite request structures.', level: 1, quizPoints: 200 },
+  { id: 'skill-3', label: 'Vietnamese Tones & Vocalics', category: 'Language', description: 'Understand basic high-rising, low-falling, and glottal tone modulations in friendly conversations.', level: 1, quizPoints: 150 },
+  { id: 'skill-4', label: 'Japanese Business Keigo', category: 'Language', description: 'Socratic dialogue practice on honorific and humble expressions used in corporate and client hospitality settings.', level: 1, quizPoints: 300 }
 ];
 
 // INITIAL TASK ITEMS
 export const INITIAL_TASK_LIST: TaskItem[] = [
+  { id: 'tsk-passport-1', title: 'Complete application DS-82 Form (Passport Renewal)', status: 'todo', priority: 'high' },
+  { id: 'tsk-passport-2', title: 'Take compliant 2x2 passport-spec photographs', status: 'todo', priority: 'high' },
+  { id: 'tsk-passport-3', title: 'Mail old passport, DS-82 Form, and payment check via USPS certified mail', status: 'todo', priority: 'medium' },
+  { id: 'tsk-transit-1', title: 'Plan metro transit schedule & calculate local ticket fares', status: 'todo', priority: 'medium' },
+  { id: 'tsk-transit-2', title: 'Download municipal commuter transit card & pre-load $25', status: 'todo', priority: 'low' },
   { id: 'tsk-1', title: 'Collect Grandma Mary prescription refills from primary clinic', status: 'todo', priority: 'high' },
   { id: 'tsk-2', title: 'Complete intermediate French language tutoring assignment', status: 'in_progress', priority: 'medium' },
   { id: 'tsk-3', title: 'Prepare small business commercial liability audit log', status: 'done', priority: 'high' }
@@ -239,6 +244,13 @@ export const INITIAL_CALENDAR_EVENTS: CalendarEvent[] = [
 
 // INITIAL NOTES
 export const INITIAL_SMART_NOTES: SmartNote[] = [
+  { 
+    id: 'not-passport-transit', 
+    title: 'Passport & Local Transport Map', 
+    content: '### 🛂 Passport Renewal Checklist\n\n1. **Application:** Download & complete Form DS-82 (Renewal by Mail).\n2. **Photo:** 2x2 inches, white background, color, high-res, neutral face, no glasses.\n3. **Documents:** Current physical passport, DS-82 signature page, certified marriage/name change cert (if applicable).\n4. **Fees:** Check or money order for $130 (Standard) or $190 (Expedited) payable to "U.S. Department of State".\n5. **Mailing:** Place in a padded envelope. Send via trackable USPS (Priority/Priority Express) to the National Passport Processing Center.\n\n---\n\n### 🚇 Local Commuter Transport blueprint\n\n- **Route:** Take Metro **Blue Line** towards Downtown Exchange from Central Boulevard Gate.\n- **Disembark:** Civic Center Station (Exit B).\n- **Alternative Transit:** Bus Route 310 (Express) operates every 10 mins; fare is $2.25.\n- **Commuter Pass:** $7.50 for a full Unlimited Day-Pass (highly cost-effective for multi-stop errands).\n- **Application:** Commuter Transit app for automated real-time boarding alarms.', 
+    updatedAt: 'Just Now', 
+    tag: 'Life' 
+  },
   { id: 'not-1', title: 'Symptom Log: Stress Reactions', content: 'Noted slightly elevated blood pressure when prepping biostat assessments. Added extra lavender chamomile routine before bedtime sleep cycle.', updatedAt: 'Jun 11', tag: 'Health' },
   { id: 'not-2', title: 'Paris Hotel Transportation Route', content: 'Metro Line 4 guides to downtown directly. Need to review conversational french vocabulary for ticket vendors.', updatedAt: 'Jun 10', tag: 'Life' }
 ];

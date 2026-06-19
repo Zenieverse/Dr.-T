@@ -1,6 +1,6 @@
 {
   "name": "Dr. T - Multilingual Soulmate",
-  "description": "A comforting, witty, and multilingual voice agent knowing all domains—literature, medical, philosophy, and more. Dr. T is your counselor, agony aunt, and soulmate, speaking Vietnamese, English, French, and more.",
+  "description": "A world-class Biomedical Informatics and Healthcare AI platform featuring multilingual voice agents, a HL7 FHIR interoperability suite, clinical SOAP note synthesis, medical imaging AI, population health dashboards, MIMIC-IV predictive analytics, and a professional portfolio showcase.",
   "requestFramePermissions": ["microphone"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

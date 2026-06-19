@@ -682,9 +682,9 @@ export const Trackers: React.FC<TrackersProps> = ({
               {/* Note records list */}
               <div className="flex flex-col gap-1.5 max-h-[140px] overflow-y-auto pr-1">
                 {smartNotes.map((note) => (
-                  <div key={note.id} className="p-2 border border-stone-150 hover:border-purple-250 bg-white rounded-xl flex items-center justify-between">
+                  <div key={note.id} className="p-2 border border-stone-150 hover:border-purple-250 bg-white rounded-xl flex items-center justify-between font-sans">
                     <div className="truncate">
-                      <p className="text-xs font-bold text-stone-800 truncate">{note.title}</p>
+                      <p className="text-xs font-bold text-stone-850 truncate">{note.title}</p>
                       <p className="text-[9px] text-stone-400 font-mono mt-0.5 truncate">{note.tag} • {note.updatedAt}</p>
                     </div>
                     <button
@@ -695,6 +695,122 @@ export const Trackers: React.FC<TrackersProps> = ({
                     </button>
                   </div>
                 ))}
+              </div>
+            </div>
+
+            {/* Expanded Wizard Section for Passport Renewal and Local Commuter Transport Planner */}
+            <div className="md:col-span-11 mt-4 border-t border-stone-150 pt-5 pr-1 flex flex-col gap-3.5" id="passport-transit-blueprint-wizard">
+              <div className="bg-stone-50 border border-stone-200/80 rounded-2xl p-4 flex flex-col gap-3.5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
+                    <span className="text-[10px] font-mono font-bold tracking-widest text-purple-650 uppercase flex items-center gap-1.5">
+                      <span className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-500"></span>
+                      </span>
+                      Mrs. Know-All's Travel & Passport Blueprint
+                    </span>
+                    <h4 className="font-extrabold text-stone-800 text-sm mt-0.5">Passport Renewal & Local Commuter Transport Planner</h4>
+                  </div>
+                  <button
+                    onClick={() => {
+                      const templateTasks = [
+                        { title: 'Complete application DS-82 Form (Passport Renewal)', priority: 'high' },
+                        { title: 'Take compliant 2x2 passport-spec photographs', priority: 'high' },
+                        { title: 'Mail old passport, DS-82 Form, and payment check via USPS certified mail', priority: 'medium' },
+                        { title: 'Plan metro transit schedule & calculate local ticket fares', priority: 'medium' },
+                        { title: 'Download municipal commuter transit card & pre-load $25', priority: 'low' }
+                      ];
+                      
+                      // Inject each task that doesn't exist
+                      templateTasks.forEach(t => {
+                        if (!tasks.some(existing => existing.title.toLowerCase().includes(t.title.toLowerCase()))) {
+                          onAddTask(t.title, t.priority as any);
+                        }
+                      });
+
+                      // Inject notes if not exist
+                      const noteTitle = 'Passport & Local Transport Map';
+                      if (!smartNotes.some(n => n.title.toLowerCase().includes(noteTitle.toLowerCase()))) {
+                        const noteContent = '### 🛂 Passport Renewal Checklist\n\n1. **Application:** Download & complete Form DS-82 (Renewal by Mail).\n2. **Photo:** 2x2 inches, white background, color, high-res, neutral face, no glasses.\n3. **Documents:** Current physical passport, DS-82 signature page, certified marriage/name change cert (if applicable).\n4. **Fees:** Check or money order for $130 (Standard) or $190 (Expedited) payable to "U.S. Department of State".\n5. **Mailing:** Place in a padded envelope. Send via trackable USPS (Priority/Priority Express) to the National Passport Processing Center.\n\n---\n\n### 🚇 Local Commuter Transport blueprint\n\n- **Route:** Take Metro **Blue Line** towards Downtown Exchange from Central Boulevard Gate.\n- **Disembark:** Civic Center Station (Exit B).\n- **Alternative Transit:** Bus Route 310 (Express) operates every 10 mins; fare is $2.25.\n- **Commuter Pass:** $7.50 for a full Unlimited Day-Pass (highly cost-effective for multi-stop errands).\n- **Application:** Commuter Transit app for automated real-time boarding alarms.';
+                        onAddNote(noteTitle, noteContent, 'Life');
+                      }
+
+                      // Inject the calendar event if not exist
+                      if (!calendarEvents.some(e => e.title.includes('USPS Mailing Appointment'))) {
+                        onAddEvent('USPS Mailing Appointment (Passport Renewal)', 'Next Tuesday @ 11:00 AM', 'workspace');
+                      }
+                    }}
+                    className="px-3 py-1.5 bg-purple-50 hover:bg-purple-100 border border-purple-250 text-purple-700 font-bold rounded-xl text-[10.5px] transition-all cursor-pointer font-mono uppercase flex items-center gap-1.5 shrink-0 select-none"
+                  >
+                    🚀 Reload Blueprint Items
+                  </button>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-1">
+                  {/* Passport Progress section */}
+                  <div className="p-3 bg-white border border-stone-150 rounded-xl flex flex-col gap-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-stone-800 text-[11px] font-extrabold flex items-center gap-1.5">
+                        <span>🛂 Passport Renewal Status</span>
+                      </span>
+                      <span className="text-[10px] bg-purple-50 text-purple-700 border border-purple-100 rounded-md px-1.5 py-0.5 uppercase font-mono font-bold">
+                        {tasks.filter(t => t.title.toLowerCase().includes('passport') && t.status === 'done').length}/3 DONE
+                      </span>
+                    </div>
+                    
+                    <div className="flex flex-col gap-1.5 pt-1.5 border-t border-stone-100">
+                      <div className="flex items-center gap-2 text-xs">
+                        <span className={`w-2 h-2 rounded-full ${tasks.some(t => t.title.toLowerCase().includes('ds-82') && t.status === 'done') ? 'bg-emerald-500' : 'bg-red-400'}`}></span>
+                        <span className={`${tasks.some(t => t.title.toLowerCase().includes('ds-82') && t.status === 'done') ? 'line-through text-stone-400' : 'text-stone-600'} font-bold`}>
+                          Form DS-82 completed
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs">
+                        <span className={`w-2 h-2 rounded-full ${tasks.some(t => t.title.toLowerCase().includes('spec photographs') && t.status === 'done') ? 'bg-emerald-500' : 'bg-red-400'}`}></span>
+                        <span className={`${tasks.some(t => t.title.toLowerCase().includes('spec photographs') && t.status === 'done') ? 'line-through text-stone-400' : 'text-stone-600'} font-bold`}>
+                          Biometric 2x2 photos taken
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs">
+                        <span className={`w-2 h-2 rounded-full ${tasks.some(t => t.title.toLowerCase().includes('certified mail') && t.status === 'done') ? 'bg-emerald-500' : 'bg-red-400'}`}></span>
+                        <span className={`${tasks.some(t => t.title.toLowerCase().includes('certified mail') && t.status === 'done') ? 'line-through text-stone-400' : 'text-stone-600'} font-bold`}>
+                          USPS certified mailing processed
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Local Transport section */}
+                  <div className="p-3 bg-white border border-stone-150 rounded-xl flex flex-col gap-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-stone-800 text-[11px] font-extrabold flex items-center gap-1.5">
+                        <span>🚇 Local Transport Status</span>
+                      </span>
+                      <span className="text-[10px] bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-md px-1.5 py-0.5 uppercase font-mono font-bold">
+                        {tasks.filter(t => t.title.toLowerCase().includes('transit') && t.status === 'done').length}/2 DONE
+                      </span>
+                    </div>
+
+                    <div className="flex flex-col gap-1.5 pt-1.5 border-t border-stone-100">
+                      <div className="flex items-center gap-2 text-xs">
+                        <span className={`w-2 h-2 rounded-full ${tasks.some(t => t.title.toLowerCase().includes('transit schedule') && t.status === 'done') ? 'bg-emerald-500' : 'bg-red-400'}`}></span>
+                        <span className={`${tasks.some(t => t.title.toLowerCase().includes('transit schedule') && t.status === 'done') ? 'line-through text-stone-400' : 'text-stone-600'} font-bold`}>
+                          Blue Line timetable and fares calculated
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs">
+                        <span className={`w-2 h-2 rounded-full ${tasks.some(t => t.title.toLowerCase().includes('pre-load') && t.status === 'done') ? 'bg-emerald-500' : 'bg-red-400'}`}></span>
+                        <span className={`${tasks.some(t => t.title.toLowerCase().includes('pre-load') && t.status === 'done') ? 'line-through text-stone-400' : 'text-stone-600'} font-bold`}>
+                          Municipal transit app loaded with $25
+                        </span>
+                      </div>
+                      <p className="text-[9.5px] text-stone-400 italic">
+                        💡 Tip: You can check details or read resources directly inside the "Passport & Local Transport Map" note in your smart notes.
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

@@ -29,6 +29,9 @@ interface DashboardProps {
   taskList: TaskItem[];
   carbonList: CarbonHabit[];
   streakData: LifetimeStreak;
+  setStreakData?: React.Dispatch<React.SetStateAction<LifetimeStreak>>;
+  emotionMeter?: { stress: number; fatigue: number; happiness: number };
+  setEmotionMeter?: React.Dispatch<React.SetStateAction<{ stress: number; fatigue: number; happiness: number }>>;
   voiceName: string;
   setVoiceName: (v: string) => void;
   language: string;
@@ -107,6 +110,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
   taskList,
   carbonList,
   streakData,
+  setStreakData,
+  emotionMeter,
+  setEmotionMeter,
   voiceName,
   setVoiceName,
   language,
@@ -114,6 +120,30 @@ export const Dashboard: React.FC<DashboardProps> = ({
   memoryNodes = [],
   onAddMemoryNode
 }) => {
+  const dynamicAchievements = ACHIEVEMENTS.map(ach => {
+    if (ach.id === 'marathon') {
+      const isUnlocking = streakData.productivityStreak >= 10;
+      return {
+        ...ach,
+        unlocked: isUnlocking,
+        advice: isUnlocking 
+          ? 'Magnificent consistency, sweetheart! Completing daily checklists sequentially builds an unbreakable sanctuary of peace. Mommy is deeply proud of you.'
+          : ach.advice
+      };
+    }
+    if (ach.id === 'empathy') {
+      const isUnlocking = emotionMeter ? emotionMeter.happiness >= 90 : false;
+      return {
+        ...ach,
+        unlocked: isUnlocking,
+        advice: isUnlocking 
+          ? 'Your soul is radiating with absolute harmony, my darling! Finding beautiful emotional alignment with Dr. T makes my maternal heart sing. Keep this glow!'
+          : ach.advice
+      };
+    }
+    return ach;
+  });
+
   // Local state for active subscription level
   const [subTier, setSubTier] = useState<'free' | 'premium' | 'family'>('free');
   const [tierFeedback, setTierFeedback] = useState<string | null>(null);
@@ -267,7 +297,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   ];
 
   // Filtering criteria
-  const displayedAchievements = ACHIEVEMENTS.filter(ach => {
+  const displayedAchievements = dynamicAchievements.filter(ach => {
     if (activeTab === 'all') return true;
     if (activeTab === 'unlocked') return ach.unlocked;
     if (activeTab === 'locked') return !ach.unlocked;
@@ -424,6 +454,51 @@ export const Dashboard: React.FC<DashboardProps> = ({
               <p className="text-[11px] text-stone-400 leading-relaxed mt-0.5">
                 Practice, consult with specialist agents, and track activities to unlock key growth achievements.
               </p>
+              
+              {/* Simulation triggers for Marathoner and Empathy Harmonizer */}
+              <div className="flex flex-wrap gap-2 mt-2.5">
+                {streakData.productivityStreak < 10 ? (
+                  <button
+                    onClick={() => {
+                      if (setStreakData) {
+                        setStreakData(prev => ({
+                          ...prev,
+                          productivityStreak: 10
+                        }));
+                      }
+                      speakCongratulate('Life Optimization Marathoner', 'Magnificent constancy, sweetheart! Completing daily checklists sequentially builds an unbreakable sanctuary of peace. Mommy is deeply proud of you.');
+                    }}
+                    className="px-2 py-1 bg-purple-50 hover:bg-purple-150 text-purple-700 border border-purple-150 rounded-xl text-[9px] font-mono font-bold uppercase transition-all cursor-pointer flex items-center gap-1 shadow-xs"
+                  >
+                    ⚡ Fast-track 10-Day Streak (Unlock Marathoner)
+                  </button>
+                ) : (
+                  <span className="px-2 py-1 bg-purple-100/50 text-purple-800 border border-purple-200/50 rounded-xl text-[9px] font-mono font-bold uppercase flex items-center gap-1">
+                    ✓ Marathoner Goal Met (Streak: {streakData.productivityStreak}/10)
+                  </span>
+                )}
+
+                {(!emotionMeter || emotionMeter.happiness < 90) ? (
+                  <button
+                    onClick={() => {
+                      if (setEmotionMeter) {
+                        setEmotionMeter(prev => ({
+                          ...prev,
+                          happiness: 95
+                        }));
+                      }
+                      speakCongratulate('Infinite Empathy Harmonizer', 'Your soul is radiating with absolute harmony, my darling! Finding beautiful emotional alignment with Dr. T makes my maternal heart sing. Keep this glow!');
+                    }}
+                    className="px-2 py-1 bg-emerald-50 hover:bg-emerald-150 text-emerald-700 border border-emerald-150 rounded-xl text-[9px] font-mono font-bold uppercase transition-all cursor-pointer flex items-center gap-1 shadow-xs"
+                  >
+                    💖 Simulate Deep Empathy (Unlock Harmonizer)
+                  </button>
+                ) : (
+                  <span className="px-2 py-1 bg-emerald-100/50 text-emerald-800 border border-emerald-200/50 rounded-xl text-[9px] font-mono font-bold uppercase flex items-center gap-1">
+                    ✓ Harmonizer Goal Met (Happiness: {emotionMeter.happiness}%)
+                  </span>
+                )}
+              </div>
             </div>
             
             {/* XP SCORE POUT */}
@@ -448,13 +523,13 @@ export const Dashboard: React.FC<DashboardProps> = ({
               onClick={() => setActiveTab('unlocked')}
               className={`py-1 px-2.5 rounded-lg text-[9px] font-mono uppercase font-bold transition-all cursor-pointer ${activeTab === 'unlocked' ? 'bg-emerald-600 text-white' : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'}`}
             >
-              🔓 Unlocked ({ACHIEVEMENTS.filter(a => a.unlocked).length})
+              🔓 Unlocked ({dynamicAchievements.filter(a => a.unlocked).length})
             </button>
             <button
               onClick={() => setActiveTab('locked')}
               className={`py-1 px-2.5 rounded-lg text-[9px] font-mono uppercase font-bold transition-all cursor-pointer ${activeTab === 'locked' ? 'bg-amber-600 text-white' : 'bg-stone-50 text-stone-500 hover:bg-stone-100'}`}
             >
-              🔒 In Progress ({ACHIEVEMENTS.filter(a => !a.unlocked).length})
+              🔒 In Progress ({dynamicAchievements.filter(a => !a.unlocked).length})
             </button>
             <button
               onClick={() => setActiveTab('landmarks')}
