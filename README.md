@@ -2,6 +2,8 @@
 
 My First Biomedical Informatics Project - a series of challenges set daily commitment starting 2026 Jun 19th, for X months non-stop work to speak medical language like my Dr. T @ https://dr-t-764082783379.us-west1.run.app
 
+<img width="1536" height="1024" alt="IMG_1724" src="https://github.com/user-attachments/assets/475ccae8-452b-4298-91c2-6cced6b772d5" />
+
 > **Disclaimer:** "Dr. T is an educational and decision-support platform and not a substitute for professional medical advice."
 
 Dr. T is a world-class, production-ready Biomedical Informatics portfolio item, Healthcare AI platform, and HealthTech MVP built on a high-fidelity, full-stack architecture using **React, TypeScript, Express, and Google Gemini**. It combines the conversational empathy of a Socratic companion with clinical-vetted schemas, HL7 FHIR interoperability layers, real-time biostatistics metrics, and ICU forecasting engines modeled after MIMIC-IV clinical databases.
