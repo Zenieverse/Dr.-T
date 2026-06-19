@@ -1325,6 +1325,50 @@ export default function App() {
     const newMet: HealthMetric = { id: 'met-' + Date.now(), type, value, date: 'Today', status: 'optimal' };
     setHealthMetrics(prev => [newMet, ...prev]);
   };
+  const getHeartRateValue = (): number => {
+    const hrMetric = healthMetrics.find(m => m.type === 'Heart Rate');
+    if (hrMetric) {
+      const num = parseInt(hrMetric.value, 10);
+      if (!isNaN(num)) return num;
+    }
+    return 72; // default simulated resting bpm
+  };
+  const handleUpdateHeartRate = (newBpm: number) => {
+    setHealthMetrics(prev => {
+      const existsIndex = prev.findIndex(m => m.type === 'Heart Rate');
+      if (existsIndex >= 0) {
+        const updated = [...prev];
+        updated[existsIndex] = {
+          ...updated[existsIndex],
+          value: `${newBpm} bpm`,
+          date: 'Synced'
+        };
+        return updated;
+      } else {
+        return [
+          { id: 'met-' + Date.now(), type: 'Heart Rate', value: `${newBpm} bpm`, date: 'Synced', status: 'optimal' },
+          ...prev
+        ];
+      }
+    });
+
+    // Synchronize emotion indexes to match heart rate
+    setEmotionMeter(prev => {
+      let calcStress = prev.stress;
+      if (newBpm > 100) {
+        calcStress = Math.min(95, Math.floor(75 + (newBpm - 100) * 0.5));
+      } else if (newBpm < 65) {
+        calcStress = Math.max(10, Math.floor(15 - (65 - newBpm) * 0.5));
+      } else {
+        calcStress = Math.floor(20 + (newBpm - 65) * 1.5);
+      }
+      return {
+        ...prev,
+        stress: calcStress,
+        fatigue: Math.min(95, Math.floor(prev.fatigue + (newBpm > 100 ? 5 : -2))),
+      };
+    });
+  };
   const handleAdvanceSkill = (id: string) => {
     setSkillNodes(prev => prev.map(s => s.id === id ? { ...s, level: 2 } : s));
     setStreakData(prev => ({ ...prev, learningStreak: prev.learningStreak + 1 }));
@@ -1565,14 +1609,88 @@ export default function App() {
 
         {/* Tab 1: DR. T COMPANION HUB DEVELOPMENT WORKSPACE */}
         {activeTab === 'hub' && (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 animate-fadeIn" id="dr-t-infinity-hub">
+          <div 
+            className="grid grid-cols-1 lg:grid-cols-12 gap-6 animate-fadeIn transition-all duration-1000" 
+            id="dr-t-infinity-hub"
+            style={{
+              '--orb-glow-color': getHeartRateValue() > 100 ? '#f59e0b' : '#f43f5e',
+              '--orb-glow-start': getHeartRateValue() > 100 ? '#fbbf24' : '#fb7185',
+              '--orb-glow-end': getHeartRateValue() > 100 ? '#d97706' : '#e11d48',
+              '--orb-glow-ring': getHeartRateValue() > 100 ? 'rgba(245, 158, 11, 0.15)' : 'rgba(244, 63, 94, 0.1)'
+            } as React.CSSProperties}
+          >
             
             {/* Left Spatial Voice & Parameter Dashboard Panel (span 5) */}
             <div className="lg:col-span-5 flex flex-col gap-6">
               
               {/* Giant Live Orb card */}
-              <div className="w-full bg-white/80 border border-rose-100/70 rounded-3xl p-6 shadow-md flex flex-col items-center justify-between min-h-[460px]">
-                <div className="w-full text-center">
+              <div className="w-full bg-white/80 border border-rose-100/70 rounded-3xl p-6 shadow-md flex flex-col items-center justify-between min-h-[460px] relative overflow-hidden">
+                
+                {/* SVG Live EKG Pulse Heartbeat Monitor background overlay */}
+                <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
+                  <style dangerouslySetInnerHTML={{__html: `
+                    @keyframes ekgPulse {
+                      0%, 100% {
+                        opacity: 0.15;
+                        transform: scaleY(0.95);
+                        stroke-width: 2.2;
+                      }
+                      15% {
+                        opacity: 0.95;
+                        transform: scaleY(1.15);
+                        stroke-width: 3.5;
+                        filter: drop-shadow(0 0 6px var(--orb-glow-color, #f43f5e));
+                      }
+                      30% {
+                        opacity: 0.25;
+                        transform: scaleY(0.97);
+                        stroke-width: 2.2;
+                      }
+                      45% {
+                        opacity: 0.65;
+                        transform: scaleY(1.05);
+                        stroke-width: 2.8;
+                        filter: drop-shadow(0 0 3px var(--orb-glow-color, #f43f5e));
+                      }
+                    }
+                    .ekg-active-pulse {
+                      transform-origin: center;
+                      animation: ekgPulse var(--ekg-duration, 1s) infinite ease-in-out;
+                    }
+                  `}} />
+                  <svg className="w-full h-full opacity-55" viewBox="0 0 400 300" preserveAspectRatio="none">
+                    <defs>
+                      <pattern id="heartgrid" width="16" height="16" patternUnits="userSpaceOnUse">
+                        <path d="M 16 0 L 0 0 0 16" fill="none" stroke="rgba(244, 63, 94, 0.04)" strokeWidth="0.5"/>
+                        <circle cx="8" cy="8" r="0.5" fill="rgba(244, 63, 94, 0.08)" />
+                      </pattern>
+                      <linearGradient id="ekgGlow" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stopColor="transparent" />
+                        <stop offset="20%" stopColor="var(--orb-glow-color, #f43f5e)" stopOpacity="0.25" />
+                        <stop offset="50%" stopColor="var(--orb-glow-color, #f43f5e)" />
+                        <stop offset="80%" stopColor="var(--orb-glow-color, #f43f5e)" stopOpacity="0.25" />
+                        <stop offset="100%" stopColor="transparent" />
+                      </linearGradient>
+                    </defs>
+                    
+                    {/* Grid Background */}
+                    <rect width="100%" height="100%" fill="url(#heartgrid)" />
+                    
+                    {/* The sweeping/pulsating heartbeat line */}
+                    <path
+                      d="M 0,150 L 40,150 Q 46,142 52,150 L 58,150 L 62,155 L 67,110 L 72,190 L 77,150 L 83,150 Q 90,140 97,150 L 140,150 L 180,150 Q 186,142 192,150 L 198,150 L 202,155 L 207,110 L 212,190 L 217,150 L 223,150 Q 230,140 237,150 L 280,150 L 320,150 Q 326,142 332,150 L 338,150 L 342,155 L 347,110 L 352,190 L 357,150 L 363,150 Q 370,140 377,150 L 400,150"
+                      fill="none"
+                      stroke="url(#ekgGlow)"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="ekg-active-pulse"
+                      style={{ '--ekg-duration': `${60 / getHeartRateValue()}s` } as React.CSSProperties}
+                    />
+                  </svg>
+                </div>
+
+                <div className="w-full text-center z-10">
                   <span className="text-stone-400 font-mono text-[9px] tracking-widest uppercase font-bold">
                     BIOMETRIC CORE PRESENCE
                   </span>
@@ -1612,7 +1730,7 @@ export default function App() {
                 {/* Core animated neon orb wrapper */}
                 <div 
                   onClick={!hasGreeted ? () => triggerGreeting() : undefined}
-                  className={`relative my-6 flex items-center justify-center w-36 h-36 ${!hasGreeted ? 'cursor-pointer hover:scale-103' : ''} transition-all duration-300`}
+                  className={`relative my-6 flex items-center justify-center w-36 h-36 ${!hasGreeted ? 'cursor-pointer hover:scale-103' : ''} transition-all duration-300 z-10`}
                 >
                   {/* Speech bubble indicator callout */}
                   {!hasGreeted && (
@@ -1627,29 +1745,44 @@ export default function App() {
                   )}
 
                   {/* Outer glowing backdrops */}
-                  <div className={`absolute inset-0 rounded-full blur-3xl transition-all duration-1000 opacity-60 scale-125
-                    ${vibe === 'empathetic' ? 'bg-gradient-to-tr from-rose-400 to-pink-400 animate-pulse' : vibe === 'witty' ? 'bg-gradient-to-tr from-amber-300 to-yellow-400 animate-pulse' : vibe === 'philosophical' ? 'bg-gradient-to-tr from-indigo-300 to-sky-450 animate-pulse' : 'bg-gradient-to-tr from-purple-300 to-fuchsia-450 animate-pulse'}
-                    ${isThinking ? 'scale-135' : ''}
-                  `}></div>
+                  <div 
+                    className={`absolute inset-0 rounded-full blur-3xl transition-all duration-1000 opacity-60 scale-125 animate-pulse
+                      ${isThinking ? 'scale-135' : ''}
+                    `}
+                    style={{ 
+                      animationDuration: `${60 / getHeartRateValue()}s`,
+                      backgroundImage: 'radial-gradient(circle, var(--orb-glow-start, #fb7185) 0%, var(--orb-glow-end, #f43f5e) 70%, transparent 100%)'
+                    }}
+                  ></div>
                   
                   {/* Spatial coordinate dashed lines */}
-                  <div className={`absolute inset-0 rounded-full border border-dashed animate-spin-slow opacity-60
-                    ${vibe === 'empathetic' ? 'border-rose-400/40' : vibe === 'witty' ? 'border-amber-400/40' : vibe === 'philosophical' ? 'border-indigo-400/40' : 'border-purple-400/40'}
-                  `}></div>
+                  <div 
+                    className="absolute inset-0 rounded-full border border-dashed animate-spin-slow opacity-60"
+                    style={{ 
+                      animationDuration: `${120 / getHeartRateValue()}s`,
+                      borderColor: 'var(--orb-glow-color, rgba(244, 63, 94, 0.4))'
+                    }}
+                  ></div>
 
-                  <div className={`absolute inset-3 rounded-full border border-dotted animate-spin-reverse opacity-40
-                    ${vibe === 'empathetic' ? 'border-pink-400/35' : vibe === 'witty' ? 'border-yellow-400/35' : vibe === 'philosophical' ? 'border-indigo-400/35' : 'border-fuchsia-400/35'}
-                  `}></div>
+                  <div 
+                    className="absolute inset-3 rounded-full border border-dotted animate-spin-reverse opacity-40"
+                    style={{ 
+                      animationDuration: `${180 / getHeartRateValue()}s`,
+                      borderColor: 'var(--orb-glow-color, rgba(244, 63, 94, 0.35))'
+                    }}
+                  ></div>
 
                   {/* Dr. T Avatar Visual frame */}
-                  <div className={`w-28 h-28 rounded-full border overflow-hidden flex items-center justify-center transition-all duration-1000 z-10 bg-white relative
-                    ${vibe === 'empathetic' ? 'border-rose-300 hover:border-pink-400 ring-rose-500/10' : 
-                      vibe === 'witty' ? 'border-amber-300 hover:border-yellow-400 ring-amber-500/10' : 
-                      vibe === 'philosophical' ? 'border-indigo-300 hover:border-indigo-400 ring-indigo-500/10' : 
-                      'border-purple-300 hover:border-fuchsia-400 ring-purple-500/10'}
-                    ring-8 ring-offset-4 ring-offset-white
-                    ${isRecording ? 'scale-105 border-rose-455' : isSpeaking ? 'scale-110' : 'scale-100'}
-                  `}>
+                  <div 
+                    className={`w-28 h-28 rounded-full border overflow-hidden flex items-center justify-center transition-all duration-1000 z-10 bg-white relative
+                      ring-8 ring-offset-4 ring-offset-white
+                      ${isRecording ? 'scale-105' : isSpeaking ? 'scale-110' : 'scale-100'}
+                    `}
+                    style={{
+                      borderColor: 'var(--orb-glow-color, #fda4af)',
+                      boxShadow: '0 0 0 8px var(--orb-glow-ring, rgba(244, 63, 94, 0.1))'
+                    }}
+                  >
                     <img 
                       src={drTAvatar}
                       alt="Dr. T Avatar" 
@@ -1683,6 +1816,66 @@ export default function App() {
                       </div>
                     )}
                   </div>
+                </div>
+
+                {/* Wearable Biometric Link Pulse Control */}
+                <div className="w-full bg-stone-50/70 border border-stone-200/50 rounded-2xl p-3 flex flex-col gap-2 shadow-xs my-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1.5">
+                      <div className="relative flex items-center justify-center">
+                        <Heart 
+                          className="w-4 h-4 text-rose-500 fill-current shrink-0 animate-pulse" 
+                          style={{ 
+                            animationDuration: `${60 / getHeartRateValue()}s` 
+                          }} 
+                        />
+                        <span className="absolute w-2 h-2 rounded-full bg-rose-400 opacity-75 animate-ping" />
+                      </div>
+                      <span className="text-[10px] font-mono font-bold tracking-wider text-stone-650 uppercase">
+                        Live Wearable Bio-Sync
+                      </span>
+                    </div>
+                    <span className="text-[10px] font-mono font-black text-rose-600 bg-rose-50 px-2 py-0.5 rounded-md border border-rose-100">
+                      {getHeartRateValue()} BPM
+                    </span>
+                  </div>
+
+                  {/* Slider or preset buttons */}
+                  <div className="flex items-center gap-3">
+                    <input 
+                      type="range" 
+                      min="50" 
+                      max="140" 
+                      value={getHeartRateValue()}
+                      onChange={(e) => handleUpdateHeartRate(parseInt(e.target.value, 10))}
+                      className="flex-1 h-1.5 bg-stone-200 rounded-lg appearance-none cursor-pointer accent-rose-500"
+                    />
+                  </div>
+
+                  <div className="flex justify-between gap-1.5">
+                    {[
+                      { bpm: 58, label: "🧘 Sleep/Zen", color: "hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200" },
+                      { bpm: 72, label: "☘️ Baseline", color: "hover:bg-stone-100 hover:text-stone-700 hover:border-stone-200" },
+                      { bpm: 115, label: "⚡ Stress Surge", color: "hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200" }
+                    ].map((preset) => (
+                      <button
+                        key={preset.bpm}
+                        onClick={() => handleUpdateHeartRate(preset.bpm)}
+                        className={`text-[9px] font-bold py-1 px-2 border rounded-lg transition-all cursor-pointer flex-1 text-center font-mono
+                          ${getHeartRateValue() === preset.bpm 
+                            ? 'bg-stone-900 border-stone-900 text-white shadow-xs' 
+                            : `bg-white border-stone-200 text-stone-500 ${preset.color}`
+                          }
+                        `}
+                      >
+                        {preset.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  <span className="text-[9.5px] text-stone-500 text-center leading-sm font-sans block">
+                    Dr. T's Socratic companion orb dynamically shifts its pulsation wavelength to match your heart rate in real time.
+                  </span>
                 </div>
 
                 {/* Visual Audio Soundwave */}
@@ -2335,14 +2528,14 @@ export default function App() {
         {/* Tab 7: BIOMEDICAL SUITE */}
         {activeTab === 'suite' && (
           <div className="animate-fadeIn">
-            <BiomedicalSuite />
+            <BiomedicalSuite language={language === 'auto' ? 'English' : language} />
           </div>
         )}
 
         {/* Tab 8: PORTFOLIO SHOWCASE */}
         {activeTab === 'showcase' && (
           <div className="animate-fadeIn">
-            <PortfolioShowcase />
+            <PortfolioShowcase language={language === 'auto' ? 'English' : language} />
           </div>
         )}
 

@@ -5,11 +5,72 @@ import {
   Settings, Database, Network, MessageSquare, Volume2, HardDrive
 } from 'lucide-react';
 
-export const PortfolioShowcase: React.FC = () => {
+export const PORTFOLIO_TRANSLATIONS: Record<string, Record<string, string>> = {
+  English: {
+    intro_badge: "Biomedical Informatics Portfolio Showcase",
+    intro_version: "v1.5 Enterprise",
+    intro_title: "Comprehensive Digital Health & Healthcare AI Portfolio",
+    intro_desc: "This module showcases the technical architecture, specifications, clinical pipelines, and theoretical models that undergird Dr. T. It provides hiring managers, hackathon judges, and clinical professors with proof of elite engineering competencies.",
+    tech_stack_title: "Tech Stack Badges",
+    tab_arch: "Architecture Topology",
+    tab_fhir: "HL7 FHIR Schema Spec",
+    tab_mimic: "MIMIC-IV Analytics Flow",
+    tab_paper: "Research Whitepaper",
+    deck_title: "10-Slide Pitch Slides",
+    deck_desc: "Click through our clinical pitch slides indicating the full startup capability and technical underpinnings:",
+    btn_prev: "Previous Slide",
+    btn_next: "Next Slide",
+    slide_index: "Slide {cur} of {total}"
+  },
+  French: {
+    intro_badge: "Vitrine de Portfolio en Informatique Biomédicale",
+    intro_version: "v1.5 Entreprise",
+    intro_title: "Portfolio Complet en Santé Numérique & IA Médicale",
+    intro_desc: "Ce module présente l'architecture technique, les spécifications, les pipelines cliniques et les modèles théoriques qui soutiennent Dr. T. Il offre aux recruteurs et aux professionnels la preuve de compétences avancées.",
+    tech_stack_title: "Technologies Clés",
+    tab_arch: "Topologie de l'Architecture",
+    tab_fhir: "Spécifications HL7 FHIR",
+    tab_mimic: "Algorigramme MIMIC-IV ICU",
+    tab_paper: "Livre Blanc de Recherche",
+    deck_title: "Diapositives Cliniques (10)",
+    deck_desc: "Parcourez les diapositives cliniques démontrant l'ensemble du potentiel de la startup et ses fondations techniques :",
+    btn_prev: "Précédent",
+    btn_next: "Suivant",
+    slide_index: "Diapo {cur} sur {total}"
+  },
+  Vietnamese: {
+    intro_badge: "Trưng Bày Danh Mục Khoa Học Thông Tin Y Sinh",
+    intro_version: "v1.5 Enterprise",
+    intro_title: "Hồ Sơ Năng Lực Sức Khỏe Kỹ Thuật Số & AI Y Tế",
+    intro_desc: "Module này trình bày kiến trúc kỹ thuật, các thông số, luồng lâm sàng và mô hình lý thuyết của hệ thống Dr. T. Mang lại cái nhìn sâu sắc, chứng minh năng lực thiết kế tiên tiến.",
+    tech_stack_title: "Công Nghệ Điển Hình",
+    tab_arch: "Kiến trúc & Sơ đồ Hệ thống",
+    tab_fhir: "Đặc tả Cấu trúc HL7 FHIR",
+    tab_mimic: "Luồng Xử lý Hồi sức MIMIC-IV",
+    tab_paper: "Báo cáo Y khoa & Y văn",
+    deck_title: "Hồ Sơ Trình Bày Lâm Sàng (10)",
+    deck_desc: "Nhấp chọn để duyệt các trang trình bày chi tiết về năng lực hoạt động và cơ sở khoa học y sinh vững chắc:",
+    btn_prev: "Trang Trước",
+    btn_next: "Trang Tiếp",
+    slide_index: "Trang {cur} / {total}"
+  }
+};
+
+interface PortfolioShowcaseProps {
+  language?: string;
+}
+
+export const PortfolioShowcase: React.FC<PortfolioShowcaseProps> = ({ language = 'English' }) => {
   const [activeSlide, setActiveSlide] = useState(0);
   const [activeDocSection, setActiveDocSection] = useState<'architecture' | 'fhir-spec' | 'mimic-analytics' | 'paper'>('architecture');
 
-  const pitchDeckSlides = [
+  const selectedLang = ['English', 'French', 'Vietnamese'].includes(language || 'English') ? (language || 'English') : 'English';
+
+  const t = (key: string, fallback: string) => {
+    return PORTFOLIO_TRANSLATIONS[selectedLang]?.[key] || fallback;
+  };
+
+  const pitchDeckSlidesEn = [
     {
       title: "1. Executive Summary & Vision",
       subtitle: "Dr. T: An Advanced Socratic Polymath & Biomedical Informatics Hub",
@@ -62,6 +123,114 @@ export const PortfolioShowcase: React.FC = () => {
     }
   ];
 
+  const pitchDeckSlidesFr = [
+    {
+      title: "1. Résumé Opérationnel & Vision",
+      subtitle: "Dr. T : Un Polymath Socratique Avancé & Hub d'Informatique Biomédicale",
+      content: "Les chatbots médicaux classiques fournissent des informations statiques ou des listes froides. Dr. T est la première plateforme de santé numérique socratique au monde fournissant de l'empathie vocale multilingue, couplée à une vérification des connaissances médicales par RAG et des registres d'interopérabilité HL7 FHIR intégrés."
+    },
+    {
+      title: "2. Le Défi Clinique",
+      subtitle: "Fatigue Cognitive, Burnout et Dossiers Médicaux Fragmentés",
+      content: "Plus de 60 % de l'ingénierie souffre d'épuisement professionnel. Les dossiers sont bloqués dans des silos fragmentés. Les cliniciens font face à de lourdes tâches administratives tandis que les patients manquent d'accompagnement humain chaleureux."
+    },
+    {
+      title: "3. Architecture Plateforme Dr. T",
+      subtitle: "Double Streaming Vocal & Télémétrie Diagnostic Intense",
+      content: "Alliant des passerelles API Express et les modèles d'IA Google Gemini (Gemini 3.5), le système intègre des graphes d'ECG, l'évaluation des risques MIMIC-IV USI, et le validateur de ressources FHIR."
+    },
+    {
+      title: "4. Interface Intercom Vocal Multilingue",
+      subtitle: "Échanges Verbaux Socratiques à Latence Zéro",
+      content: "Prend en charge l'anglais, le français, le vietnamien, etc. Utilise des synthétiseurs vocaux avec gestionnaires d'interruptions pour des consultations verbales naturelles sans accrocs."
+    },
+    {
+      title: "5. Interopérabilité HL7 FHIR",
+      subtitle: "Conformité de Schéma Universelle",
+      content: "Structure chaque note clinique ou fichier de constantes généré en une ressource HL7 FHIR standard et validée (Patient, Observation, Condition). Exportation immédiate compatible avec Epic MyChart."
+    },
+    {
+      title: "6. IA Prédictive d'USI MIMIC-IV",
+      subtitle: "Analyse Prédictive Basée sur les Données",
+      content: "Modélisé d'après les bases de données anonymes MIMIC-IV de Harvard. Évalue l'estimation de mortalité, la durée de séjour hospitalier et le risque de réadmission à 30 jours."
+    },
+    {
+      title: "7. Moteur RAG Y de Recherche Dr. T",
+      subtitle: "Vérification des Données en Temps Réel",
+      content: "Recherche sémantique croisée avec les directives du CDC, de l'OMS et de PubMed. Renvoie des taux de confiance et des citations conformes aux recommandations cliniques."
+    },
+    {
+      title: "8. Coach Bien-être Gamifié",
+      subtitle: "Interventions de Santé Comportementale",
+      content: "Suit l'hydratation, le sommeil et l'activité physique. Récompense les efforts avec de l'expérience, des paliers de vitalité et des badges de réussite mémorables."
+    },
+    {
+      title: "9. Pile Technique et Sécurité",
+      subtitle: "Configuration de Déploiement de Classe Entreprise",
+      content: "Développé en React 19, TypeScript, Express et API Google Gemini sur Cloud Run. Sécurité renforcée avec chiffrement local et clause pédagogique stricte."
+    },
+    {
+      title: "10. Le Pitch Commercial Hackathon",
+      subtitle: "Révolutionner le Bien-être d'Entreprise et l'Orientation des Soins",
+      content: "Explore un marché de 120 milliards de dollars pour le bien-être au travail. L'intégration de Dr. T réduit la surcharge administrative des médecins de 35% tout en améliorant l'autogestion de santé."
+    }
+  ];
+
+  const pitchDeckSlidesVi = [
+    {
+      title: "1. Tóm Tắt Dự Án & Tầm Nhìn",
+      subtitle: "Dr. T: Trung tâm Thông tin Y tế & Trợ lý Socratic Đa năng",
+      content: "Các chatbot y tế truyền thống chỉ cung cấp thông tin tĩnh hoặc bảng kiểm lâm sàng khô khan. Dr. T là nền tảng sức khỏe kỹ thuật số Socratic đầu tiên trên thế giới mang lại sự đồng cảm bằng giọng nói đa ngôn ngữ kết hợp xác thực tri thức RAG và hỗ trợ cấu trúc HL7 FHIR sẵn sàng tích hợp."
+    },
+    {
+      title: "2. Thách Thức Lâm Sàng",
+      subtitle: "Quá Tải Nhận Thức, Kiệt Sức và Hồ Sơ Bệnh Án Bị Phân Mảnh",
+      content: "Với hơn 60% kỹ sư công nghệ hiện đại bị kiệt sức thể chất và hồ sơ bệnh nhân bị chốt trong các silo dữ liệu riêng lẻ, người bệnh thiếu sự tư vấn tận tình. Các y bác sĩ đối mặt gánh nặng hành chính khổng lồ khi lập hồ sơ bệnh án."
+    },
+    {
+      title: "3. Kiến Trúc Toàn Diện Dr. T",
+      subtitle: "Phát Luồng Giọng Nói Thời Gian Thực & Đo Lường Sinh Hiệu",
+      content: "Kết hợp các cổng API Express hoạt động song song với mô hình Google Gemini 3.5, hệ sinh thái sở hữu bảng phân tích nhịp tim ECG trực quan, công cụ kiểm định FHIR chuẩn HIPAA và dự báo rủi ro người bệnh khoa hồi sức cấp cứu MIMIC-IV."
+    },
+    {
+      title: "4. Đàm Thoại Trực Tiếp Đa Ngôn Ngữ",
+      subtitle: "Hội Thoại Socratic Bằng Giọng Nói Độ Trễ Gần Như Bằng Không",
+      content: "Hỗ trợ tiếng Anh, tiếng Pháp, tiếng Việt cực kỳ trơn tru. Tích hợp bộ tổng hợp âm thanh giọng nói thông minh cho phép người bệnh tương tác tự nhiên không gián đoạn."
+    },
+    {
+      title: "5. Khả Năng Liên Thông HL7 FHIR",
+      subtitle: "Tuân Thủ Chuẩn Cấu Trúc Toàn Cầu",
+      content: "Đóng gói toàn bộ ghi chép lâm sàng thành tài nguyên FHIR chuẩn hóa (Patient, Observation, Condition). Xuất dữ liệu tức thì tương thích hoàn toàn với hệ thống EHR lớn như Epic MyChart hay Cerner."
+    },
+    {
+      title: "6. Mô Hình Dự Báo Hối Sức MIMIC-IV",
+      subtitle: "Phân Tích Dữ Liệu Dựa Trên Y Học Thực Chứng",
+      content: "Mô phỏng trực tiếp từ nguồn cơ sở dữ liệu hồi sức ICU ẩn danh MIMIC-IV uy tín của Harvard. Dự đoán tỷ lệ tử vong, số ngày lưu trú ICU ước tính và khả năng tái nhập viện trong vòng 30 ngày."
+    },
+    {
+      title: "7. Thư Viện Nghiên Cứu Y Văn RAG Engine",
+      subtitle: "Xác Thực Tri Thức Thời Gian Thực",
+      content: "Truy vấn y văn thực hiện tìm kiếm ngữ nghĩa đồng thời trên các hướng dẫn CDC, khuyến nghị của WHO và cơ sở dữ liệu PubMed chính thống. Trả về kết quả với chỉ số tự tin kèm nguồn trích dẫn chuẩn APA."
+    },
+    {
+      title: "8. Huấn Luyện Viên Sức Khỏe Gamification",
+      subtitle: "Can Thiệp Hành Vi Cải Thiện Thói Quen",
+      content: "Theo dõi lượng nước uống, giấc ngủ và chế độ vận động hàng ngày. Động viên người bệnh với hệ thống tích điểm XP thăng cấp sức khỏe, cột mốc thành tựu và huy hiệu độc đáo."
+    },
+    {
+      title: "9. Công Nghệ & Bảo Mật Hệ Thống",
+      subtitle: "Cấu Hình Triển Khai Tiêu Chuẩn Doanh Nghiệp-Lâm Sàng",
+      content: "Xây dựng trên nền tảng React 19, TypeScript 5, Express và Google Gemini chạy trong vùng chứa Cloud Run. Áp dụng mã hóa phía máy khách và tuân thủ nguyên tắc an toàn nghiêm ngặt."
+    },
+    {
+      title: "10. Mô Hình Kinh Doanh & Tiềm Năng Khởi Nghiệp",
+      subtitle: "Giải Quyết Vấn Đề Kiệt Sức Nơi Công Sở & Điều Phối Chăm Sóc Sức Khỏe",
+      content: "Dr. T tiếp cận thị trường chăm sóc sức khỏe doanh nghiệp quy mô 120 tỷ USD. Thông qua việc giảm tải 35% tác vụ hành chính lâm sàng y khoa, chúng tôi nâng tầm chăm sóc sức khỏe chủ động toàn diện."
+    }
+  ];
+
+  const pitchDeckSlides = selectedLang === 'French' ? pitchDeckSlidesFr : (selectedLang === 'Vietnamese' ? pitchDeckSlidesVi : pitchDeckSlidesEn);
+
   return (
     <div className="flex flex-col gap-8 animate-fadeIn" id="portfolio-showcase-root">
       
@@ -73,22 +242,24 @@ export const PortfolioShowcase: React.FC = () => {
         <div className="z-10">
           <div className="flex items-center gap-2 mb-2">
             <span className="text-[10px] bg-rose-500 text-white font-mono font-extrabold tracking-widest uppercase px-2.5 py-1 rounded-full">
-              Biomedical Informatics Portfolio Showcase
+              {t('intro_badge', 'Biomedical Informatics Portfolio Showcase')}
             </span>
             <span className="text-[10px] border border-stone-700 font-mono text-stone-400 px-2 py-0.5 rounded-full font-bold">
-              v1.5 Enterprise
+              {t('intro_version', 'v1.5 Enterprise')}
             </span>
           </div>
           <h2 className="font-display font-black text-2xl md:text-3xl tracking-tight text-white mb-2 leading-tight">
-            Comprehensive Digital Health & Healthcare AI Portfolio
+            {t('intro_title', 'Comprehensive Digital Health & Healthcare AI Portfolio')}
           </h2>
           <p className="text-xs text-stone-400 max-w-2xl leading-relaxed">
-            This module showcases the technical architecture, specifications, clinical pipelines, and theoretical models that undergird Dr. T. It provides hiring managers, hackathon judges, and clinical professors with instant proof of elite engineering competencies.
+            {t('intro_desc', 'This module showcases the technical architecture, specifications, clinical pipelines, and theoretical models that undergird Dr. T. It provides hiring managers, hackathon judges, and clinical professors with instant proof of elite engineering competencies.')}
           </p>
         </div>
 
         <div className="bg-stone-900/80 border border-stone-800 p-4 rounded-2xl shrink-0 flex flex-col gap-2 z-10 w-full md:w-auto">
-          <span className="text-[9px] font-mono text-stone-400 block font-black uppercase tracking-widest text-center md:text-left">Tech Stack Badges</span>
+          <span className="text-[9px] font-mono text-stone-400 block font-black uppercase tracking-widest text-center md:text-left">
+            {t('tech_stack_title', 'Tech Stack Badges')}
+          </span>
           <div className="flex flex-wrap md:grid md:grid-cols-2 gap-1.5 justify-center">
             {['HL7 FHIR', 'Next.js/React', 'Google Gemini', 'MIMIC-IV', 'Express CJS', 'Biomedical RAG'].map((badge, idx) => (
               <span key={idx} className="p-1 px-2.5 bg-stone-950 text-emerald-400 border border-stone-800 rounded font-mono text-[9px] font-bold text-center">
@@ -106,10 +277,10 @@ export const PortfolioShowcase: React.FC = () => {
         <div className="lg:col-span-8 flex flex-col gap-6">
           <div className="flex gap-2 border-b border-stone-200 pb-1 overflow-x-auto">
             {[
-              { id: 'architecture', label: 'Architecture Topology', icon: Network },
-              { id: 'fhir-spec', label: 'HL7 FHIR Schema Spec', icon: Settings },
-              { id: 'mimic-analytics', label: 'MIMIC-IV Analytics Flow', icon: Database },
-              { id: 'paper', label: 'Research Whitepaper', icon: FileText }
+              { id: 'architecture', label: 'Architecture Topology', translationKey: 'tab_arch', icon: Network },
+              { id: 'fhir-spec', label: 'HL7 FHIR Schema Spec', translationKey: 'tab_fhir', icon: Settings },
+              { id: 'mimic-analytics', label: 'MIMIC-IV Analytics Flow', translationKey: 'tab_mimic', icon: Database },
+              { id: 'paper', label: 'Research Whitepaper', translationKey: 'tab_paper', icon: FileText }
             ].map((sec) => {
               const Icon = sec.icon;
               return (
@@ -121,7 +292,7 @@ export const PortfolioShowcase: React.FC = () => {
                   `}
                 >
                   <Icon className="w-4 h-4 shrink-0" />
-                  <span>{sec.label}</span>
+                  <span>{t(sec.translationKey, sec.label)}</span>
                 </button>
               );
             })}
@@ -312,10 +483,10 @@ export const PortfolioShowcase: React.FC = () => {
             <div>
               <div className="flex justify-between items-center mb-3">
                 <span className="text-[10px] font-mono font-black text-rose-600 uppercase">
-                  10-Slide Pitch Slides
+                  {t('deck_title', '10-Slide Pitch Slides')}
                 </span>
                 <span className="text-[10px] font-mono text-stone-400">
-                  Slide {activeSlide + 1} / 10
+                  {t('slide_index', 'Slide {cur} of {total}').replace('{cur}', (activeSlide + 1).toString()).replace('{total}', '10')}
                 </span>
               </div>
 
@@ -338,14 +509,14 @@ export const PortfolioShowcase: React.FC = () => {
                 onClick={() => setActiveSlide(prev => prev - 1)}
                 className="text-[11px] bg-white border border-stone-300 px-3 py-1.5 rounded-lg font-bold disabled:opacity-40 cursor-pointer text-stone-700"
               >
-                Previous Slide
+                {t('btn_prev', 'Previous Slide')}
               </button>
               <button
                 disabled={activeSlide === pitchDeckSlides.length - 1}
                 onClick={() => setActiveSlide(prev => prev + 1)}
                 className="text-[11px] bg-stone-900 text-white px-3 py-1.5 rounded-lg font-bold disabled:opacity-40 cursor-pointer"
               >
-                Next Slide
+                {t('btn_next', 'Next Slide')}
               </button>
             </div>
           </div>

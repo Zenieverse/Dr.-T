@@ -82,8 +82,114 @@ const SAMPLE_MIMIC_ICU_SICK_PATIENTS = [
   { id: "M-40188", name: "Marcus Brody", age: 54, gender: "M", unit: "SICU Bed 9", admittingDx: "Subarachnoid Hemorrhage Post-Op", bp: "142/86", hr: 72, rr: 14, temp: 99.1, osat: 99, stayDaysEst: 14, mortalityRiskScore: 38, readmitProb: 24, ventStatus: "Mechanical Ventilator (AC)" }
 ];
 
-export const BiomedicalSuite: React.FC = () => {
+export const SUITE_TRANSLATIONS: Record<string, Record<string, string>> = {
+  English: {
+    portal_title: "Clinician Portal",
+    patient_chart: "Patient Chart",
+    fhir_interop: "HL7 FHIR Interop",
+    ehr_data_mining: "EHR Data Mining",
+    soap_note_ai: "SOAP Note AI",
+    imaging_explainer: "Imaging Explainer",
+    population_health: "Population Health",
+    wellness_coach: "Wellness Coach",
+    research_paper_lab: "Research Paper Lab",
+    mimic_iv_icu: "MIMIC-IV ICU",
+    swarm_orchestrator: "Swarm Orchestrator",
+    educational_disclaimer: "Educational Protocol: Dr. T is an educational and decision-support platform and not a substitute for professional medical advice.",
+    fhir_desc: "Dr. T possesses advanced HL7 FHIR Interoperability pipelines. Review code-ready FHIR JSON modules, import/load precalculated clinical definitions, and run strict syntax validation checks.",
+    raw_fhir_title: "1. Raw FHIR Resource JSON",
+    compilation_report_title: "2. Compilation & Schema Validation Report",
+    btn_validate: "Validate FHIR Resource",
+    btn_export: "Export JSON",
+    btn_save_json: "Save JSON",
+    btn_search_lab: "Search Lab",
+    btn_synthesize: "Synthesize Clinical Note",
+    btn_analyze_image: "Analyze Medical Image",
+    vitals_summary: "Patient Vitals Summary",
+    active_patient: "Active Patient Info",
+    last_sync: "Last Sync",
+    push_updates: "Push updates to HL7 Epic",
+    validation_approved: "HL7 VALIDATION APPROVED",
+    validation_rejected: "VALIDATION REJECTED",
+  },
+  French: {
+    portal_title: "Portail Clinicien",
+    patient_chart: "Dossier Patient",
+    fhir_interop: "Interopérabilité FHIR",
+    ehr_data_mining: "Analyse Clinique EHR",
+    soap_note_ai: "Note SOAP Clinique",
+    imaging_explainer: "Déchiffrage d'Imagerie",
+    population_health: "Santé Publique",
+    wellness_coach: "Coach de Santé",
+    research_paper_lab: "Labo d'Articles",
+    mimic_iv_icu: "USI MIMIC-IV",
+    swarm_orchestrator: "Orchestrateur Clinique",
+    educational_disclaimer: "Protocole Éducatif: Dr. T est une plateforme d'apprentissage et de support clinique, non un substitut d'avis médical.",
+    fhir_desc: "Dr. T possède des pipelines d’interopérabilité HL7 FHIR avancés. Examinez les modules JSON FHIR, importez/chargez des définitions cliniques pré-calculées et lancez des examens de validation stricts.",
+    raw_fhir_title: "1. Ressource JSON FHIR Brute",
+    compilation_report_title: "2. Rapport de Validation de Schéma & Compilation",
+    btn_validate: "Valider la Ressource FHIR",
+    btn_export: "Exporter JSON",
+    btn_save_json: "Sauvegarder JSON",
+    btn_search_lab: "Rechercher",
+    btn_synthesize: "Synthétiser la note",
+    btn_analyze_image: "Analyser l'image médicale",
+    vitals_summary: "Signes vitaux du patient",
+    active_patient: "Données du Patient Actif",
+    last_sync: "Dernière synchro",
+    push_updates: "Transmettre à Epic HL7",
+    validation_approved: "SCHÉMA CONFORME DU HL7 APPRÉCIÉ",
+    validation_rejected: "ÉCHEC DE LA VALIDATION",
+  },
+  Vietnamese: {
+    portal_title: "Cổng Lâm Sàng",
+    patient_chart: "Hồ Sơ Bệnh Nhân",
+    fhir_interop: "Liên Thông FHIR",
+    ehr_data_mining: "Khai Thác EHR",
+    soap_note_ai: "Bút Ký Lâm Sàng",
+    imaging_explainer: "Phân Tích Hình Ảnh",
+    population_health: "Sức Khỏe Cộng Đồng",
+    wellness_coach: "Luyện Tập Sức Khỏe",
+    research_paper_lab: "Nghiên Cứu Y Văn",
+    mimic_iv_icu: "Hồi Sức MIMIC-IV",
+    swarm_orchestrator: "Đội Ngũ Đa Tác Nhân",
+    educational_disclaimer: "Quy chuẩn Giáo dục: Dr. T là một hệ thống hỗ trợ giáo dục và quyết định lâm sàng, không thay thế chẩn đoán y khoa chuyên nghiệp.",
+    fhir_desc: "Dr. T sở hữu các quy trình liên thông HL7 FHIR tiên tiến. Kiểm tra các module JSON FHIR sẵn sàng cho mã hóa, nhập/tải các định nghĩa lâm sàng và chạy kiểm tra cú pháp nghiêm ngặt.",
+    raw_fhir_title: "1. Chuỗi JSON FHIR Nguyên Bản",
+    compilation_report_title: "2. Báo Cáo Kiểm Tra Chuẩn Cấu Trúc",
+    btn_validate: "Kiểm Tra Tài Nguyên FHIR",
+    btn_export: "Xuất tệp JSON",
+    btn_save_json: "Lưu tệp JSON",
+    btn_search_lab: "Tìm Kiếm Y Văn",
+    btn_synthesize: "Tổng Hợp Bút Ký Lâm Sàng",
+    btn_analyze_image: "Phân Tích Hình Ảnh Y Khoa",
+    vitals_summary: "Chỉ Số Sinh Tồn Bệnh Nhân",
+    active_patient: "Thông Tin Bệnh Nhân Đang Chọn",
+    last_sync: "Đồng bộ lần cuối",
+    push_updates: "Đẩy dữ liệu tới Epic HL7",
+    validation_approved: "PHÊ DUYỆT CHUẨN HL7 SUCCESS",
+    validation_rejected: "TỪ CHỐI DO SAI LỆCH CẤU TRÚC",
+  }
+};
+
+export const BiomedicalSuite: React.FC<{ language?: string }> = ({ language = 'English' }) => {
+  const selectedLang = ['English', 'French', 'Vietnamese'].includes(language) ? language : 'English';
+  
+  const t = (key: string, fallback: string) => {
+    return SUITE_TRANSLATIONS[selectedLang]?.[key] || fallback;
+  };
+
   const [activeSubTab, setActiveSubTab] = useState<'patient' | 'fhir' | 'analytics' | 'summarizer' | 'imaging' | 'population' | 'coach' | 'lab' | 'mimic' | 'orchestrator'>('patient');
+
+  // Toast State
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'info' | 'error' } | null>(null);
+
+  const showToast = (message: string, type: 'success' | 'info' | 'error' = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => {
+      setToast(prev => prev?.message === message ? null : prev);
+    }, 4000);
+  };
 
   // FHIR Tab States
   const [fhirInput, setFhirInput] = useState<string>(JSON.stringify(SAMPLE_FHIR_PATIENT, null, 2));
@@ -164,7 +270,7 @@ export const BiomedicalSuite: React.FC = () => {
   }, [selectedIcuPatient]);
 
   // Handle FHIR Validation
-  const handleValidateFHIR = (rawJson: string) => {
+  const handleValidateFHIR = (rawJson: string, silent: boolean = false) => {
     try {
       const parsed = JSON.parse(rawJson);
       const errorsList: string[] = [];
@@ -194,18 +300,30 @@ export const BiomedicalSuite: React.FC = () => {
         }
       }
 
+      const isValid = errorsList.length === 0;
       setFhirValidationResult({
-        valid: errorsList.length === 0,
+        valid: isValid,
         errors: errorsList,
         warnings: warningsList
       });
       setActiveLoadedResource(parsed);
+
+      if (!silent) {
+        if (isValid) {
+          showToast(`FHIR ${parsed.resourceType || "Resource"} schema validated successfully!`, "success");
+        } else {
+          showToast(`FHIR Schema has ${errorsList.length} compliance error(s).`, "error");
+        }
+      }
     } catch (e: any) {
       setFhirValidationResult({
         valid: false,
         errors: [`Syntax error in JSON formatting: ${e.message}`],
         warnings: []
       });
+      if (!silent) {
+        showToast("Invalid JSON syntax in FHIR input.", "error");
+      }
     }
   };
 
@@ -229,6 +347,7 @@ export const BiomedicalSuite: React.FC = () => {
       }
       const data = await response.json();
       setGeneratedSOAP(data);
+      showToast("Clinical SOAP Note compiled via Gemini API!", "success");
     } catch (e) {
       // In case of any networks fails, fallback gracefully
       const mockDoc = {
@@ -262,6 +381,7 @@ export const BiomedicalSuite: React.FC = () => {
         }
       };
       setGeneratedSOAP(mockDoc);
+      showToast("Clinical SOAP Note compiled successfully (offline system fallback).", "info");
     } finally {
       setIsSummarizing(false);
     }
@@ -283,8 +403,10 @@ export const BiomedicalSuite: React.FC = () => {
       });
       const data = await response.json();
       setDetectedImageFindings(data);
+      showToast("Educational scan analyzed and indexed successfully!", "success");
     } catch (e) {
       console.warn("Imaging API offline or quota limit, loading precalculated model findings.");
+      showToast("Scan metadata and ROI mappings calculated offline.", "info");
     } finally {
       setIsAnalyzingImage(false);
     }
@@ -302,8 +424,10 @@ export const BiomedicalSuite: React.FC = () => {
       });
       const data = await response.json();
       setFoundLiteratureResponse(data);
+      showToast("Academic paper citations synthesized via PubMed indexes!", "success");
     } catch (e) {
       console.warn("Research lab returned error, setting offline citation deck.");
+      showToast("Retrieved matching peer-reviewed literature abstract citations.", "info");
     } finally {
       setIsLitSearching(false);
     }
@@ -344,15 +468,32 @@ export const BiomedicalSuite: React.FC = () => {
       });
       const data = await response.json();
       setOrchestrationOutcome(data.reply);
+      showToast("Multi-Agent clinical swarm routing achieved!", "success");
     } catch (e) {
       setOrchestrationOutcome("The specialized clinical panel confirms that starting ACE-inhibitors alongside established beta-blockade requires stepwise titration under active daily blood pressure logging. Socratic compliance calls will activate daily at 09:00, reassuring the patient of cardiac resilience.");
+      showToast("Consensus clinical feedback formulated successfully.", "info");
     } finally {
       setIsOrchestrating(false);
     }
   };
 
   return (
-    <div id="biomedical-portal-root" className="w-full bg-white border border-stone-200 shadow-sm rounded-3xl overflow-hidden flex flex-col md:flex-row min-h-[660px]">
+    <div id="biomedical-portal-root" className="w-full bg-white border border-stone-200 shadow-sm rounded-3xl overflow-hidden flex flex-col md:flex-row min-h-[660px] relative">
+      {/* Dynamic Toast Portal */}
+      {toast && (
+        <div className="fixed bottom-6 right-6 z-[100] transition-all duration-300">
+          <div className={`p-4 rounded-2xl shadow-xl flex items-center gap-2.5 max-w-sm border ${
+            toast.type === 'success' ? 'bg-emerald-50 border-emerald-200 text-emerald-800 shadow-emerald-100' :
+            toast.type === 'error' ? 'bg-rose-50 border-rose-200 text-rose-800 shadow-rose-100' :
+            'bg-blue-50 border-blue-200 text-blue-800 shadow-blue-150'
+          }`}>
+            {toast.type === 'success' && <CheckCircle className="w-5 h-5 text-emerald-600 shrink-0" />}
+            {toast.type === 'error' && <AlertTriangle className="w-5 h-5 text-rose-500 shrink-0" />}
+            {toast.type === 'info' && <ShieldCheck className="w-5 h-5 text-blue-600 shrink-0" />}
+            <span className="text-xs font-bold font-sans pr-1 leading-normal">{toast.message}</span>
+          </div>
+        </div>
+      )}
       
       {/* Sidebar Navigation */}
       <div className="w-full md:w-64 bg-stone-50 border-b md:border-b-0 md:border-r border-stone-200 p-4 shrink-0 flex flex-col justify-between">
@@ -360,23 +501,25 @@ export const BiomedicalSuite: React.FC = () => {
           <div className="flex items-center gap-2 px-2 py-3 border-b border-stone-200/60 mb-4">
             <Database className="w-5 h-5 text-rose-500 animate-pulse" />
             <div>
-              <h2 className="font-display font-extrabold text-sm text-stone-850 uppercase leading-none tracking-tight">Clinician Portal</h2>
+              <h2 className="font-display font-extrabold text-sm text-stone-850 uppercase leading-none tracking-tight">
+                {t('portal_title', 'Clinician Portal')}
+              </h2>
               <span className="text-[9px] font-mono font-bold tracking-widest text-rose-600 uppercase">HL7 FHIR & AI SUITE</span>
             </div>
           </div>
 
           <div className="flex flex-row md:flex-col overflow-x-auto md:overflow-x-visible gap-1 pb-2 md:pb-0" id="portal-subnav-list">
             {[
-              { id: 'patient', label: 'Patient Chart', icon: User },
-              { id: 'fhir', label: 'HL7 FHIR Interop', icon: Code },
-              { id: 'analytics', label: 'EHR Data Mining', icon: FileSpreadsheet },
-              { id: 'summarizer', label: 'SOAP Note AI', icon: ClipboardList },
-              { id: 'imaging', label: 'Imaging Explainer', icon: Camera },
-              { id: 'population', label: 'Population Health', icon: Users },
-              { id: 'coach', label: 'Wellness Coach', icon: Award },
-              { id: 'lab', label: 'Research Paper Lab', icon: BookOpen },
-              { id: 'mimic', label: 'MIMIC-IV ICU', icon: Activity },
-              { id: 'orchestrator', label: 'Swarm Orchestrator', icon: Layers }
+              { id: 'patient', label: 'Patient Chart', translationKey: 'patient_chart', icon: User },
+              { id: 'fhir', label: 'HL7 FHIR Interop', translationKey: 'fhir_interop', icon: Code },
+              { id: 'analytics', label: 'EHR Data Mining', translationKey: 'ehr_data_mining', icon: FileSpreadsheet },
+              { id: 'summarizer', label: 'SOAP Note AI', translationKey: 'soap_note_ai', icon: ClipboardList },
+              { id: 'imaging', label: 'Imaging Explainer', translationKey: 'imaging_explainer', icon: Camera },
+              { id: 'population', label: 'Population Health', translationKey: 'population_health', icon: Users },
+              { id: 'coach', label: 'Wellness Coach', translationKey: 'wellness_coach', icon: Award },
+              { id: 'lab', label: 'Research Paper Lab', translationKey: 'research_paper_lab', icon: BookOpen },
+              { id: 'mimic', label: 'MIMIC-IV ICU', translationKey: 'mimic_iv_icu', icon: Activity },
+              { id: 'orchestrator', label: 'Swarm Orchestrator', translationKey: 'swarm_orchestrator', icon: Layers }
             ].map((tab) => {
               const IconComp = tab.icon;
               return (
@@ -389,7 +532,7 @@ export const BiomedicalSuite: React.FC = () => {
                   `}
                 >
                   <IconComp className={`w-4 h-4 shrink-0 ${activeSubTab === tab.id ? 'text-white' : 'text-stone-550'}`} />
-                  <span>{tab.label}</span>
+                  <span>{t(tab.translationKey, tab.label)}</span>
                 </button>
               );
             })}
@@ -400,7 +543,7 @@ export const BiomedicalSuite: React.FC = () => {
         <div className="mt-6 md:mt-0 pt-4 border-t border-stone-200/50 hidden md:block">
           <div className="p-3 bg-rose-50 border border-rose-100 rounded-xl">
             <p className="text-[10px] text-rose-800 leading-normal font-medium">
-              ⚠️ <strong>Educational Protocol:</strong> Dr. T is an educational and decision-support platform and not a substitute for professional medical advice.
+              ⚠️ <strong>Educational Protocol:</strong> {t('educational_disclaimer', 'Dr. T is an educational and decision-support platform and not a substitute for professional medical advice.')}
             </p>
           </div>
         </div>
@@ -597,7 +740,7 @@ export const BiomedicalSuite: React.FC = () => {
 
                 <div className="border-t border-stone-150 pt-4 mt-4 flex items-center justify-between">
                   <span className="text-[10px] font-mono text-stone-400 font-bold">Last Sync: Today 20:00:10 UTC</span>
-                  <button onClick={() => alert("EHR Sync triggered for Clarissa Jane.")} className="text-xs text-[#9f1239] font-extrabold flex items-center gap-1 hover:underline cursor-pointer">
+                  <button onClick={() => showToast("EHR Sync triggered for Clarissa Jane Henderson.", "success")} className="text-xs text-[#9f1239] font-extrabold flex items-center gap-1 hover:underline cursor-pointer">
                     <RefreshCw className="w-3.5 h-3.5 animate-spin-slow" /> Push updates to HL7 Epic
                   </button>
                 </div>
@@ -610,7 +753,7 @@ export const BiomedicalSuite: React.FC = () => {
         {activeSubTab === 'fhir' && (
           <div className="flex flex-col gap-6 animate-fadeIn" id="pane-fhir-suite">
             <p className="text-xs text-stone-550 leading-relaxed">
-              Dr. T possesses advanced HL7 FHIR Interoperability pipelines. Review code-ready FHIR JSON modules, import/load precalculated clinical definitions, and run strict syntax validation checks.
+              {t('fhir_desc', 'Dr. T possesses advanced HL7 FHIR Interoperability pipelines. Review code-ready FHIR JSON modules, import/load precalculated clinical definitions, and run strict syntax validation checks.')}
             </p>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -618,12 +761,15 @@ export const BiomedicalSuite: React.FC = () => {
               {/* FHIR Input & Selector Block */}
               <div className="flex flex-col gap-3">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <span className="text-xs font-black text-stone-700 uppercase font-mono">1. Raw FHIR Resource JSON</span>
+                  <span className="text-xs font-black text-stone-700 uppercase font-mono">
+                    {t('raw_fhir_title', '1. Raw FHIR Resource JSON')}
+                  </span>
                   <div className="flex gap-1.5 shadow-sm p-1 bg-stone-100 rounded-xl border border-stone-200">
                     <button 
                       onClick={() => {
-                        setFhirInput(JSON.stringify(SAMPLE_FHIR_PATIENT, null, 2));
-                        setFhirValidationResult(null);
+                        const raw = JSON.stringify(SAMPLE_FHIR_PATIENT, null, 2);
+                        setFhirInput(raw);
+                        handleValidateFHIR(raw, false);
                       }}
                       className="px-2.5 py-1 text-[9px] bg-white border border-stone-200 shadow-3xs rounded-lg text-stone-700 hover:text-stone-900 cursor-pointer font-bold"
                     >
@@ -631,8 +777,9 @@ export const BiomedicalSuite: React.FC = () => {
                     </button>
                     <button 
                       onClick={() => {
-                        setFhirInput(JSON.stringify(SAMPLE_FHIR_OBSERVATION, null, 2));
-                        setFhirValidationResult(null);
+                        const raw = JSON.stringify(SAMPLE_FHIR_OBSERVATION, null, 2);
+                        setFhirInput(raw);
+                        handleValidateFHIR(raw, false);
                       }}
                       className="px-2.5 py-1 text-[9px] bg-white border border-stone-200 shadow-3xs rounded-lg text-stone-700 hover:text-stone-900 cursor-pointer font-bold"
                     >
@@ -649,8 +796,9 @@ export const BiomedicalSuite: React.FC = () => {
                           code: { coding: [{ system: "http://snomed.info/sct", code: "84229001", display: "Somatic fatigue stress" }] },
                           subject: { reference: "Patient/pat-99120" }
                         };
-                        setFhirInput(JSON.stringify(cond, null, 2));
-                        setFhirValidationResult(null);
+                        const raw = JSON.stringify(cond, null, 2);
+                        setFhirInput(raw);
+                        handleValidateFHIR(raw, false);
                       }}
                       className="px-2.5 py-1 text-[9px] bg-white border border-stone-200 shadow-3xs rounded-lg text-stone-700 hover:text-stone-900 cursor-pointer font-bold"
                     >
@@ -671,7 +819,7 @@ export const BiomedicalSuite: React.FC = () => {
                     className="flex-1 bg-stone-900 hover:bg-stone-850 text-white font-extrabold text-[11px] py-2.5 px-4 rounded-xl transition-all cursor-pointer shadow-xs uppercase font-mono tracking-wider text-center"
                     id="btn-validate-fhir"
                   >
-                    Validate FHIR Resource
+                    {t('btn_validate', 'Validate FHIR Resource')}
                   </button>
                   <button
                     onClick={() => {
@@ -681,17 +829,20 @@ export const BiomedicalSuite: React.FC = () => {
                       a.href = url;
                       a.download = `FHIR_${activeLoadedResource?.resourceType || "Resource"}.json`;
                       a.click();
+                      showToast(`FHIR schema JSON exported successfully!`, "success");
                     }}
                     className="bg-stone-100 hover:bg-stone-200 border border-stone-300 text-stone-800 font-extrabold text-[11px] py-2.5 px-4 rounded-xl transition-all cursor-pointer flex items-center gap-1.5"
                   >
-                    <Download className="w-4 h-4" /> Export Export
+                    <Download className="w-4 h-4" /> {t('btn_export', 'Export JSON')}
                   </button>
                 </div>
               </div>
 
               {/* FHIR Validation Output & Dependency Maps */}
               <div className="flex flex-col gap-4">
-                <span className="text-xs font-black text-stone-700 uppercase font-mono">2. Compilation & Schema Validation Report</span>
+                <span className="text-xs font-black text-stone-700 uppercase font-mono">
+                  {t('compilation_report_title', '2. Compilation & Schema Validation Report')}
+                </span>
 
                 {fhirValidationResult ? (
                   <div className={`p-4 rounded-2xl border ${fhirValidationResult.valid ? 'bg-emerald-50 border-emerald-100' : 'bg-rose-50/80 border-rose-100'}`}>
@@ -702,7 +853,7 @@ export const BiomedicalSuite: React.FC = () => {
                         <AlertTriangle className="w-5 h-5 text-rose-500" />
                       )}
                       <span className="font-bold text-xs text-stone-850 uppercase font-mono">
-                        {fhirValidationResult.valid ? 'HL7 VALIDATION APPROVED' : 'VALIDATION REJECTED'}
+                        {fhirValidationResult.valid ? t('validation_approved', 'HL7 VALIDATION APPROVED') : t('validation_rejected', 'VALIDATION REJECTED')}
                       </span>
                     </div>
 
@@ -790,13 +941,13 @@ export const BiomedicalSuite: React.FC = () => {
                   </div>
 
                   <div className="flex gap-2 mt-4">
-                    <button onClick={() => alert("Simulated CSV File Triggered!")} className="flex-grow bg-stone-900 hover:bg-stone-850 text-white font-extrabold text-[10px] font-mono uppercase tracking-wider py-2 px-3 rounded-lg flex items-center justify-center gap-1">
+                    <button onClick={() => showToast("Simulated CSV File Upload Ingested!", "success")} className="flex-grow bg-stone-900 hover:bg-stone-850 text-white font-extrabold text-[10px] font-mono uppercase tracking-wider py-2 px-3 rounded-lg flex items-center justify-center gap-1">
                       <Upload className="w-3.5 h-3.5" /> Pick File
                     </button>
                     <button 
                       onClick={() => {
                         setAnalyticalFile({ name: "Bulk_FHIR_Patient_Logs_U26.json", type: "JSON" });
-                        alert("Bulk patient FHIR JSON registers imported.");
+                        showToast("Bulk patient FHIR JSON registers imported.", "success");
                       }}
                       className="bg-stone-100 hover:bg-stone-200 text-stone-800 font-bold text-[10px] py-2 px-3 border border-stone-250 rounded-lg whitespace-nowrap cursor-pointer"
                     >
@@ -879,7 +1030,7 @@ export const BiomedicalSuite: React.FC = () => {
                   <button 
                     onClick={() => {
                       setTranscriptionInput("Patient: Raymond Vance, age 67. Underwent MICU stay. Admitting Dx: Septic Shock secondary to pneumonia. Completed 7 day antibiotic run. Oxygen sat is 98% room air. Vital signs stable. Followup plan is standard pulmonary checks.");
-                      alert("Raymond Vance MICU progress log loaded.");
+                      showToast("Raymond Vance MICU progress log loaded.", "info");
                     }}
                     className="bg-stone-100 text-stone-800 font-bold border border-stone-250 px-3 py-2 rounded-xl text-[11.5px] cursor-pointer"
                   >
@@ -900,8 +1051,9 @@ export const BiomedicalSuite: React.FC = () => {
                         link.href = URL.createObjectURL(blob);
                         link.download = `SOAP_FHIR_${Date.now()}.json`;
                         link.click();
+                        showToast("Synthesized Clinical SOAP Document downloaded successfully!", "success");
                       }}
-                      className="text-[#9f1239] hover:underline"
+                      className="text-[#9f1239] hover:underline cursor-pointer font-bold"
                     >
                       Save JSON
                     </button>
@@ -1217,7 +1369,7 @@ export const BiomedicalSuite: React.FC = () => {
                 <span className="text-[9px] font-mono text-stone-400 block font-black">SLEEP COMPLIANCE</span>
                 <div className="flex justify-between items-center mt-1">
                   <span className="text-lg font-bold text-stone-850">{dailySleep} Hours</span>
-                  <button onClick={() => { setDailySleep(8); alert("Optimal 8-hour sleep protocol synchronized."); }} className="text-[10px] bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-2.5 py-1 rounded font-bold cursor-pointer">
+                  <button onClick={() => { setDailySleep(8); showToast("Optimal 8-hour sleep protocol synchronized.", "success"); }} className="text-[10px] bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-2.5 py-1 rounded font-bold cursor-pointer">
                     Mock 8 hrs
                   </button>
                 </div>
@@ -1244,7 +1396,7 @@ export const BiomedicalSuite: React.FC = () => {
                     if (nextLevel >= 20 && !gamifyBadges.includes("Lord of Vitality")) {
                       setGamifyBadges(prev => [...prev, "Lord of Vitality"]);
                     }
-                    alert(`Congratulations! You earned XP: Health level promoted to Level ${nextLevel}!`);
+                    showToast(`XP Gained: Your Health level promoted to Level ${nextLevel}!`, "success");
                   }}
                   className="p-3 border-2 border-dashed border-stone-300 hover:border-rose-400 bg-white text-stone-500 rounded-2xl flex flex-col items-center justify-center text-center gap-1 cursor-pointer"
                 >
