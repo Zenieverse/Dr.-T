@@ -63,4 +63,3 @@ Pour over the visual tabs in the UI:
 }
 ```
 ---
-*Developed on AI Studio Build for clinical hackathons, medical informatics portfolios, and advanced Healthcare MVP development.*
