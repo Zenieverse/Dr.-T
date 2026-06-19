@@ -1610,7 +1610,7 @@ export default function App() {
         {/* Tab 1: DR. T COMPANION HUB DEVELOPMENT WORKSPACE */}
         {activeTab === 'hub' && (
           <div 
-            className="flex flex-col gap-6 animate-fadeIn transition-all duration-1000" 
+            className="grid grid-cols-1 lg:grid-cols-12 gap-6 animate-fadeIn transition-all duration-1000" 
             id="dr-t-infinity-hub"
             style={{
               '--orb-glow-color': getHeartRateValue() > 100 ? '#f59e0b' : '#f43f5e',
@@ -1620,8 +1620,8 @@ export default function App() {
             } as React.CSSProperties}
           >
             
-            {/* Multi-column dashboard grid without Dialogue Console */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+            {/* Left Spatial Voice & Parameter Dashboard Panel (span 5) */}
+            <div className="lg:col-span-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-6 w-full">
               
               {/* Column A: Diagnostics & Biofeedback */}
               <div className="flex flex-col gap-6 w-full">
@@ -2188,7 +2188,253 @@ export default function App() {
               </div>
 
             </div> {/* Close Column B */}
-          </div> {/* Close grid-cols-1 md:grid-cols-2 */}
+          </div> {/* Close left dashboard container panels */}
+
+          {/* Right Multimodal Conversation Console Panel (span 7) */}
+          <div className="lg:col-span-7 flex flex-col gap-6 h-full">
+
+            {/* Main chat log */}
+            <div className="bg-white/85 border border-stone-200/50 rounded-3xl p-5 shadow-xs flex flex-col justify-between min-h-[460px] max-h-[580px] h-full relative" id="dialogue-console-chat-card">
+              
+              {/* Chat header */}
+              <div className="flex items-center justify-between border-b border-stone-150 pb-3 mb-3">
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                  <p className="text-xs font-mono font-bold tracking-wider text-stone-600 uppercase">Interactive Dialogue Console</p>
+                </div>
+                <span className="text-[10px] font-mono text-stone-400">Total conversation sync: {messages.length}</span>
+              </div>
+
+              {/* Messages scrollarea */}
+              <div className="flex-1 overflow-y-auto pr-1 flex flex-col gap-3.5 max-h-[380px] scroll-smooth">
+                {messages.length === 0 ? (
+                  <div className="flex-1 flex flex-col items-center justify-center text-center p-6 text-stone-400">
+                    <InfinityIcon className="w-9 h-9 text-rose-300 animate-pulse mb-2" />
+                    <p className="text-xs font-extrabold text-stone-600">Comforting Multilingual Counselor Hub</p>
+                    <p className="text-[11px] leading-relaxed text-stone-400 max-w-[340px] mt-1">
+                      Select a language option, then share any secret, vent relationship worries, ask life questions, or debug complex code. Dr. T Infinity knows everything and advises with maternal warmth!
+                    </p>
+                  </div>
+                ) : (
+                  <AnimatePresence initial={false}>
+                    {messages.map((m) => (
+                      <motion.div 
+                        key={m.id}
+                        initial={{ opacity: 0, y: 12, scale: 0.98 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        transition={{ type: "spring", stiffness: 380, damping: 28 }}
+                        className={`flex flex-col max-w-[85%]
+                          ${m.role === 'user' ? 'self-end items-end' : 'self-start items-start'}
+                        `}
+                      >
+                        {/* Sender info */}
+                        <span className="text-[9px] text-stone-400 font-mono font-extrabold mb-1 uppercase tracking-wider">
+                          {m.role === 'user' ? 'Sweet Child (You)' : `Dr. T (${VIBES.find(v => v.id === vibe)?.name || 'Empathetic'})`} • {m.timestamp}
+                        </span>
+
+                        {/* Bubble */}
+                        <div 
+                          className={`p-3 rounded-2xl text-xs leading-relaxed transition-all shadow-sm relative duration-300
+                            ${m.isVoicePlaying ? 'ring-2 ring-offset-1 ' + (
+                              vibe === 'empathetic' ? 'ring-rose-300 bg-rose-50/90 shadow-lg shadow-rose-200/50' :
+                              vibe === 'witty' ? 'ring-amber-300 bg-amber-50/90 shadow-lg shadow-amber-200/50' :
+                              vibe === 'philosophical' ? 'ring-indigo-300 bg-indigo-50/90 shadow-lg shadow-indigo-200/50' :
+                              'ring-purple-300 bg-purple-50/90 shadow-lg shadow-purple-200/50'
+                            ) : ''}
+                            ${m.role === 'user' 
+                              ? 'bg-stone-900 border border-stone-950 text-white rounded-tr-none' 
+                              : vibe === 'empathetic' ? 'bg-rose-50/70 border border-rose-100 text-rose-950 rounded-tl-none hover:bg-rose-50' 
+                                : vibe === 'witty' ? 'bg-amber-50/70 border border-amber-100 text-amber-950 rounded-tl-none hover:bg-amber-50' 
+                                : vibe === 'philosophical' ? 'bg-indigo-50/70 border border-indigo-100 text-indigo-950 rounded-tl-none hover:bg-indigo-50' 
+                                : 'bg-purple-50/70 border border-purple-100 text-purple-950 rounded-tl-none hover:bg-purple-50'
+                            }
+                          `}
+                        >
+                          {/* Attachment rendering inside bubble */}
+                          {m.attachment && (
+                            <div className="mb-2 p-2 bg-stone-950/20 border border-white/10 rounded-xl flex items-center gap-2.5 text-[10px] text-stone-250 font-mono">
+                              <span className="text-xl leading-none">📎</span>
+                              <div className="truncate">
+                                <p className="font-bold truncate">{m.attachment.name}</p>
+                                <p className="opacity-80">Type: {m.attachment.type.toUpperCase()}</p>
+                              </div>
+                            </div>
+                          )}
+
+                          <p className="whitespace-pre-line select-text font-serif leading-relaxed text-sm">{m.content}</p>
+                        </div>
+
+                        {/* TTS Play controls for model answers */}
+                        {m.role === 'model' && (
+                          <div className="flex items-center gap-1.5 mt-1.5">
+                            <button
+                              onClick={() => speakMessage(m.id, m.content)}
+                              className={`text-[9px] px-2 py-0.5 rounded-md font-mono font-bold tracking-wider cursor-pointer border transition-all flex items-center gap-1
+                                ${m.isVoicePlaying 
+                                  ? 'bg-rose-50 border-rose-200 text-rose-600 font-extrabold animate-pulse' 
+                                  : 'bg-white hover:bg-stone-50 border-stone-150 text-stone-500'
+                                }
+                              `}
+                            >
+                              <span>🔊</span> <span>{m.isVoicePlaying ? 'SPEAKING' : 'READ ALOUD'}</span>
+                            </button>
+                            {isSpeaking && m.isVoicePlaying && (
+                              <button
+                                onClick={stopAudio}
+                                className="text-[9px] p-0.5 px-1.5 hover:bg-red-50 text-red-500 rounded border border-red-150 font-mono cursor-pointer"
+                              >
+                                STOP
+                              </button>
+                            )}
+                          </div>
+                        )}
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                )}
+                <AnimatePresence>
+                  {isThinking && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      transition={{ duration: 0.22 }}
+                      className="self-start flex flex-col items-start max-w-[80%]"
+                    >
+                      <span className="text-[9px] text-stone-400 font-mono font-extrabold mb-1 uppercase tracking-wider animate-pulse">DR. T IS PONDERING...</span>
+                      <div className="p-3 bg-stone-100 border border-stone-200/50 rounded-2xl rounded-tl-none flex items-center gap-2.5 text-xs shadow-xs">
+                        <RefreshCw className="w-3.5 h-3.5 animate-spin text-rose-550" />
+                        <span className="text-[11px] text-stone-500 font-mono tracking-wide">Syncing semantic network...</span>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+                <div ref={messagesEndRef} />
+              </div>
+
+              {/* Proactive alert scrolling advisory banner */}
+              <div className="my-2.5 p-2 bg-gradient-to-r from-rose-50/50 via-amber-50/50 to-emerald-50/50 border border-stone-150 rounded-xl text-[10px] text-stone-500 flex items-center justify-between shadow-xs z-10 animate-pulse">
+                <span className="flex items-center gap-1.5 truncate">
+                  <span className="w-1.5 h-1.5 rounded-full bg-rose-550"></span>
+                  <span className="font-extrabold text-stone-700 uppercase">PROACTIVE INTELLIGENCE:</span>
+                  <span className="truncate leading-none">Your passport expires in 5 months. You have not logged steps today.</span>
+                </span>
+                <button 
+                  onClick={() => { stopAudio(); handleSend("Prepare checklist to renew passport and plan local transport."); }}
+                  className="text-[9px] font-black text-rose-600 hover:text-rose-800 shrink-0 font-mono ml-2 underline underline-offset-2 cursor-pointer"
+                >
+                  RESOLVE NOW
+                </button>
+              </div>
+
+              {/* Link uploaded notification notice */}
+              {uploadNotice && (
+                <div className="mb-2 p-2 text-[10px] font-mono text-emerald-800 bg-emerald-50 rounded-lg flex items-center justify-between border border-emerald-100 animate-fadeIn">
+                  <span className="flex items-center gap-1">📎 {uploadNotice}</span>
+                  <button onClick={() => { setUploadNotice(null); }} className="text-stone-400 hover:text-stone-700">✕</button>
+                </div>
+              )}
+
+              {/* Language Switch notification */}
+              {langNotice && (
+                <div className="mb-2 p-2 text-[10px] font-mono text-rose-800 bg-rose-50 rounded-lg flex items-center justify-between border border-rose-100 animate-fadeIn">
+                  <span className="flex items-center gap-1.5 font-bold">🌐 {langNotice}</span>
+                  <button onClick={() => setLangNotice(null)} className="text-rose-450 hover:text-rose-700 cursor-pointer">✕</button>
+                </div>
+              )}
+
+              {/* Socratic Proactive Synchronizer notification toast */}
+              {toastNotice && (
+                <div className="mb-3 p-3 text-[11px] font-sans text-rose-900 bg-[#fff5f5] rounded-2xl flex items-start gap-2.5 justify-between border border-rose-200/65 shadow-xs animate-fadeIn">
+                  <span className="leading-relaxed font-semibold">
+                    {toastNotice}
+                  </span>
+                  <button onClick={() => setToastNotice(null)} className="text-rose-450 hover:text-rose-700 cursor-pointer font-bold shrink-0 text-xs">✕</button>
+                </div>
+              )}
+
+              {/* Input station bar */}
+              <div className="border-t border-stone-150 pt-3 z-10">
+                <div className="flex gap-2">
+                  
+                  {/* Multimodal Quick Attachment simulation tray trigger */}
+                  <div className="relative group/tray">
+                    <button
+                      type="button"
+                      className="h-10 w-10 shrink-0 rounded-xl bg-stone-50 hover:bg-stone-100 text-stone-500 border border-stone-200 flex items-center justify-center transition-all cursor-pointer shadow-xs"
+                      title="Simulate snapping photo / document upload"
+                    >
+                      <Upload className="w-4 h-4" />
+                    </button>
+                    
+                    {/* Floating custom simulator list */}
+                    <div className="absolute bottom-11 left-0 bg-white border border-stone-200 rounded-2xl p-2.5 shadow-md flex flex-col gap-1.5 w-[240px] hidden group-hover/tray:flex group-focus-within/tray:flex animate-fadeIn z-50">
+                      <span className="text-[8px] font-mono font-bold tracking-wider text-stone-400 uppercase border-b border-stone-100 pb-1 mb-1 block">ATTACH SIMULATOR BIO-DATA</span>
+                      <button
+                        type="button"
+                        onClick={() => triggerSimulationAttachment('symptom_rash')}
+                        className="p-1 px-2 hover:bg-stone-50 rounded-lg text-[10px] text-stone-700 font-extrabold text-left flex items-center gap-2 cursor-pointer"
+                      >
+                        🩺 Skin irritation stress rash photo
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => triggerSimulationAttachment('blood_report')}
+                        className="p-1 px-2 hover:bg-stone-50 rounded-lg text-[10px] text-stone-700 font-extrabold text-left flex items-center gap-2 cursor-pointer"
+                      >
+                        🧪 Lab Report panel (Blood chem)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => triggerSimulationAttachment('passport_expire')}
+                        className="p-1 px-2 hover:bg-stone-50 rounded-lg text-[10px] text-stone-700 font-extrabold text-left flex items-center gap-2 cursor-pointer"
+                      >
+                        🗺️ Scanned US Passport page
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => triggerSimulationAttachment('energy_audit')}
+                        className="p-1 px-2 hover:bg-stone-50 rounded-lg text-[10px] text-stone-700 font-extrabold text-left flex items-center gap-2 cursor-pointer"
+                      >
+                        🌱 Home heating & electric audit report
+                      </button>
+
+                      <div className="border-t border-stone-100 pt-2 mt-1 relative">
+                        <label className="text-[8px] font-mono font-extrabold text-stone-400 block mb-1">UPLOAD OWN FILE</label>
+                        <input
+                          type="file"
+                          onChange={handleCustomFileChange}
+                          className="text-[9px] w-full cursor-pointer text-stone-500 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-[9px] file:font-bold file:bg-stone-100 file:text-stone-700"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Message input */}
+                  <input
+                    type="text"
+                    required
+                    value={inputVal}
+                    onChange={(e) => setInputVal(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === 'Enter') handleSend(); }}
+                    placeholder="Vent your worries, ask for life advice, debug code, or ask Dr. T any question..."
+                    className="flex-1 bg-stone-55 border border-stone-200 rounded-xl p-2 px-3 text-xs outline-none focus:bg-white focus:border-rose-455 transition-all text-stone-850"
+                  />
+
+                  {/* Send button */}
+                  <button
+                    type="button"
+                    onClick={() => handleSend()}
+                    className="h-10 p-2.5 px-4 rounded-xl bg-stone-900 border border-stone-950 text-white font-black text-xs flex items-center justify-center gap-1.5 hover:bg-stone-850 active:scale-95 transition-all cursor-pointer shadow-xs select-none"
+                  >
+                    <Send className="w-3.5 h-3.5" /> <span className="hidden sm:inline">SEND</span>
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          </div>
 
         </div>
       )}
