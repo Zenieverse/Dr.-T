@@ -46,7 +46,7 @@ $$z = \beta_0 + \beta_1(\text{Age}) + \beta_2(\text{ComorbidityCount}) - \beta_3
 
 ---
 
-## 🏆 Hackathon Pitch Script & Playable Demonstration
+## 🏆 Pitch Script & Playable Demonstration
 Pour over the visual tabs in the UI:
 1. **The Hub (Voice Center):** Engage in Socratic vocal counseling. Change Dr. T's vibe to "socratic" or "clinical" to study its shifting dialogue trees.
 2. **Informatics Platform:** Import FHIR resources, validate them for LOINC compliance, and compile real SOAP progress notes formatted ready for hospital portals.
@@ -54,15 +54,3 @@ Pour over the visual tabs in the UI:
 4. **Portfolio Showcase:** View the interactive architecture topology diagrams, slide deck slides, and scientific abstract whitepaper.
 
 ---
-
-## 📜 Scientific Publication & Technical Citation
-```bibtex
-@article{dr-t-clinical-socratic-2026,
-  title={Socratic Conversational Agents in Preventing Autonomic Burnout: A Multiturn Clinical Framework and Interoperable FHIR Schema Design},
-  author={Dr. T Research Commission and Biomedical Informatics Division},
-  journal={Journal of Medical Informatics, Q2},
-  year={2026}
-}
-```
----
-*Developed on AI Studio Build for clinical hackathons, medical informatics portfolios, and advanced Healthcare MVP development.*
