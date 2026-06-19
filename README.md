@@ -1,6 +1,6 @@
 # Dr. T: World-Class Socratic Biomedical Informatics & Healthcare AI Platform
 
-My First Biomedical Informatics Project - a series of challenges set daily commitment non-stop work to speak medical language like my Dr. T @ https://dr-t-764082783379.us-west1.run.app
+My 1st Biomedical Informatics Project - a series of challenges set daily commitment non-stop work to speak medical language like my Dr. T @ https://dr-t-764082783379.us-west1.run.app
 
 <img width="1536" height="1024" alt="IMG_1724" src="https://github.com/user-attachments/assets/475ccae8-452b-4298-91c2-6cced6b772d5" />
 
