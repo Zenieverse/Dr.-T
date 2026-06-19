@@ -1,5 +1,10 @@
 # Dr. T: World-Class Socratic Biomedical Informatics & Healthcare AI Platform
 
+This Platform App https://dr-t-764082783379.us-west1.run.app is in the series of Biomedical Informatics challenges I have committed myself to so as to learn the medical language spoken by my Dr. T.
+
+<img width="1536" height="1024" alt="IMG_1724" src="https://github.com/user-attachments/assets/3a02b257-39fa-4cc7-9c4c-e4bb3c2a1a18" />
+
+
 > **Disclaimer:** "Dr. T is an educational and decision-support platform and not a substitute for professional medical advice."
 
 Dr. T is a world-class, production-ready Biomedical Informatics portfolio item, Healthcare AI platform, and HealthTech MVP built on a high-fidelity, full-stack architecture using **React, TypeScript, Express, and Google Gemini**. It combines the conversational empathy of a Socratic companion with clinical-vetted schemas, HL7 FHIR interoperability layers, real-time biostatistics metrics, and ICU forecasting engines modeled after MIMIC-IV clinical databases.
@@ -42,7 +47,7 @@ $$z = \beta_0 + \beta_1(\text{Age}) + \beta_2(\text{ComorbidityCount}) - \beta_3
 
 ---
 
-## 🏆 Hackathon Pitch Script & Playable Demonstration
+## 🏆 Pitch Script & Playable Demonstration
 Pour over the visual tabs in the UI:
 1. **The Hub (Voice Center):** Engage in Socratic vocal counseling. Change Dr. T's vibe to "socratic" or "clinical" to study its shifting dialogue trees.
 2. **Informatics Platform:** Import FHIR resources, validate them for LOINC compliance, and compile real SOAP progress notes formatted ready for hospital portals.
@@ -50,15 +55,3 @@ Pour over the visual tabs in the UI:
 4. **Portfolio Showcase:** View the interactive architecture topology diagrams, slide deck slides, and scientific abstract whitepaper.
 
 ---
-
-## 📜 Scientific Publication & Technical Citation
-```bibtex
-@article{dr-t-clinical-socratic-2026,
-  title={Socratic Conversational Agents in Preventing Autonomic Burnout: A Multiturn Clinical Framework and Interoperable FHIR Schema Design},
-  author={Dr. T Research Commission and Biomedical Informatics Division},
-  journal={Journal of Medical Informatics, Q2},
-  year={2026}
-}
-```
----
-*Developed on AI Studio Build for clinical hackathons, medical informatics portfolios, and advanced Healthcare MVP development.*
