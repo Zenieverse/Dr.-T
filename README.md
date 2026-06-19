@@ -1,5 +1,9 @@
 # Dr. T: World-Class Socratic Biomedical Informatics & Healthcare AI Platform
 
+My 1st project in Biomedical IÌnormatics in a series of challenges set to speak Medical language like my Dr. T. @ https://dr-t-764082783379.us-west1.run.app
+
+<img width="1536" height="1024" alt="IMG_1724" src="https://github.com/user-attachments/assets/4b0db7ad-ad7e-445a-8ba8-6bbd9a124e8c" />
+
 > **Disclaimer:** "Dr. T is an educational and decision-support platform and not a substitute for professional medical advice."
 
 Dr. T is a world-class, production-ready Biomedical Informatics portfolio item, Healthcare AI platform, and HealthTech MVP built on a high-fidelity, full-stack architecture using **React, TypeScript, Express, and Google Gemini**. It combines the conversational empathy of a Socratic companion with clinical-vetted schemas, HL7 FHIR interoperability layers, real-time biostatistics metrics, and ICU forecasting engines modeled after MIMIC-IV clinical databases.
