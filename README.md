@@ -1,6 +1,6 @@
 # Dr. T: World-Class Socratic Biomedical Informatics & Healthcare AI Platform
 
-My First Biomedical Informatics Project - a series of challenges set 4hr/day commitment for 9 months non-stop work to speak medical language loke my Dr. T. 
+My First Biomedical Informatics Project - a series of challenges set 4hr/day commitment for 9 months non-stop work to speak medical language like my Dr. T. 
 
 > **Disclaimer:** "Dr. T is an educational and decision-support platform and not a substitute for professional medical advice."
 
