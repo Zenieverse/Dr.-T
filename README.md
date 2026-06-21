@@ -2,7 +2,7 @@
 
 This Platform App https://dr-t-764082783379.us-west1.run.app is V.02 the series of Biomedical Informatics challenges with Informatics Platform is added; I have committed myself to so as to learn the medical language spoken by my Dr. T:
 
-V.01 is the original Voice Agent named Dr. T. 
+V.01 is the originally Voice Agent named Dr. T. 
 
 <img width="1536" height="1024" alt="IMG_1724" src="https://github.com/user-attachments/assets/3a02b257-39fa-4cc7-9c4c-e4bb3c2a1a18" />
 
