@@ -4,6 +4,8 @@ This Platform App https://dr-t-764082783379.us-west1.run.app is V.02 the series 
 
 V.01 is the originally Voice Agent named Dr. T. 
 
+V.2.1 UiPath components integrated into the App
+
 <img width="1536" height="1024" alt="IMG_1724" src="https://github.com/user-attachments/assets/3a02b257-39fa-4cc7-9c4c-e4bb3c2a1a18" />
 
 
@@ -56,37 +58,6 @@ Dr. T is an empathetic, Socratic clinical decision support platform and patient-
 The Problem It Solves
 Clinician & Administrator Burnout (The "EHR Tax")
 Modern healthcare professionals spend up to twice as much time performing manual entry in Electronic Health Records (EHR) as they do with patients. Outdated, click-heavy interfaces lead to cognitive fatigue and administrative fatigue.
-
-Cold, Transactional Care Models
-Standard patient portal interfaces are sterile, confusing, and dry. Patients often feel alienated by raw, uncontextualized metrics (such as lab results or diagnostic codes) without warm, conversational guidance.
-
-Data Fragmentation & Siloed Devices
-Valuable patient indicators remain isolated across consumer wearables (Fitbit, Apple Watch), municipal diagnostic laboratories, and legacy healthcare databases (Epic, Cerner), making holistic diagnostic tracking difficult.
-
-Delayed Critical Interventions
-Valuable predictive indicators (such as high-risk ICU clinical scores) lose effectiveness if they cannot be operationalized instantly. Intercepting these triggers requires automated, real-time alert dispatching.
-
-What the Project Does (Core Capabilities)
-Socratic Clinical & Empathic Guidance: Converts sterile health telemetry into interactive, supportive patient dialogues. It guides users through stabilizing behavioral exercises (such as auditory warm-ups and structured breathing) while collecting feedback on their physical status.
-
-Biomedical & ICU Diagnostic Suite: Provides real-time clinical dashboards modeling predictive markers (such as mortality risk index using anonymous MIMIC-IV datasets), enabling physicians to test diagnoses and run Step-and- titrated treatments.
-
-Multi-Agent Medical Swarms: Simulates real-time clinical advisory boards consisting of specialized virtual agents (e.g., Cardiology, Oncology, and Psychology) that review patient summaries and reach collaborative therapeutic consensus.
-
-Life-Graph Bio-Repositories: Standardizes physical biometrics and therapeutic achievements onto an interactive memory graph, enabling clinicians to visually trace correlations between life milestones and autonomic measurements.
-
-UiPath Robotic Process Automation (RPA) Hub:
-
-Automated Patient Intake: Seamlessly transcribes clinical summaries and writes them directly to simulated Epic/Cerner structures using unattended robots.
-
-Ambient Wearable Syncing: Pulls and organizes multi-device IoT health feeds without manual user intervention.
-
-Predictive Alert Dispatching: Bridges risk anomalies with instant emergency pager and Slack notifications.
-
-Smart Prescription Fulfillment: Hands compliance verification, checkups, and prescription entries over to non-clinical virtual assistants.
-
-UiPath Integration Components
-To eliminate the friction of data entry and system-to-system handshakes, we have mapped out a robust UiPath Automation Suite to handle legacy integration behind the scenes.
 
 Here are the enterprise UiPath components driving administrative offloading in the applet:
 
