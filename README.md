@@ -6,6 +6,8 @@ V.01 is the originally Voice Agent named Dr. T.
 
 V.2.1 UiPath components integrated into the App
 
+V.2.2 Integrated https://vocalbridgeai.com/shared/4ahTePkJBzlh0LQ1ndxolhqau3_hjYVfWWeM4-nwuhc 
+
 <img width="1536" height="1024" alt="IMG_1724" src="https://github.com/user-attachments/assets/3a02b257-39fa-4cc7-9c4c-e4bb3c2a1a18" />
 
 
