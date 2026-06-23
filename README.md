@@ -9,6 +9,12 @@ V.01 is the originally Voice Agent named Dr. T.
 
 > **Disclaimer:** "Dr. T is an educational and decision-support platform and not a substitute for professional medical advice."
 
+Inspiration
+
+PREVENTING AUTONOMIC BURNOUT & FRAGMENTED CARE
+
+Traditional healthcare software is cold and transactional, but we were inspired by a real-life physician, Dr. T, who has been helping her patients with wits, wisdom, and kindness throughout their treatment processes. We built 'Dr. T' — an empathetic, Socratic clinical decision support platform and patient-first wellness guide to carry her legacy of compassionate healthcare into a modern digital experience.
+
 Dr. T is a world-class, production-ready Biomedical Informatics portfolio item, Healthcare AI platform, and HealthTech MVP built on a high-fidelity, full-stack architecture using **React, TypeScript, Express, and Google Gemini**. It combines the conversational empathy of a Socratic companion with clinical-vetted schemas, HL7 FHIR interoperability layers, real-time biostatistics metrics, and ICU forecasting engines modeled after MIMIC-IV clinical databases.
 
 Dr. T: Project Overview & Core Mission
