@@ -4,10 +4,10 @@ This Platform App https://dr-t-764082783379.us-west1.run.app is V.02 the series 
 V.01 is the originally Voice Agent named Dr. T.
 V.2.1 UiPath components integrated into the App
 
+V.2.2 Integrated https://vocalbridgeai.com/shared/4ahTePkJBzlh0LQ1ndxolhqau3_hjYVfWWeM4-nwuhc
+
 <img width="1536" height="1024" alt="IMG_1724" src="https://github.com/user-attachments/assets/6bfe70e0-2ae7-46b3-8bba-7c915ca3da49" />
 
-
-V.2.2 Integrated https://vocalbridgeai.com/shared/4ahTePkJBzlh0LQ1ndxolhqau3_hjYVfWWeM4-nwuhc
 Disclaimer: "Dr. T is an educational and decision-support platform and not a substitute for professional medical advice."
 
 Inspiration
