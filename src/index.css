@@ -63,8 +63,38 @@
   }
 }
 
+@keyframes text-gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes happy-pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.03);
+  }
+}
+
 .animate-floating {
   animation: floatUp 3s cubic-bezier(0.1, 0.6, 0.3, 1) forwards;
+}
+
+.animate-text-gradient {
+  background-size: 200% auto;
+  animation: text-gradient 3s linear infinite;
+}
+
+.animate-happy-pulse {
+  animation: happy-pulse 2s ease-in-out infinite;
 }
 
 /* Custom global scrollbar behaviors */

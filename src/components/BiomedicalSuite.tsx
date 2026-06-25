@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { BirthdayCelebrator } from './BirthdayCelebrator';
 import { 
   Heart, Activity, ClipboardList, ShieldAlert, Award, FileSpreadsheet, 
   Search, FileText, Camera, Users, Zap, BookOpen, User, Eye, 
@@ -172,14 +173,28 @@ export const SUITE_TRANSLATIONS: Record<string, Record<string, string>> = {
   }
 };
 
-export const BiomedicalSuite: React.FC<{ language?: string }> = ({ language = 'English' }) => {
+export const BiomedicalSuite: React.FC<{
+  language?: string;
+  activeSubTab?: 'patient' | 'fhir' | 'analytics' | 'summarizer' | 'imaging' | 'population' | 'coach' | 'lab' | 'mimic' | 'orchestrator';
+  onSubTabChange?: (tab: 'patient' | 'fhir' | 'analytics' | 'summarizer' | 'imaging' | 'population' | 'coach' | 'lab' | 'mimic' | 'orchestrator') => void;
+}> = ({ language = 'English', activeSubTab: controlledSubTab, onSubTabChange }) => {
   const selectedLang = ['English', 'French', 'Vietnamese'].includes(language) ? language : 'English';
   
   const t = (key: string, fallback: string) => {
     return SUITE_TRANSLATIONS[selectedLang]?.[key] || fallback;
   };
 
-  const [activeSubTab, setActiveSubTab] = useState<'patient' | 'fhir' | 'analytics' | 'summarizer' | 'imaging' | 'population' | 'coach' | 'lab' | 'mimic' | 'orchestrator'>('patient');
+  const [localActiveSubTab, setLocalActiveSubTab] = useState<'patient' | 'fhir' | 'analytics' | 'summarizer' | 'imaging' | 'population' | 'coach' | 'lab' | 'mimic' | 'orchestrator'>('patient');
+
+  const activeSubTab = controlledSubTab !== undefined ? controlledSubTab : localActiveSubTab;
+  
+  const setActiveSubTab = (tab: 'patient' | 'fhir' | 'analytics' | 'summarizer' | 'imaging' | 'population' | 'coach' | 'lab' | 'mimic' | 'orchestrator') => {
+    if (onSubTabChange) {
+      onSubTabChange(tab);
+    } else {
+      setLocalActiveSubTab(tab);
+    }
+  };
 
   // Toast State
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'info' | 'error' } | null>(null);
@@ -540,11 +555,14 @@ export const BiomedicalSuite: React.FC<{ language?: string }> = ({ language = 'E
         </div>
 
         {/* Global medical disclaimer */}
-        <div className="mt-6 md:mt-0 pt-4 border-t border-stone-200/50 hidden md:block">
-          <div className="p-3 bg-rose-50 border border-rose-100 rounded-xl">
+        <div className="mt-6 md:mt-0 pt-4 border-t border-stone-200/50 hidden md:block select-none">
+          <div className="p-3 bg-rose-50 border border-rose-100 rounded-xl flex flex-col gap-1.5">
             <p className="text-[10px] text-rose-800 leading-normal font-medium">
               ⚠️ <strong>Educational Protocol:</strong> {t('educational_disclaimer', 'Dr. T is an educational and decision-support platform and not a substitute for professional medical advice.')}
             </p>
+            <div className="border-t border-rose-200/50 pt-2.5 flex justify-center">
+              <BirthdayCelebrator textSize="text-[10px]" />
+            </div>
           </div>
         </div>
       </div>

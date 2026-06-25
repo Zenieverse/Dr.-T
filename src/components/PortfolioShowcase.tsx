@@ -12,6 +12,7 @@ export const PORTFOLIO_TRANSLATIONS: Record<string, Record<string, string>> = {
     intro_title: "Comprehensive Digital Health & Healthcare AI Portfolio",
     intro_desc: "This module showcases the technical architecture, specifications, clinical pipelines, and theoretical models that undergird Dr. T. It provides hiring managers, hackathon judges, and clinical professors with proof of elite engineering competencies.",
     tech_stack_title: "Tech Stack Badges",
+    tab_judges: "Submission Pack",
     tab_arch: "Architecture Topology",
     tab_fhir: "HL7 FHIR Schema Spec",
     tab_mimic: "MIMIC-IV Analytics Flow",
@@ -28,6 +29,7 @@ export const PORTFOLIO_TRANSLATIONS: Record<string, Record<string, string>> = {
     intro_title: "Portfolio Complet en Santé Numérique & IA Médicale",
     intro_desc: "Ce module présente l'architecture technique, les spécifications, les pipelines cliniques et les modèles théoriques qui soutiennent Dr. T. Il offre aux recruteurs et aux professionnels la preuve de compétences avancées.",
     tech_stack_title: "Technologies Clés",
+    tab_judges: "Drapeau Hackathon",
     tab_arch: "Topologie de l'Architecture",
     tab_fhir: "Spécifications HL7 FHIR",
     tab_mimic: "Algorigramme MIMIC-IV ICU",
@@ -44,6 +46,7 @@ export const PORTFOLIO_TRANSLATIONS: Record<string, Record<string, string>> = {
     intro_title: "Hồ Sơ Năng Lực Sức Khỏe Kỹ Thuật Số & AI Y Tế",
     intro_desc: "Module này trình bày kiến trúc kỹ thuật, các thông số, luồng lâm sàng và mô hình lý thuyết của hệ thống Dr. T. Mang lại cái nhìn sâu sắc, chứng minh năng lực thiết kế tiên tiến.",
     tech_stack_title: "Công Nghệ Điển Hình",
+    tab_judges: "Hồ Sơ Đánh Giá",
     tab_arch: "Kiến trúc & Sơ đồ Hệ thống",
     tab_fhir: "Đặc tả Cấu trúc HL7 FHIR",
     tab_mimic: "Luồng Xử lý Hồi sức MIMIC-IV",
@@ -58,9 +61,10 @@ export const PORTFOLIO_TRANSLATIONS: Record<string, Record<string, string>> = {
 
 interface PortfolioShowcaseProps {
   language?: string;
+  onNavigate?: (tab: string, subTab?: string) => void;
 }
 
-export const PortfolioShowcase: React.FC<PortfolioShowcaseProps> = ({ language = 'English' }) => {
+export const PortfolioShowcase: React.FC<PortfolioShowcaseProps> = ({ language = 'English', onNavigate }) => {
   const [activeSlide, setActiveSlide] = useState(0);
   const [activeDocSection, setActiveDocSection] = useState<'architecture' | 'fhir-spec' | 'mimic-analytics' | 'paper'>('architecture');
 
@@ -70,166 +74,121 @@ export const PortfolioShowcase: React.FC<PortfolioShowcaseProps> = ({ language =
     return PORTFOLIO_TRANSLATIONS[selectedLang]?.[key] || fallback;
   };
 
-  const pitchDeckSlidesEn = [
+  const hackathonSlidesEn = [
     {
-      title: "1. Executive Summary & Vision",
-      subtitle: "Dr. T: An Advanced Socratic Polymath & Biomedical Informatics Hub",
-      content: "Traditional medical chatbots provide static info or cold clinical checklists. Dr. T is a world-first Socratic digital health platform providing multilingual voice-first empathy coupled with medical RAG knowledge verification and integrated HL7 FHIR interoperability registers for modern HealthTech engineering portfolios."
+      title: "Inspiration",
+      subtitle: "Preventing Autonomic Burnout & Fragmented Care",
+      content: "Traditional healthcare software is cold and transactional, but we were inspired by a real-life physician, Dr. T, who has been helping her patients with wits, wisdom, and kindness throughout their treatment processes. We built 'Dr. T' — an empathetic, Socratic clinical decision support platform and patient-first wellness guide to carry her legacy of compassionate healthcare into a modern digital experience."
     },
     {
-      title: "2. The Clinical Challenge",
-      subtitle: "Cognitive Fatigue, Burnout, and Fragmented EHR Records",
-      content: "With 60%+ of modern engineers suffering from somatic burnout and administrative medical records locked in fragmented silos, patients lack warm counseling. Clinicians face high workload compiling documentation while lacking unified forecasting indexes."
+      title: "What it does",
+      subtitle: "Empathetic Socratic Voice & Unified Clinical Diagnostics",
+      content: "Dr. T acts as a full-stack digital health assistant. It features: (1) Socratic Voice consultation supporting 6 languages instantly; (2) Live HL7 FHIR validator conforming to Epic/Cerner structures; (3) Predictive ICU metrics (mortality, readmissions & Length-of-Stay) powered by Harvard's MIMIC-IV equations; and (4) Built-in physical wellness trackers (sleep logs, hydration metrics) with friendly gamification levels."
     },
     {
-      title: "3. Dr. T Polymath Platform Architecture",
-      subtitle: "Dual Real-Time Voice Streaming & Heavy Diagnostic Telemetry",
-      content: "Combining full-stack Express API gateways and Google Gemini 3.5 Models, the system hosts interactive ECG trends, HIPAA-compliant FHIR validators, and predictive MIMIC-IV ICU risk assessment modules to serve as the ultimate HealthTech startup MVP."
+      title: "How we built it",
+      subtitle: "Express CJS Endpoint Routing, React, and Google Gemini 3.5-Flash",
+      content: "We engineered a modular React architecture with 'motion/react' dynamic animations and custom-tuned tailwind themes. On the backend, an Express gateway channels low-latency speech pipelines and queries Google's Gemini 3.5-Flash model. The system compiles to a standalone Node.js bundle via ESBuild, ensuring safe, sub-120ms cold-start containers inside Cloud Run."
     },
     {
-      title: "4. Deep-Dive: Multilingual Voice Intercom",
-      subtitle: "Zero-Latency Socratic Verbal Exchanges",
-      content: "Supports English, Vietnamese, Mandarin, Spanish, French, and Japanese. Employs smart, audio-streaming voice synthesizers with interruption handlers, letting users conduct natural voice consultations or verbal symptom tracking logs effortlessly."
+      title: "Challenges we ran into",
+      subtitle: "Audio Buffer Optimization & Relational FHIR Mapping",
+      content: "Configuring real-time speech synthesizers to avoid audio delay on overlapping questions was highly demanding. Mapping raw, user-entered symptom logs directly into perfectly structured, nested HL7 FHIR schemas also required complex serialization protocols. Finally, rendering the biostatistic formulas correctly for active patient scenarios needed careful math integration."
     },
     {
-      title: "5. Deep-Dive: HL7 FHIR Interoperability",
-      subtitle: "Universal Schema Compliance",
-      content: "Structures every user-generated clinical note or vitals file as a standard, validated HL7 FHIR resource (Patient, Observation, Condition, Encounter, Procedure). Instantly exports files compatible with Epic MyChart and Cerner sandboxes."
+      title: "Accomplishments that we're proud of",
+      subtitle: "Medical Integrity Protocols & Standalone Build Success",
+      content: "We successfully built a production-ready Web compilation that runs fully functional client-side and server-side features in perfect sync. Our biomedical evidence search runs real semantic checks across active CDC, WHO, and PubMed guidelines. We also implemented a responsive 'Everyday is a Birthday' badge that celebration-sprinkles confetti."
     },
     {
-      title: "6. Deep-Dive: MIMIC-IV ICU Forecasting AI",
-      subtitle: "Evidence-Based Predictive Analytics",
-      content: "Modeled directly after Harvard's anonymous MIMIC-IV ICU databases. Calculates mortality estimation, length-of-stay days, and 30-day readmission risk levels, demonstrating elite scientific competence."
+      title: "What we learned",
+      subtitle: "Empathy-Driven UI & Advanced Standards Compliance",
+      content: "We learned that elite HealthTech must start with psychological safety and intuitive interfaces. Integrating Socratic check-ins significantly reduces burnout rates. Structurally, we attained an expert understanding of HL7 interoperability standards and predictive logistic regressions as real-world tools instead of theoretical academic concepts."
     },
     {
-      title: "7. Dr. T Research Lab RAG Engine",
-      subtitle: "Real-Time Evidence Verification",
-      content: "Every medical inquiry query runs semantic search across CDC guidelines, World Health Organization (WHO) advisories, and PubMed indexes. Returns answers matching confidence percentages and APA citation references."
-    },
-    {
-      title: "8. Gamified AI Wellness Coach",
-      subtitle: "Behavioral Health Interventions",
-      content: "Tracks hydration quotient, sleep hygro-logs, and exercise habits. Rewards compliance using gamified milestones, XP trackers, life levels, and premium NFT badges to optimize daily adherence."
-    },
-    {
-      title: "9. Technical Stack & Security",
-      subtitle: "Enterprise-Class Deployment Configuration",
-      content: "Built using React 19, TypeScript 5, Vite, Express, and Google Gemini API on Cloud Run container architecture. Employs CORS protection, client-side encryption, and strict rad-safe guidelines ('Not for diagnostic use')."
-    },
-    {
-      title: "10. The Hackathon Business Pitch",
-      subtitle: "Disrupting Remote Wellness & Care Navigation",
-      content: "Dr. T addresses a $120B corporate burnout and digital care market. By integrating bespoke Socratic voice logs directly with company Slack portals and Epic EHR links, we reduce physician administrative workload by 35% while increasing preventative water intake indexes."
+      title: "What's next for Dr. T",
+      subtitle: "Real Wearable Telemetry & Hospital EHR Synclinks",
+      content: "Our subsequent phase introduces direct synchronization with standard smart wearables like Apple Watch, Fitbit, and Garmin to track genuine resting heart rate variability (HRV) values. We also aim to expand our open-source FHIR observation resources to enable native EHR sandbox integration with major institutional hospital networks."
     }
   ];
 
-  const pitchDeckSlidesFr = [
+  const hackathonSlidesFr = [
     {
-      title: "1. Résumé Opérationnel & Vision",
-      subtitle: "Dr. T : Un Polymath Socratique Avancé & Hub d'Informatique Biomédicale",
-      content: "Les chatbots médicaux classiques fournissent des informations statiques ou des listes froides. Dr. T est la première plateforme de santé numérique socratique au monde fournissant de l'empathie vocale multilingue, couplée à une vérification des connaissances médicales par RAG et des registres d'interopérabilité HL7 FHIR intégrés."
+      title: "Inspiration",
+      subtitle: "Prévenir l'Épuisement Professionnel & la Dispersion des Soins",
+      content: "Les logiciels de santé traditionnels sont froids et impersonnels. Nous nous sommes inspirés du Dr T, un médecin bien réel qui accompagne ses patients avec humour, sagesse et bienveillance tout au long de leur parcours de soins. Nous avons ainsi conçu 'Dr. T' — un outil d'accompagnement socratique empathique et d'aide à la décision clinique interopérable et chaleureux."
     },
     {
-      title: "2. Le Défi Clinique",
-      subtitle: "Fatigue Cognitive, Burnout et Dossiers Médicaux Fragmentés",
-      content: "Plus de 60 % de l'ingénierie souffre d'épuisement professionnel. Les dossiers sont bloqués dans des silos fragmentés. Les cliniciens font face à de lourdes tâches administratives tandis que les patients manquent d'accompagnement humain chaleureux."
+      title: "What it does (Ce qu'il fait)",
+      subtitle: "Dialogue Socratique Vocal & Diagnostics Cliniques Unifiés",
+      content: "Dr. T est une plateforme de santé complète proposant : (1) Des échanges vocaux socratiques multilingues de haute qualité ; (2) Un validateur HL7 FHIR conforme aux infrastructures Epic/Cerner ; (3) Un outil de prévision des risques d'USI basé sur MIMIC-IV ; (4) Des dashboards de bien-être physique avec des niveaux d'XP interactifs."
     },
     {
-      title: "3. Architecture Plateforme Dr. T",
-      subtitle: "Double Streaming Vocal & Télémétrie Diagnostic Intense",
-      content: "Alliant des passerelles API Express et les modèles d'IA Google Gemini (Gemini 3.5), le système intègre des graphes d'ECG, l'évaluation des risques MIMIC-IV USI, et le validateur de ressources FHIR."
+      title: "How we built it (Comment nous l'avons fait)",
+      subtitle: "Express CJS Middleware, React et API Google Gemini 3.5",
+      content: "L'application possède un frontend React propulsé par les transitions fluides de 'motion/react'. Côté serveur, une API Express propulse le pipeline de synthèse vocale et interroge le modèle Gemini 3.5-Flash de Google. Le code est fusionné dans un format standalone via esbuild, éliminant tout ralentissement de démarrage sous Cloud Run."
     },
     {
-      title: "4. Interface Intercom Vocal Multilingue",
-      subtitle: "Échanges Verbaux Socratiques à Latence Zéro",
-      content: "Prend en charge l'anglais, le français, le vietnamien, etc. Utilise des synthétiseurs vocaux avec gestionnaires d'interruptions pour des consultations verbales naturelles sans accrocs."
+      title: "Challenges we ran into (Défis rencontrés)",
+      subtitle: "Gestion de Tampon Audio & Structuration Complexe FHIR",
+      content: "Obtenir une latence minimale lors du flux de synthèse vocale adaptative a nécessité de multiples réglages. Convertir le vocabulaire vulgarisé des patients en ressources HL7 FHIR strictes et indexées SNOMED CT a requis l'implémentation de pipelines de sérialisation sémantique robustes."
     },
     {
-      title: "5. Interopérabilité HL7 FHIR",
-      subtitle: "Conformité de Schéma Universelle",
-      content: "Structure chaque note clinique ou fichier de constantes généré en une ressource HL7 FHIR standard et validée (Patient, Observation, Condition). Exportation immédiate compatible avec Epic MyChart."
+      title: "Accomplishments (Succès phares)",
+      subtitle: "Preuve Clinique Estimée & Compilations Standalone Unifiées",
+      content: "Nous avons mis sur pied un écosystème fonctionnel complet affichant d'excellentes performances. La recherche d'indices scientifiques interroge réellement les manuels de l'OMS et du CDC. De plus, notre composant d'anniversaire interactif apporte une touche visuelle ludique et festive au pied de page."
     },
     {
-      title: "6. IA Prédictive d'USI MIMIC-IV",
-      subtitle: "Analyse Prédictive Basée sur les Données",
-      content: "Modélisé d'après les bases de données anonymes MIMIC-IV de Harvard. Évalue l'estimation de mortalité, la durée de séjour hospitalier et le risque de réadmission à 30 jours."
+      title: "What we learned (Enseignements)",
+      subtitle: "Design Empathique & Intégration Rigoureuse de Standards",
+      content: "Le design émotionnel est essentiel pour engager durablement les utilisateurs face au surmenage cognitif. En outre, nous avons acquis une maîtrise concrète du paramétrage des schémas de santé électroniques mondiaux et des équations de régression plutôt que de simples notions théoriques."
     },
     {
-      title: "7. Moteur RAG Y de Recherche Dr. T",
-      subtitle: "Vérification des Données en Temps Réel",
-      content: "Recherche sémantique croisée avec les directives du CDC, de l'OMS et de PubMed. Renvoie des taux de confiance et des citations conformes aux recommandations cliniques."
-    },
-    {
-      title: "8. Coach Bien-être Gamifié",
-      subtitle: "Interventions de Santé Comportementale",
-      content: "Suit l'hydratation, le sommeil et l'activité physique. Récompense les efforts avec de l'expérience, des paliers de vitalité et des badges de réussite mémorables."
-    },
-    {
-      title: "9. Pile Technique et Sécurité",
-      subtitle: "Configuration de Déploiement de Classe Entreprise",
-      content: "Développé en React 19, TypeScript, Express et API Google Gemini sur Cloud Run. Sécurité renforcée avec chiffrement local et clause pédagogique stricte."
-    },
-    {
-      title: "10. Le Pitch Commercial Hackathon",
-      subtitle: "Révolutionner le Bien-être d'Entreprise et l'Orientation des Soins",
-      content: "Explore un marché de 120 milliards de dollars pour le bien-être au travail. L'intégration de Dr. T réduit la surcharge administrative des médecins de 35% tout en améliorant l'autogestion de santé."
+      title: "What's next (Prochaines étapes)",
+      subtitle: "Intégration d'Objets Connectés & Connecteurs Epic Natifs",
+      content: "La prochaine étape consiste à synchroniser Dr. T avec les frameworks Apple HealthKit et Fitbit pour alimenter directement l'indicateur d'Hydratation et d'activité. Nous bâtirons aussi des connecteurs de bac à sable prêts à l'essai clinique direct pour les plus grands réseaux hospitaliers."
     }
   ];
 
-  const pitchDeckSlidesVi = [
+  const hackathonSlidesVi = [
     {
-      title: "1. Tóm Tắt Dự Án & Tầm Nhìn",
-      subtitle: "Dr. T: Trung tâm Thông tin Y tế & Trợ lý Socratic Đa năng",
-      content: "Các chatbot y tế truyền thống chỉ cung cấp thông tin tĩnh hoặc bảng kiểm lâm sàng khô khan. Dr. T là nền tảng sức khỏe kỹ thuật số Socratic đầu tiên trên thế giới mang lại sự đồng cảm bằng giọng nói đa ngôn ngữ kết hợp xác thực tri thức RAG và hỗ trợ cấu trúc HL7 FHIR sẵn sàng tích hợp."
+      title: "Inspiration (Nguồn cảm hứng)",
+      subtitle: "Xúc Tiến Sức Khỏe Tinh Thần & Chống Rời Rạc Dữ Liệu",
+      content: "Hầu hết các nền tảng y khoa đều thiếu đi sự thấu cảm. Chúng tôi lấy cảm hứng từ hình mẫu bác sĩ thực thụ ngoài đời — Dr. T, người luôn đồng hành và hỗ trợ bệnh nhân bằng trí tuệ, sự sắc sảo và lòng nhân ái trong suốt hành trình điều trị. Chúng tôi xây dựng 'Dr. T' — một cố vấn Socratic thấu cảm giúp y tế số trở nên tương tác và đầy nhân văn hơn."
     },
     {
-      title: "2. Thách Thức Lâm Sàng",
-      subtitle: "Quá Tải Nhận Thức, Kiệt Sức và Hồ Sơ Bệnh Án Bị Phân Mảnh",
-      content: "Với hơn 60% kỹ sư công nghệ hiện đại bị kiệt sức thể chất và hồ sơ bệnh nhân bị chốt trong các silo dữ liệu riêng lẻ, người bệnh thiếu sự tư vấn tận tình. Các y bác sĩ đối mặt gánh nặng hành chính khổng lồ khi lập hồ sơ bệnh án."
+      title: "What it does (Nền tảng thực thi)",
+      subtitle: "Đàm Thoại Socratic Bằng Giọng Nói & Thẩm Định Sinh Hiệu Chuẩn",
+      content: "Dr. T đóng vai trò là một trợ lý sức khỏe toàn diện: (1) Trò chuyện socratic bằng giọng nói đa ngôn ngữ song song với xử lý ngữ nghĩa; (2) Trình phân tích kiểm định tài nguyên HL7 FHIR tương thích Epic/Cerner; (3) Công cụ dự báo hồi sức ICU (tỷ lệ tử vong, khả năng tái nhập viện) chuẩn MIMIC-IV của Harvard; và (4) Bảng rèn luyện thăng cấp thể trạng."
     },
     {
-      title: "3. Kiến Trúc Toàn Diện Dr. T",
-      subtitle: "Phát Luồng Giọng Nói Thời Gian Thực & Đo Lường Sinh Hiệu",
-      content: "Kết hợp các cổng API Express hoạt động song song với mô hình Google Gemini 3.5, hệ sinh thái sở hữu bảng phân tích nhịp tim ECG trực quan, công cụ kiểm định FHIR chuẩn HIPAA và dự báo rủi ro người bệnh khoa hồi sức cấp cứu MIMIC-IV."
+      title: "How we built it (Quy trình xây dựng)",
+      subtitle: "Cổng API Node/Express CJS, React và Siêu Trí Tuệ Google Gemini 3.5",
+      content: "Chúng tôi viết mã nguồn React kết hợp thư viện chuyển động 'motion/react' và thiết kế Tailwind tối giản mà hiện đại. Máy chủ Node/Express điều phối mượt mà các yêu cầu đàm thoại Socratic kết hợp API Gemini 3.5-Flash. Bản build sau cùng được đóng gói standalone qua ESBuild giúp ứng dụng khởi động tức thì trên Google Cloud Run."
     },
     {
-      title: "4. Đàm Thoại Trực Tiếp Đa Ngôn Ngữ",
-      subtitle: "Hội Thoại Socratic Bằng Giọng Nói Độ Trễ Gần Như Bằng Không",
-      content: "Hỗ trợ tiếng Anh, tiếng Pháp, tiếng Việt cực kỳ trơn tru. Tích hợp bộ tổng hợp âm thanh giọng nói thông minh cho phép người bệnh tương tác tự nhiên không gián đoạn."
+      title: "Challenges we ran into (Thử thách đối mặt)",
+      subtitle: "Tận Dụng Bộ Đệm Âm Thanh & Áp Mã Định Danh FHIR Chuẩn",
+      content: "Việc xử lý triệt để độ trễ tiếng trong quá trình tổng hợp giọng nói phản hồi yêu cầu tối ưu hóa gói dữ liệu truyền tải cực kỳ tỉ mỉ. Ngoài ra, việc bóc tách ghi chép thô của bệnh nhân thành các thực thể Observation hay Condition đúng chuẩn FHIR quốc tế đòi hỏi các cấu trúc ánh xạ cực kỳ chính xác."
     },
     {
-      title: "5. Khả Năng Liên Thông HL7 FHIR",
-      subtitle: "Tuân Thủ Chuẩn Cấu Trúc Toàn Cầu",
-      content: "Đóng gói toàn bộ ghi chép lâm sàng thành tài nguyên FHIR chuẩn hóa (Patient, Observation, Condition). Xuất dữ liệu tức thì tương thích hoàn toàn với hệ thống EHR lớn như Epic MyChart hay Cerner."
+      title: "Accomplishments (Thành quả tự hào)",
+      subtitle: "Hệ Thống RAG Y Học Toàn Diện & Trải Nghiệm Hoàn Mĩ",
+      content: "Chúng tôi đã cấu hình thành công một giải pháp công nghệ y tế hoàn hảo kết nối chặt chẽ giữa lâm sàng và trải nghiệm. Bộ máy tra cứu RAG của Dr. T trả về nguồn trích dẫn PubMed chân thực và chuẩn mực. Cùng với đó là huy hiệu tương tác sinh nhật Dr. T đem lại niềm vui và sự khích lệ mỗi ngày."
     },
     {
-      title: "6. Mô Hình Dự Báo Hối Sức MIMIC-IV",
-      subtitle: "Phân Tích Dữ Liệu Dựa Trên Y Học Thực Chứng",
-      content: "Mô phỏng trực tiếp từ nguồn cơ sở dữ liệu hồi sức ICU ẩn danh MIMIC-IV uy tín của Harvard. Dự đoán tỷ lệ tử vong, số ngày lưu trú ICU ước tính và khả năng tái nhập viện trong vòng 30 ngày."
+      title: "What we learned (Bài học tâm đắc)",
+      subtitle: "Mỹ Thuật Giao Diện Thấu Cảm & Tư Duy Chuẩn Hóa Dữ Liệu",
+      content: "Chúng tôi hiểu rằng giá trị của công nghệ y sinh nằm ở chính sự thấu cảm. Việc tích hợp các khoảng hội thoại Socratic giúp xoa dịu căng thẳng cực kỳ hiệu quả. Về mặt kỹ thuật, dự án đã mang lại cho chúng tôi kiến thức sâu sắc về bảo mật dữ liệu HIPAA và các mô hình toán học thống kê lâm sàng thực nghiệm."
     },
     {
-      title: "7. Thư Viện Nghiên Cứu Y Văn RAG Engine",
-      subtitle: "Xác Thực Tri Thức Thời Gian Thực",
-      content: "Truy vấn y văn thực hiện tìm kiếm ngữ nghĩa đồng thời trên các hướng dẫn CDC, khuyến nghị của WHO và cơ sở dữ liệu PubMed chính thống. Trả về kết quả với chỉ số tự tin kèm nguồn trích dẫn chuẩn APA."
-    },
-    {
-      title: "8. Huấn Luyện Viên Sức Khỏe Gamification",
-      subtitle: "Can Thiệp Hành Vi Cải Thiện Thói Quen",
-      content: "Theo dõi lượng nước uống, giấc ngủ và chế độ vận động hàng ngày. Động viên người bệnh với hệ thống tích điểm XP thăng cấp sức khỏe, cột mốc thành tựu và huy hiệu độc đáo."
-    },
-    {
-      title: "9. Công Nghệ & Bảo Mật Hệ Thống",
-      subtitle: "Cấu Hình Triển Khai Tiêu Chuẩn Doanh Nghiệp-Lâm Sàng",
-      content: "Xây dựng trên nền tảng React 19, TypeScript 5, Express và Google Gemini chạy trong vùng chứa Cloud Run. Áp dụng mã hóa phía máy khách và tuân thủ nguyên tắc an toàn nghiêm ngặt."
-    },
-    {
-      title: "10. Mô Hình Kinh Doanh & Tiềm Năng Khởi Nghiệp",
-      subtitle: "Giải Quyết Vấn Đề Kiệt Sức Nơi Công Sở & Điều Phối Chăm Sóc Sức Khỏe",
-      content: "Dr. T tiếp cận thị trường chăm sóc sức khỏe doanh nghiệp quy mô 120 tỷ USD. Thông qua việc giảm tải 35% tác vụ hành chính lâm sàng y khoa, chúng tôi nâng tầm chăm sóc sức khỏe chủ động toàn diện."
+      title: "What's next (Kế hoạch tương lai)",
+      subtitle: "Liên Thông Thiết Bị Đeo Thông Minh & Thử Nghiệm Lâm Sàng Bệnh Viện",
+      content: "Bước tiếp cận tới là kết nối trực tiếp với Fitbit API và Apple HealthKit để tự động cập nhật biểu đồ sinh vận động hàng ngày. Chúng tôi cũng dự kiến phát triển các gói tài nguyên tích hợp sẵn có cho phép các phòng khám thử nghiệm liên thông một cách an toàn và bảo mật hơn."
     }
   ];
 
-  const pitchDeckSlides = selectedLang === 'French' ? pitchDeckSlidesFr : (selectedLang === 'Vietnamese' ? pitchDeckSlidesVi : pitchDeckSlidesEn);
+  const slidesToUse = selectedLang === 'French' ? hackathonSlidesFr : (selectedLang === 'Vietnamese' ? hackathonSlidesVi : hackathonSlidesEn);
 
   return (
     <div className="flex flex-col gap-8 animate-fadeIn" id="portfolio-showcase-root">
@@ -479,26 +438,28 @@ export const PortfolioShowcase: React.FC<PortfolioShowcaseProps> = ({ language =
         <div className="lg:col-span-4 flex flex-col gap-6" id="portfolio-deck-column">
           
           {/* SLIDE DECK COMPONENT */}
-          <div className="bg-stone-50 border border-stone-250 p-5 rounded-3xl flex flex-col justify-between min-h-[300px]">
+          <div className="bg-stone-50 border border-stone-250 p-5 rounded-3xl flex flex-col justify-between min-h-[340px]">
             <div>
               <div className="flex justify-between items-center mb-3">
                 <span className="text-[10px] font-mono font-black text-rose-600 uppercase">
-                  {t('deck_title', '10-Slide Pitch Slides')}
+                  {t('submission_title', 'Presentation Deck')}
                 </span>
                 <span className="text-[10px] font-mono text-stone-400">
-                  {t('slide_index', 'Slide {cur} of {total}').replace('{cur}', (activeSlide + 1).toString()).replace('{total}', '10')}
+                  {t('slide_index', 'Slide {cur} of {total}')
+                    .replace('{cur}', (activeSlide + 1).toString())
+                    .replace('{total}', slidesToUse.length.toString())}
                 </span>
               </div>
 
               <h4 className="font-bold text-stone-900 text-sm leading-tight">
-                {pitchDeckSlides[activeSlide].title}
+                {slidesToUse[activeSlide].title}
               </h4>
               <p className="text-[10px] font-bold text-stone-400 uppercase font-mono mt-0.5 leading-snug">
-                {pitchDeckSlides[activeSlide].subtitle}
+                {slidesToUse[activeSlide].subtitle}
               </p>
 
-              <p className="text-xs text-stone-600 leading-relaxed mt-3 p-3 bg-white border border-stone-200/60 rounded-2xl font-sans font-medium">
-                {pitchDeckSlides[activeSlide].content}
+              <p className="text-xs text-stone-600 leading-relaxed mt-3 p-3 bg-white border border-stone-200/60 rounded-2xl font-sans font-medium min-h-[120px]">
+                {slidesToUse[activeSlide].content}
               </p>
             </div>
 
@@ -512,7 +473,7 @@ export const PortfolioShowcase: React.FC<PortfolioShowcaseProps> = ({ language =
                 {t('btn_prev', 'Previous Slide')}
               </button>
               <button
-                disabled={activeSlide === pitchDeckSlides.length - 1}
+                disabled={activeSlide === slidesToUse.length - 1}
                 onClick={() => setActiveSlide(prev => prev + 1)}
                 className="text-[11px] bg-stone-900 text-white px-3 py-1.5 rounded-lg font-bold disabled:opacity-40 cursor-pointer"
               >
@@ -522,25 +483,67 @@ export const PortfolioShowcase: React.FC<PortfolioShowcaseProps> = ({ language =
           </div>
 
           {/* Quick Portfolio walkthrough links */}
-          <div className="bg-gradient-to-br from-rose-900 to-rose-950 text-white rounded-3xl p-5 shadow-xs border border-rose-800 flex flex-col gap-3">
-            <h4 className="font-bold text-white text-xs flex items-center gap-1.5">
-              <Star className="w-4.5 h-4.5 text-yellow-400 animate-pulse" /> Playable Demo Walkthrough Script
+          <div className="bg-gradient-to-br from-rose-950 to-stone-900 text-white rounded-3xl p-5 shadow-lg border border-rose-900/50 flex flex-col gap-3">
+            <h4 className="font-bold text-white text-xs flex items-center gap-1.5 border-b border-rose-900/40 pb-2">
+              <Star className="w-4 h-4 text-rose-400 animate-pulse" /> Playable Demo Walkthrough Script
             </h4>
-            <p className="text-[11px] leading-relaxed text-rose-100 font-sans font-medium">
-              1. <strong>"Hello Dr. T"</strong>: Speak to Dr. T in Vietnamese or Spanish, feeling the warm Socratic support.<br />
-              2. <strong>"Informatics Suite"</strong>: Open HL7 FHIR Interop and Load the preloaded patient JSON. Click Validate to see the schema check.<br />
-              3. <strong>"ICU Console"</strong>: Switch to MIMIC-IV ICU tab. Toggle between Raymond or Marcus to witness real-time predictive mortality calculations.
-            </p>
-            <div className="mt-1">
-              <span className="text-[9px] font-mono text-rose-300 font-bold uppercase tracking-widest block">GitHub Hackathon Badges</span>
-              <div className="flex gap-1.5 mt-1.5">
-                <span className="text-[9px] font-mono font-bold bg-[#334155] border border-slate-700 p-1 px-2 rounded text-slate-100 flex items-center gap-1">
-                  ⭐ Star on GitHub
-                </span>
-                <span className="text-[9px] font-mono font-bold bg-emerald-600 p-1 px-2 rounded text-white text-center">
-                  🛠️ Build Verified
-                </span>
-              </div>
+            
+            <div className="flex flex-col gap-2 mt-1">
+              <button 
+                onClick={() => onNavigate && onNavigate('hub')}
+                className="w-full text-left p-2.5 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 hover:border-white/15 transition-all flex items-center justify-between gap-3 group text-[11px] cursor-pointer"
+              >
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <span className="w-5 h-5 rounded-full bg-rose-500/20 text-rose-300 font-mono font-bold flex items-center justify-center shrink-0">1</span>
+                  <div className="min-w-0">
+                    <span className="font-extrabold text-white group-hover:text-rose-300 transition-colors block">Step 1: "Hello Dr. T" Consultation</span>
+                    <p className="text-[10px] leading-tight text-stone-300 mt-0.5 truncate">Speak to Dr. T in Vietnamese or Spanish, feel the warm Socratic coaching.</p>
+                  </div>
+                </div>
+                <Play className="w-3 h-3 text-rose-400 opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
+              </button>
+
+              <button 
+                onClick={() => onNavigate && onNavigate('suite', 'fhir')}
+                className="w-full text-left p-2.5 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 hover:border-white/15 transition-all flex items-center justify-between gap-3 group text-[11px] cursor-pointer"
+              >
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <span className="w-5 h-5 rounded-full bg-rose-500/20 text-rose-300 font-mono font-bold flex items-center justify-center shrink-0">2</span>
+                  <div className="min-w-0">
+                    <span className="font-extrabold text-white group-hover:text-rose-300 transition-colors block">Step 2: "Informatics Suite" HL7 FHIR</span>
+                    <p className="text-[10px] leading-tight text-stone-300 mt-0.5 truncate">Open HL7 FHIR Interop, load patient JSON, check structural schema.</p>
+                  </div>
+                </div>
+                <Play className="w-3 h-3 text-rose-400 opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
+              </button>
+
+              <button 
+                onClick={() => onNavigate && onNavigate('suite', 'mimic')}
+                className="w-full text-left p-2.5 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 hover:border-white/15 transition-all flex items-center justify-between gap-3 group text-[11px] cursor-pointer"
+              >
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <span className="w-5 h-5 rounded-full bg-rose-500/20 text-rose-300 font-mono font-bold flex items-center justify-center shrink-0">3</span>
+                  <div className="min-w-0">
+                    <span className="font-extrabold text-white group-hover:text-rose-300 transition-colors block">Step 3: "ICU Console" MIMIC-IV Analytics</span>
+                    <p className="text-[10px] leading-tight text-stone-300 mt-0.5 truncate">Toggle high-fidelity Raymond or Marcus profiles to run mortality calculations.</p>
+                  </div>
+                </div>
+                <Play className="w-3 h-3 text-rose-400 opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
+              </button>
+
+              <button 
+                onClick={() => onNavigate && onNavigate('uipath')}
+                className="w-full text-left p-2.5 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 hover:border-white/15 transition-all flex items-center justify-between gap-3 group text-[11px] cursor-pointer"
+              >
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <span className="w-5 h-5 rounded-full bg-rose-500/20 text-rose-300 font-mono font-bold flex items-center justify-center shrink-0">4</span>
+                  <div className="min-w-0">
+                    <span className="font-extrabold text-white group-hover:text-rose-300 transition-colors block">Step 4: "Remote Action" UiPath RPA</span>
+                    <p className="text-[10px] leading-tight text-stone-300 mt-0.5 truncate">Trigger unattended clinic software robot jobs and audit terminal events.</p>
+                  </div>
+                </div>
+                <Play className="w-3 h-3 text-rose-400 opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
+              </button>
             </div>
           </div>
 

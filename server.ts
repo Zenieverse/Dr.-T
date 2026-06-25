@@ -390,10 +390,25 @@ app.post("/api/tts", async (req: any, res: any) => {
 
     res.json({ audioBase64: base64Audio });
   } catch (error: any) {
-    const isQuota = error.message?.includes("429") || error.message?.toLowerCase().includes("quota") || error.message?.toLowerCase().includes("rate limit") || error.message?.toLowerCase().includes("exhausted");
-    console.warn("TTS API handled warning:", error.message || error);
+    const errorStr = typeof error === 'object' ? JSON.stringify(error) : String(error);
+    const isQuota = error.status === 429 || 
+                    error.statusCode === 429 || 
+                    error.error?.code === 429 ||
+                    (error.message && (error.message.includes("429") || error.message.toLowerCase().includes("quota") || error.message.toLowerCase().includes("rate limit") || error.message.toLowerCase().includes("exhausted"))) ||
+                    errorStr.includes("429") || 
+                    errorStr.toLowerCase().includes("quota") || 
+                    errorStr.toLowerCase().includes("rate limit") || 
+                    errorStr.toLowerCase().includes("exhausted");
+    
+    if (isQuota) {
+      console.warn("TTS API warning: Quota exceeded or rate limited (429). Defaulting client to native device voice.");
+    } else {
+      console.warn("TTS API handled warning:", error.message || error.error?.message || String(error));
+    }
     res.status(isQuota ? 429 : 500).json({ 
-      error: error.message || "The speech module failed to synthesize audio." 
+      error: isQuota 
+        ? "Gemini high-fidelity speech quota has been fully exhausted for today. Switched to device-native synthesis."
+        : (error.message || error.error?.message || "The speech module failed to synthesize audio (Gemini TTS limit or connection error).")
     });
   }
 });
@@ -778,6 +793,46 @@ Formulate a highly dense scientific response. Extract exactly 3 peer-reviewed ci
     });
   } catch (error: any) {
     res.status(500).json({ error: error.message });
+  }
+});
+
+// Endpoint: Generate Vocal Bridge LiveKit Access Token
+app.post("/api/voice-token", async (req: any, res: any) => {
+  try {
+    const apiKey = process.env.VOCAL_BRIDGE_API_KEY || "vb_YFqaOSEkoPlUix1yYWr2WVvSUN46YyQbJ6uk_5HGYeA";
+    const agentId = "4ahTePkJBzlh0LQ1ndxolhqau3_hjYVfWWeM4-nwuhc";
+
+    if (!apiKey) {
+      return res.status(400).json({ 
+        error: "VOCAL_BRIDGE_API_KEY is not defined. Please configure it in your Secrets (Settings > Secrets)." 
+      });
+    }
+
+    const response = await fetch("https://vocalbridgeai.com/api/v1/token", {
+      method: "POST",
+      headers: {
+        "X-API-Key": apiKey,
+        "X-Agent-Id": agentId,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        participant_name: req.body?.participant_name || "Dr. T Patient"
+      })
+    });
+
+    if (!response.ok) {
+      const errText = await response.text();
+      console.error("Vocal Bridge token endpoint returned error status:", response.status, errText);
+      return res.status(response.status).json({ 
+        error: `Vocal Bridge API error: ${errText || response.statusText}` 
+      });
+    }
+
+    const data = await response.json();
+    res.json(data);
+  } catch (error: any) {
+    console.error("Vocal Bridge token fetch failed:", error);
+    res.status(500).json({ error: error.message || "Failed to generate vocal token." });
   }
 });
 

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { BirthdayCelebrator } from './BirthdayCelebrator';
 import { 
   Award, 
   Flame, 
@@ -307,6 +308,19 @@ export const Dashboard: React.FC<DashboardProps> = ({
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 relative" id="dashboard-suite-container">
       
+      {/* Educational Disclaimer Banner */}
+      <div className="lg:col-span-3 bg-rose-55/60 border border-rose-100/80 rounded-2xl p-3.5 px-4 text-xs text-rose-950 flex flex-col gap-1.5 shadow-xs animate-fadeIn select-none">
+        <div className="flex items-center gap-2.5">
+          <span className="text-base leading-none">⚠️</span>
+          <p className="font-semibold leading-relaxed">
+            <strong>Important Notice:</strong> Dr. T is an educational and decision-support platform and not a substitute for professional medical advice.
+          </p>
+        </div>
+        <div className="border-t border-rose-100/50 pt-2 flex justify-center">
+          <BirthdayCelebrator textSize="text-[10px]" />
+        </div>
+      </div>
+
       {/* Dynamic Celebration Floating Stars */}
       {celebrationSparkle && (
         <div className="fixed inset-0 pointer-events-none z-50 flex items-center justify-center">

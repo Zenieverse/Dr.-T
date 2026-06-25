@@ -50,11 +50,14 @@ import { Trackers } from './components/Trackers';
 import { Dashboard } from './components/Dashboard';
 import { BiomedicalSuite } from './components/BiomedicalSuite';
 import { PortfolioShowcase } from './components/PortfolioShowcase';
+import { BirthdayCelebrator } from './components/BirthdayCelebrator';
+import { UiPathOrchestrator } from './components/UiPathOrchestrator';
 import drTAvatar from './assets/images/dr_t_avatar_1781184840352.jpg';
 
 export default function App() {
   // Navigation
-  const [activeTab, setActiveTab] = useState<'hub' | 'graph' | 'swarm' | 'trackers' | 'dashboard' | 'avatar' | 'suite' | 'showcase'>('hub');
+  const [activeTab, setActiveTab] = useState<'hub' | 'graph' | 'swarm' | 'trackers' | 'dashboard' | 'avatar' | 'suite' | 'showcase' | 'uipath'>('hub');
+  const [activeSuiteSubTab, setActiveSuiteSubTab] = useState<'patient' | 'fhir' | 'analytics' | 'summarizer' | 'imaging' | 'population' | 'coach' | 'lab' | 'mimic' | 'orchestrator'>('patient');
 
   // State
   const [messages, setMessages] = useState<Message[]>([]);
@@ -400,13 +403,24 @@ export default function App() {
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     };
     
-    // Set message logs
-    setMessages([newGreeting]);
+    // Update message logs without wiping existing user history
+    setMessages(prev => {
+      const hasGreeting = prev.some(m => m.id === greetingId);
+      if (hasGreeting) {
+        return prev.map(m => m.id === greetingId ? newGreeting : m);
+      } else {
+        return [newGreeting, ...prev];
+      }
+    });
     
-    // Attempt audio speaker
-    setTimeout(() => {
+    // Attempt audio speaker - bypass timeout if triggered to ensure it falls within user gesture callstack
+    if (optionalForceText) {
       speakMessage(greetingId, greetingText);
-    }, 400);
+    } else {
+      setTimeout(() => {
+        speakMessage(greetingId, greetingText);
+      }, 350);
+    }
   };
 
   // Automatically trigger greeting whenever anyone joins/lands on the platform (instantly on mount)
@@ -790,8 +804,9 @@ export default function App() {
         const errObj = await response.json().catch(() => ({}));
         const errMsg = errObj.error || 'Failed to synthesize voice.';
         if (response.status === 429 || errMsg.toLowerCase().includes('quota') || errMsg.toLowerCase().includes('rate')) {
+          setTtsEngine('browser');
           speakViaWebSpeechAPI(cleanedText, messageId, overrideLang);
-          setAudioError("Defaulted to local device voice (Gemini TTS limit reached).");
+          setAudioError("Defaulted to local device voice (Gemini TTS limit reached). Engine switched to browser.");
           return;
         }
         throw new Error(errMsg);
@@ -887,6 +902,12 @@ export default function App() {
       });
 
       if (!response.ok) {
+        const errObj = await response.json().catch(() => ({}));
+        const errMsg = errObj.error || '';
+        if (response.status === 429 || errMsg.toLowerCase().includes('quota') || errMsg.toLowerCase().includes('rate')) {
+          setTtsEngine('browser');
+          setAudioError("Defaulted to local device voice (Gemini TTS limit reached). Engine switched to browser.");
+        }
         if (typeof window !== 'undefined' && window.speechSynthesis) {
           const ut = new SpeechSynthesisUtterance(cleanedText);
           ut.onend = () => setIsSpeaking(false);
@@ -1527,6 +1548,16 @@ export default function App() {
               <span>📈</span> <span className="hidden sm:inline">Diagnostics</span>
             </button>
             <button
+              onClick={() => { stopAudio(); setActiveTab('uipath'); }}
+              className={`p-1.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer
+                ${activeTab === 'uipath' ? 'bg-[#9f1239] text-white shadow-xs' : 'text-stone-500 hover:text-stone-800'}
+              `}
+              id="tab-uipath-btn"
+            >
+              <span>🤖</span> <span className="font-bold">UiPath RPA</span>
+            </button>
+
+            <button
               onClick={() => { stopAudio(); setActiveTab('avatar'); }}
               className={`p-1.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer
                 ${activeTab === 'avatar' ? 'bg-white shadow-xs text-rose-600' : 'text-stone-500 hover:text-stone-800'}
@@ -1935,6 +1966,19 @@ export default function App() {
                     <PhoneCall className="w-3.5 h-3.5 animate-pulse" /> Live Voice Agent Call
                   </button>
 
+                  {/* Dr. T Tab Button */}
+                  <a
+                    href="https://vocalbridgeai.com/shared/4ahTePkJBzlh0LQ1ndxolhqau3_hjYVfWWeM4-nwuhc?id=vb_YFqaOSEkoPlUix1yYWr2WVvSUN46YyQbJ6uk_5HGYeA&key=vb_YFqaOSEkoPlUix1yYWr2WVvSUN46YyQbJ6uk_5HGYeA&apiKey=vb_YFqaOSEkoPlUix1yYWr2WVvSUN46YyQbJ6uk_5HGYeA"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 border border-rose-400 rounded-2xl w-full text-xs font-extrabold text-white transition-all cursor-pointer shadow-md uppercase font-mono tracking-wider active:scale-98 text-center"
+                    id="dr-t-vocal-link-tab"
+                  >
+                    <PhoneCall className="w-3.5 h-3.5" /> Dr. T
+                  </a>
+
+
+
                   {/* Guided Breathing Trigger Button */}
                   <button
                     onClick={startBreathingOverlay}
@@ -2302,10 +2346,51 @@ export default function App() {
                       transition={{ duration: 0.22 }}
                       className="self-start flex flex-col items-start max-w-[80%]"
                     >
-                      <span className="text-[9px] text-stone-400 font-mono font-extrabold mb-1 uppercase tracking-wider animate-pulse">DR. T IS PONDERING...</span>
-                      <div className="p-3 bg-stone-100 border border-stone-200/50 rounded-2xl rounded-tl-none flex items-center gap-2.5 text-xs shadow-xs">
-                        <RefreshCw className="w-3.5 h-3.5 animate-spin text-rose-550" />
-                        <span className="text-[11px] text-stone-500 font-mono tracking-wide">Syncing semantic network...</span>
+                      <span className="text-[9px] text-stone-400 font-mono font-extrabold mb-1 uppercase tracking-wider animate-pulse">
+                        DR. T IS PONDERING...
+                      </span>
+                      <div className={`p-3.5 border rounded-2xl rounded-tl-none flex items-center gap-3 text-xs shadow-md transition-all duration-300 animate-pulse
+                        ${vibe === 'empathetic' ? 'bg-rose-50/95 border-rose-200/70 shadow-rose-100/40 text-rose-950' :
+                          vibe === 'witty' ? 'bg-amber-50/95 border-amber-200/70 shadow-amber-100/40 text-amber-950' :
+                          vibe === 'philosophical' ? 'bg-indigo-50/95 border-indigo-200/70 shadow-indigo-100/40 text-indigo-950' :
+                          'bg-purple-50/95 border-purple-200/70 shadow-purple-100/40 text-purple-950'
+                        }
+                      `}>
+                        <RefreshCw className={`w-3.5 h-3.5 animate-spin shrink-0
+                          ${vibe === 'empathetic' ? 'text-rose-550' :
+                            vibe === 'witty' ? 'text-amber-650' :
+                            vibe === 'philosophical' ? 'text-indigo-650' :
+                            'text-purple-650'
+                          }
+                        `} />
+                        <span className="text-[11px] font-mono tracking-wide">
+                          Syncing semantic network
+                        </span>
+                        
+                        {/* Elegant three bouncing dots typing sequence */}
+                        <div className="flex items-center gap-1.5 ml-1.5 shrink-0 py-1">
+                          <span className={`w-1.5 h-1.5 rounded-full animate-bounce [animation-delay:-0.3s]
+                            ${vibe === 'empathetic' ? 'bg-rose-500' :
+                              vibe === 'witty' ? 'bg-amber-500' :
+                              vibe === 'philosophical' ? 'bg-indigo-500' :
+                              'bg-purple-500'
+                            }
+                          `}></span>
+                          <span className={`w-1.5 h-1.5 rounded-full animate-bounce [animation-delay:-0.15s]
+                            ${vibe === 'empathetic' ? 'bg-rose-500' :
+                              vibe === 'witty' ? 'bg-amber-500' :
+                              vibe === 'philosophical' ? 'bg-indigo-500' :
+                              'bg-purple-500'
+                            }
+                          `}></span>
+                          <span className={`w-1.5 h-1.5 rounded-full animate-bounce
+                            ${vibe === 'empathetic' ? 'bg-rose-500' :
+                              vibe === 'witty' ? 'bg-amber-500' :
+                              vibe === 'philosophical' ? 'bg-indigo-500' :
+                              'bg-purple-500'
+                            }
+                          `}></span>
+                        </div>
                       </div>
                     </motion.div>
                   )}
@@ -2433,6 +2518,14 @@ export default function App() {
                 </div>
               </div>
 
+              {/* Disclaimer */}
+              <div className="text-[10px] text-stone-400 mt-2 text-center leading-normal border-t border-stone-100/50 pt-2 font-sans italic select-none">
+                <p>Dr. T is an educational and decision-support platform and not a substitute for professional medical advice.</p>
+                <div className="mt-2.5 flex justify-center">
+                  <BirthdayCelebrator textSize="text-[9px]" />
+                </div>
+              </div>
+
             </div>
           </div>
 
@@ -2534,18 +2627,58 @@ export default function App() {
         {/* Tab 7: BIOMEDICAL SUITE */}
         {activeTab === 'suite' && (
           <div className="animate-fadeIn">
-            <BiomedicalSuite language={language === 'auto' ? 'English' : language} />
+            <BiomedicalSuite 
+              language={language === 'auto' ? 'English' : language} 
+              activeSubTab={activeSuiteSubTab}
+              onSubTabChange={(sub) => setActiveSuiteSubTab(sub)}
+            />
           </div>
         )}
 
         {/* Tab 8: PORTFOLIO SHOWCASE */}
         {activeTab === 'showcase' && (
           <div className="animate-fadeIn">
-            <PortfolioShowcase language={language === 'auto' ? 'English' : language} />
+            <PortfolioShowcase 
+              language={language === 'auto' ? 'English' : language} 
+              onNavigate={(tab, subTab) => {
+                stopAudio();
+                setActiveTab(tab as any);
+                if (subTab) {
+                  setActiveSuiteSubTab(subTab as any);
+                }
+              }}
+            />
           </div>
         )}
 
+        {/* Tab 9: UIPATH INTEG SUITE */}
+        {activeTab === 'uipath' && (
+          <div className="animate-fadeIn">
+            <UiPathOrchestrator />
+          </div>
+        )}
+
+
+
       </main>
+
+       {/* Global Disclaimer Footer */}
+      <footer className="w-full border-t border-rose-100/50 bg-white/50 backdrop-blur-xs py-4 px-4 select-none shrink-0">
+        <div className="max-w-6xl mx-auto flex flex-col items-center justify-between gap-3 text-[11px] text-stone-500 font-sans">
+          <div className="w-full flex flex-col md:flex-row items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-rose-450 shrink-0"></span>
+              <p className="font-extrabold text-rose-800 tracking-wide uppercase font-mono text-[9px]">Platform Advisory</p>
+            </div>
+            <p className="font-bold text-stone-500 max-w-4xl text-center md:text-right leading-relaxed">
+              Dr. T is an educational and decision-support platform and not a substitute for professional medical advice.
+            </p>
+          </div>
+          <div className="w-full text-center border-t border-dashed border-stone-200 pt-3 flex justify-center">
+            <BirthdayCelebrator textSize="text-[10px]" />
+          </div>
+        </div>
+      </footer>
 
       {/* Guided Breathing Simulation Overlay */}
       <AnimatePresence>
@@ -2696,6 +2829,8 @@ export default function App() {
             </div>
           </motion.div>
         )}
+
+
 
         {/* Immersive Full-Screen Voice Agent Call Overlay */}
         {isVoiceAgentActive && (
