@@ -136,17 +136,48 @@ export function BirthdayCelebrator({ textSize = 'text-[10px]', isCompact = false
     }
   }, [particles]);
 
-  const rawText = "Everyday is a Birthday to Dr. T - Many happy returns! Version 29370";
+  const rawText = "E-Code Dance";
 
   // Blindbox prizes data
   const BLIND_BOX_PRIZES = [
     {
       id: 'socratic-tlc',
-      name: "Socratic Community TLC",
+      name: "Community TLC Poll",
       emoji: "🧠",
-      description: "How to return Dr. T's TLC towards the communities? Hm, 'Taking care of her till the rest of one's life? And whose life is it? among all the a b c, e, n, i, v, r, e, z, e, s, e, ...?' Or 'I got your back!'?",
-      color: "from-pink-450 via-rose-500 to-purple-600",
-      rarity: "MYTHIC"
+      description: `How to return Dr. T's TLC towards the communities?
+
+ a. Taking care of her till the rest of one's life; And whose life is it? among all the a b c, e, n, i, v, r, z, s, ...?'
+b.. Or 'I got your back!"
+c. Dr. T names it ... 
+d. All of the above`,
+      color: "from-rose-500 via-pink-500 to-amber-500",
+      rarity: "LEGENDARY"
+    },
+    {
+      id: 'great-hearts',
+      name: "Sage",
+      emoji: "🧠",
+      description: `Across domains I have met
+Great Hearts and Minds in blessed blends
+Blue bloods running through kind acts
+Gold ‘Grays’ wide map Vinci clans
+Some’s veins must be ‘out of verse’
+Pump up fine lines of best pens!`,
+      color: "from-pink-500 via-purple-500 to-rose-500",
+      rarity: "LEGENDARY"
+    },
+    {
+      id: 'love-it-ecode',
+      name: "E-Code Dance",
+      emoji: "🧠",
+      description: `Love it so dear E-Code Dance’
+On line some Fates facing, Bam!
+Racing for Life, all show up
+Win back one’s Time from Hades’ plans
+Wonders, Last Leaves, Miracles, ...?
+ Vested in here, Bold-Sage Land!`,
+      color: "from-amber-500 via-orange-600 to-yellow-500",
+      rarity: "LEGACY"
     },
     {
       id: 'socratic-hug',
@@ -195,6 +226,60 @@ export function BirthdayCelebrator({ textSize = 'text-[10px]', isCompact = false
       description: "Enshrouds your profile in a sparkling, radiant halo of pure positivity and grace.",
       color: "from-yellow-300 to-amber-500",
       rarity: "EPIC"
+    },
+    {
+      id: 'just4laughs',
+      name: "Just4laughs",
+      emoji: "😂",
+      description: `A man walks into a pharmacy and asks an assistant if she can give him something for the hiccups.
+The Assistant promptly reaches out and slaps the mans face.
+"What did you do that for?" the man asks.
+"Well, you don't have the hiccups anymore do you?" says the assistant.
+The man replies "No, but my wife does, and she's outside in the car."`,
+      color: "from-yellow-400 via-orange-500 to-red-500",
+      rarity: "EPIC"
+    },
+    {
+      id: 'just4laughs-family',
+      name: "Just4laughs",
+      emoji: "😂",
+      description: `A child asked his father, "How were people born?" So his father said, "Adam and Eve made babies, then their babies became adults and made babies, and so on."
+
+The child then went to his mother, asked her the same question and she told him, "We were monkeys, then we evolved to become like we are now."
+
+The child ran back to his father and said, "You lied to me!"
+His father replied, "No, your mom was talking about her side of the family."`,
+      color: "from-yellow-400 via-orange-500 to-red-500",
+      rarity: "EPIC"
+    },
+    {
+      id: 'just4laughs-mistakes',
+      name: "Just4laughs",
+      emoji: "😂",
+      description: `I told my wife she should embrace her mistakes.
+She gave me a hug.`,
+      color: "from-yellow-400 via-orange-500 to-red-500",
+      rarity: "EPIC"
+    },
+    {
+      id: 'just4laughs-workout',
+      name: "Just4laughs",
+      emoji: "😂",
+      description: `I told my watch I was going for a work-out.
+It replied,
+"Great! I'll start looking for nearby ambulances."`,
+      color: "from-yellow-400 via-orange-500 to-red-500",
+      rarity: "EPIC"
+    },
+    {
+      id: 'just4laughs-taichi',
+      name: "Just4laughs",
+      emoji: "😂",
+      description: `I do Taichi daily. I am normally a low BP type once I did Taichi to the master on video, I had a high BP. It turned out that the speech speed was set double, ...
+
+An Ouch! feeling just like when my Dr. renewed my Birth Cert, ...`,
+      color: "from-yellow-400 via-orange-500 to-red-500",
+      rarity: "EPIC"
     }
   ];
 
@@ -212,6 +297,78 @@ export function BirthdayCelebrator({ textSize = 'text-[10px]', isCompact = false
     color: string;
     rotate: number;
   }[]>([]);
+
+  // Poll States
+  const [votedOption, setVotedOption] = useState<string | null>(() => {
+    return localStorage.getItem('socratic_poll_vote');
+  });
+
+  const [customText, setCustomText] = useState(() => {
+    return localStorage.getItem('socratic_poll_custom_text') || '';
+  });
+
+  const [pollVotes, setPollVotes] = useState<{ [key: string]: number }>(() => {
+    const saved = localStorage.getItem('socratic_poll_votes_count');
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) { /* ignore */ }
+    }
+    return { a: 45, b: 32, c: 18, d: 55 };
+  });
+
+  const handleVote = (optionKey: string) => {
+    const prevVote = votedOption;
+    if (prevVote === optionKey) return;
+
+    setPollVotes(prev => {
+      const updated = { ...prev };
+      if (prevVote) {
+        updated[prevVote] = Math.max(0, updated[prevVote] - 1);
+      }
+      updated[optionKey] = (updated[optionKey] || 0) + 1;
+      localStorage.setItem('socratic_poll_votes_count', JSON.stringify(updated));
+      return updated;
+    });
+
+    setVotedOption(optionKey);
+    localStorage.setItem('socratic_poll_vote', optionKey);
+  };
+
+  const handleCustomTextChange = (val: string) => {
+    setCustomText(val);
+    localStorage.setItem('socratic_poll_custom_text', val);
+  };
+
+  const [customTextList, setCustomTextList] = useState<string[]>(() => {
+    const saved = localStorage.getItem('socratic_poll_c_list');
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) { /* ignore */ }
+    }
+    return [
+      "d & beyond, as I am super simple, modest, and humble, ...",
+      "Community Happiness",
+      "Shared Progress"
+    ];
+  });
+
+  const addCustomTextToList = (text: string) => {
+    const trimmed = text.trim();
+    if (!trimmed) return;
+    if (customTextList.includes(trimmed)) return;
+    const newList = [...customTextList, trimmed];
+    setCustomTextList(newList);
+    localStorage.setItem('socratic_poll_c_list', JSON.stringify(newList));
+    setCustomText('');
+    localStorage.removeItem('socratic_poll_custom_text');
+    handleVote('c');
+  };
+
+  const getOptionPercentage = (optionKey: string) => {
+    const values = Object.values(pollVotes) as number[];
+    const total = values.reduce((sum: number, val: number) => sum + val, 0);
+    if (total === 0) return 0;
+    const votesForOption = (pollVotes[optionKey] as number) || 0;
+    return Math.round((votesForOption / total) * 100);
+  };
 
   const startUnboxing = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -436,9 +593,27 @@ export function BirthdayCelebrator({ textSize = 'text-[10px]', isCompact = false
               onClick={resetBlindBox}
               title="Reset blindbox!"
             >
-              <Gift className="w-6 h-6 text-amber-500 fill-amber-500/10 opacity-30 scale-75" />
+              {(unboxedItem?.id === 'socratic-tlc' || unboxedItem?.id === 'great-hearts' || unboxedItem?.id === 'love-it-ecode') ? (
+                <div className="relative w-8 h-8 flex items-center justify-center">
+                  {/* Glowing & Pulsing Heart Outer Glow */}
+                  <div className="absolute inset-0 bg-rose-500/20 rounded-full animate-ping pointer-events-none" />
+                  {/* Beautiful Heart Shape SVG acting as the container */}
+                  <svg
+                    viewBox="0 0 24 24"
+                    className="w-7 h-7 text-rose-500 fill-rose-500 dark:text-rose-600 dark:fill-rose-600 drop-shadow-[0_2px_8px_rgba(244,63,94,0.5)] animate-[pulse_1.2s_infinite]"
+                  >
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                  </svg>
+                </div>
+              ) : (
+                <Gift className="w-6 h-6 text-amber-500 fill-amber-500/10 opacity-30 scale-75" />
+              )}
               <div className="absolute inset-0 flex items-center justify-center text-lg filter drop-shadow">
-                {unboxedItem?.emoji || "🎁"}
+                {(unboxedItem?.id === 'socratic-tlc' || unboxedItem?.id === 'great-hearts' || unboxedItem?.id === 'love-it-ecode') ? (
+                  <span className="text-[11px] -mt-0.5">{unboxedItem.emoji}</span>
+                ) : (
+                  unboxedItem?.emoji || "🎁"
+                )}
               </div>
             </motion.div>
           )}
@@ -488,7 +663,9 @@ export function BirthdayCelebrator({ textSize = 'text-[10px]', isCompact = false
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.85, y: 15 }}
               transition={{ type: "spring", damping: 25, stiffness: 350 }}
-              className="absolute bottom-11 right-1/2 translate-x-1/2 md:translate-x-0 md:right-0 z-50 w-64 p-4 bg-white/95 dark:bg-stone-900/95 backdrop-blur-md border border-rose-200 dark:border-rose-950/60 rounded-2xl shadow-[0_12px_32px_rgba(244,63,94,0.18)] flex flex-col items-center text-center"
+              className={`absolute bottom-11 right-1/2 translate-x-1/2 md:translate-x-0 md:right-0 z-50 p-4 bg-white/95 dark:bg-stone-900/95 backdrop-blur-md border border-rose-200 dark:border-rose-950/60 rounded-2xl shadow-[0_12px_32px_rgba(244,63,94,0.18)] flex flex-col items-center text-center transition-all duration-300 ${
+                unboxedItem.id === 'socratic-tlc' ? 'w-[310px] sm:w-[350px]' : 'w-64'
+              }`}
             >
               {/* Decorative sparkle background */}
               <div className="absolute inset-0 bg-gradient-to-tr from-pink-500/5 via-purple-500/5 to-transparent rounded-2xl pointer-events-none" />
@@ -498,6 +675,7 @@ export function BirthdayCelebrator({ textSize = 'text-[10px]', isCompact = false
 
               {/* Rarity Tag */}
               <span className={`text-[8px] font-mono font-black px-2 py-0.5 rounded-full mb-2.5 border uppercase tracking-widest ${
+                unboxedItem.rarity === 'LEGACY' ? 'bg-amber-50 text-amber-800 border-amber-300 dark:bg-amber-950/50 dark:text-amber-400 dark:border-amber-900/40 shadow-[0_0_10px_rgba(245,158,11,0.15)]' :
                 unboxedItem.rarity === 'MYTHIC' ? 'bg-amber-100 text-amber-700 border-amber-300/60 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-900/30' :
                 unboxedItem.rarity === 'LEGENDARY' ? 'bg-rose-100 text-rose-700 border-rose-300/60 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-900/30' :
                 unboxedItem.rarity === 'EPIC' ? 'bg-purple-100 text-purple-700 border-purple-300/60 dark:bg-purple-950/40 dark:text-purple-300 dark:border-purple-900/30' :
@@ -507,21 +685,53 @@ export function BirthdayCelebrator({ textSize = 'text-[10px]', isCompact = false
                 ✦ {unboxedItem.rarity} ✦
               </span>
 
-              {/* Glowing Emoji Reveal Circle */}
-              <div className="relative w-16 h-16 rounded-full bg-gradient-to-br from-rose-100 to-pink-50 dark:from-stone-800 dark:to-stone-850 flex items-center justify-center mb-2.5 shadow-inner border border-rose-200/40 dark:border-stone-750">
-                <div className="absolute inset-0 bg-pink-400/10 rounded-full animate-ping pointer-events-none" />
-                <motion.div
-                  initial={{ scale: 0.5, rotate: -45 }}
-                  animate={{ scale: 1.1, rotate: 0 }}
-                  transition={{
-                    scale: { type: "spring", damping: 15, stiffness: 300, delay: 0.1 },
-                    rotate: { type: "spring", damping: 12, stiffness: 200, delay: 0.1 }
-                  }}
-                  className="text-4xl filter drop-shadow-sm select-none"
-                >
-                  {unboxedItem.emoji}
-                </motion.div>
-              </div>
+              {/* Glowing Emoji Reveal Circle / Heart Container */}
+              {(unboxedItem.id === 'socratic-tlc' || unboxedItem.id === 'great-hearts' || unboxedItem.id === 'love-it-ecode') ? (
+                <div className="relative w-20 h-20 flex items-center justify-center mb-2.5">
+                  {/* Outer pulsating heart glow */}
+                  <div className="absolute inset-0 bg-rose-500/10 animate-ping pointer-events-none rounded-full" />
+                  {/* Beautiful Heart Shape SVG acting as the container */}
+                  <svg
+                    viewBox="0 0 24 24"
+                    className="absolute inset-0 w-full h-full text-rose-500 fill-rose-500 dark:text-rose-600 dark:fill-rose-600 drop-shadow-[0_4px_12px_rgba(244,63,94,0.6)] animate-pulse"
+                  >
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                  </svg>
+                  {/* Inside highlight */}
+                  <svg
+                    viewBox="0 0 24 24"
+                    className="absolute inset-2 w-16 h-16 text-pink-400/30 fill-pink-400/30 dark:text-pink-300/25 dark:fill-pink-300/25 filter blur-[1px]"
+                  >
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                  </svg>
+                  <motion.div
+                    initial={{ scale: 0.5, rotate: -45 }}
+                    animate={{ scale: 1.15, rotate: 0 }}
+                    transition={{
+                      scale: { type: "spring", damping: 15, stiffness: 300, delay: 0.1 },
+                      rotate: { type: "spring", damping: 12, stiffness: 200, delay: 0.1 }
+                    }}
+                    className="relative text-3xl filter drop-shadow-sm select-none z-10 -mt-1"
+                  >
+                    {unboxedItem.emoji}
+                  </motion.div>
+                </div>
+              ) : (
+                <div className="relative w-16 h-16 rounded-full bg-gradient-to-br from-rose-100 to-pink-50 dark:from-stone-800 dark:to-stone-850 flex items-center justify-center mb-2.5 shadow-inner border border-rose-200/40 dark:border-stone-750">
+                  <div className="absolute inset-0 bg-pink-400/10 rounded-full animate-ping pointer-events-none" />
+                  <motion.div
+                    initial={{ scale: 0.5, rotate: -45 }}
+                    animate={{ scale: 1.1, rotate: 0 }}
+                    transition={{
+                      scale: { type: "spring", damping: 15, stiffness: 300, delay: 0.1 },
+                      rotate: { type: "spring", damping: 12, stiffness: 200, delay: 0.1 }
+                    }}
+                    className="text-4xl filter drop-shadow-sm select-none"
+                  >
+                    {unboxedItem.emoji}
+                  </motion.div>
+                </div>
+              )}
 
               {/* Prize Name */}
               <h4 className="text-xs font-black text-stone-800 dark:text-stone-100 mb-1 leading-snug">
@@ -529,9 +739,228 @@ export function BirthdayCelebrator({ textSize = 'text-[10px]', isCompact = false
               </h4>
 
               {/* Prize Description */}
-              <p className="text-[10px] text-stone-500 dark:text-stone-400 mb-3.5 leading-relaxed px-1">
-                {unboxedItem.description}
-              </p>
+              {unboxedItem.id === 'socratic-tlc' ? (
+                <div className="w-full text-left my-2 px-1">
+                  <p className="text-[10px] font-semibold text-stone-700 dark:text-stone-300 mb-2.5">
+                    How to return Dr. T's TLC towards the communities?
+                  </p>
+                  
+                  <div className="space-y-2">
+                    {/* Option A */}
+                    <button
+                      onClick={() => handleVote('a')}
+                      className={`w-full text-left p-2 rounded-xl border transition-all duration-200 relative overflow-hidden active:scale-[0.98] ${
+                        votedOption === 'a'
+                          ? 'bg-rose-500/10 border-rose-400/80 dark:bg-rose-500/15 dark:border-rose-500/70'
+                          : 'bg-stone-50/50 hover:bg-stone-50 border-stone-200/60 dark:bg-stone-850/50 dark:hover:bg-stone-850 dark:border-stone-800'
+                      }`}
+                    >
+                      {/* Progress bar background */}
+                      <div 
+                        className="absolute inset-y-0 left-0 bg-rose-500/10 transition-all duration-500 ease-out pointer-events-none" 
+                        style={{ width: `${getOptionPercentage('a')}%` }}
+                      />
+                      
+                      <div className="relative z-10 flex items-start gap-2">
+                        <span className={`w-4.5 h-4.5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5 ${
+                          votedOption === 'a' ? 'bg-rose-500 text-white shadow-sm' : 'bg-stone-200 dark:bg-stone-700 text-stone-600 dark:text-stone-400'
+                        }`}>
+                          a
+                        </span>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[10px] text-stone-600 dark:text-stone-300 leading-tight">
+                            Taking care of her till the rest of one's life; And whose life is it? among all the a, b, c, e, n, i, v, r, z, s, ...?
+                          </p>
+                          {votedOption && (
+                            <div className="flex items-center justify-between mt-1 text-[9px] font-medium">
+                              <span className="text-rose-500 font-bold">{getOptionPercentage('a')}%</span>
+                              <span className="text-stone-400">{pollVotes.a} votes</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </button>
+
+                    {/* Option B */}
+                    <button
+                      onClick={() => handleVote('b')}
+                      className={`w-full text-left p-2 rounded-xl border transition-all duration-200 relative overflow-hidden active:scale-[0.98] ${
+                        votedOption === 'b'
+                          ? 'bg-rose-500/10 border-rose-400/80 dark:bg-rose-500/15 dark:border-rose-500/70'
+                          : 'bg-stone-50/50 hover:bg-stone-50 border-stone-200/60 dark:bg-stone-850/50 dark:hover:bg-stone-850 dark:border-stone-800'
+                      }`}
+                    >
+                      {/* Progress bar background */}
+                      <div 
+                        className="absolute inset-y-0 left-0 bg-rose-500/10 transition-all duration-500 ease-out pointer-events-none" 
+                        style={{ width: `${getOptionPercentage('b')}%` }}
+                      />
+                      
+                      <div className="relative z-10 flex items-start gap-2">
+                        <span className={`w-4.5 h-4.5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5 ${
+                          votedOption === 'b' ? 'bg-rose-500 text-white shadow-sm' : 'bg-stone-200 dark:bg-stone-700 text-stone-600 dark:text-stone-400'
+                        }`}>
+                          b
+                        </span>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[10px] text-stone-600 dark:text-stone-300 leading-tight">
+                            Or "I got your back!"
+                          </p>
+                          {votedOption && (
+                            <div className="flex items-center justify-between mt-1 text-[9px] font-medium">
+                              <span className="text-rose-500 font-bold">{getOptionPercentage('b')}%</span>
+                              <span className="text-stone-400">{pollVotes.b} votes</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </button>
+
+                    {/* Option C */}
+                    <div className={`rounded-xl border transition-all duration-200 relative overflow-hidden ${
+                      votedOption === 'c'
+                        ? 'bg-rose-500/10 border-rose-400/80 dark:bg-rose-500/15 dark:border-rose-500/70'
+                        : 'bg-stone-50/50 border-stone-200/60 dark:bg-stone-850/50 dark:border-stone-800'
+                    }`}>
+                      {/* Progress bar background */}
+                      <div 
+                        className="absolute inset-y-0 left-0 bg-rose-500/10 transition-all duration-500 ease-out pointer-events-none" 
+                        style={{ width: `${getOptionPercentage('c')}%` }}
+                      />
+                      
+                      <div className="relative z-10 p-2">
+                        <div className="flex items-start gap-2 cursor-pointer" onClick={() => handleVote('c')}>
+                          <span className={`w-4.5 h-4.5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5 ${
+                            votedOption === 'c' ? 'bg-rose-500 text-white shadow-sm' : 'bg-stone-200 dark:bg-stone-700 text-stone-600 dark:text-stone-400'
+                          }`}>
+                            c
+                          </span>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-[10px] text-stone-600 dark:text-stone-300 leading-tight">
+                              Dr. T names it ...
+                            </p>
+                          </div>
+                        </div>
+                        
+                        {/* Custom Input for Option C */}
+                        <div className="mt-1.5 ml-6.5">
+                          <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
+                            <input
+                              type="text"
+                              value={customText}
+                              onChange={(e) => handleCustomTextChange(e.target.value)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  e.preventDefault();
+                                  addCustomTextToList(customText);
+                                }
+                              }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleVote('c');
+                              }}
+                              placeholder="Type name & press Enter..."
+                              className="flex-1 text-[10px] px-2 py-1 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-lg focus:outline-none focus:border-rose-400 text-stone-700 dark:text-stone-300"
+                            />
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                addCustomTextToList(customText);
+                              }}
+                              className="px-2 py-1 text-[9px] font-medium bg-rose-500 hover:bg-rose-600 text-white rounded-lg active:scale-95 transition-all shrink-0"
+                            >
+                              Add
+                            </button>
+                          </div>
+
+                          {/* The List of Saved Names */}
+                          {customTextList.length > 0 && (
+                            <div className="mt-2 space-y-1" onClick={(e) => e.stopPropagation()}>
+                              <p className="text-[8px] uppercase tracking-wider text-stone-400 dark:text-stone-500 font-semibold">Dr. T's choices list:</p>
+                              <div className="flex flex-col gap-1.5 max-h-[140px] overflow-y-auto pr-0.5 custom-scrollbar">
+                                {customTextList.map((item, index) => (
+                                  <div 
+                                    key={index} 
+                                    className="group flex items-start justify-between gap-2 bg-rose-500/10 dark:bg-rose-500/20 text-rose-600 dark:text-rose-300 text-[9px] px-2 py-1.5 rounded-md border border-rose-300/30 dark:border-rose-700/30 w-full animate-fade-in"
+                                  >
+                                    <span className="font-medium whitespace-normal break-words leading-relaxed flex-1">{item}</span>
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        const filtered = customTextList.filter((_, idx) => idx !== index);
+                                        setCustomTextList(filtered);
+                                        localStorage.setItem('socratic_poll_c_list', JSON.stringify(filtered));
+                                      }}
+                                      className="text-stone-400 hover:text-rose-600 dark:hover:text-rose-400 font-bold transition-colors ml-0.5 text-[10px] shrink-0 mt-0.5"
+                                      title="Remove"
+                                    >
+                                      ×
+                                    </button>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        {votedOption && (
+                          <div className="flex items-center justify-between mt-1 ml-6.5 text-[9px] font-medium">
+                            <span className="text-rose-500 font-bold">{getOptionPercentage('c')}%</span>
+                            <span className="text-stone-400">{pollVotes.c} votes</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Option D */}
+                    <button
+                      onClick={() => handleVote('d')}
+                      className={`w-full text-left p-2 rounded-xl border transition-all duration-200 relative overflow-hidden active:scale-[0.98] ${
+                        votedOption === 'd'
+                          ? 'bg-rose-500/10 border-rose-400/80 dark:bg-rose-500/15 dark:border-rose-500/70'
+                          : 'bg-stone-50/50 hover:bg-stone-50 border-stone-200/60 dark:bg-stone-850/50 dark:hover:bg-stone-850 dark:border-stone-800'
+                      }`}
+                    >
+                      {/* Progress bar background */}
+                      <div 
+                        className="absolute inset-y-0 left-0 bg-rose-500/10 transition-all duration-500 ease-out pointer-events-none" 
+                        style={{ width: `${getOptionPercentage('d')}%` }}
+                      />
+                      
+                      <div className="relative z-10 flex items-start gap-2">
+                        <span className={`w-4.5 h-4.5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5 ${
+                          votedOption === 'd' ? 'bg-rose-500 text-white shadow-sm' : 'bg-stone-200 dark:bg-stone-700 text-stone-600 dark:text-stone-400'
+                        }`}>
+                          d
+                        </span>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[10px] text-stone-600 dark:text-stone-300 leading-tight">
+                            All of the above
+                          </p>
+                          {votedOption && (
+                            <div className="flex items-center justify-between mt-1 text-[9px] font-medium">
+                              <span className="text-rose-500 font-bold">{getOptionPercentage('d')}%</span>
+                              <span className="text-stone-400">{pollVotes.d} votes</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </button>
+                  </div>
+                  
+                  {votedOption && (
+                    <p className="text-center text-[8px] text-stone-400 mt-2.5 animate-pulse">
+                      💝 TLC returned! Feel free to adjust your vote anytime.
+                    </p>
+                  )}
+                </div>
+              ) : (
+                <p className="text-[10px] text-stone-500 dark:text-stone-400 mb-3.5 leading-relaxed px-1 whitespace-pre-line">
+                  {unboxedItem.description}
+                </p>
+              )}
 
               {/* Reset Control */}
               <button
