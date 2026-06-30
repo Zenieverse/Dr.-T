@@ -53,11 +53,12 @@ import { PortfolioShowcase } from './components/PortfolioShowcase';
 import { BirthdayCelebrator } from './components/BirthdayCelebrator';
 import { UiPathOrchestrator } from './components/UiPathOrchestrator';
 import StellarZkPlayground from './components/StellarZkPlayground';
+import { DecisionIntelligence } from './components/DecisionIntelligence';
 import drTAvatar from './assets/images/dr_t_avatar_1781184840352.jpg';
 
 export default function App() {
   // Navigation
-  const [activeTab, setActiveTab] = useState<'hub' | 'graph' | 'swarm' | 'trackers' | 'dashboard' | 'avatar' | 'suite' | 'showcase' | 'uipath' | 'stellar-zk'>('hub');
+  const [activeTab, setActiveTab] = useState<'hub' | 'graph' | 'swarm' | 'trackers' | 'dashboard' | 'avatar' | 'suite' | 'showcase' | 'uipath' | 'stellar-zk' | 'decision'>('hub');
   const [activeSuiteSubTab, setActiveSuiteSubTab] = useState<'patient' | 'fhir' | 'analytics' | 'summarizer' | 'imaging' | 'population' | 'coach' | 'lab' | 'mimic' | 'orchestrator'>('patient');
 
   // State
@@ -1569,6 +1570,18 @@ export default function App() {
             </button>
 
             <button
+              onClick={() => { stopAudio(); setActiveTab('decision'); }}
+              className={`p-1.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer
+                ${activeTab === 'decision' ? 'bg-[#9f1239] text-white shadow-xs' : 'text-stone-500 hover:text-stone-800'}
+              `}
+              id="tab-decision-btn"
+            >
+              <span>🧠</span> <span className="font-bold">Decision Intelligence</span>
+            </button>
+
+
+
+            <button
               onClick={() => { stopAudio(); setActiveTab('avatar'); }}
               className={`p-1.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer
                 ${activeTab === 'avatar' ? 'bg-white shadow-xs text-rose-600' : 'text-stone-500 hover:text-stone-800'}
@@ -2675,6 +2688,15 @@ export default function App() {
             <StellarZkPlayground />
           </div>
         )}
+
+        {/* Tab 11: DECISION INTELLIGENCE PLATFORM */}
+        {activeTab === 'decision' && (
+          <div className="animate-fadeIn">
+            <DecisionIntelligence />
+          </div>
+        )}
+
+
 
 
 

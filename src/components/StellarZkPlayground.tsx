@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Heart, Shield, Check, Lock, Unlock, Send, RefreshCw, Cpu, 
-  Layers, Compass, Eye, Users, Award, Terminal, Copy, Info, 
+  Layers, Compass, Eye, EyeOff, Users, Award, Terminal, Copy, Info, 
   AlertTriangle, Sparkles, MessageSquare, Flame, HelpCircle, Database
 } from 'lucide-react';
 
@@ -18,6 +18,7 @@ interface Attestation {
   proofSize: string;
   gasSpent: number;
   voteValue?: string;
+  voteKey?: string;
   proofData: {
     merkleRoot: string;
     nullifierHash: string;
@@ -40,6 +41,7 @@ export default function StellarZkPlayground() {
   const [attestationType, setAttestationType] = useState<'thank-you' | 'constructive' | 'warm-hug' | 'initiative-vote'>('thank-you');
   const [messageText, setMessageText] = useState('');
   const [memberPassphrase, setMemberPassphrase] = useState('warmth');
+  const [showPassphrase, setShowPassphrase] = useState(false);
   const [selectedVoteOption, setSelectedVoteOption] = useState('c'); // Defaults to Option C!
   const [provingSystem, setProvingSystem] = useState<'groth16' | 'risczero'>('groth16');
 
@@ -251,6 +253,7 @@ export default function StellarZkPlayground() {
       proofSize: provingSystem === 'groth16' ? '340 bytes' : '256 KB',
       gasSpent: provingSystem === 'groth16' ? 12050 : 34800,
       voteValue: attestationType === 'initiative-vote' ? selectedOptionLabel : undefined,
+      voteKey: attestationType === 'initiative-vote' ? selectedVoteOption : undefined,
       proofData: {
         merkleRoot: "0x8a92f0fc9e66b3bcf9143825a2df62e846067b55e3966fb94bcde83ee24f7962",
         nullifierHash: finalNullifier,
@@ -289,8 +292,9 @@ export default function StellarZkPlayground() {
     // Commit vote in UI if voting
     if (generatedAttestation.category === 'initiative-vote') {
       setPoll(prev => {
+        const targetKey = generatedAttestation.voteKey || selectedVoteOption;
         const updatedOptions = prev.options.map(opt => {
-          if (opt.key === selectedVoteOption) {
+          if (opt.key === targetKey) {
             return { ...opt, votes: opt.votes + 1 };
           }
           return opt;
@@ -325,8 +329,7 @@ export default function StellarZkPlayground() {
             </span>
           </div>
           <p className="text-xs text-stone-700 dark:text-stone-300 leading-relaxed font-sans font-medium">
-            "Oh, sweetheart! Why settle for ambitious financial moonshots when Zero-Knowledge proofs can serve their most noble, beautiful purpose: **protecting human privacy and creating psychological safety**? 
-            Welcome to the **Humble Community Attestations & Sealed Warmth** portal! Prove you are a recognized member of our community using a private membership path, then submit encrypted praise, constructive notes, or secret votes. It is fully authenticated, yet completely untraceable—even to me! Come on in, let's leave a sealed trace of warmth on the Stellar ledger!"
+            An anonymous feedback and voting portal where community members leave encrypted expressions of appreciation, share feedback, and vote on community initiatives completely privately using secure, low-fee Stellar zero-knowledge proofs.
           </p>
         </div>
       </div>
@@ -351,7 +354,7 @@ export default function StellarZkPlayground() {
                   </label>
                   <button 
                     onClick={() => setShowKeyInfo(!showKeyInfo)}
-                    className="text-stone-400 hover:text-stone-600 text-[10px] font-semibold flex items-center gap-0.5"
+                    className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 text-[10px] font-semibold flex items-center gap-0.5 cursor-pointer"
                   >
                     <HelpCircle className="w-3 h-3" /> Hints
                   </button>
@@ -359,19 +362,83 @@ export default function StellarZkPlayground() {
 
                 <div className="relative">
                   <input
-                    type="password"
+                    type={showPassphrase ? "text" : "password"}
                     value={memberPassphrase}
                     onChange={(e) => setMemberPassphrase(e.target.value)}
                     placeholder="Enter circle passphrase"
-                    className="w-full text-xs px-3 py-2 pl-3 pr-10 bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl focus:outline-none focus:border-rose-400 text-stone-800 dark:text-stone-200 font-bold transition-all"
+                    className="w-full text-xs px-3 py-2 pl-3 pr-20 bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl focus:outline-none focus:border-rose-400 text-stone-800 dark:text-stone-200 font-bold transition-all"
                   />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2">
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setShowPassphrase(!showPassphrase)}
+                      className="p-1 hover:bg-stone-100 dark:hover:bg-stone-800 rounded-lg text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 transition-colors cursor-pointer"
+                      title={showPassphrase ? "Hide passphrase" : "Show passphrase"}
+                    >
+                      {showPassphrase ? (
+                        <EyeOff className="w-3.5 h-3.5" />
+                      ) : (
+                        <Eye className="w-3.5 h-3.5" />
+                      )}
+                    </button>
                     {recognizedKeys.includes(memberPassphrase.trim().toLowerCase()) ? (
-                      <Lock className="w-4 h-4 text-emerald-500" title="Recognized circle key!" />
+                      <Lock className="w-4 h-4 text-emerald-500 shrink-0" title="Recognized circle key!" />
                     ) : (
-                      <Unlock className="w-4 h-4 text-rose-400" title="Unrecognized key" />
+                      <Unlock className="w-4 h-4 text-rose-400 shrink-0" title="Unrecognized key" />
                     )}
+                  </div>
+                </div>
+
+                {/* Status Validation Feedback */}
+                <div className="mt-1.5 flex items-center gap-1.5">
+                  {recognizedKeys.includes(memberPassphrase.trim().toLowerCase()) ? (
+                    <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      Recognized member of the Merkle Tree Circle (Private Leaf verified)
+                    </span>
+                  ) : (
+                    <span className="text-[10px] font-bold text-rose-500 flex items-center gap-1">
+                      <span className="h-1.5 w-1.5 rounded-full bg-rose-400" />
+                      Unrecognized secret. Proof generation will fail.
+                    </span>
+                  )}
+                </div>
+
+                {/* Pre-approved Passphrase Quick Selection Chips */}
+                <div className="mt-2.5">
+                  <span className="text-[9px] font-bold text-stone-400 dark:text-stone-500 block mb-1.5">
+                    🔑 Approved Merkle Leaves (Click to select & test):
                   </span>
+                  <div className="flex flex-wrap gap-1">
+                    {recognizedKeys.map((key) => {
+                      const isSelected = memberPassphrase.trim().toLowerCase() === key;
+                      return (
+                        <button
+                          key={key}
+                          type="button"
+                          onClick={() => setMemberPassphrase(key)}
+                          className={`text-[9px] px-2 py-0.5 rounded-md font-mono transition-all cursor-pointer border ${
+                            isSelected
+                              ? 'bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400 border-emerald-300'
+                              : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700 border-stone-200 dark:border-stone-700'
+                          }`}
+                        >
+                          {key}
+                        </button>
+                      );
+                    })}
+                    <button
+                      type="button"
+                      onClick={() => setMemberPassphrase('invalid-key')}
+                      className={`text-[9px] px-2 py-0.5 rounded-md font-mono transition-all cursor-pointer border ${
+                        memberPassphrase.trim().toLowerCase() === 'invalid-key'
+                          ? 'bg-rose-50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400 border-rose-300'
+                          : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700 border-stone-200 dark:border-stone-700'
+                      }`}
+                    >
+                      ❌ test invalid
+                    </button>
+                  </div>
                 </div>
 
                 <AnimatePresence>
@@ -380,7 +447,7 @@ export default function StellarZkPlayground() {
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: 'auto' }}
                       exit={{ opacity: 0, height: 0 }}
-                      className="mt-2 text-[9px] text-stone-500 dark:text-stone-400 bg-amber-500/5 border border-amber-200/20 p-2.5 rounded-lg leading-relaxed"
+                      className="mt-2.5 text-[9px] text-stone-500 dark:text-stone-400 bg-amber-500/5 border border-amber-200/20 p-2.5 rounded-lg leading-relaxed"
                     >
                       💡 To generate a valid membership proof, your secret must match one of Dr. T's pre-approved leaves inside the circle's Merkle tree. 
                       Try one of these recognized phrases: <strong className="text-rose-500">warmth</strong>, <strong className="text-rose-500">tlc</strong>, <strong className="text-rose-500">stella</strong>, or <strong className="text-rose-500">zeniverse</strong>. Any other word will fail verification!
@@ -456,24 +523,32 @@ export default function StellarZkPlayground() {
                     </label>
                     <div className="space-y-1.5">
                       {poll.options.map((opt) => (
-                        <label 
+                        <div 
                           key={opt.key}
-                          className={`flex items-start gap-2 p-2 rounded-xl border cursor-pointer text-xs transition-all ${
+                          onClick={() => setSelectedVoteOption(opt.key)}
+                          className={`flex items-start justify-between gap-2 p-2.5 rounded-xl border cursor-pointer text-xs transition-all duration-200 select-none ${
                             selectedVoteOption === opt.key
-                              ? 'bg-rose-500/5 border-rose-300 text-rose-700 dark:text-rose-300 font-bold'
-                              : 'bg-stone-50 dark:bg-stone-900 border-stone-150 dark:border-stone-800 text-stone-600 dark:text-stone-400'
+                              ? 'bg-rose-500/5 border-rose-400 text-rose-800 dark:text-rose-200 font-extrabold shadow-2xs'
+                              : 'bg-stone-50 dark:bg-stone-900 border-stone-150 dark:border-stone-800 text-stone-600 dark:text-stone-400 hover:bg-stone-100/70 dark:hover:bg-stone-800/40'
                           }`}
                         >
-                          <input
-                            type="radio"
-                            name="poll-option"
-                            value={opt.key}
-                            checked={selectedVoteOption === opt.key}
-                            onChange={() => setSelectedVoteOption(opt.key)}
-                            className="mt-0.5 accent-rose-500"
-                          />
-                          <span>{opt.label}</span>
-                        </label>
+                          <div className="flex items-start gap-2.5">
+                            <input
+                              type="radio"
+                              name="poll-option"
+                              value={opt.key}
+                              checked={selectedVoteOption === opt.key}
+                              readOnly
+                              className="mt-0.5 accent-rose-500 cursor-pointer h-3.5 w-3.5 shrink-0"
+                            />
+                            <span className="leading-tight">{opt.label}</span>
+                          </div>
+                          {selectedVoteOption === opt.key && (
+                            <span className="text-[9px] font-mono text-rose-500 uppercase tracking-widest px-1.5 py-0.5 bg-rose-100/50 dark:bg-rose-950/20 rounded-md shrink-0">
+                              Selected
+                            </span>
+                          )}
+                        </div>
                       ))}
                     </div>
                   </motion.div>
@@ -497,6 +572,70 @@ export default function StellarZkPlayground() {
                   rows={3}
                   className="w-full text-xs p-3 bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl focus:outline-none focus:border-rose-400 text-stone-800 dark:text-stone-200 resize-none font-medium"
                 />
+                
+                {/* Interactive Suggestion Chips */}
+                <div className="mt-2">
+                  <span className="text-[9px] font-bold text-stone-400 dark:text-stone-500 block mb-1">
+                    ✨ Quick Suggestions (Click to apply):
+                  </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {attestationType === 'thank-you' && [
+                      "Thank you for creating such a supportive and loving space!",
+                      "I really appreciate Dr. T's kind wisdom and Taichi energy.",
+                      "Grateful to be part of a community that values deep privacy."
+                    ].map((text, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => setMessageText(text)}
+                        className="text-[9px] px-2 py-1 bg-stone-100 dark:bg-stone-800 hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-950/20 dark:hover:text-rose-400 rounded-lg text-stone-600 dark:text-stone-400 font-medium transition-all text-left truncate max-w-full cursor-pointer"
+                      >
+                        {text}
+                      </button>
+                    ))}
+
+                    {attestationType === 'constructive' && [
+                      "Would love to see more interactive workshops on mindfulness.",
+                      "Maybe we can add a weekly check-in session for private sharing.",
+                      "A shared quiet music stream would be a wonderful addition."
+                    ].map((text, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => setMessageText(text)}
+                        className="text-[9px] px-2 py-1 bg-stone-100 dark:bg-stone-800 hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-950/20 dark:hover:text-rose-400 rounded-lg text-stone-600 dark:text-stone-400 font-medium transition-all text-left truncate max-w-full cursor-pointer"
+                      >
+                        {text}
+                      </button>
+                    ))}
+
+                    {attestationType === 'warm-hug' && [
+                      "Sending warmth, light, and peaceful vibes to everyone here today.",
+                      "You are not alone. Wishing you a beautiful and gentle week ahead.",
+                      "A quiet, warm wave of appreciation to this cozy neighborhood."
+                    ].map((text, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => setMessageText(text)}
+                        className="text-[9px] px-2 py-1 bg-stone-100 dark:bg-stone-800 hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-950/20 dark:hover:text-rose-400 rounded-lg text-stone-600 dark:text-stone-400 font-medium transition-all text-left truncate max-w-full cursor-pointer"
+                      >
+                        {text}
+                      </button>
+                    ))}
+
+                    {attestationType === 'initiative-vote' && [
+                      "Supporting Option C because it empowers creative unboxing laureates!",
+                      "Excited to see these wonderful ideas turn into reality on Stellar.",
+                      "Let's bring more mindfulness and self-care into our daily routines!"
+                    ].map((text, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => setMessageText(text)}
+                        className="text-[9px] px-2 py-1 bg-stone-100 dark:bg-stone-800 hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-950/20 dark:hover:text-rose-400 rounded-lg text-stone-600 dark:text-stone-400 font-medium transition-all text-left truncate max-w-full cursor-pointer"
+                      >
+                        {text}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
 
               {/* Prover System Selection */}
@@ -531,7 +670,7 @@ export default function StellarZkPlayground() {
               {/* Run button */}
               <button
                 onClick={executeProver}
-                disabled={isProving || (attestationType !== 'initiative-vote' && !messageText.trim())}
+                disabled={isProving}
                 className="w-full py-2.5 bg-gradient-to-r from-rose-500 via-rose-600 to-pink-600 hover:from-rose-600 hover:to-pink-700 disabled:opacity-40 text-white font-black text-xs uppercase tracking-wider rounded-xl active:scale-98 transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-md border border-rose-550/20"
               >
                 {isProving ? (
