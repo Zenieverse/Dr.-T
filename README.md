@@ -62,7 +62,8 @@ A secure, server-side agent interface backed by Gemini. It acts as an interactiv
 Workflow Automation Orchestrator
 A simulation of downstream API and system actions. Once a policy decision is finalized, it orchestrates automated processes—such as provisioning cloud databases, configuring smart IoT grid parameters, updating public ledgers, and dispatching local notices—to demonstrate end-to-end systemic viability.
 
-<img width="1536" height="1024" alt="IMG_1724" src="https://github.com/user-attachments/assets/6bfe70e0-2ae7-46b3-8bba-7c915ca3da49" />
+<img width="2266" height="1133" alt="IMG_1732" src="https://github.com/user-attachments/assets/9caf2ff6-c34e-4ba4-82fa-c57b2c60fb7c" />
+
 
 Disclaimer: "Dr. T is an educational and decision-support platform and not a substitute for professional medical advice."
 
