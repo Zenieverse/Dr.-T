@@ -832,102 +832,39 @@ An Ouch! feeling just like when my Dr. renewed my Birth Cert, ...`,
                     </button>
 
                     {/* Option C */}
-                    <div className={`rounded-xl border transition-all duration-200 relative overflow-hidden ${
-                      votedOption === 'c'
-                        ? 'bg-rose-500/10 border-rose-400/80 dark:bg-rose-500/15 dark:border-rose-500/70'
-                        : 'bg-stone-50/50 border-stone-200/60 dark:bg-stone-850/50 dark:border-stone-800'
-                    }`}>
+                    <button
+                      onClick={() => handleVote('c')}
+                      className={`w-full text-left p-2 rounded-xl border transition-all duration-200 relative overflow-hidden active:scale-[0.98] ${
+                        votedOption === 'c'
+                          ? 'bg-rose-500/10 border-rose-400/80 dark:bg-rose-500/15 dark:border-rose-500/70'
+                          : 'bg-stone-50/50 hover:bg-stone-50 border-stone-200/60 dark:bg-stone-850/50 dark:hover:bg-stone-850 dark:border-stone-800'
+                      }`}
+                    >
                       {/* Progress bar background */}
                       <div 
                         className="absolute inset-y-0 left-0 bg-rose-500/10 transition-all duration-500 ease-out pointer-events-none" 
                         style={{ width: `${getOptionPercentage('c')}%` }}
                       />
                       
-                      <div className="relative z-10 p-2">
-                        <div className="flex items-start gap-2 cursor-pointer" onClick={() => handleVote('c')}>
-                          <span className={`w-4.5 h-4.5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5 ${
-                            votedOption === 'c' ? 'bg-rose-500 text-white shadow-sm' : 'bg-stone-200 dark:bg-stone-700 text-stone-600 dark:text-stone-400'
-                          }`}>
-                            c
-                          </span>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-[10px] text-stone-600 dark:text-stone-300 leading-tight">
-                              Dr. T names it ...
-                            </p>
-                          </div>
-                        </div>
-                        
-                        {/* Custom Input for Option C */}
-                        <div className="mt-1.5 ml-6.5">
-                          <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
-                            <input
-                              type="text"
-                              value={customText}
-                              onChange={(e) => handleCustomTextChange(e.target.value)}
-                              onKeyDown={(e) => {
-                                if (e.key === 'Enter') {
-                                  e.preventDefault();
-                                  addCustomTextToList(customText);
-                                }
-                              }}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleVote('c');
-                              }}
-                              placeholder="Type name & press Enter..."
-                              className="flex-1 text-[10px] px-2 py-1 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-lg focus:outline-none focus:border-rose-400 text-stone-700 dark:text-stone-300"
-                            />
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                addCustomTextToList(customText);
-                              }}
-                              className="px-2 py-1 text-[9px] font-medium bg-rose-500 hover:bg-rose-600 text-white rounded-lg active:scale-95 transition-all shrink-0"
-                            >
-                              Add
-                            </button>
-                          </div>
-
-                          {/* The List of Saved Names */}
-                          {customTextList.length > 0 && (
-                            <div className="mt-2 space-y-1" onClick={(e) => e.stopPropagation()}>
-                              <p className="text-[8px] uppercase tracking-wider text-stone-400 dark:text-stone-500 font-semibold">Dr. T's choices list:</p>
-                              <div className="flex flex-col gap-1.5 max-h-[140px] overflow-y-auto pr-0.5 custom-scrollbar">
-                                {customTextList.map((item, index) => (
-                                  <div 
-                                    key={index} 
-                                    className="group flex items-start justify-between gap-2 bg-rose-500/10 dark:bg-rose-500/20 text-rose-600 dark:text-rose-300 text-[9px] px-2 py-1.5 rounded-md border border-rose-300/30 dark:border-rose-700/30 w-full animate-fade-in"
-                                  >
-                                    <span className="font-medium whitespace-normal break-words leading-relaxed flex-1">{item}</span>
-                                    <button
-                                      type="button"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        const filtered = customTextList.filter((_, idx) => idx !== index);
-                                        setCustomTextList(filtered);
-                                        localStorage.setItem('socratic_poll_c_list', JSON.stringify(filtered));
-                                      }}
-                                      className="text-stone-400 hover:text-rose-600 dark:hover:text-rose-400 font-bold transition-colors ml-0.5 text-[10px] shrink-0 mt-0.5"
-                                      title="Remove"
-                                    >
-                                      ×
-                                    </button>
-                                  </div>
-                                ))}
-                              </div>
+                      <div className="relative z-10 flex items-start gap-2">
+                        <span className={`w-4.5 h-4.5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5 ${
+                          votedOption === 'c' ? 'bg-rose-500 text-white shadow-sm' : 'bg-stone-200 dark:bg-stone-700 text-stone-600 dark:text-stone-400'
+                        }`}>
+                          c
+                        </span>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[10px] text-stone-600 dark:text-stone-300 leading-tight">
+                            Dr. T names it ...
+                          </p>
+                          {votedOption && (
+                            <div className="flex items-center justify-between mt-1 text-[9px] font-medium">
+                              <span className="text-rose-500 font-bold">{getOptionPercentage('c')}%</span>
+                              <span className="text-stone-400">{pollVotes.c} votes</span>
                             </div>
                           )}
                         </div>
-
-                        {votedOption && (
-                          <div className="flex items-center justify-between mt-1 ml-6.5 text-[9px] font-medium">
-                            <span className="text-rose-500 font-bold">{getOptionPercentage('c')}%</span>
-                            <span className="text-stone-400">{pollVotes.c} votes</span>
-                          </div>
-                        )}
                       </div>
-                    </div>
+                    </button>
 
                     {/* Option D */}
                     <button

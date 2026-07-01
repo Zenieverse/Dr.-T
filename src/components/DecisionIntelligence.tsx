@@ -21,8 +21,28 @@ import {
   X, 
   Info,
   ChevronRight,
-  Sparkle
+  Sparkle,
+  Cpu,
+  Layers,
+  Settings,
+  Database,
+  Terminal,
+  Sliders,
+  FileText,
+  Check,
+  Network,
+  Compass,
+  GitBranch,
+  Shield,
+  Key,
+  Milestone,
+  Server,
+  Clock
 } from "lucide-react";
+
+import { DecisionBenchmarks } from "./DecisionBenchmarks";
+import { DecisionTechnologies } from "./DecisionTechnologies";
+import { DecisionRoadmap } from "./DecisionRoadmap";
 
 interface KPIData {
   label: string;
@@ -85,6 +105,70 @@ export function DecisionIntelligence() {
   const [selectedWorkflow, setSelectedWorkflow] = useState<string | null>(null);
   const [activeWorkflowLogs, setActiveWorkflowLogs] = useState<string[]>([]);
   const [isWorkflowRunning, setIsWorkflowRunning] = useState<boolean>(false);
+
+  // View Mode State
+  const [viewMode, setViewMode] = useState<'sandbox' | 'benchmarks' | 'technologies' | 'roadmap'>('sandbox');
+
+  // Benchmark State
+  const [isBenchmarking, setIsBenchmarking] = useState<boolean>(false);
+  const [benchmarkProgress, setBenchmarkProgress] = useState<number>(0);
+  const [benchmarkLogs, setBenchmarkLogs] = useState<string[]>([]);
+  const [selectedBenchmark, setSelectedBenchmark] = useState<string>('monte-carlo');
+
+  const runBenchmarkSimulation = () => {
+    if (isBenchmarking) return;
+    setIsBenchmarking(true);
+    setBenchmarkProgress(0);
+    setBenchmarkLogs([]);
+
+    let bLogs: string[] = [];
+    if (selectedBenchmark === 'monte-carlo') {
+      bLogs = [
+        `[${new Date().toLocaleTimeString()}] INITIATING STOCHASTIC MONTE CARLO ANALYSIS: 500 scenarios queue...`,
+        `[${new Date().toLocaleTimeString()}] VARIABLES BOUND: Budget Multipliers vs Citizen Trust Index`,
+        `[${new Date().toLocaleTimeString()}] LLM INITIALIZATION: Calibrating variance seed with Gemini 3.5...`,
+        `[${new Date().toLocaleTimeString()}] TRIAL 1-150: Simulating budget cuts. Expected trust variance: ±3.8%`,
+        `[${new Date().toLocaleTimeString()}] TRIAL 151-300: Simulating administrative bottlenecks. Delays simulated up to 45%`,
+        `[${new Date().toLocaleTimeString()}] TRIAL 301-500: Injecting emergency grid blackout conditions.`,
+        `[${new Date().toLocaleTimeString()}] CALCULATING DISTRIBUTION: Standard deviation: 1.18. Mean confidence: 93.4%`,
+        `[${new Date().toLocaleTimeString()}] POLICY GUIDELINE: 92.5% likelihood of achieving targets with optimized Socratic restructurings.`
+      ];
+    } else if (selectedBenchmark === 'compliance') {
+      bLogs = [
+        `[${new Date().toLocaleTimeString()}] INITIATING CITIZEN COMPLIANCE & INCENTIVE ELASTICITY TRIAL...`,
+        `[${new Date().toLocaleTimeString()}] VARIABLES BOUND: Community Wallet Coins vs Composting Sort Compliance`,
+        `[${new Date().toLocaleTimeString()}] BASELINE AUDIT: Sorting compliance is currently 22.4% with zero incentives.`,
+        `[${new Date().toLocaleTimeString()}] STAGE 1 ($0.50/cycle): compliance rises to 38.5% (+71% improvement)`,
+        `[${new Date().toLocaleTimeString()}] STAGE 2 ($1.50/cycle + Leaderboard): compliance rises to 68.4%`,
+        `[${new Date().toLocaleTimeString()}] STAGE 3 (Co-op Vouchers + Socratic Nudges): compliance peaks at 88.5%`,
+        `[${new Date().toLocaleTimeString()}] ELASTICITY CALCULATION: 1.45x compliance multiplier per dollar allocated.`,
+        `[${new Date().toLocaleTimeString()}] BUDGET ASSESSMENT: Wallet rewards offset municipal tipping fees perfectly.`
+      ];
+    } else {
+      bLogs = [
+        `[${new Date().toLocaleTimeString()}] INITIATING TRANSIT SYSTEM EMERGENCY OVERLOAD & ESCALATION TEST...`,
+        `[${new Date().toLocaleTimeString()}] TRANSIT FLEET CONFIGURATION: 25 Autonomous Electric Buses`,
+        `[${new Date().toLocaleTimeString()}] ROUTING PARAMETERS: Central Terminal loop connecting Clinical Core`,
+        `[${new Date().toLocaleTimeString()}] DELAY COEFFICIENT: Adding 45% peak-hour traffic corridor bottlenecks...`,
+        `[${new Date().toLocaleTimeString()}] BATCH_01: Dispatched 15 shuttles. Peak passenger congestion: 142% capacity.`,
+        `[${new Date().toLocaleTimeString()}] DISPATCH CORRECTION: Dynamic routing algorithm redirects 4 idle buses to healthcare hubs.`,
+        `[${new Date().toLocaleTimeString()}] PERFORMANCE AUDIT: Average travel delay reduced by 28.5 minutes per passenger.`,
+        `[${new Date().toLocaleTimeString()}] CRITICAL RESULT: Battery drain rate remains stable under peak heater/cooler demand.`
+      ];
+    }
+
+    let logIdx = 0;
+    const timer = setInterval(() => {
+      if (logIdx < bLogs.length) {
+        setBenchmarkLogs(prev => [...prev, bLogs[logIdx]]);
+        logIdx++;
+        setBenchmarkProgress(Math.min(100, Math.floor((logIdx / bLogs.length) * 100)));
+      } else {
+        clearInterval(timer);
+        setIsBenchmarking(false);
+      }
+    }, 250);
+  };
 
   // Presets
   const presets = [
@@ -333,8 +417,68 @@ export function DecisionIntelligence() {
         </div>
       </div>
 
-      {/* Grid Layout: Scenario Planner vs Results Display */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      {/* Tab Navigation System */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-stone-50 border border-stone-200 rounded-2xl p-2 gap-2" id="decision-tab-navigation">
+        <div className="flex flex-wrap gap-1.5 w-full">
+          <button
+            onClick={() => setViewMode('sandbox')}
+            className={`flex-1 sm:flex-initial px-4 py-2.5 rounded-xl text-[10px] font-extrabold uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+              viewMode === 'sandbox'
+                ? 'bg-rose-600 text-white shadow-sm font-black'
+                : 'text-stone-500 hover:text-stone-850'
+            }`}
+          >
+            <Cpu className="w-4 h-4" />
+            Simulator Sandbox
+          </button>
+          <button
+            onClick={() => setViewMode('benchmarks')}
+            className={`flex-1 sm:flex-initial px-4 py-2.5 rounded-xl text-[10px] font-extrabold uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+              viewMode === 'benchmarks'
+                ? 'bg-rose-600 text-white shadow-sm font-black'
+                : 'text-stone-500 hover:text-stone-850'
+            }`}
+          >
+            <Activity className="w-4 h-4" />
+            Performance Benchmarks
+          </button>
+          <button
+            onClick={() => setViewMode('technologies')}
+            className={`flex-1 sm:flex-initial px-4 py-2.5 rounded-xl text-[10px] font-extrabold uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+              viewMode === 'technologies'
+                ? 'bg-rose-600 text-white shadow-sm font-black'
+                : 'text-stone-500 hover:text-stone-850'
+            }`}
+          >
+            <Layers className="w-4 h-4" />
+            Architecture Stack
+          </button>
+          <button
+            onClick={() => setViewMode('roadmap')}
+            className={`flex-1 sm:flex-initial px-4 py-2.5 rounded-xl text-[10px] font-extrabold uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+              viewMode === 'roadmap'
+                ? 'bg-rose-600 text-white shadow-sm font-black'
+                : 'text-stone-500 hover:text-stone-850'
+            }`}
+          >
+            <Compass className="w-4 h-4" />
+            Rollout Roadmap
+          </button>
+        </div>
+      </div>
+
+      <AnimatePresence mode="wait">
+        {viewMode === 'sandbox' ? (
+          <motion.div
+            key="sandbox"
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -15 }}
+            transition={{ duration: 0.25 }}
+            className="space-y-10 font-sans"
+          >
+            {/* Grid Layout: Scenario Planner vs Results Display */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         
         {/* Left 5 Columns: Scenario Policy Builder */}
         <div className="lg:col-span-5 bg-white border border-stone-200/80 rounded-2xl p-6 shadow-sm space-y-6">
@@ -985,9 +1129,17 @@ export function DecisionIntelligence() {
 
             </AnimatePresence>
           </div>
-
         </div>
       </div>
+    </motion.div>
+        ) : viewMode === 'benchmarks' ? (
+          <DecisionBenchmarks />
+        ) : viewMode === 'technologies' ? (
+          <DecisionTechnologies />
+        ) : (
+          <DecisionRoadmap />
+        )}
+      </AnimatePresence>
 
       {/* Workflow Simulation Modal Popup */}
       <AnimatePresence>

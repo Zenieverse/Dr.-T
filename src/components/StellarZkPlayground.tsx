@@ -3,8 +3,23 @@ import { motion, AnimatePresence } from 'motion/react';
 import { 
   Heart, Shield, Check, Lock, Unlock, Send, RefreshCw, Cpu, 
   Layers, Compass, Eye, EyeOff, Users, Award, Terminal, Copy, Info, 
-  AlertTriangle, Sparkles, MessageSquare, Flame, HelpCircle, Database
+  AlertTriangle, Sparkles, MessageSquare, Flame, HelpCircle, Database,
+  Globe, Smartphone, Key, Radio, Wifi, Zap, Share2
 } from 'lucide-react';
+import SovereignIdentityConsole from './SovereignIdentityConsole';
+
+// Real-time SHA-256 helper
+async function sha256(message: string): Promise<string> {
+  try {
+    const msgBuffer = new TextEncoder().encode(message);
+    const hashBuffer = await window.crypto.subtle.digest('SHA-256', msgBuffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  } catch (err) {
+    console.error("sha256 calculation failed:", err);
+    return "0x-hash-error";
+  }
+}
 
 interface Attestation {
   id: string;
@@ -36,6 +51,9 @@ interface InitiativePoll {
 export default function StellarZkPlayground() {
   // Member key list for simulating recognized circle keys
   const recognizedKeys = ['warmth', 'tlc', 'stella', 'doctor-t', 'zeniverse', 'healing', 'harmony'];
+
+  // Tab for choosing between Ledger and Identity/Security Fabric
+  const [subTab, setSubTab] = useState<'ledger' | 'identity'>('ledger');
 
   // Input states
   const [attestationType, setAttestationType] = useState<'thank-you' | 'constructive' | 'warm-hug' | 'initiative-vote'>('thank-you');
@@ -181,6 +199,7 @@ export default function StellarZkPlayground() {
     await new Promise(r => setTimeout(r, 600));
 
     addProverLog(`Hashing community private pass: H(key="${formattedPass}")`, 'process');
+    const leafHash = await sha256(formattedPass);
     await new Promise(r => setTimeout(r, 500));
 
     // Evaluate private key validity (is it part of Dr. T's simulated Merkle Circle?)
@@ -188,29 +207,26 @@ export default function StellarZkPlayground() {
     
     if (!isMemberValid) {
       addProverLog(`[ZK CRITICAL WARNING]: Private secret "${formattedPass}" is NOT included in the verified Merkle Tree database.`, 'warn');
-      addProverLog(`Computed leaf hash 0x7a8e... does not balance with root 0x8a92f0fc9e66b3bcf9143825a2df62e846067b55e3966fb94bcde83ee24f7962`, 'warn');
+      addProverLog(`Computed leaf hash 0x${leafHash.slice(0, 16)}... does not balance with root 0x8a92f0fc9e66b3bcf9143825a2df62e846067b55e3966fb94bcde83ee24f7962`, 'warn');
       addProverLog(`Constraint System Error: Membership proof generation aborted.`, 'warn');
       setIsProving(false);
       return;
     }
 
+    // Since the sibling hash depends on which of the keys was used, we can dynamically derive one!
+    const siblingHash = await sha256(formattedPass + "_sibling");
+
     addProverLog(`Leaf successfully authenticated! Merkle Path constraints confirmed:`, 'success');
-    addProverLog(`  └─ Hash_0 (Passphrase Leaf): 0x4f128c9b...`, 'info');
-    addProverLog(`  └─ Hash_1 (Sibling Node):    0x19a4e2bd...`, 'info');
+    addProverLog(`  └─ Hash_0 (Passphrase Leaf Hash): 0x${leafHash}`, 'info');
+    addProverLog(`  └─ Hash_1 (Sibling Node Hash):    0x${siblingHash}`, 'info');
     addProverLog(`  └─ Computed Merkle Root Match: 0x8a92f0fc9e66b3bcf9143825a2df62e846067b55e3966fb94bcde83ee24f7962`, 'success');
     await new Promise(r => setTimeout(r, 700));
 
     addProverLog(`Creating Nullifier Hash to prevent double voting/spamming:`, 'process');
-    // Simple deterministic nullifier hash simulation to look authentic
     const nullifierSource = `nullifier_${formattedPass}_${attestationType}_${attestationType === 'initiative-vote' ? selectedVoteOption : 'attest'}`;
-    let hash = 0;
-    for (let i = 0; i < nullifierSource.length; i++) {
-      hash = (hash << 5) - hash + nullifierSource.charCodeAt(i);
-      hash |= 0;
-    }
-    const finalNullifier = '0x' + Math.abs(hash * 9999123).toString(16).padEnd(16, 'b') + 
-                           Math.abs(hash * 4555891).toString(16).padStart(16, 'e');
-    addProverLog(`  └─ Unique Nullifier Generated: ${finalNullifier.slice(0, 24)}...`, 'success');
+    const rawNullifierHash = await sha256(nullifierSource);
+    const finalNullifier = '0x' + rawNullifierHash;
+    addProverLog(`  └─ Unique Nullifier Generated: ${finalNullifier}`, 'success');
     await new Promise(r => setTimeout(r, 500));
 
     addProverLog(`Structuring constraints for anonymous message payload...`, 'process');
@@ -334,8 +350,34 @@ export default function StellarZkPlayground() {
         </div>
       </div>
 
-      {/* Main Layout Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      {/* Subtab Navigation Selector */}
+      <div className="flex bg-stone-100 dark:bg-stone-850 p-1.5 rounded-2xl border border-stone-200/50 dark:border-stone-800/80 mb-6 gap-2 w-full max-w-lg">
+        <button
+          onClick={() => setSubTab('ledger')}
+          className={`flex-1 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+            subTab === 'ledger'
+              ? 'bg-rose-500 text-white shadow-xs'
+              : 'text-stone-500 hover:text-stone-800 dark:hover:text-stone-200'
+          }`}
+        >
+          <Database className="w-3.5 h-3.5 animate-pulse" /> ZK Ledger & Polls
+        </button>
+        <button
+          onClick={() => setSubTab('identity')}
+          className={`flex-1 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+            subTab === 'identity'
+              ? 'bg-rose-500 text-white shadow-xs'
+              : 'text-stone-500 hover:text-stone-800 dark:hover:text-stone-200'
+          }`}
+        >
+          <Shield className="w-3.5 h-3.5 text-rose-500" /> Identity & Security Fabric
+        </button>
+      </div>
+
+      {subTab === 'ledger' ? (
+        <>
+          {/* Main Layout Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         
         {/* Left Side: Create Attestation (span 5) */}
         <div className="lg:col-span-5 flex flex-col gap-5">
@@ -1068,6 +1110,10 @@ export default function StellarZkPlayground() {
           )}
         </div>
       </div>
-    </div>
-  );
+    </>
+  ) : (
+    <SovereignIdentityConsole />
+  )}
+</div>
+);
 }
