@@ -1,11 +1,9 @@
 Dr. T: World-Class Socratic Biomedical Informatics & Healthcare AI Platform
 
-V. 2.4:
+V. 2.4: 
 
-================================================================================
 🌸 DR. T SOVEREIGN CARE FABRIC
    "Zero-Knowledge Privacy. Omni-Channel Empathy."
-================================================================================
 
 🚀 THE paradigm shift in secure, personalized telemetry.
 
