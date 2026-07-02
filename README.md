@@ -17,10 +17,10 @@ Integrated directly within Dr. T's main Swarm hub, the Agent Society Board showc
 
 V. 2.4:
 
-================================================================================
+
 🌸 DR. T SOVEREIGN CARE FABRIC
    "Zero-Knowledge Privacy. Omni-Channel Empathy."
-================================================================================
+
 
 🚀 THE paradigm shift in secure, personalized telemetry.
 
@@ -40,7 +40,7 @@ V. 2.4:
 💡 THE UNIQUE SELLING PROPOSITION (USP):
    "Other platforms protect your privacy by denying you care. 
     We protect your privacy to make your care safer."
-================================================================================
+
 
 When seeking emotional support, relationship guidance, or deep technical mentorship, users face a severe privacy paradox:
 1. The Telemetry & PII Leakage: Accessing services across standard platforms (web browsers, chat apps, bio-wearables, or vocal assistants) constantly leaks sensitive data—such as real-world IP addresses, precise GPS coordinates, vocal decibels, and biometrics (like heart rates)—directly to backends.
