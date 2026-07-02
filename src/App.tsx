@@ -113,6 +113,7 @@ export default function App() {
 
   // Guided Breathing Overlay states
   const [showBreathing, setShowBreathing] = useState<boolean>(false);
+  const [showHappyWoahWoah, setShowHappyWoahWoah] = useState<boolean>(true);
   const [breathingPhase, setBreathingPhase] = useState<'inhale' | 'hold' | 'exhale' | 'complete'>('inhale');
   const [breathingSeconds, setBreathingSeconds] = useState<number>(60);
   const [breathingCycleSeconds, setBreathingCycleSeconds] = useState<number>(0);
@@ -1311,7 +1312,27 @@ export default function App() {
 
   // LOCAL MEMORY HANDLERS
   const handleAddNode = (node: MemoryNode) => {
-    setMemoryNodes(prev => [...prev, node]);
+    setMemoryNodes(prev => {
+      const updated = prev.map(n => ({
+        ...n,
+        connections: n.connections ? [...n.connections] : []
+      }));
+      updated.push({
+        ...node,
+        connections: node.connections ? [...node.connections] : []
+      });
+      if (node.connections && node.connections.length > 0) {
+        node.connections.forEach(connId => {
+          const target = updated.find(n => n.id === connId);
+          if (target) {
+            if (!target.connections.includes(node.id)) {
+              target.connections.push(node.id);
+            }
+          }
+        });
+      }
+      return updated;
+    });
   };
   const handleDeleteNode = (id: string) => {
     setMemoryNodes(prev => prev.filter(n => n.id !== id));
@@ -1575,6 +1596,8 @@ export default function App() {
               <span>🧠</span> <span className="font-bold">Decision Intelligence</span>
             </button>
 
+
+
             <button
               onClick={() => { stopAudio(); setActiveTab('avatar'); }}
               className={`p-1.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer
@@ -1806,6 +1829,8 @@ export default function App() {
             <DecisionIntelligence />
           </div>
         )}
+
+
 
 
 
@@ -2224,6 +2249,92 @@ export default function App() {
               </div>
 
             </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* HAPPY WOAH WOAH Celebration Overlay */}
+      <AnimatePresence>
+        {showHappyWoahWoah && (
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 30 }}
+            className="fixed bottom-16 right-4 sm:bottom-20 sm:right-6 md:right-10 z-[100] pointer-events-none select-none"
+            id="happy-woah-woah-overlay"
+          >
+            <motion.div
+              initial={{ scale: 0.9, rotate: -1 }}
+              animate={{ scale: 1, rotate: 0 }}
+              exit={{ scale: 0.9, rotate: 1 }}
+              transition={{ type: "spring", damping: 25, stiffness: 350 }}
+              className="relative w-64 bg-white/95 dark:bg-stone-900/95 backdrop-blur-xl border-2 border-pink-300 dark:border-rose-950/75 rounded-2xl p-4 shadow-[0_15px_35px_rgba(244,63,94,0.22)] flex flex-col items-center text-center overflow-hidden pointer-events-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Absolute decorative floating particles inside the card */}
+              <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-45">
+                <div className="absolute top-2 left-3 text-lg animate-[bounce_2s_infinite]">🎈</div>
+                <div className="absolute top-4 right-3 text-base animate-[bounce_3s_infinite] delay-100">🎉</div>
+                <div className="absolute bottom-10 left-3 text-base animate-[bounce_2.5s_infinite] delay-300">🌸</div>
+                <div className="absolute bottom-12 right-3 text-lg animate-[bounce_3.5s_infinite] delay-200">🎂</div>
+              </div>
+
+              {/* Top border ambient glow */}
+              <div className="absolute top-0 inset-x-0 h-0.5 bg-gradient-to-r from-pink-500 via-purple-500 to-amber-500" />
+              
+              {/* Close Button */}
+              <button
+                onClick={() => setShowHappyWoahWoah(false)}
+                className="absolute top-2 right-2 p-1 rounded-full hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 transition-colors cursor-pointer animate-none z-10"
+                aria-label="Close celebration"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+
+              {/* Rarity/Celebration Tag */}
+              <span className="text-[7px] font-mono font-black px-2 py-0.5 bg-gradient-to-r from-pink-500 to-rose-500 text-white rounded-full mb-2 uppercase tracking-widest shadow-xs animate-pulse relative z-10">
+                ✦ MYTHIC CELEBRATION ✦
+              </span>
+
+              {/* Header Title with Emojis */}
+              <div className="flex items-center gap-1 mb-2 relative z-10">
+                <span className="text-sm animate-bounce">🎁</span>
+                <h2 className="text-xs font-black tracking-tight bg-gradient-to-r from-pink-600 via-purple-500 to-rose-500 bg-clip-text text-transparent">
+                  HAPPY WOAH WOAH! 🎉✨
+                </h2>
+                <span className="text-sm animate-bounce">🎁</span>
+              </div>
+
+              {/* Sparkly Divider */}
+              <div className="flex items-center justify-center gap-1 w-full mb-3 relative z-10">
+                <div className="h-[1px] bg-gradient-to-r from-transparent to-pink-200 dark:to-rose-950/40 flex-1" />
+                <Sparkles className="w-3 h-3 text-amber-400 animate-pulse shrink-0" />
+                <div className="h-[1px] bg-gradient-to-l from-transparent to-pink-200 dark:to-rose-950/40 flex-1" />
+              </div>
+
+              {/* Beautiful Poem Container */}
+              <div className="w-full px-2 py-2.5 bg-gradient-to-b from-rose-50/30 to-pink-50/10 dark:from-rose-950/10 dark:to-pink-950/5 border border-pink-100/30 dark:border-rose-950/20 rounded-xl shadow-[inset_0_1px_2px_rgba(244,63,94,0.02)] mb-3 select-text relative z-10">
+                <p className="text-[9px] text-stone-700 dark:text-stone-300 font-serif italic leading-relaxed whitespace-pre-line text-center antialiased">
+                  {"Whose cries so crystal clear?\nThree worlds all bless 'Happy, Whole Years!\nMaking your mark soon, Dear\nWow worlds with Heart, Found worlds with Mind\nCheers on your paths go wild\nWishing you Best running your ways \nTill time finds it 'assez'\nToujours, J'attends, Bonjour! Ca va?"}
+                </p>
+              </div>
+
+              {/* Decorative prompt/feedback footer */}
+              <div className="flex items-center justify-center gap-1 mb-3 relative z-10">
+                <Heart className="w-3 h-3 text-rose-500 fill-rose-500 animate-pulse" />
+                <span className="text-[8px] text-stone-400 dark:text-stone-500 font-mono tracking-wider uppercase">
+                  With Heart & Mind • Toujours
+                </span>
+              </div>
+
+              {/* Action Button */}
+              <button
+                onClick={() => setShowHappyWoahWoah(false)}
+                className="w-full py-2 bg-gradient-to-r from-pink-500 via-rose-500 to-amber-500 hover:from-pink-600 hover:to-rose-600 text-white font-extrabold rounded-lg text-[9px] tracking-widest uppercase transition-all active:scale-[0.98] cursor-pointer shadow-sm shadow-pink-500/15 border border-pink-400/10 flex items-center justify-center gap-1 hover:shadow-md hover:shadow-pink-500/20 relative z-10"
+              >
+                Claim Joy & Celebrate! ✨
+              </button>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
