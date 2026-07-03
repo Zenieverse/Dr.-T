@@ -9,7 +9,9 @@ V. 2.6
 https://builder.aws.com/content/3FyL8ge8GfUEY00lSL6vw2loRZA/crossing-clouds-with-qwen-ai-and-alibaba-cloud
 
 Durable Cloud Synchronization: Integrating a persistent Firestore backend to synchronize the relational memory graph and active checklists securely across multiple devices.
+
 Passive Ambient Extraction: Transitioning from manual chat/transcript entries to passive, real-time voice streaming. Dr. T would gently listen to daily ambient conversations and automatically update her memory graph in the background without needing manual inputs.
+
 Advanced Biometric Integrations: Syncing with wearables (such as Fitbit or Apple Health) to feed live heart rate variability (HRV) and sleep parameters directly into the Biomedical Suite for deeper diagnostic modeling.
 
 
