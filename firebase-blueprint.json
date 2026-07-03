@@ -1,0 +1,26 @@
+{
+  "entities": {
+    "AppState": {
+      "title": "AppState",
+      "description": "State of the application containing memory graph and active tasks.",
+      "type": "object",
+      "properties": {
+        "memoryNodes": {
+          "type": "array"
+        },
+        "tasks": {
+          "type": "array"
+        },
+        "updatedAt": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "firestore": {
+    "/appState/{docId}": {
+      "schema": "AppState",
+      "description": "Holds the memory graph and checklists for a patient."
+    }
+  }
+}

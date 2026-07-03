@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Database, Plus, Trash2, Milestone, Heart, Sparkles, RefreshCw, Layers, 
-  Brain, Lock, Unlock, Search, CheckCircle, Flame, Info, AlertTriangle, MessageSquare
+  Brain, Lock, Unlock, Search, CheckCircle, Flame, Info, AlertTriangle, MessageSquare,
+  Mic, MicOff, Volume2
 } from 'lucide-react';
 import { MemoryNode } from '../types';
 
@@ -30,6 +31,150 @@ export const LifeGraph: React.FC<LifeGraphProps> = ({ memoryNodes, onAddNode, on
   const [isExtracting, setIsExtracting] = useState(false);
   const [extractionLogs, setExtractionLogs] = useState<string[]>([]);
   const [suggestedNodes, setSuggestedNodes] = useState<{label: string; description: string; category: any; strength?: number; connections?: string[]}[]>([]);
+
+  // Passive Ambient Extraction State
+  const [isPassiveListening, setIsPassiveListening] = useState(false);
+  const [ambientLogs, setAmbientLogs] = useState<string[]>([
+    "💤 Gentle ambient listener is standby. Toggle below to activate.",
+  ]);
+
+  // Handle active continuous Web Speech API or Simulated loop
+  useEffect(() => {
+    let recognition: any = null;
+    if (isPassiveListening) {
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      if (SpeechRecognition) {
+        try {
+          recognition = new SpeechRecognition();
+          recognition.continuous = true;
+          recognition.interimResults = false;
+          recognition.lang = 'en-US';
+          
+          recognition.onresult = async (event: any) => {
+            const last = event.results.length - 1;
+            const text = event.results[last][0].transcript;
+            if (text.trim()) {
+              setAmbientLogs(prev => [`🎙️ Detected: "${text}"`, ...prev.slice(0, 12)]);
+              
+              // Direct auto-trigger of Qwen Semantic Extractor
+              setIsExtracting(true);
+              setExtractionLogs([
+                `🎙️ [Ambient Listener] Captured dialogue stream:`,
+                `"${text}"`,
+                "📡 Forwarding stream packet to Qwen Cloud API Gateway..."
+              ]);
+              
+              try {
+                const response = await fetch('/api/qwen/extract', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    transcript: text,
+                    existingNodes: memoryNodes.map(n => ({ id: n.id, label: n.label, category: n.category }))
+                  })
+                });
+                if (response.ok) {
+                  const data = await response.json();
+                  setSuggestedNodes(data.extractedNodes || []);
+                  setExtractionLogs(data.logs || ["✅ Ambient fact parsed beautifully."]);
+                } else {
+                  throw new Error();
+                }
+              } catch (err) {
+                setExtractionLogs(prev => [...prev, "⚠️ Remote Qwen API fallback activated."]);
+                setSuggestedNodes([{
+                  label: "Spoken Fact",
+                  description: `Extracted ambiently: "${text}"`,
+                  category: "preference",
+                  strength: 85,
+                  connections: []
+                }]);
+              } finally {
+                setIsExtracting(false);
+              }
+            }
+          };
+
+          recognition.onerror = (e: any) => {
+            console.warn("Speech recognition error:", e);
+          };
+
+          recognition.onend = () => {
+            if (isPassiveListening && recognition) {
+              try { recognition.start(); } catch (err) {}
+            }
+          };
+
+          recognition.start();
+          setAmbientLogs(prev => ["🎙️ Live Microphone connected. Gently listening ambiently...", ...prev]);
+        } catch (e) {
+          console.warn("Speech API start error:", e);
+        }
+      } else {
+        setAmbientLogs(prev => [
+          "🎙️ Simulator running (Web Speech API not supported in iframe/browser environment).",
+          ...prev
+        ]);
+      }
+    } else {
+      setAmbientLogs(prev => ["💤 Passive listener deactivated.", ...prev.slice(0, 10)]);
+    }
+
+    return () => {
+      if (recognition) {
+        try { recognition.stop(); } catch (err) {}
+      }
+    };
+  }, [isPassiveListening, memoryNodes]);
+
+  const triggerAmbientSimulation = async (text: string) => {
+    setAmbientLogs(prev => [`🎙️ Simulated Dialogue: "${text}"`, ...prev.slice(0, 12)]);
+    setIsExtracting(true);
+    setExtractionLogs([
+      `🎙️ [Ambient Listener] Captured dialogue stream:`,
+      `"${text}"`,
+      "📡 Forwarding stream packet to Qwen Cloud API Gateway..."
+    ]);
+    try {
+      const response = await fetch('/api/qwen/extract', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          transcript: text,
+          existingNodes: memoryNodes.map(n => ({ id: n.id, label: n.label, category: n.category }))
+        })
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setSuggestedNodes(data.extractedNodes || []);
+        setExtractionLogs(data.logs || ["✅ Fact Extracted beautifully."]);
+      } else {
+        throw new Error();
+      }
+    } catch (e) {
+      setExtractionLogs(prev => [...prev, "⚠️ Qwen API offline, running heuristic fallback."]);
+      const lower = text.toLowerCase();
+      let label1 = "Preference Sync";
+      let desc1 = "Prefers light and cozy environments.";
+      let cat1: any = "preference";
+      if (lower.includes("sleep") || lower.includes("burnout") || lower.includes("fluttering")) {
+        label1 = "Autonomic burnout";
+        desc1 = "Reports severe burnout, sleep of 4 hours, and palpitations.";
+        cat1 = "health";
+      } else if (lower.includes("mother") || lower.includes("lasagna") || lower.includes("recipe")) {
+        label1 = "Family recipe note";
+        desc1 = "Mother Sarah's lasagna recipe uses sweet basil and ricotta.";
+        cat1 = "family";
+      } else if (lower.includes("fhir") || lower.includes("master")) {
+        label1 = "Technical learning path";
+        desc1 = "Mastering HL7 FHIR Interoperability by coding custom validators.";
+        cat1 = "learning";
+      }
+      setSuggestedNodes([{ label: label1, description: desc1, category: cat1, strength: 90, connections: [] }]);
+    } finally {
+      setIsExtracting(false);
+    }
+  };
 
   // Manual Node Creator Form State
   const [label, setLabel] = useState('');
@@ -402,48 +547,140 @@ export const LifeGraph: React.FC<LifeGraphProps> = ({ memoryNodes, onAddNode, on
           </div>
         </div>
 
-        {/* QwenCloud Extraction Simulator */}
-        <div className="bg-white border border-stone-200/80 rounded-3xl p-5 shadow-xs">
-          <div className="flex items-center gap-2 mb-2">
-            <MessageSquare className="w-5 h-5 text-rose-500" />
-            <div>
-              <span className="text-[10px] uppercase font-mono tracking-wider text-stone-400 font-extrabold">QwenCloud Engine</span>
-              <h4 className="text-sm font-bold text-stone-800">Unsupervised Saliency Extractor</h4>
+        {/* QwenCloud Passive & Active Extraction */}
+        <div className="bg-white border border-stone-200/80 rounded-3xl p-5 shadow-xs flex flex-col gap-4">
+          
+          {/* Active Manual Simulator */}
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <MessageSquare className="w-5 h-5 text-rose-500" />
+              <div>
+                <span className="text-[10px] uppercase font-mono tracking-wider text-stone-400 font-extrabold">QwenCloud Engine</span>
+                <h4 className="text-sm font-bold text-stone-800">Unsupervised Saliency Extractor</h4>
+              </div>
+            </div>
+            <p className="text-[11px] text-stone-400 leading-relaxed mb-3">
+              Simulate a conversation entry. QwenCloud automatically extracts, scores, and connects critical memories.
+            </p>
+
+            <form onSubmit={handleSimulateQwenExtraction} className="flex flex-col gap-2">
+              <textarea
+                required
+                rows={2}
+                value={convoEntry}
+                onChange={(e) => setConvoEntry(e.target.value)}
+                placeholder="e.g., Dr T, my sister Lucy loves blueberry muffins, and I must take my red pills before bedtime."
+                className="w-full bg-stone-50 border border-stone-200 rounded-xl p-2.5 text-xs text-stone-700 outline-none focus:bg-white focus:border-rose-500 focus:ring-1 focus:ring-rose-500/10 resize-none font-sans"
+              />
+              <button
+                type="submit"
+                disabled={isExtracting}
+                className="w-full py-2 bg-rose-600 hover:bg-rose-700 disabled:bg-rose-450 text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-1"
+              >
+                {isExtracting ? (
+                  <>
+                    <RefreshCw className="w-3 h-3 animate-spin" /> Extraction Active...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-3 h-3" /> Process with Qwen-2.5
+                  </>
+                )}
+              </button>
+            </form>
+          </div>
+
+          <div className="border-t border-stone-100 pt-4">
+            {/* Passive Ambient Voice Streamer */}
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <Mic className={`w-4.5 h-4.5 ${isPassiveListening ? 'text-rose-500 animate-pulse' : 'text-stone-400'}`} />
+                <div>
+                  <span className="text-[10px] uppercase font-mono tracking-wider text-rose-600 font-black block">Passive Ambient Extraction</span>
+                  <h4 className="text-xs font-bold text-stone-800">Gently Listen in Background</h4>
+                </div>
+              </div>
+
+              {/* Toggle switch */}
+              <button
+                type="button"
+                onClick={() => setIsPassiveListening(!isPassiveListening)}
+                className={`relative inline-flex h-5 w-10 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                  isPassiveListening ? 'bg-rose-600' : 'bg-stone-200'
+                }`}
+              >
+                <span
+                  className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-xs ring-0 transition duration-200 ease-in-out ${
+                    isPassiveListening ? 'translate-x-5' : 'translate-x-0'
+                  }`}
+                />
+              </button>
+            </div>
+
+            <p className="text-[11px] text-stone-400 leading-relaxed mb-3">
+              When toggled, Dr. T passively streams and listens to ambient conversations, automatically extracting graph memories.
+            </p>
+
+            {/* Audio Wave Visualizer */}
+            {isPassiveListening && (
+              <div className="flex items-center justify-center gap-1.5 py-3 bg-rose-50/40 border border-rose-100 rounded-xl mb-3 overflow-hidden">
+                <div className="text-[10px] font-mono font-bold text-rose-600 uppercase flex items-center gap-1.5 mr-2">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
+                  </span>
+                  Gentle Listening
+                </div>
+                {/* 6 animated audio waves */}
+                {[...Array(6)].map((_, i) => (
+                  <div 
+                    key={i} 
+                    className="w-1 bg-rose-500 rounded-full" 
+                    style={{ 
+                      height: `${[12, 28, 16, 32, 20, 10][i]}px`, 
+                      animation: 'pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                      animationDelay: `${i * 150}ms`
+                    }}
+                  />
+                ))}
+              </div>
+            )}
+
+            {/* Ambient Log Screen */}
+            <div className="bg-stone-950 p-2.5 rounded-xl border border-stone-850 font-mono text-[9px] text-stone-300 flex flex-col gap-1 max-h-[110px] overflow-y-auto mb-3">
+              <span className="text-[8px] font-black tracking-widest text-stone-500 uppercase border-b border-stone-850 pb-1 mb-1 block">Ambient Dialog Log</span>
+              {ambientLogs.map((log, i) => (
+                <div key={i} className="leading-tight text-emerald-400">
+                  {log}
+                </div>
+              ))}
+            </div>
+
+            {/* Simulated Conversational Dialogue Stream Prompts */}
+            <div className="flex flex-col gap-1.5">
+              <span className="text-[9px] font-mono font-bold text-stone-400 uppercase">Simulate Dialogue Streams</span>
+              <div className="grid grid-cols-1 gap-1">
+                {[
+                  { text: "My sister Lucy loves eating blueberry muffins on Sundays.", label: "Sister's Preference" },
+                  { text: "I must take my red blood pressure pills before bedtime every day.", label: "Medication Intake" },
+                  { text: "I want to study HL7 FHIR Interoperability standards this evening.", label: "Learning Target" }
+                ].map((preset, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => triggerAmbientSimulation(preset.text)}
+                    className="text-left text-[9px] font-medium bg-stone-50 hover:bg-rose-50 border border-stone-200 hover:border-rose-250 p-2 rounded-lg transition-colors text-stone-600 hover:text-rose-700 cursor-pointer truncate"
+                  >
+                    💬 Stream: <span className="font-bold">"{preset.label}"</span>
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
-          <p className="text-[11px] text-stone-400 leading-relaxed mb-3">
-            Simulate a conversation entry. QwenCloud automatically extracts, scores, and connects critical memories.
-          </p>
-
-          <form onSubmit={handleSimulateQwenExtraction} className="flex flex-col gap-2">
-            <textarea
-              required
-              rows={2}
-              value={convoEntry}
-              onChange={(e) => setConvoEntry(e.target.value)}
-              placeholder="e.g., Dr T, my sister Lucy loves blueberry muffins, and I must take my red pills before bedtime."
-              className="w-full bg-stone-50 border border-stone-200 rounded-xl p-2.5 text-xs text-stone-700 outline-none focus:bg-white focus:border-rose-500 focus:ring-1 focus:ring-rose-500/10 resize-none font-sans"
-            />
-            <button
-              type="submit"
-              disabled={isExtracting}
-              className="w-full py-2 bg-rose-600 hover:bg-rose-700 disabled:bg-rose-450 text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-1"
-            >
-              {isExtracting ? (
-                <>
-                  <RefreshCw className="w-3 h-3 animate-spin" /> Extraction Active...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-3 h-3" /> Process with Qwen-2.5
-                </>
-              )}
-            </button>
-          </form>
 
           {/* Extraction Console Logs */}
           {extractionLogs.length > 0 && (
-            <div className="mt-3 bg-stone-950 p-3 rounded-xl border border-stone-850 font-mono text-[9px] text-emerald-400 flex flex-col gap-1 max-h-[140px] overflow-y-auto">
+            <div className="mt-1 bg-stone-950 p-3 rounded-xl border border-stone-850 font-mono text-[9px] text-emerald-400 flex flex-col gap-1 max-h-[140px] overflow-y-auto">
               {extractionLogs.map((log, i) => (
                 <div key={i} className="flex gap-1.5 items-start">
                   <span className="text-stone-650 shrink-0">[{i+1}]</span>
@@ -455,7 +692,7 @@ export const LifeGraph: React.FC<LifeGraphProps> = ({ memoryNodes, onAddNode, on
 
           {/* Extract Suggestion Action Node */}
           {suggestedNodes.length > 0 && (
-            <div className="mt-3 flex flex-col gap-3">
+            <div className="mt-1 flex flex-col gap-3">
               <span className="text-[10px] font-mono font-bold uppercase text-rose-600">QwenCloud Proposed Nodes ({suggestedNodes.length})</span>
               {suggestedNodes.map((sug, idx) => (
                 <div key={idx} className="p-3 bg-rose-50/60 border border-rose-100 rounded-xl animate-fadeIn flex flex-col gap-2">

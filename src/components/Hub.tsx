@@ -357,6 +357,7 @@ export function Hub({
                 language={language === 'auto' ? 'English' : language} 
                 activeSubTab={activeSuiteSubTab}
                 onSubTabChange={(sub) => setActiveSuiteSubTab(sub)}
+                onUpdateHeartRate={handleUpdateHeartRate}
               />
             </motion.div>
           )}

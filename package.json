@@ -11,13 +11,16 @@
     "lint": "tsc --noEmit"
   },
   "dependencies": {
+    "@alicloud/pop-core": "^1.8.0",
     "@google/genai": "^2.4.0",
     "@tailwindcss/vite": "^4.1.14",
     "@vitejs/plugin-react": "^5.0.4",
     "@vocalbridgeai/react": "^0.1.1",
     "@vocalbridgeai/sdk": "^0.1.1",
+    "ali-oss": "^6.23.0",
     "dotenv": "^17.2.3",
     "express": "^4.21.2",
+    "firebase": "^12.15.0",
     "lucide-react": "^0.546.0",
     "motion": "^12.23.24",
     "react": "^19.0.1",

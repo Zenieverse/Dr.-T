@@ -50,11 +50,14 @@ import { BirthdayCelebrator } from './components/BirthdayCelebrator';
 import { UiPathOrchestrator } from './components/UiPathOrchestrator';
 import StellarZkPlayground from './components/StellarZkPlayground';
 import { DecisionIntelligence } from './components/DecisionIntelligence';
+import AlibabaCloudConsole from './components/AlibabaCloudConsole';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { db, isDummy, OperationType, handleFirestoreError } from './firebase';
 import drTAvatar from './assets/images/dr_t_avatar_1781184840352.jpg';
 
 export default function App() {
   // Navigation
-  const [activeTab, setActiveTab] = useState<'hub' | 'graph' | 'swarm' | 'trackers' | 'dashboard' | 'avatar' | 'suite' | 'showcase' | 'uipath' | 'stellar-zk' | 'decision'>('hub');
+  const [activeTab, setActiveTab] = useState<'hub' | 'graph' | 'swarm' | 'trackers' | 'dashboard' | 'avatar' | 'suite' | 'showcase' | 'uipath' | 'stellar-zk' | 'decision' | 'alibaba'>('hub');
   const [activeSuiteSubTab, setActiveSuiteSubTab] = useState<'patient' | 'fhir' | 'analytics' | 'summarizer' | 'imaging' | 'population' | 'coach' | 'lab' | 'mimic' | 'orchestrator'>('patient');
 
   // State
@@ -129,6 +132,92 @@ export default function App() {
     marathon: false,
     empathy: false
   });
+
+  // Durable Cloud Sync State
+  const [cloudSyncStatus, setCloudSyncStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [cloudSyncTime, setCloudSyncTime] = useState<string>('Never');
+  const [isCloudSyncLoaded, setIsCloudSyncLoaded] = useState<boolean>(false);
+
+  // Firestore Synchronization Initial Load
+  useEffect(() => {
+    if (isDummy) {
+      setCloudSyncStatus('idle');
+      return;
+    }
+
+    const docRef = doc(db, 'appState', 'clarissa_jane_drt');
+
+    const loadInitialState = async () => {
+      setCloudSyncStatus('loading');
+      try {
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          if (data.memoryNodes) {
+            setMemoryNodes(data.memoryNodes);
+          }
+          if (data.tasks) {
+            setTasks(data.tasks);
+          }
+          setCloudSyncTime(new Date().toLocaleTimeString());
+          setCloudSyncStatus('success');
+        } else {
+          // Initialize Firestore with current state
+          try {
+            await setDoc(docRef, {
+              memoryNodes: INITIAL_MEMORY_NODES,
+              tasks: INITIAL_TASK_LIST,
+              updatedAt: new Date().toISOString()
+            });
+            setCloudSyncTime(new Date().toLocaleTimeString());
+            setCloudSyncStatus('success');
+          } catch (writeErr) {
+            handleFirestoreError(writeErr, OperationType.WRITE, 'appState/clarissa_jane_drt');
+          }
+        }
+      } catch (error) {
+        console.error("Firestore loading error:", error);
+        setCloudSyncStatus('error');
+        // If it wasn't already handled by the nested block, report the read error
+        if (error instanceof Error && !error.message.startsWith('{')) {
+          handleFirestoreError(error, OperationType.GET, 'appState/clarissa_jane_drt');
+        }
+      } finally {
+        setIsCloudSyncLoaded(true);
+      }
+    };
+
+    loadInitialState();
+  }, []);
+
+  // Sync to Cloud whenever state changes
+  useEffect(() => {
+    if (!isCloudSyncLoaded || isDummy) return;
+
+    const docRef = doc(db, 'appState', 'clarissa_jane_drt');
+    const saveData = async () => {
+      setCloudSyncStatus('loading');
+      try {
+        await setDoc(docRef, {
+          memoryNodes,
+          tasks,
+          updatedAt: new Date().toISOString()
+        });
+        setCloudSyncTime(new Date().toLocaleTimeString());
+        setCloudSyncStatus('success');
+      } catch (error) {
+        console.error("Firestore saving error:", error);
+        setCloudSyncStatus('error');
+        handleFirestoreError(error, OperationType.WRITE, 'appState/clarissa_jane_drt');
+      }
+    };
+
+    const timer = setTimeout(() => {
+      saveData();
+    }, 1500);
+
+    return () => clearTimeout(timer);
+  }, [memoryNodes, tasks, isCloudSyncLoaded]);
 
   // Guided Breathing Timer & Synchronous Voice Logic
   useEffect(() => {
@@ -1596,7 +1685,15 @@ export default function App() {
               <span>🧠</span> <span className="font-bold">Decision Intelligence</span>
             </button>
 
-
+            <button
+              onClick={() => { stopAudio(); setActiveTab('alibaba'); }}
+              className={`p-1.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer
+                ${activeTab === 'alibaba' ? 'bg-orange-500 text-white shadow-xs' : 'text-stone-500 hover:text-stone-800'}
+              `}
+              id="tab-alibaba-btn"
+            >
+              <span>☁️</span> <span className="font-bold">Alibaba Cloud</span>
+            </button>
 
             <button
               onClick={() => { stopAudio(); setActiveTab('avatar'); }}
@@ -1626,6 +1723,22 @@ export default function App() {
                   </option>
                 ))}
               </select>
+            </div>
+
+            {/* Durable Cloud Sync Status */}
+            <div className="flex items-center gap-1.5 bg-white border border-stone-200/60 rounded-xl px-2.5 py-1 text-xs shadow-xs">
+              <Database className={`w-3.5 h-3.5 ${cloudSyncStatus === 'loading' ? 'text-rose-500 animate-spin' : cloudSyncStatus === 'success' ? 'text-emerald-500' : cloudSyncStatus === 'error' ? 'text-amber-500' : 'text-stone-400'}`} />
+              <div className="flex flex-col text-left">
+                <span className="text-[8px] font-mono leading-none text-stone-400 uppercase font-black">CLOUD SYNC</span>
+                <span className="text-[9px] font-black text-stone-750 leading-tight">
+                  {isDummy ? 'Local Session' : cloudSyncStatus === 'loading' ? 'Syncing...' : cloudSyncStatus === 'success' ? 'Synchronized' : cloudSyncStatus === 'error' ? 'Sync Error' : 'Connected'}
+                </span>
+              </div>
+              {!isDummy && cloudSyncStatus === 'success' && (
+                <span className="text-[8px] font-mono text-stone-400 ml-1">
+                  {cloudSyncTime}
+                </span>
+              )}
             </div>
 
             {/* TTS Auto-Speak Toggle */}
@@ -1804,6 +1917,13 @@ export default function App() {
               vibeConfig={currentVibeConfig}
               vibes={VIBES}
             />
+          </div>
+        )}
+
+        {/* Tab 12: ALIBABA CLOUD CONSOLE */}
+        {activeTab === 'alibaba' && (
+          <div className="animate-fadeIn">
+            <AlibabaCloudConsole />
           </div>
         )}
 

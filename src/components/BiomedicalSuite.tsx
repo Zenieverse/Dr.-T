@@ -177,7 +177,8 @@ export const BiomedicalSuite: React.FC<{
   language?: string;
   activeSubTab?: 'patient' | 'fhir' | 'analytics' | 'summarizer' | 'imaging' | 'population' | 'coach' | 'lab' | 'mimic' | 'orchestrator';
   onSubTabChange?: (tab: 'patient' | 'fhir' | 'analytics' | 'summarizer' | 'imaging' | 'population' | 'coach' | 'lab' | 'mimic' | 'orchestrator') => void;
-}> = ({ language = 'English', activeSubTab: controlledSubTab, onSubTabChange }) => {
+  onUpdateHeartRate?: (newBpm: number) => void;
+}> = ({ language = 'English', activeSubTab: controlledSubTab, onSubTabChange, onUpdateHeartRate }) => {
   const selectedLang = ['English', 'French', 'Vietnamese'].includes(language) ? language : 'English';
   
   const t = (key: string, fallback: string) => {
@@ -204,6 +205,57 @@ export const BiomedicalSuite: React.FC<{
     setTimeout(() => {
       setToast(prev => prev?.message === message ? null : prev);
     }, 4000);
+  };
+
+  // Fitbit & Apple Health wearable states
+  const [isFitbitConnected, setIsFitbitConnected] = useState(false);
+  const [isAppleHealthConnected, setIsAppleHealthConnected] = useState(false);
+  const [wearableHrv, setWearableHrv] = useState<number>(42); // ms
+  const [wearableDeepSleep, setWearableDeepSleep] = useState<number>(1.1); // hrs
+  const [wearableRemSleep, setWearableRemSleep] = useState<number>(1.2); // hrs
+  const [wearableLightSleep, setWearableLightSleep] = useState<number>(4.1); // hrs
+  const [wearableRestlessTime, setWearableRestlessTime] = useState<number>(28); // mins
+  const [isSyncingWearables, setIsSyncingWearables] = useState(false);
+  const [lastWearableSync, setLastWearableSync] = useState<string>("Never synced");
+
+  const handleSyncWearables = async (type: 'fitbit' | 'apple') => {
+    if (type === 'fitbit' && !isFitbitConnected) {
+      showToast("Please connect Fitbit account first.", "error");
+      return;
+    }
+    if (type === 'apple' && !isAppleHealthConnected) {
+      showToast("Please authorize Apple Health connection first.", "error");
+      return;
+    }
+    
+    setIsSyncingWearables(true);
+    showToast(`Syncing clinical telemetry from ${type === 'fitbit' ? 'Fitbit Cloud API' : 'Apple HealthKit Bridge'}...`, "info");
+    
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    // Simulate real diagnostic updates
+    const updatedHrv = Math.floor(Math.random() * 15) + 55; // improves to 55-70 ms
+    const updatedDeep = parseFloat((Math.random() * 0.4 + 1.6).toFixed(1)); // 1.6 - 2.0 hrs
+    const updatedRem = parseFloat((Math.random() * 0.3 + 1.5).toFixed(1)); // 1.5 - 1.8 hrs
+    const updatedLight = parseFloat((Math.random() * 0.5 + 4.2).toFixed(1)); // 4.2 - 4.7 hrs
+    const updatedRestless = Math.floor(Math.random() * 10) + 12; // 12-22 mins
+    
+    setWearableHrv(updatedHrv);
+    setWearableDeepSleep(updatedDeep);
+    setWearableRemSleep(updatedRem);
+    setWearableLightSleep(updatedLight);
+    setWearableRestlessTime(updatedRestless);
+    
+    if (onUpdateHeartRate) {
+      onUpdateHeartRate(64); // Sync a healthy resting HR
+    }
+    
+    setLastWearableSync(new Date().toLocaleTimeString());
+    setIsSyncingWearables(false);
+    
+    // Deeper diagnostic modeling updates:
+    setRiskForecast(`Based on incoming ${type.toUpperCase()} wearable sync (HRV: ${updatedHrv}ms, Deep Sleep: ${updatedDeep}h), Clara's autonomic stress risk is lower. ASCVD 10-Year Index reduced to 8.2% (Low-to-Moderate). Recommend continuing sleep hygiene protocols and Socratic breathing calls.`);
+    showToast("Wearable telemetry feed synchronized into Biomedical Suite!", "success");
   };
 
   // FHIR Tab States
@@ -622,6 +674,144 @@ export const BiomedicalSuite: React.FC<{
                   <span className="text-[10px] font-mono uppercase text-stone-400 font-bold block">Epic EHR Links</span>
                   <span className="font-bold text-stone-800 text-sm block">1 active Care Plan</span>
                   <span className="text-[11px] text-amber-700 font-medium font-mono">ID: EPIC-CP-49112</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Wearable & Biometric Integration Suite */}
+            <div className="bg-gradient-to-br from-rose-50/50 to-stone-50 border border-rose-100 rounded-3xl p-5 shadow-xs">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+                <div>
+                  <span className="text-[10px] font-mono font-black text-rose-600 uppercase tracking-wider block">AUTONOMIC MONITORING</span>
+                  <h4 className="font-display font-black text-lg text-stone-850 flex items-center gap-2">
+                    <Flame className="w-5 h-5 text-rose-500 animate-pulse" /> Wearable & Biometric Integration Suite
+                  </h4>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[9px] font-mono font-bold text-stone-400">Last sync: {lastWearableSync}</span>
+                  <button
+                    onClick={() => handleSyncWearables(isFitbitConnected ? 'fitbit' : 'apple')}
+                    disabled={isSyncingWearables || (!isFitbitConnected && !isAppleHealthConnected)}
+                    className="px-3 py-1.5 bg-[#9f1239] hover:bg-[#881337] disabled:bg-stone-200 text-white disabled:text-stone-400 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5"
+                  >
+                    {isSyncingWearables ? (
+                      <>
+                        <RefreshCw className="w-3.5 h-3.5 animate-spin" /> Synchronizing...
+                      </>
+                    ) : (
+                      <>
+                        <RefreshCw className="w-3.5 h-3.5" /> Sync Telemetry
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Connections Column */}
+                <div className="bg-white border border-stone-150 p-4 rounded-2xl flex flex-col justify-between">
+                  <div>
+                    <span className="text-[10px] font-mono font-bold text-stone-400 uppercase block mb-2">Configure Wearable Accounts</span>
+                    <p className="text-[11px] text-stone-500 leading-relaxed mb-4">
+                      Authorize secure OAuth connections to Fitbit Cloud or iOS HealthKit bridge to feed live parameters.
+                    </p>
+                  </div>
+
+                  <div className="flex flex-col gap-2.5">
+                    {/* Fitbit Sync Button */}
+                    <div className="flex items-center justify-between p-2.5 bg-stone-50 border border-stone-200 rounded-xl">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-stone-750">Fitbit Cloud OAuth</span>
+                      </div>
+                      <button
+                        onClick={() => {
+                          const next = !isFitbitConnected;
+                          setIsFitbitConnected(next);
+                          if (next) showToast("Fitbit Cloud authorized successfully via Popup OAuth!", "success");
+                        }}
+                        className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider transition-colors cursor-pointer ${
+                          isFitbitConnected ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200' : 'bg-[#e11d48] text-white hover:bg-[#be123c]'
+                        }`}
+                      >
+                        {isFitbitConnected ? 'CONNECTED ✓' : 'CONNECT'}
+                      </button>
+                    </div>
+
+                    {/* Apple HealthKit Sync Button */}
+                    <div className="flex items-center justify-between p-2.5 bg-stone-50 border border-stone-200 rounded-xl">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-stone-750">Apple HealthKit</span>
+                      </div>
+                      <button
+                        onClick={() => {
+                          const next = !isAppleHealthConnected;
+                          setIsAppleHealthConnected(next);
+                          if (next) showToast("Apple HealthKit authorized successfully!", "success");
+                        }}
+                        className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider transition-colors cursor-pointer ${
+                          isAppleHealthConnected ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200' : 'bg-stone-800 text-white hover:bg-stone-900'
+                        }`}
+                      >
+                        {isAppleHealthConnected ? 'CONNECTED ✓' : 'CONNECT'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Heart Rate Variability (HRV) Analysis Column */}
+                <div className="bg-white border border-stone-150 p-4 rounded-2xl flex flex-col justify-between">
+                  <div>
+                    <span className="text-[10px] font-mono font-bold text-stone-400 uppercase block mb-1">Heart Rate Variability (HRV)</span>
+                    <span className="text-2xl font-black text-stone-800 block">{wearableHrv} ms</span>
+                    <p className="text-[10px] text-stone-500 leading-normal mt-1">
+                      HRV (rMSSD) is a robust biomarker for autonomic nervous system resilience. Higher variability correlates with low cognitive strain.
+                    </p>
+                  </div>
+
+                  <div className="mt-4">
+                    <div className="flex justify-between items-center text-[10px] font-mono mb-1 text-stone-400">
+                      <span>Low (Strain)</span>
+                      <span className="font-bold text-rose-600">Optimal (55ms+)</span>
+                    </div>
+                    <div className="w-full bg-stone-100 h-2 rounded-full overflow-hidden">
+                      <div 
+                        className={`h-full rounded-full transition-all duration-1000 ${
+                          wearableHrv < 50 ? 'bg-amber-500' : 'bg-emerald-500'
+                        }`}
+                        style={{ width: `${Math.min(100, (wearableHrv / 80) * 100)}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Sleep Architecture Parameters Column */}
+                <div className="bg-white border border-stone-150 p-4 rounded-2xl flex flex-col justify-between">
+                  <div>
+                    <span className="text-[10px] font-mono font-bold text-stone-400 uppercase block mb-1.5">Sleep Architecture Parameters</span>
+                    
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div className="bg-stone-50 p-1.5 border border-stone-100 rounded-lg">
+                        <span className="text-[9px] text-stone-400 block font-mono">Deep Sleep</span>
+                        <span className="font-bold text-stone-700">{wearableDeepSleep} hours</span>
+                      </div>
+                      <div className="bg-stone-50 p-1.5 border border-stone-100 rounded-lg">
+                        <span className="text-[9px] text-stone-400 block font-mono">REM Sleep</span>
+                        <span className="font-bold text-stone-700">{wearableRemSleep} hours</span>
+                      </div>
+                      <div className="bg-stone-50 p-1.5 border border-stone-100 rounded-lg">
+                        <span className="text-[9px] text-stone-400 block font-mono">Light Sleep</span>
+                        <span className="font-bold text-stone-700">{wearableLightSleep} hours</span>
+                      </div>
+                      <div className="bg-stone-50 p-1.5 border border-stone-100 rounded-lg">
+                        <span className="text-[9px] text-stone-400 block font-mono">Restless Time</span>
+                        <span className="font-bold text-amber-600">{wearableRestlessTime} mins</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="text-[10px] text-stone-400 mt-2 italic leading-tight">
+                    * Wearable hypnogram indicates sleep depth. Aim for &gt;1.5h deep sleep to reduce cognitive burnout fatigue.
+                  </div>
                 </div>
               </div>
             </div>

@@ -3,6 +3,7 @@ import path from "path";
 import dotenv from "dotenv";
 import { GoogleGenAI, Type } from "@google/genai";
 import { createServer as createViteServer } from "vite";
+import { testAlibabaCloudConnection, uploadToAlibabaOSS } from "./src/alibabaCloud";
 
 dotenv.config();
 
@@ -1198,6 +1199,40 @@ Provide a highly informative, actionable, and structured response. Recommend spe
         { title: "UN Sustainable Cities and Communities Guidelines", uri: "https://sdgs.un.org/goals/goal11" }
       ],
       isFallback: true
+    });
+  }
+});
+
+// ==========================================
+// ALIBABA CLOUD INTEGRATION & VERIFICATION ENDPOINTS
+// ==========================================
+
+app.get("/api/alibaba-cloud/status", async (req: any, res: any) => {
+  try {
+    const result = await testAlibabaCloudConnection();
+    res.json(result);
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error.message || "Failed to query Alibaba Cloud services.",
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+app.post("/api/alibaba-cloud/upload", async (req: any, res: any) => {
+  try {
+    const { fileName, content } = req.body;
+    if (!fileName || !content) {
+      return res.status(400).json({ error: "Missing file name or content to upload." });
+    }
+    const result = await uploadToAlibabaOSS(fileName, content);
+    res.json(result);
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error.message || "Failed to upload to Alibaba Cloud Object Storage Service.",
+      timestamp: new Date().toISOString()
     });
   }
 });
