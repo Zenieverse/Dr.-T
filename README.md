@@ -4,6 +4,12 @@ Inspiration:
 
 Traditional healthcare software is cold and transactional, but we were inspired by a real-life physician, Dr. T, who has been helping her patients with wits, wisdom, and kindness throughout their treatment processes. We built 'Dr. T' — an empathetic, Socratic clinical decision support platform and patient-first wellness guide to carry her legacy of compassionate healthcare into a modern digital experience.
 
+V. 2.7
+
+ComSing @ https://comsing-764082783379.us-west1.run.app has been added. Note: Go check out Demo Hub 
+
+Dr. T Frequency Therapy added
+
 V. 2.6 
 
 https://builder.aws.com/content/3FyL8ge8GfUEY00lSL6vw2loRZA/crossing-clouds-with-qwen-ai-and-alibaba-cloud
