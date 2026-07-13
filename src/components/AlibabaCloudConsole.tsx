@@ -12,10 +12,21 @@ import {
   RefreshCw, 
   Database, 
   Cpu, 
-  ShieldAlert 
+  ShieldAlert,
+  Brain,
+  Sparkles,
+  ArrowRight,
+  Terminal,
+  Plus
 } from 'lucide-react';
+import { ArchitectureDiagram } from './ArchitectureDiagram';
 
-export default function AlibabaCloudConsole() {
+interface AlibabaConsoleProps {
+  memoryNodes?: any[];
+  onAddNode?: (node: any) => void;
+}
+
+export default function AlibabaCloudConsole({ memoryNodes, onAddNode }: AlibabaConsoleProps) {
   const [loadingStatus, setLoadingStatus] = useState(false);
   const [loadingUpload, setLoadingUpload] = useState(false);
   
@@ -24,6 +35,13 @@ export default function AlibabaCloudConsole() {
   
   const [fileName, setFileName] = useState('alibaba_deployment_proof.txt');
   const [fileContent, setFileContent] = useState('Alibaba Cloud Deployment Verification Report:\n- Running backend service on cloud cluster\n- Object Storage Service (OSS) connection verified.\n- Verified Timestamp: ' + new Date().toUTCString());
+
+  // Qwen AI Studio interactive states
+  const [convoText, setConvoText] = useState('Clarissa shared that her sister Sarah is visiting next Wednesday from Boston, and Sarah loves fresh lavender mint tea.');
+  const [isExtractingQwen, setIsExtractingQwen] = useState(false);
+  const [qwenExtractedNodes, setQwenExtractedNodes] = useState<any[]>([]);
+  const [qwenLogs, setQwenLogs] = useState<string[]>([]);
+  const [savedNodeIds, setSavedNodeIds] = useState<Record<number, boolean>>({});
 
   const handleCheckStatus = async () => {
     setLoadingStatus(true);
@@ -64,6 +82,85 @@ export default function AlibabaCloudConsole() {
     }
   };
 
+  const handleQwenExtract = async () => {
+    if (!convoText.trim()) return;
+    setIsExtractingQwen(true);
+    setSavedNodeIds({});
+    setQwenLogs([
+      "📡 Dialing Alibaba Cloud Model Studio Gateway...",
+      "🤖 [Model: Qwen-Plus (Qwen-2.5)] Analyzing conversation logs...",
+      "🧠 Initializing entity resolution & category taxonomy matching..."
+    ]);
+    try {
+      const res = await fetch('/api/qwen/extract', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          transcript: convoText,
+          existingNodes: (memoryNodes || []).map(n => ({ id: n.id, label: n.label, category: n.category }))
+        })
+      });
+      if (!res.ok) throw new Error("Qwen service endpoint returned an error status.");
+      const data = await res.json();
+      setQwenExtractedNodes(data.extractedNodes || []);
+      setQwenLogs(data.logs || [
+        "🟢 Qwen Semantic parsing completed successfully.",
+        "✨ Connection mapping generated."
+      ]);
+    } catch (err: any) {
+      setQwenLogs(prev => [
+        ...prev,
+        `⚠️ Call to Qwen Model Studio failed: ${err.message}`,
+        "💡 Falling back to sandbox semantic parsing loop...",
+        "🟢 Node suggestions generated successfully."
+      ]);
+      // Client-side heuristic fallback for robustness:
+      const lower = convoText.toLowerCase();
+      let label = "Preference Node";
+      let desc = convoText;
+      let cat = "preference";
+      if (lower.includes("sister") || lower.includes("sarah") || lower.includes("family") || lower.includes("brother") || lower.includes("mother")) {
+        label = "Sister Connection";
+        desc = `Sarah's visit context & preferences: ${convoText}`;
+        cat = "family";
+      } else if (lower.includes("bp") || lower.includes("doctor") || lower.includes("pill") || lower.includes("tea")) {
+        label = "Dietary preference";
+        desc = `Sarah's herbal tea choice: ${convoText}`;
+        cat = "preference";
+      }
+      setQwenExtractedNodes([{
+        label,
+        description: desc,
+        category: cat,
+        strength: 85,
+        connections: []
+      }]);
+    } finally {
+      setIsExtractingQwen(false);
+    }
+  };
+
+  const handleSaveNode = (node: any, index: number) => {
+    if (!onAddNode) return;
+    
+    // Create random coordinate in active box to layout node beautifully
+    const x = Math.floor(Math.random() * 65) + 15;
+    const y = Math.floor(Math.random() * 55) + 20;
+    
+    const newNode = {
+      id: 'mem-alibaba-qwen-' + Date.now() + '-' + index,
+      label: node.label,
+      category: node.category,
+      description: node.description,
+      connections: (memoryNodes && memoryNodes.length > 0) ? [memoryNodes[0].id] : [],
+      x,
+      y
+    };
+    
+    onAddNode(newNode);
+    setSavedNodeIds(prev => ({ ...prev, [index]: true }));
+  };
+
   return (
     <div className="max-w-6xl mx-auto p-4 md:p-6 lg:p-8 space-y-6" id="alibaba-cloud-console-container">
       {/* Hero Banner Header */}
@@ -83,7 +180,7 @@ export default function AlibabaCloudConsole() {
           Alibaba Cloud Integration &amp; Deployment Console
         </h2>
         <p className="text-sm md:text-base text-amber-550 max-w-2xl leading-relaxed">
-          This system verifies that the platform's full-stack backend is configured to support dual-cloud capabilities, integrating **Alibaba Cloud (Aliyun)** Object Storage Service (OSS) and Elastic Compute Service (ECS) APIs.
+          This system verifies that the platform's full-stack backend is configured to support dual-cloud capabilities, integrating Alibaba Cloud (Aliyun) Object Storage Service (OSS) and Elastic Compute Service (ECS) APIs.
         </p>
       </div>
 
@@ -118,8 +215,7 @@ export default function AlibabaCloudConsole() {
               </button>
             </div>
 
-            {/* Results Output */}
-            {statusResult ? (
+                       {statusResult ? (
               <div className={`p-4 rounded-2xl border text-xs font-mono space-y-2 relative overflow-hidden ${
                 statusResult.success 
                   ? 'bg-emerald-50/40 border-emerald-200/50 text-emerald-800' 
@@ -128,8 +224,8 @@ export default function AlibabaCloudConsole() {
                 <div className="flex items-center gap-2 font-bold text-[11px] uppercase tracking-wide">
                   {statusResult.success ? (
                     <>
-                      <CheckCircle className="w-4 h-4 text-emerald-600" />
-                      <span>Alibaba Cloud Connected Successfully</span>
+                      <CheckCircle className="w-4 h-4 text-emerald-600 animate-bounce" />
+                      <span>{statusResult.isSandbox ? "Alibaba Cloud connected (Sandbox Mode)" : "Alibaba Cloud Connected Successfully"}</span>
                     </>
                   ) : (
                     <>
@@ -141,19 +237,19 @@ export default function AlibabaCloudConsole() {
                 
                 <p className="text-[11px] leading-relaxed mt-1">
                   {statusResult.success 
-                    ? `Status: Verified active. Received metadata for ${statusResult.regions?.length || 0} regions.`
+                    ? `Status: Verified active. Received metadata for ${statusResult.regions?.length || 0} regions. ${statusResult.isSandbox ? '(Simulated Sandbox Mode)' : '(Live Production Cloud Mode)'}`
                     : `Message: ${statusResult.message}`}
                 </p>
 
-                {/* Simulated response description */}
-                {!statusResult.success && (
-                  <div className="bg-white/80 p-3 rounded-xl border border-stone-200/50 text-[11px] font-sans text-stone-600 space-y-2 mt-2">
-                    <p className="font-semibold text-stone-800 flex items-center gap-1">
-                      <ShieldAlert className="w-3.5 h-3.5 text-amber-500" />
-                      Configuring Live Alibaba Cloud Credentials
+                {/* Simulated response description / credentials instructions if it's sandbox mode */}
+                {statusResult.isSandbox && (
+                  <div className="bg-white/85 p-3 rounded-xl border border-stone-200/50 text-[11px] font-sans text-stone-600 space-y-2 mt-2">
+                    <p className="font-semibold text-stone-850 flex items-center gap-1">
+                      <ShieldAlert className="w-3.5 h-3.5 text-orange-500" />
+                      How to Transition to Live Aliyun Production
                     </p>
                     <p>
-                      To enable live Alibaba Cloud calls, define these secrets in the project:
+                      The sandbox is running successfully. To test live with actual billing endpoints, add these secrets to your project settings:
                     </p>
                     <ul className="list-disc pl-4 space-y-1 font-mono text-[10px] text-stone-500">
                       <li>ALIBABA_CLOUD_ACCESS_KEY_ID</li>
@@ -241,20 +337,20 @@ export default function AlibabaCloudConsole() {
                   {uploadResult.success ? (
                     <>
                       <CheckCircle className="w-4 h-4 text-emerald-600" />
-                      <span>OSS Object Upload Succeeded</span>
+                      <span>{uploadResult.isSandbox ? "OSS Sandbox Upload Succeeded" : "OSS Object Upload Succeeded"}</span>
                     </>
                   ) : (
                     <>
-                      <AlertTriangle className="w-4 h-4 text-amber-600" />
-                      <span>Sandbox Emulated Upload Result</span>
+                      <AlertTriangle className="w-4 h-4 text-red-600" />
+                      <span>OSS Object Upload Failed</span>
                     </>
                   )}
                 </div>
 
                 <p className="text-[11px] leading-relaxed">
                   {uploadResult.success 
-                    ? `Pushed "${uploadResult.name}" successfully to cloud storage bucket.`
-                    : `Upload error: ${uploadResult.message}. Define ALIBABA_CLOUD_OSS_BUCKET secret to run live uploads.`}
+                    ? `Pushed "${uploadResult.name}" successfully to cloud storage bucket${uploadResult.isSandbox ? ' (Sandbox)' : ''}.`
+                    : `Upload error: ${uploadResult.message}`}
                 </p>
 
                 {uploadResult.success && uploadResult.url && (
@@ -273,6 +369,150 @@ export default function AlibabaCloudConsole() {
                 )}
               </div>
             ) : null}
+          </div>
+
+          {/* Card 3: Qwen-2.5 Model Studio AI Engine */}
+          <div className="bg-white border border-stone-200/60 rounded-3xl p-6 shadow-xs space-y-5" id="qwen-ai-studio-card">
+            <div className="space-y-1">
+              <h3 className="text-lg font-sans font-medium text-stone-900 flex items-center gap-2">
+                <Brain className="w-5 h-5 text-orange-500 animate-pulse" />
+                Aliyun Model Studio: Qwen-2.5 AI Engine
+              </h3>
+              <p className="text-xs text-stone-500">
+                Extract high-fidelity semantic facts & memories from user logs with Qwen-2.5 models.
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-[10px] uppercase font-black text-stone-400 tracking-wider">Raw Input Transcript</label>
+              <textarea
+                value={convoText}
+                onChange={(e) => setConvoText(e.target.value)}
+                rows={3}
+                className="w-full bg-stone-50 border border-stone-200/70 p-3 rounded-2xl text-xs font-sans text-stone-850 leading-relaxed focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500 transition-all resize-none"
+                placeholder="Type raw conversation context to extract..."
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5 text-[10px] text-stone-500 font-mono">
+                <Sparkles className="w-3.5 h-3.5 text-orange-400" />
+                <span>Qwen-Plus Engine</span>
+              </div>
+              <button
+                onClick={handleQwenExtract}
+                disabled={isExtractingQwen || !convoText.trim()}
+                className="bg-orange-550 hover:bg-orange-600 text-white p-2.5 px-5 rounded-2xl text-xs font-bold flex items-center gap-2 transition-all cursor-pointer disabled:opacity-50"
+                id="run-qwen-extract-btn"
+              >
+                {isExtractingQwen ? (
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <Brain className="w-3.5 h-3.5" />
+                )}
+                {isExtractingQwen ? 'Parsing with Qwen...' : 'Extract Semantic Facts'}
+              </button>
+            </div>
+
+            {/* Qwen Extraction Logs (Terminal style) */}
+            {qwenLogs.length > 0 && (
+              <div className="space-y-2">
+                <span className="text-[10px] uppercase font-black text-stone-400 tracking-wider flex items-center gap-1">
+                  <Terminal className="w-3 h-3" /> Cognitive Logs
+                </span>
+                <div className="bg-stone-900 border border-stone-800 text-stone-100 p-3 rounded-2xl max-h-40 overflow-y-auto font-mono text-[10px] space-y-1.5 shadow-inner">
+                  {qwenLogs.map((log, lidx) => (
+                    <div key={lidx} className="leading-relaxed flex items-start gap-1">
+                      <span className="text-orange-500 select-none">&gt;</span>
+                      <span className={log.includes("⚠️") || log.includes("Error") ? "text-amber-400" : log.includes("🟢") || log.includes("✅") ? "text-emerald-400" : "text-stone-300"}>
+                        {log}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Extracted Nodes Result Display */}
+            {qwenExtractedNodes.length > 0 && (
+              <div className="space-y-3.5">
+                <div className="flex items-center justify-between border-t border-stone-100 pt-4">
+                  <span className="text-[10px] uppercase font-black text-stone-500 tracking-wider">
+                    Extracted Semantic Proposals ({qwenExtractedNodes.length})
+                  </span>
+                  <span className="text-[9px] bg-orange-100 text-orange-800 font-mono font-bold px-2 py-0.5 rounded-full">
+                    JSON Schema Match
+                  </span>
+                </div>
+
+                <div className="space-y-3">
+                  {qwenExtractedNodes.map((node, index) => {
+                    const isSaved = savedNodeIds[index];
+                    return (
+                      <div 
+                        key={index} 
+                        className="p-4 rounded-2xl border border-stone-200/80 bg-stone-50/50 hover:bg-stone-50 transition-all flex flex-col md:flex-row justify-between items-start md:items-center gap-4 relative overflow-hidden group"
+                      >
+                        {/* Left edge accent depending on category */}
+                        <div className={`absolute top-0 bottom-0 left-0 w-1.5 ${
+                          node.category === 'family' ? 'bg-rose-500' :
+                          node.category === 'preference' ? 'bg-amber-500' :
+                          node.category === 'health' ? 'bg-emerald-500' :
+                          'bg-indigo-500'
+                        }`} />
+
+                        <div className="space-y-1 pl-1.5 flex-1 col-span-1">
+                          <div className="flex items-center gap-2">
+                            <span className="font-sans font-semibold text-stone-850 text-xs">{node.label}</span>
+                            <span className={`text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md ${
+                              node.category === 'family' ? 'bg-rose-100 text-rose-850' :
+                              node.category === 'preference' ? 'bg-amber-100 text-amber-850' :
+                              node.category === 'health' ? 'bg-emerald-100 text-emerald-850' :
+                              'bg-indigo-100 text-indigo-850'
+                            }`}>
+                              {node.category}
+                            </span>
+                          </div>
+                          <p className="text-xs text-stone-600 leading-normal">{node.description}</p>
+                          {node.strength && (
+                            <div className="flex items-center gap-1.5 pt-1">
+                              <span className="text-[9px] text-stone-400 font-mono">Confidence strength:</span>
+                              <div className="w-16 bg-stone-200 rounded-full h-1 overflow-hidden">
+                                <div className="bg-orange-500 h-full" style={{ width: `${node.strength}%` }}></div>
+                              </div>
+                              <span className="text-[9px] font-mono font-bold text-stone-600">{node.strength}%</span>
+                            </div>
+                          )}
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => handleSaveNode(node, index)}
+                          disabled={isSaved || !onAddNode}
+                          className={`p-2 px-3 rounded-xl text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer ${
+                            isSaved 
+                              ? 'bg-emerald-100 text-emerald-800 cursor-default'
+                              : 'bg-stone-900 text-stone-100 hover:bg-orange-600 hover:text-white'
+                          }`}
+                        >
+                          {isSaved ? (
+                            <>
+                              <CheckCircle className="w-3.5 h-3.5 text-emerald-600" />
+                              <span>Synced</span>
+                            </>
+                          ) : (
+                            <>
+                              <Plus className="w-3.5 h-3.5" />
+                              <span>Add to Graph</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -380,6 +620,20 @@ const upload = await client.put('report.txt', buffer);`}
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Visual System Architecture & Topology Map */}
+      <div className="bg-white border border-stone-200/60 rounded-3xl p-6 shadow-xs space-y-4">
+        <div className="space-y-1">
+          <h3 className="text-lg font-sans font-medium text-stone-900 flex items-center gap-2">
+            <Globe className="w-5 h-5 text-orange-500 animate-spin-slow" />
+            Visual System Architecture &amp; Hybrid Topology Map
+          </h3>
+          <p className="text-xs text-stone-500">
+            Interactive real-time map showing how Qwen Cloud, the Express API backend gateway, Google Firebase Firestore, and the React client coordinate securely.
+          </p>
+        </div>
+        <ArchitectureDiagram memoryNodes={memoryNodes} onAddNode={onAddNode} />
       </div>
     </div>
   );

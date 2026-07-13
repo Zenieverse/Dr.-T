@@ -39,7 +39,8 @@ import {
   X,
   Phone,
   PhoneOff,
-  PhoneCall
+  PhoneCall,
+  Music
 } from 'lucide-react';
 import { VIBES, VOICES, LANGUAGES, INITIAL_MEMORY_NODES, INITIAL_SPECIALIST_AGENTS, INITIAL_MED_LIST, INITIAL_HEALTH_METRICS, INITIAL_SKILL_NODES, INITIAL_TASK_LIST, INITIAL_CALENDAR_EVENTS, INITIAL_SMART_NOTES, INITIAL_CARBON_HABITS } from './constants';
 import { Message, DrTVibe, DrTAppearance, MemoryNode, SpecialistAgent, MedLog, HealthMetric, SkillNode, TaskItem, CalendarEvent, SmartNote, CarbonHabit, LifetimeStreak } from './types';
@@ -51,13 +52,15 @@ import { UiPathOrchestrator } from './components/UiPathOrchestrator';
 import StellarZkPlayground from './components/StellarZkPlayground';
 import { DecisionIntelligence } from './components/DecisionIntelligence';
 import AlibabaCloudConsole from './components/AlibabaCloudConsole';
+import { AmbientMusicPlayer } from './components/AmbientMusicPlayer';
+import { SymphonyConcertHall } from './components/SymphonyConcertHall';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db, isDummy, OperationType, handleFirestoreError } from './firebase';
 import drTAvatar from './assets/images/dr_t_avatar_1781184840352.jpg';
 
 export default function App() {
   // Navigation
-  const [activeTab, setActiveTab] = useState<'hub' | 'graph' | 'swarm' | 'trackers' | 'dashboard' | 'avatar' | 'suite' | 'showcase' | 'uipath' | 'stellar-zk' | 'decision' | 'alibaba'>('hub');
+  const [activeTab, setActiveTab] = useState<'hub' | 'graph' | 'swarm' | 'trackers' | 'dashboard' | 'avatar' | 'suite' | 'showcase' | 'uipath' | 'stellar-zk' | 'decision' | 'alibaba' | 'symphonies'>('hub');
   const [activeSuiteSubTab, setActiveSuiteSubTab] = useState<'patient' | 'fhir' | 'analytics' | 'summarizer' | 'imaging' | 'population' | 'coach' | 'lab' | 'mimic' | 'orchestrator'>('patient');
 
   // State
@@ -116,6 +119,7 @@ export default function App() {
 
   // Guided Breathing Overlay states
   const [showBreathing, setShowBreathing] = useState<boolean>(false);
+  const [showAmbientPlayer, setShowAmbientPlayer] = useState<boolean>(false);
   const [showHappyWoahWoah, setShowHappyWoahWoah] = useState<boolean>(true);
   const [breathingPhase, setBreathingPhase] = useState<'inhale' | 'hold' | 'exhale' | 'complete'>('inhale');
   const [breathingSeconds, setBreathingSeconds] = useState<number>(60);
@@ -625,7 +629,12 @@ export default function App() {
   const [waveHeights, setWaveHeights] = useState<number[]>(Array(16).fill(4));
 
   // Auto-scroll inside core chat console
+  const isInitialMount = useRef(true);
   useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isThinking]);
 
@@ -780,6 +789,12 @@ export default function App() {
     }
     setIsSpeaking(false);
     setMessages(prev => prev.map(m => ({ ...m, isVoicePlaying: false })));
+    
+    // Also dispatch events to stop ambient player and symphonies player
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('stop-ambient-player'));
+      window.dispatchEvent(new CustomEvent('stop-symphony-player'));
+    }
   };
 
   const speakViaWebSpeechAPI = (cleanedText: string, messageId: string, overrideLang?: string) => {
@@ -1646,6 +1661,16 @@ export default function App() {
             >
               <span>🌸</span> <span className="font-bold">Hub</span>
             </button>
+            <a
+              href="https://comsing-764082783379.us-west1.run.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => stopAudio()}
+              className="p-1.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer text-stone-500 hover:text-stone-800 hover:bg-stone-50"
+              id="tab-symphonies-btn"
+            >
+              <span>🎤</span> <span className="font-bold">ComSing ↗</span>
+            </a>
             <button
               onClick={() => { stopAudio(); setActiveTab('dashboard'); }}
               className={`p-1.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer
@@ -1774,15 +1799,12 @@ export default function App() {
         {/* Error notification wrapper */}
         {audioError && (() => {
           const isFallbackNotice = audioError?.toLowerCase().includes('defaulted') || audioError?.toLowerCase().includes('browser') || audioError?.toLowerCase().includes('local');
+          if (isFallbackNotice) return null; // Omit fallback notices entirely as requested
           return (
-            <div className={`w-full p-3 rounded-2xl flex items-start gap-2.5 text-xs animate-fadeIn shadow-sm border ${
-              isFallbackNotice 
-                ? 'bg-amber-50 border-amber-200 text-amber-800' 
-                : 'bg-rose-50 border-rose-200 text-rose-750'
-            }`}>
-              {isFallbackNotice ? <Sparkles className="w-4 h-4 mt-0.5 shrink-0 text-amber-500 animate-pulse" /> : <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />}
+            <div className="w-full p-3 rounded-2xl flex items-start gap-2.5 text-xs animate-fadeIn shadow-sm border bg-rose-50 border-rose-200 text-rose-750">
+              <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
               <div className="flex-1">
-                <p className="font-extrabold">{isFallbackNotice ? "Comfort Voice Synced" : "Speech Systems Calibration Option"}</p>
+                <p className="font-extrabold">Speech Systems Calibration Option</p>
                 <p className="opacity-95">{audioError}</p>
               </div>
               <button onClick={() => setAudioError(null)} className="text-xs font-mono font-bold leading-none shrink-0 opacity-70 hover:opacity-100">
@@ -1796,6 +1818,8 @@ export default function App() {
         {activeTab === 'hub' && (
           <div className="animate-fadeIn">
             <Hub
+              showAmbientPlayer={showAmbientPlayer}
+              setShowAmbientPlayer={setShowAmbientPlayer}
               language={language}
               voiceName={voiceName}
               setVoiceName={setVoiceName}
@@ -1876,6 +1900,13 @@ export default function App() {
           </div>
         )}
 
+        {/* Tab 2: ComSing LINK OUT */}
+        {activeTab === 'symphonies' && (
+          <div className="animate-fadeIn">
+            <SymphonyConcertHall />
+          </div>
+        )}
+
         {/* Tab 5: PROGRESS DIAGNOSTICS & ANALYTICS */}
         {activeTab === 'dashboard' && (
           <div className="animate-fadeIn">
@@ -1923,7 +1954,10 @@ export default function App() {
         {/* Tab 12: ALIBABA CLOUD CONSOLE */}
         {activeTab === 'alibaba' && (
           <div className="animate-fadeIn">
-            <AlibabaCloudConsole />
+            <AlibabaCloudConsole 
+              memoryNodes={memoryNodes} 
+              onAddNode={handleAddNode} 
+            />
           </div>
         )}
 
@@ -1975,6 +2009,19 @@ export default function App() {
           </div>
         </div>
       </footer>
+
+      {/* Floating Ambient Music & Soundscape Player Drawer */}
+      <AnimatePresence>
+        {showAmbientPlayer && (
+          <div className="fixed bottom-24 md:bottom-20 right-4 md:right-6 left-4 md:left-auto z-50 shadow-2xl max-w-[calc(100%-2rem)] md:max-w-sm w-full">
+            <AmbientMusicPlayer 
+              isOpen={showAmbientPlayer} 
+              onClose={() => setShowAmbientPlayer(false)} 
+              currentVibe={vibe}
+            />
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* Guided Breathing Simulation Overlay */}
       <AnimatePresence>
@@ -2441,7 +2488,7 @@ export default function App() {
 
               {/* Decorative prompt/feedback footer */}
               <div className="flex items-center justify-center gap-1 mb-3 relative z-10">
-                <Heart className="w-3 h-3 text-rose-500 fill-rose-500 animate-pulse" />
+                <Heart className="w-3 h-3 text-rose-500 fill-rose-500" />
                 <span className="text-[8px] text-stone-400 dark:text-stone-500 font-mono tracking-wider uppercase">
                   With Heart & Mind • Toujours
                 </span>

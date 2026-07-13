@@ -6,7 +6,8 @@ import {
   Award, 
   Brain, 
   Users, 
-  Layers
+  Layers,
+  Music
 } from 'lucide-react';
 import { CompanionHub } from './CompanionHub';
 import { BiomedicalSuite } from './BiomedicalSuite';
@@ -26,6 +27,8 @@ interface HubProps {
   activeSuiteSubTab: 'patient' | 'fhir' | 'analytics' | 'summarizer' | 'imaging' | 'population' | 'coach' | 'lab' | 'mimic' | 'orchestrator';
   setActiveSuiteSubTab: (sub: any) => void;
   setActiveTab: (tab: any) => void;
+  showAmbientPlayer: boolean;
+  setShowAmbientPlayer: (show: boolean) => void;
 
   // CompanionHub Props
   messages: Message[];
@@ -113,6 +116,8 @@ export function Hub({
   activeSuiteSubTab,
   setActiveSuiteSubTab,
   setActiveTab,
+  showAmbientPlayer,
+  setShowAmbientPlayer,
 
   // CompanionHub Props
   messages,
@@ -293,6 +298,8 @@ export function Hub({
               transition={{ duration: 0.3 }}
             >
               <CompanionHub
+                showAmbientPlayer={showAmbientPlayer}
+                setShowAmbientPlayer={setShowAmbientPlayer}
                 messages={messages}
                 vibe={vibe}
                 voiceName={voiceName}

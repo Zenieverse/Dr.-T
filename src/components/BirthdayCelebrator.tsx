@@ -136,10 +136,42 @@ export function BirthdayCelebrator({ textSize = 'text-[10px]', isCompact = false
     }
   }, [particles]);
 
-  const rawText = "Everyday is a Birthday to Dr. T. Many Happy Returns! Version 29370.";
+  const rawText = "Everyday is a Birthday to Dr. T - Many Happy Returns! Version 29370";
 
   // Blindbox prizes data
   const BLIND_BOX_PRIZES = [
+    {
+      id: 'worthwhile-wait',
+      name: "First 'Date' & Worthwhile Wait",
+      emoji: "💝",
+      description: `🩺 Big egos? 🏥 Go check out any health institution: The waits ⏳, the secrets 🤫, the taboos 🚫, ... all crushed 💥 @ first sight 👀, my 1st "date" 🗓️ with my Dr. 5.30pm - 7.50pm (listening to music 🎵 while ...) was the wait, worthwhile 💎, luckily. 🌟
+
+The prizes are: 🎁
+💖 You get cured & healed,
+⏰ You get a mega wake-up Call,
+✍️ You might become a Poet,
+🍃 and become a Last Leaf,
+🌱 and become a Last Leaves Creator, ...`,
+      color: "from-rose-500 via-pink-500 to-amber-500 animate-pulse",
+      rarity: "MYTHIC"
+    },
+    {
+      id: 'middle-agers-wakeup',
+      name: "Middle-Agers Wake-up Call",
+      emoji: "🍼",
+      description: `🍼 Middle-Agers, imagine you are:
+• On Diapers 24/7 👶
+• Drinking elderly milk brand 🥛
+• Doing daily Taichi 🧘‍♂️
+• ...And best part: Born in year 48! 🗓️
+
+🚨 An absolute wake-up call! 🚨
+
+💡 Take-away: Love your Drs more! 💖
+💋 Muach U Dr., ...`,
+      color: "from-indigo-500 via-rose-500 to-amber-400 animate-pulse",
+      rarity: "MYTHIC"
+    },
     {
       id: 'socratic-tlc',
       name: "Community TLC Poll",
@@ -155,27 +187,28 @@ d. All of the above`,
     },
     {
       id: 'great-hearts',
-      name: "Sage",
-      emoji: "🧠",
+      name: "Sage 🌿",
+      emoji: "🌿",
       description: `Across domains I have met
 Great Hearts and Minds in blessed blends
 Blue bloods running through kind acts
 Gold ‘Grays’ wide map Vinci clans
 Some’s veins must be ‘out of verse’
-Pump up fine lines of best pens!`,
+Pump up fine lines of best pens!
+🌿`,
       color: "from-pink-500 via-purple-500 to-rose-500",
       rarity: "LEGENDARY"
     },
     {
       id: 'love-it-ecode',
-      name: "E-Code Dance",
-      emoji: "🧠",
-      description: `Love it so dear E-Code Dance’
-On line some Fates facing, Bam!
-Racing for Life, all show up
-Win back one’s Time from Hades’ plans
-Wonders, Last Leaves, Miracles, ...?
- Vested in here, Bold-Sage Land!`,
+      name: "E-Code Dance 🧬🏥",
+      emoji: "🧬",
+      description: `🩺 Love it so dear E-Code Dance’ 🩹
+🏥 On line some Fates facing, Bam! 💥
+🏎️ Racing for Life, all show up 🏃‍♀️
+❤️ Win back one’s Time from Hades’ plans ⏳
+✨ Wonders, Last Leaves, Miracles, ...? 🌿
+🌟 Vested in here, Bold-Sage Land! 🧬`,
       color: "from-amber-500 via-orange-600 to-yellow-500",
       rarity: "LEGACY"
     },
@@ -608,7 +641,7 @@ An Ouch! feeling just like when my Dr. renewed my Birth Cert, ...`,
               onClick={resetBlindBox}
               title="Reset blindbox!"
             >
-              {(unboxedItem?.id === 'socratic-tlc' || unboxedItem?.id === 'great-hearts' || unboxedItem?.id === 'love-it-ecode' || unboxedItem?.id === 'many-happy-returns') ? (
+              {(unboxedItem?.id === 'worthwhile-wait' || unboxedItem?.id === 'middle-agers-wakeup' || unboxedItem?.id === 'socratic-tlc' || unboxedItem?.id === 'great-hearts' || unboxedItem?.id === 'love-it-ecode' || unboxedItem?.id === 'many-happy-returns') ? (
                 <div className="relative w-8 h-8 flex items-center justify-center">
                   {/* Glowing & Pulsing Heart Outer Glow */}
                   <div className="absolute inset-0 bg-rose-500/20 rounded-full animate-ping pointer-events-none" />
@@ -624,7 +657,7 @@ An Ouch! feeling just like when my Dr. renewed my Birth Cert, ...`,
                 <Gift className="w-6 h-6 text-amber-500 fill-amber-500/10 opacity-30 scale-75" />
               )}
               <div className="absolute inset-0 flex items-center justify-center text-lg filter drop-shadow">
-                {(unboxedItem?.id === 'socratic-tlc' || unboxedItem?.id === 'great-hearts' || unboxedItem?.id === 'love-it-ecode') ? (
+                {(unboxedItem?.id === 'worthwhile-wait' || unboxedItem?.id === 'middle-agers-wakeup' || unboxedItem?.id === 'socratic-tlc' || unboxedItem?.id === 'great-hearts' || unboxedItem?.id === 'love-it-ecode') ? (
                   <span className="text-[11px] -mt-0.5">{unboxedItem.emoji}</span>
                 ) : (
                   unboxedItem?.emoji || "🎁"
@@ -679,7 +712,7 @@ An Ouch! feeling just like when my Dr. renewed my Birth Cert, ...`,
               exit={{ opacity: 0, scale: 0.85, y: 15 }}
               transition={{ type: "spring", damping: 25, stiffness: 350 }}
               className={`absolute bottom-11 right-1/2 translate-x-1/2 md:translate-x-0 md:right-0 z-50 p-4 bg-white/95 dark:bg-stone-900/95 backdrop-blur-md border border-rose-200 dark:border-rose-950/60 rounded-2xl shadow-[0_12px_32px_rgba(244,63,94,0.18)] flex flex-col items-center text-center transition-all duration-300 ${
-                unboxedItem.id === 'socratic-tlc' || unboxedItem.id === 'many-happy-returns' ? 'w-[310px] sm:w-[350px]' : 'w-64'
+                unboxedItem.id === 'worthwhile-wait' || unboxedItem.id === 'middle-agers-wakeup' || unboxedItem.id === 'socratic-tlc' || unboxedItem.id === 'many-happy-returns' ? 'w-[310px] sm:w-[350px]' : 'w-64'
               }`}
             >
               {/* Decorative sparkle background */}
@@ -701,7 +734,7 @@ An Ouch! feeling just like when my Dr. renewed my Birth Cert, ...`,
               </span>
 
               {/* Glowing Emoji Reveal Circle / Heart Container */}
-              {(unboxedItem.id === 'socratic-tlc' || unboxedItem.id === 'great-hearts' || unboxedItem.id === 'love-it-ecode' || unboxedItem.id === 'many-happy-returns') ? (
+              {(unboxedItem.id === 'worthwhile-wait' || unboxedItem.id === 'middle-agers-wakeup' || unboxedItem.id === 'socratic-tlc' || unboxedItem.id === 'great-hearts' || unboxedItem.id === 'love-it-ecode' || unboxedItem.id === 'many-happy-returns') ? (
                 <div className="relative w-20 h-20 flex items-center justify-center mb-2.5">
                   {/* Outer pulsating heart glow */}
                   <div className="absolute inset-0 bg-rose-500/10 animate-ping pointer-events-none rounded-full" />
@@ -911,7 +944,7 @@ An Ouch! feeling just like when my Dr. renewed my Birth Cert, ...`,
               ) : unboxedItem.id === 'many-happy-returns' ? (
                 <div className="w-full my-3 px-3.5 py-4 bg-gradient-to-b from-rose-50/40 to-pink-50/20 dark:from-rose-950/10 dark:to-pink-950/5 border border-rose-150/40 dark:border-rose-950/30 rounded-2xl shadow-[inset_0_1px_2px_rgba(244,63,94,0.03)] select-text">
                   <p className="text-[9px] text-rose-500 dark:text-rose-400 font-sans font-extrabold tracking-widest uppercase mb-3 text-center">
-                    🎁 Happy WOAH WOAH 🎁
+                    🎁 Happy WOAH WOAH! 🎁
                   </p>
                   <p className="text-[10px] sm:text-[10.5px] text-stone-700 dark:text-stone-300 font-serif italic leading-relaxed whitespace-pre-line text-center antialiased">
                     {unboxedItem.description}

@@ -3,7 +3,7 @@ import path from "path";
 import dotenv from "dotenv";
 import { GoogleGenAI, Type } from "@google/genai";
 import { createServer as createViteServer } from "vite";
-import { testAlibabaCloudConnection, uploadToAlibabaOSS } from "./src/alibabaCloud";
+import { testAlibabaCloudConnection, uploadToAlibabaOSS, hasQwenCredentials, callQwenAPI } from "./src/alibabaCloud";
 
 dotenv.config();
 
@@ -848,7 +848,6 @@ app.post("/api/qwen/extract", async (req: any, res: any) => {
       return res.status(400).json({ error: "Missing transcript to extract." });
     }
 
-    const ai = getGenAI();
     const prompt = `You are the Qwen2.5-72B-Instruct semantic memory parser.
 Analyze the following raw conversation log / transcript and extract key personal memories, facts, preferences, relationships, and health conditions of the user.
 For each extracted memory, map it to one of the allowed categories: 'family' | 'preference' | 'health' | 'learning' | 'career' | 'landmark'.
@@ -862,8 +861,42 @@ Transcript:
 
 Provide:
 1. An array of extracted memory nodes.
-2. A list of step-by-step logs summarizing your cognitive parsing process (e.g. "Parsed entity 'Jane'...", "Scored 'Red Pills' with 90% strength...", "Linked 'Jane' to 'Family'").`;
+2. A list of step-by-step logs summarizing your cognitive parsing process (e.g. "Parsed entity 'Jane'...", "Scored 'Red Pills' with 90% strength...", "Linked 'Jane' to 'Family'").
 
+You must return a valid JSON object matching this schema:
+{
+  "extractedNodes": [
+    {
+      "label": "Short, highly descriptive label of the fact",
+      "category": "family" | "preference" | "health" | "learning" | "career" | "landmark",
+      "description": "Complete, natural sentence summary of the extracted fact",
+      "strength": 80,
+      "connections": []
+    }
+  ],
+  "logs": [
+    "Step-by-step cognitive extraction steps/logs"
+  ]
+}
+`;
+
+    if (hasQwenCredentials()) {
+      console.log("[Qwen Endpoint] Routing call to live Aliyun DashScope Qwen API...");
+      try {
+        const data = await callQwenAPI(prompt, true);
+        if (data && data.extractedNodes) {
+          data.logs = [
+            "🟢 [Model Studio: Qwen-Plus] Live Aliyun API call successful!",
+            ...(data.logs || [])
+          ];
+          return res.json(data);
+        }
+      } catch (qwenError: any) {
+        console.warn("[Qwen Endpoint] Live Aliyun Qwen API call failed, falling back to sandbox:", qwenError.message || qwenError);
+      }
+    }
+
+    const ai = getGenAI();
     const response = await ai.models.generateContent({
       model: "gemini-3.5-flash",
       contents: [{ parts: [{ text: prompt }] }],
@@ -903,6 +936,14 @@ Provide:
     });
 
     const data = JSON.parse(response.text || "{}");
+    
+    // Add instruction log about DASHSCOPE_API_KEY
+    data.logs = [
+      "⚠️ DASHSCOPE_API_KEY is not defined. Running on Gemini Sandbox fallback.",
+      "💡 Configure DASHSCOPE_API_KEY in Environment Secrets to activate live Alibaba Cloud Qwen pipelines.",
+      ...(data.logs || [])
+    ];
+    
     res.json(data);
   } catch (error: any) {
     console.warn("[Quota warning catch] Qwen extract error handled with high-fidelity fallback:", error.message || error);

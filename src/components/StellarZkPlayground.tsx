@@ -383,7 +383,7 @@ export default function StellarZkPlayground() {
         <div className="lg:col-span-5 flex flex-col gap-5">
           <div className="bg-white dark:bg-stone-850 p-5 rounded-2xl border border-stone-200/50 dark:border-stone-800/80 shadow-xs">
             <h3 className="text-xs font-black text-stone-800 dark:text-stone-200 uppercase tracking-wider mb-4 flex items-center gap-2 border-b border-stone-100 dark:border-stone-800 pb-2.5">
-              <Heart className="w-4 h-4 text-rose-500 animate-pulse" />
+              <Heart className="w-4 h-4 text-rose-500" />
               Craft Your Sealed Attestation
             </h3>
 

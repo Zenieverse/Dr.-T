@@ -11,7 +11,9 @@ import {
   Upload, 
   Send,
   RefreshCw,
-  Infinity as InfinityIcon
+  Infinity as InfinityIcon,
+  Wind,
+  Sparkles
 } from 'lucide-react';
 import { VOICES, VIBES } from '../constants';
 import { APPEARANCES } from './AvatarSettings';
@@ -67,9 +69,13 @@ interface CompanionHubProps {
   handleCustomFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   getSpeechBubbleText: (lang: string) => string;
   getIcebreakerText: (lang: string) => string;
+  showAmbientPlayer: boolean;
+  setShowAmbientPlayer: (show: boolean) => void;
 }
 
 export function CompanionHub({
+  showAmbientPlayer,
+  setShowAmbientPlayer,
   messages,
   vibe,
   voiceName,
@@ -121,9 +127,14 @@ export function CompanionHub({
 }: CompanionHubProps) {
   
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const isInitialMount = useRef(true);
 
   // Auto scroll to bottom when messages list updates
   useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isThinking]);
 
@@ -346,12 +357,8 @@ export function CompanionHub({
               <div className="flex items-center gap-1.5">
                 <div className="relative flex items-center justify-center">
                   <Heart 
-                    className="w-4 h-4 text-rose-500 fill-current shrink-0 animate-pulse" 
-                    style={{ 
-                      animationDuration: `${60 / getHeartRateValue()}s` 
-                    }} 
+                    className="w-4 h-4 text-rose-500 fill-current shrink-0" 
                   />
-                  <span className="absolute w-2 h-2 rounded-full bg-rose-400 opacity-75 animate-ping" />
                 </div>
                 <span className="text-[10px] font-mono font-bold tracking-wider text-stone-650 uppercase">
                   Live Wearable Bio-Sync
@@ -443,95 +450,105 @@ export function CompanionHub({
               </p>
             </div>
 
-            {/* Live Voice Agent Call Button */}
-            <button
-              type="button"
-              onClick={() => {
-                setIsVoiceAgentActive(true);
-                // Turn on autoSpeak to guarantee motherly voice reply
-                setAutoSpeak(true);
-              }}
-              className="mt-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 border border-emerald-400 rounded-2xl w-full text-xs font-extrabold text-white transition-all cursor-pointer shadow-md uppercase font-mono tracking-wider active:scale-98"
-              id="trigger-voice-agent-call-btn"
-            >
-              <PhoneCall className="w-3.5 h-3.5 animate-pulse" /> Live Voice Agent Call
-            </button>
+            {/* Premium Therapy & Communication Suite */}
+            <div className="w-full bg-stone-50/50 border border-stone-200/40 rounded-2xl p-4 flex flex-col gap-3 shadow-xs mt-3.5">
+              <div className="flex items-center justify-between">
+                <span className="text-[9px] font-mono font-black tracking-widest text-stone-400 uppercase flex items-center gap-1">
+                  <Sparkles className="w-3 h-3 text-rose-400 animate-pulse" /> THERAPY & SUITE HUB
+                </span>
+                <span className="text-[8px] font-mono font-bold text-stone-500 px-2 py-0.5 rounded-full bg-white border border-stone-100 uppercase">
+                  Motherly Care
+                </span>
+              </div>
 
-            {/* Dr. T Tab Button */}
-            <a
-              href="https://vocalbridgeai.com/shared/4ahTePkJBzlh0LQ1ndxolhqau3_hjYVfWWeM4-nwuhc?id=vb_YFqaOSEkoPlUix1yYWr2WVvSUN46YyQbJ6uk_5HGYeA&key=vb_YFqaOSEkoPlUix1yYWr2WVvSUN46YyQbJ6uk_5HGYeA&apiKey=vb_YFqaOSEkoPlUix1yYWr2WVvSUN46YyQbJ6uk_5HGYeA"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 border border-rose-400 rounded-2xl w-full text-xs font-extrabold text-white transition-all cursor-pointer shadow-md uppercase font-mono tracking-wider active:scale-98 text-center"
-              id="dr-t-vocal-link-tab"
-            >
-              <PhoneCall className="w-3.5 h-3.5" /> Dr. T
-            </a>
+              <div className="grid grid-cols-2 gap-2.5">
+                {/* Live Voice Agent Call */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsVoiceAgentActive(true);
+                    setAutoSpeak(true);
+                  }}
+                  className="flex flex-col items-center justify-between p-3.5 bg-white border border-stone-200/40 hover:border-emerald-300 hover:shadow-xs hover:shadow-emerald-500/5 hover:-translate-y-0.5 rounded-xl transition-all duration-300 cursor-pointer text-center group active:scale-97"
+                  id="trigger-voice-agent-call-btn"
+                >
+                  <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center mb-1.5 group-hover:scale-105 transition-transform duration-300">
+                    <PhoneCall className="w-4 h-4 animate-pulse" />
+                  </div>
+                  <div className="flex-1 flex flex-col justify-center">
+                    <span className="text-[11px] font-extrabold tracking-tight text-stone-850 uppercase font-sans">
+                      Agent Call
+                    </span>
+                    <span className="text-[8.5px] text-stone-400 mt-0.5 block font-mono font-semibold leading-none">
+                      LIVE INTERCOM
+                    </span>
+                  </div>
+                </button>
 
-            {/* Guided Breathing Trigger Button */}
-            <button
-              type="button"
-              onClick={startBreathingOverlay}
-              className="flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-rose-50/80 to-pink-50/80 hover:from-rose-100/90 hover:to-pink-100/90 border border-rose-100/80 rounded-2xl w-full text-xs font-bold text-rose-700 transition-all cursor-pointer shadow-xs uppercase font-mono tracking-wider active:scale-98"
-            >
-              🧘 Guided Breathing Exercise
-            </button>
+                {/* Dr. T Tab Button */}
+                <a
+                  href="https://vocalbridgeai.com/shared/4ahTePkJBzlh0LQ1ndxolhqau3_hjYVfWWeM4-nwuhc?id=vb_YFqaOSEkoPlUix1yYWr2WVvSUN46YyQbJ6uk_5HGYeA&key=vb_YFqaOSEkoPlUix1yYWr2WVvSUN46YyQbJ6uk_5HGYeA&apiKey=vb_YFqaOSEkoPlUix1yYWr2WVvSUN46YyQbJ6uk_5HGYeA"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex flex-col items-center justify-between p-3.5 bg-white border border-stone-200/40 hover:border-rose-300 hover:shadow-xs hover:shadow-rose-500/5 hover:-translate-y-0.5 rounded-xl transition-all duration-300 cursor-pointer text-center group active:scale-97 no-underline"
+                  id="dr-t-vocal-link-tab"
+                >
+                  <div className="w-10 h-10 rounded-full bg-rose-50 text-rose-500 flex items-center justify-center mb-1.5 group-hover:scale-105 transition-transform duration-300">
+                    <PhoneCall className="w-4 h-4" />
+                  </div>
+                  <div className="flex-1 flex flex-col justify-center">
+                    <span className="text-[11px] font-extrabold tracking-tight text-stone-850 uppercase font-sans">
+                      Dr. T
+                    </span>
+                    <span className="text-[8.5px] text-stone-400 mt-0.5 block font-mono font-semibold leading-none">
+                      VOCAL BRIDGE
+                    </span>
+                  </div>
+                </a>
+
+                {/* Guided Breathing */}
+                <button
+                  type="button"
+                  onClick={startBreathingOverlay}
+                  className="flex flex-col items-center justify-between p-3.5 bg-white border border-stone-200/40 hover:border-pink-300 hover:shadow-xs hover:shadow-pink-500/5 hover:-translate-y-0.5 rounded-xl transition-all duration-300 cursor-pointer text-center group active:scale-97"
+                >
+                  <div className="w-10 h-10 rounded-full bg-pink-50 text-pink-500 flex items-center justify-center mb-1.5 group-hover:scale-105 transition-transform duration-300">
+                    <Wind className="w-4 h-4" />
+                  </div>
+                  <div className="flex-1 flex flex-col justify-center">
+                    <span className="text-[11px] font-extrabold tracking-tight text-stone-850 uppercase font-sans">
+                      Breathing
+                    </span>
+                    <span className="text-[8.5px] text-stone-400 mt-0.5 block font-mono font-semibold leading-none">
+                      COHERENCE 🧘
+                    </span>
+                  </div>
+                </button>
+
+                {/* Dr. T Frequency Therapy */}
+                <button
+                  type="button"
+                  onClick={() => setShowAmbientPlayer(true)}
+                  className="flex flex-col items-center justify-between p-3.5 bg-white border border-stone-200/40 hover:border-amber-300 hover:shadow-xs hover:shadow-amber-500/5 hover:-translate-y-0.5 rounded-xl transition-all duration-300 cursor-pointer text-center group active:scale-97"
+                >
+                  <div className="w-10 h-10 rounded-full bg-amber-50 text-amber-500 flex items-center justify-center mb-1.5 group-hover:scale-105 transition-transform duration-300">
+                    <Headphones className="w-4 h-4 text-amber-600 animate-pulse" />
+                  </div>
+                  <div className="flex-1 flex flex-col justify-center">
+                    <span className="text-[11px] font-extrabold tracking-tight text-stone-850 uppercase font-sans">
+                      Therapy
+                    </span>
+                    <span className="text-[8.5px] text-stone-400 mt-0.5 block font-mono font-semibold leading-none">
+                      SOLFEGGIO 🔔
+                    </span>
+                  </div>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Real-time Emotional Intelligence detection meters */}
-        <div className="bg-white/80 border border-rose-100/70 rounded-3xl p-5 shadow-xs flex flex-col gap-3">
-          <span className="text-[10px] font-mono font-bold tracking-widest text-rose-550 uppercase flex items-center gap-1.5">
-            <Activity className="w-3.5 h-3.5 text-rose-500" /> EMOTIONAL INTELLIGENCE DETECTION
-          </span>
-          
-          <div className="flex flex-col gap-2.5 mt-1 text-xs">
-            {/* Stress */}
-            <div>
-              <div className="flex justify-between font-mono text-[9px] text-stone-500">
-                <span>STRESS ANALYSIS INDEX</span>
-                <span className="font-bold text-rose-600">{emotionMeter.stress}%</span>
-              </div>
-              <div className="w-full bg-stone-100 h-2 rounded-full overflow-hidden mt-1 relative">
-                <div className="absolute top-0 left-0 h-full bg-rose-500 transition-all duration-500" style={{ width: `${emotionMeter.stress}%` }} />
-              </div>
-            </div>
 
-            {/* Fatigue */}
-            <div>
-              <div className="flex justify-between font-mono text-[9px] text-stone-500">
-                <span>VIBRATIONAL FATIGUE LOG</span>
-                <span className="font-bold text-amber-600">{emotionMeter.fatigue}%</span>
-              </div>
-              <div className="w-full bg-stone-100 h-2 rounded-full overflow-hidden mt-1 relative">
-                <div className="absolute top-0 left-0 h-full bg-amber-500 transition-all duration-500" style={{ width: `${emotionMeter.fatigue}%` }} />
-              </div>
-            </div>
-
-            {/* Happiness */}
-            <div>
-              <div className="flex justify-between font-mono text-[9px] text-stone-500">
-                <span>SEROTONIN COMPOSURE STATS</span>
-                <span className="font-bold text-emerald-600">{emotionMeter.happiness}%</span>
-              </div>
-              <div className="w-full bg-stone-100 h-2 rounded-full overflow-hidden mt-1 relative">
-                <div className="absolute top-0 left-0 h-full bg-emerald-500 transition-all duration-500" style={{ width: `${emotionMeter.happiness}%` }} />
-              </div>
-            </div>
-
-            {/* Soul healing simulation button */}
-            <button
-              type="button"
-              onClick={() => {
-                setEmotionMeter({ stress: 10, fatigue: 15, happiness: 95 });
-                triggerEmojis('hug');
-              }}
-              className="mt-2.5 w-full py-2 bg-gradient-to-r from-emerald-50 to-teal-50 hover:from-emerald-100 hover:to-teal-100 text-emerald-700 border border-emerald-200/60 rounded-xl text-[10px] font-bold font-mono uppercase tracking-wider transition-all cursor-pointer shadow-xs flex items-center justify-center gap-1.5"
-            >
-              💖 Simulate Soul Healing (+95% Serotonin)
-            </button>
-          </div>
-        </div>
 
       </div> {/* Close Column A */}
 
