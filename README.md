@@ -139,7 +139,7 @@ A simulation of downstream API and system actions. Once a policy decision is fin
 
 Disclaimer: "Dr. T is an educational and decision-support platform and not a substitute for professional medical advice."
 
-Inspiration
+
 
 PREVENTING AUTONOMIC BURNOUT & FRAGMENTED CARE
 
