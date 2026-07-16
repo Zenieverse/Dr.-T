@@ -1,5 +1,7 @@
 Dr. T: World-Class Socratic Biomedical Informatics & Healthcare AI Platform
 
+https://tree-nation.com/trees/9421595/view
+
 https://ai.studio/apps/2e1619d9-9932-4538-9b6c-26b489ebfec2?fullscreenApplet=true
 
 Inspiration:
