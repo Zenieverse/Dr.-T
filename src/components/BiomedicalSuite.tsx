@@ -4,7 +4,7 @@ import {
   Heart, Activity, ClipboardList, ShieldAlert, Award, FileSpreadsheet, 
   Search, FileText, Camera, Users, Zap, BookOpen, User, Eye, 
   Upload, Download, CheckCircle, AlertTriangle, Code, ArrowRight,
-  Database, RefreshCw, Layers, ShieldCheck, HelpCircle, Flame, Calendar
+  Database, RefreshCw, Layers, ShieldCheck, HelpCircle, Flame, Calendar, Baby, Stethoscope
 } from 'lucide-react';
 
 interface TerminologyCode {
@@ -95,6 +95,7 @@ export const SUITE_TRANSLATIONS: Record<string, Record<string, string>> = {
     wellness_coach: "Wellness Coach",
     research_paper_lab: "Research Paper Lab",
     mimic_iv_icu: "MIMIC-IV ICU",
+    obgyn_care: "OB/GYN Care Navigator",
     swarm_orchestrator: "Swarm Orchestrator",
     educational_disclaimer: "Educational Protocol: Dr. T is an educational and decision-support platform and not a substitute for professional medical advice.",
     fhir_desc: "Dr. T possesses advanced HL7 FHIR Interoperability pipelines. Review code-ready FHIR JSON modules, import/load precalculated clinical definitions, and run strict syntax validation checks.",
@@ -124,6 +125,7 @@ export const SUITE_TRANSLATIONS: Record<string, Record<string, string>> = {
     wellness_coach: "Coach de Santé",
     research_paper_lab: "Labo d'Articles",
     mimic_iv_icu: "USI MIMIC-IV",
+    obgyn_care: "Navigateur gynéco-obstétrique",
     swarm_orchestrator: "Orchestrateur Clinique",
     educational_disclaimer: "Protocole Éducatif: Dr. T est une plateforme d'apprentissage et de support clinique, non un substitut d'avis médical.",
     fhir_desc: "Dr. T possède des pipelines d’interopérabilité HL7 FHIR avancés. Examinez les modules JSON FHIR, importez/chargez des définitions cliniques pré-calculées et lancez des examens de validation stricts.",
@@ -153,6 +155,7 @@ export const SUITE_TRANSLATIONS: Record<string, Record<string, string>> = {
     wellness_coach: "Luyện Tập Sức Khỏe",
     research_paper_lab: "Nghiên Cứu Y Văn",
     mimic_iv_icu: "Hồi Sức MIMIC-IV",
+    obgyn_care: "Điều hướng Sản Phụ Khoa",
     swarm_orchestrator: "Đội Ngũ Đa Tác Nhân",
     educational_disclaimer: "Quy chuẩn Giáo dục: Dr. T là một hệ thống hỗ trợ giáo dục và quyết định lâm sàng, không thay thế chẩn đoán y khoa chuyên nghiệp.",
     fhir_desc: "Dr. T sở hữu các quy trình liên thông HL7 FHIR tiên tiến. Kiểm tra các module JSON FHIR sẵn sàng cho mã hóa, nhập/tải các định nghĩa lâm sàng và chạy kiểm tra cú pháp nghiêm ngặt.",
@@ -175,8 +178,8 @@ export const SUITE_TRANSLATIONS: Record<string, Record<string, string>> = {
 
 export const BiomedicalSuite: React.FC<{
   language?: string;
-  activeSubTab?: 'patient' | 'fhir' | 'analytics' | 'summarizer' | 'imaging' | 'population' | 'coach' | 'lab' | 'mimic' | 'orchestrator';
-  onSubTabChange?: (tab: 'patient' | 'fhir' | 'analytics' | 'summarizer' | 'imaging' | 'population' | 'coach' | 'lab' | 'mimic' | 'orchestrator') => void;
+  activeSubTab?: 'patient' | 'obgyn' | 'fhir' | 'analytics' | 'summarizer' | 'imaging' | 'population' | 'coach' | 'lab' | 'mimic' | 'orchestrator';
+  onSubTabChange?: (tab: 'patient' | 'obgyn' | 'fhir' | 'analytics' | 'summarizer' | 'imaging' | 'population' | 'coach' | 'lab' | 'mimic' | 'orchestrator') => void;
   onUpdateHeartRate?: (newBpm: number) => void;
 }> = ({ language = 'English', activeSubTab: controlledSubTab, onSubTabChange, onUpdateHeartRate }) => {
   const selectedLang = ['English', 'French', 'Vietnamese'].includes(language) ? language : 'English';
@@ -185,11 +188,11 @@ export const BiomedicalSuite: React.FC<{
     return SUITE_TRANSLATIONS[selectedLang]?.[key] || fallback;
   };
 
-  const [localActiveSubTab, setLocalActiveSubTab] = useState<'patient' | 'fhir' | 'analytics' | 'summarizer' | 'imaging' | 'population' | 'coach' | 'lab' | 'mimic' | 'orchestrator'>('patient');
+  const [localActiveSubTab, setLocalActiveSubTab] = useState<'patient' | 'obgyn' | 'fhir' | 'analytics' | 'summarizer' | 'imaging' | 'population' | 'coach' | 'lab' | 'mimic' | 'orchestrator'>('patient');
 
   const activeSubTab = controlledSubTab !== undefined ? controlledSubTab : localActiveSubTab;
   
-  const setActiveSubTab = (tab: 'patient' | 'fhir' | 'analytics' | 'summarizer' | 'imaging' | 'population' | 'coach' | 'lab' | 'mimic' | 'orchestrator') => {
+  const setActiveSubTab = (tab: 'patient' | 'obgyn' | 'fhir' | 'analytics' | 'summarizer' | 'imaging' | 'population' | 'coach' | 'lab' | 'mimic' | 'orchestrator') => {
     if (onSubTabChange) {
       onSubTabChange(tab);
     } else {
@@ -578,6 +581,7 @@ export const BiomedicalSuite: React.FC<{
           <div className="flex flex-row md:flex-col overflow-x-auto md:overflow-x-visible gap-1 pb-2 md:pb-0" id="portal-subnav-list">
             {[
               { id: 'patient', label: 'Patient Chart', translationKey: 'patient_chart', icon: User },
+              { id: 'obgyn', label: 'OB/GYN Care Navigator', translationKey: 'obgyn_care', icon: Baby },
               { id: 'fhir', label: 'HL7 FHIR Interop', translationKey: 'fhir_interop', icon: Code },
               { id: 'analytics', label: 'EHR Data Mining', translationKey: 'ehr_data_mining', icon: FileSpreadsheet },
               { id: 'summarizer', label: 'SOAP Note AI', translationKey: 'soap_note_ai', icon: ClipboardList },
@@ -626,10 +630,11 @@ export const BiomedicalSuite: React.FC<{
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-4 border-b border-stone-100 mb-6">
           <div>
             <span className="text-[10px] font-mono font-extrabold text-[#e11d48] uppercase tracking-widest bg-rose-50/80 px-2.5 py-1 rounded-full border border-rose-100/60">
-              Module {activeSubTab === 'patient' ? '3' : activeSubTab === 'fhir' ? '4' : activeSubTab === 'analytics' ? '5' : activeSubTab === 'summarizer' ? '6' : activeSubTab === 'imaging' ? '7' : activeSubTab === 'population' ? '8' : activeSubTab === 'coach' ? '9' : activeSubTab === 'lab' ? '10' : activeSubTab === 'mimic' ? '11' : '12'} • Active Pipeline
+              Module {activeSubTab === 'patient' ? '3' : activeSubTab === 'obgyn' ? '4' : activeSubTab === 'fhir' ? '5' : activeSubTab === 'analytics' ? '6' : activeSubTab === 'summarizer' ? '7' : activeSubTab === 'imaging' ? '8' : activeSubTab === 'population' ? '9' : activeSubTab === 'coach' ? '10' : activeSubTab === 'lab' ? '11' : activeSubTab === 'mimic' ? '12' : '13'} • Active Pipeline
             </span>
             <h3 className="font-display font-black text-2xl text-stone-900 capitalize tracking-tight mt-1.5 flex items-center gap-2">
               {activeSubTab === 'patient' && 'Patient EHR Chart & Wearable Telemetry'}
+              {activeSubTab === 'obgyn' && 'OB/GYN Maternal Care Navigator'}
               {activeSubTab === 'fhir' && 'HL7 FHIR Interoperability Suite'}
               {activeSubTab === 'analytics' && 'Health Data Analytics & Forecasting'}
               {activeSubTab === 'summarizer' && 'AI Clinical Document SOAP Compiler'}
@@ -953,6 +958,124 @@ export const BiomedicalSuite: React.FC<{
                   </button>
                 </div>
               </div>
+            </div>
+          </div>
+        )}
+
+
+        {/* OB/GYN MATERNAL CARE NAVIGATOR */}
+        {activeSubTab === 'obgyn' && (
+          <div className="flex flex-col gap-6 animate-fadeIn" id="pane-obgyn-navigator">
+            <div className="bg-gradient-to-br from-pink-50 via-white to-rose-50 border border-pink-100 rounded-3xl p-5 shadow-xs">
+              <div className="flex flex-col lg:flex-row justify-between gap-4">
+                <div>
+                  <span className="text-[10px] font-mono font-black text-pink-600 uppercase tracking-wider block">Full-spectrum reproductive health operating system</span>
+                  <h4 className="font-display font-black text-xl text-stone-900 flex items-center gap-2 mt-1">
+                    <Baby className="w-6 h-6 text-pink-500" /> Obstetrics, gynecology, fertility, and postpartum command center
+                  </h4>
+                  <p className="text-xs text-stone-600 leading-relaxed mt-2 max-w-3xl">
+                    A configurable OB/GYN cockpit for education, documentation rehearsal, and clinician decision-support demos: prenatal care gaps, urgent symptom triage, fetal movement logging, gynecologic screening, fertility-cycle planning, menopause support, postpartum continuity, and FHIR-ready handoff snippets.
+                  </p>
+                </div>
+                <div className="grid grid-cols-3 gap-2 min-w-[280px]">
+                  {[{label:'GA', value:'28w 4d'}, {label:'EDD', value:'Oct 6'}, {label:'Risk', value:'Moderate'}].map(item => (
+                    <div key={item.label} className="bg-white border border-pink-100 rounded-2xl p-3 text-center">
+                      <span className="text-[9px] font-mono font-black text-stone-400 uppercase block">{item.label}</span>
+                      <span className="text-sm font-black text-stone-850">{item.value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+              {[
+                { title: 'Prenatal care', icon: ClipboardList, metric: '4 care gaps', items: ['BP + urine protein review', 'Glucose screen follow-up', 'Tdap due at 30 weeks'] },
+                { title: 'Labor triage', icon: ShieldAlert, metric: '3 red flags', items: ['Reduced fetal movement pathway', 'Bleeding or fluid leakage script', 'Severe headache escalation'] },
+                { title: 'Gynecology', icon: Stethoscope, metric: 'Screening due', items: ['Pap/HPV interval planner', 'AUB symptom timeline', 'Pelvic pain intake prompts'] },
+                { title: 'Postpartum', icon: Heart, metric: '6-week plan', items: ['Mood screen schedule', 'Lactation support handoff', 'Pelvic floor recovery tracker'] }
+              ].map((card) => {
+                const Icon = card.icon;
+                return (
+                  <div key={card.title} className="bg-white border border-stone-200 rounded-3xl p-5 shadow-xs">
+                    <div className="flex items-start justify-between gap-3 mb-3">
+                      <h4 className="font-black text-stone-850 text-sm flex items-center gap-2"><Icon className="w-5 h-5 text-rose-500" /> {card.title}</h4>
+                      <span className="text-[9px] bg-pink-50 text-pink-700 border border-pink-100 rounded-full px-2 py-1 font-black uppercase">{card.metric}</span>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      {card.items.map(item => (
+                        <div key={item} className="flex items-start gap-2 p-2.5 bg-stone-50 border border-stone-100 rounded-xl">
+                          <CheckCircle className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                          <span className="text-xs font-semibold text-stone-650 leading-snug">{item}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+              <div className="bg-white border border-stone-200 rounded-3xl p-5 shadow-xs xl:col-span-2">
+                <h4 className="font-black text-stone-850 text-sm flex items-center gap-2 mb-4"><Calendar className="w-5 h-5 text-pink-500" /> Pregnancy timeline, fetal movement, and visit readiness</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-3">
+                    {[
+                      { week: '12w', label: 'Dating ultrasound + initial labs', done: true },
+                      { week: '20w', label: 'Anatomy scan documentation review', done: true },
+                      { week: '28w', label: 'Glucose, CBC, antibody screen, kick-count education', done: false },
+                      { week: '36w', label: 'GBS swab + birth preferences handoff', done: false }
+                    ].map(step => (
+                      <div key={step.week} className="flex items-center gap-3">
+                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black text-xs ${step.done ? 'bg-emerald-100 text-emerald-700' : 'bg-pink-100 text-pink-700'}`}>{step.week}</div>
+                        <div className="flex-1 border-b border-stone-100 pb-3">
+                          <span className="text-sm font-bold text-stone-800 block">{step.label}</span>
+                          <span className="text-[10px] font-mono text-stone-400 uppercase">{step.done ? 'Completed in chart' : 'Upcoming care gap'}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    {[{ label: 'Fetal HR', value: '145 bpm', note: 'Within demo range' }, { label: 'Kick count', value: '10 / 42 min', note: 'Movement log ready' }, { label: 'Fundal height', value: '28 cm', note: 'Matches GA demo' }, { label: 'BP trend', value: '126/78', note: 'No alert in sample' }].map(item => (
+                      <div key={item.label} className="bg-pink-50/60 border border-pink-100 rounded-2xl p-3">
+                        <span className="text-[9px] font-mono font-black text-pink-700 uppercase block">{item.label}</span>
+                        <span className="text-lg font-black text-stone-900 block">{item.value}</span>
+                        <span className="text-[10px] text-stone-500 font-medium">{item.note}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-stone-950 text-white border border-stone-850 rounded-3xl p-5 shadow-xs">
+                <h4 className="font-black text-white text-sm flex items-center gap-2 mb-4"><Stethoscope className="w-5 h-5 text-pink-300" /> FHIR-ready OB handoff summary</h4>
+                <pre className="text-[10px] leading-relaxed whitespace-pre-wrap bg-black/30 rounded-2xl p-4 border border-stone-800 text-emerald-300 font-mono">{`Observation: gravida 2 para 1, gestational age 28w4d\nVitals: BP 126/78, fetal HR 145 bpm, fundal height 28 cm\nEducation: kick counts, preeclampsia warning signs, hydration\nNext: growth review, Tdap, glucose screen follow-up`}</pre>
+                <button onClick={() => showToast('OB/GYN handoff copied into simulated clinical queue.', 'success')} className="mt-4 w-full bg-pink-600 hover:bg-pink-700 text-white rounded-xl py-2.5 text-xs font-black uppercase tracking-wider cursor-pointer">Queue OB Handoff</button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+              {[
+                { title: 'Fertility & cycle intelligence', detail: 'Tracks cycle day, ovulation window, luteal symptoms, medication reminders, and assisted-reproduction milestones for coaching demos.', badges: ['Cycle day 14', 'LH surge logged', 'IUI consult ready'] },
+                { title: 'Preventive gynecology', detail: 'Aggregates Pap/HPV intervals, STI screening prompts, breast-health reminders, vaccination status, and abnormal bleeding intake questions.', badges: ['HPV co-test due', 'STI panel optional', 'AUB timeline'] },
+                { title: 'Menopause & pelvic health', detail: 'Supports hot-flash diaries, sleep/mood correlation, genitourinary symptoms, bone-health prompts, and pelvic floor referral tracking.', badges: ['VMS diary', 'DEXA prompt', 'Pelvic PT'] }
+              ].map(module => (
+                <div key={module.title} className="bg-white border border-stone-200 rounded-3xl p-5 shadow-xs">
+                  <span className="text-[10px] font-mono font-black text-rose-600 uppercase tracking-wider">Expanded OB/GYN module</span>
+                  <h4 className="font-black text-stone-850 text-sm mt-1 mb-2">{module.title}</h4>
+                  <p className="text-xs text-stone-600 leading-relaxed mb-3">{module.detail}</p>
+                  <div className="flex flex-wrap gap-2">
+                    {module.badges.map(badge => <span key={badge} className="text-[10px] bg-stone-50 border border-stone-200 text-stone-650 rounded-full px-2.5 py-1 font-bold">{badge}</span>)}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="bg-amber-50 border border-amber-200 rounded-3xl p-4 flex items-start gap-3">
+              <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+              <p className="text-xs text-amber-900 leading-relaxed font-medium">
+                Clinical safety layer: this module is built for education, documentation rehearsal, and care-navigation support. Urgent pregnancy symptoms, acute pelvic pain, heavy bleeding, or suicidal thoughts should route to licensed clinicians or emergency care according to local protocols.
+              </p>
             </div>
           </div>
         )}
