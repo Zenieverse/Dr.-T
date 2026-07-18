@@ -24,6 +24,196 @@ Predictive ICU Diagnostics: Built for intensive care specialists and analysts, o
 
 V. 2.9.1 Integrated: Robotics enhances Dr. T by turning it from an advisory healthcare AI platform into an action-capable clinical automation layer. In the codebase, “robotics” is mainly represented through UiPath unattended software robots / RPA, not physical robots. These robots connect Dr. T’s Socratic AI, clinical documentation, FHIR data structures, predictive analytics, and enterprise healthcare systems.
 
+V. 2.9.1 Integrated Robotics 
+
+# Project Name
+
+> Robotics enhances Dr. T platform
+
+## Overview
+
+This project was built using OpenAI Codextogether with GPT-5.6. Codex was used as the primary AI software engineering agent to generate, refactor, debug, and test code, while GPT-5.6 was used for architectural reasoning, feature design, documentation, and code review.
+
+---
+
+# Tech Stack
+
+- Language: <Python / JavaScript / TypeScript / etc.>
+- Framework: <Next.js / React / FastAPI / etc.>
+- Database: <if applicable>
+- AI: OpenAI Codex + GPT-5.6
+
+---
+
+# Prerequisites
+
+- Git
+- Node.js 20+ (or your project's required version)
+- npm / pnpm / yarn
+- OpenAI Codex
+- ChatGPT account with Codex access (or API credentials)
+
+---
+
+# Setup
+
+## 1. Clone the repository
+
+```bash
+git clone https://github.com/<username>/<repo>.git
+
+cd <repo>
+```
+
+## 2. Install dependencies
+
+```bash
+npm install
+```
+
+or
+
+```bash
+pnpm install
+```
+
+---
+
+## 3. Configure environment
+
+Create a `.env.local` file.
+
+Example:
+
+```env
+API_KEY=your_api_key
+DATABASE_URL=your_database_url
+```
+
+Fill in the remaining environment variables as required by your deployment.
+
+---
+
+## 4. Run locally
+
+```bash
+npm run dev
+```
+
+Open:
+
+```
+http://localhost:3000
+```
+
+---
+
+## 5. Build
+
+```bash
+npm run build
+```
+
+---
+
+## 6. Run tests
+
+```bash
+npm test
+```
+
+---
+
+# Using Codex
+
+The project was developed using **OpenAI Codex** as an AI coding agent.
+
+Typical workflow:
+
+1. Open the repository in Codex.
+2. Describe the desired feature or bug.
+3. Review the implementation proposed by Codex.
+4. Run tests.
+5. Iterate until all checks pass.
+6. Commit the validated changes.
+
+Codex accelerated development by:
+
+- generating production-ready code
+- implementing new features
+- fixing bugs
+- refactoring existing modules
+- creating unit tests
+- explaining unfamiliar code
+- producing documentation
+
+---
+
+# How GPT-5.6 Was Used
+
+GPT-5.6 complemented Codex throughout development by assisting with:
+
+- solution architecture
+- API design
+- implementation planning
+- debugging complex issues
+- documentation generation
+- README improvements
+- code review
+- performance optimization
+- prompt refinement
+- feature prioritization
+
+The overall workflow was:
+
+```
+Idea
+    ↓
+GPT-5.6
+(architecture & planning)
+    ↓
+Codex
+(code implementation)
+    ↓
+GPT-5.6
+(review & refinement)
+    ↓
+Testing
+    ↓
+Final application
+```
+
+This combination reduced development time while maintaining code quality through iterative AI-assisted development.
+
+---
+
+# Project Structure
+
+```
+src/
+components/
+pages/
+public/
+tests/
+README.md
+```
+
+---
+
+# Available Scripts
+
+```bash
+npm run dev
+npm run build
+npm run start
+npm test
+```
+
+---
+
+# License
+
+MIT
 
 V. 2.9 Added OB/GYN Care Navigator 
 
