@@ -22,6 +22,9 @@ Interoperability & Standards Compliance: Made for health IT professionals who re
 
 Predictive ICU Diagnostics: Built for intensive care specialists and analysts, offering predictive calculations (Length-of-Stay, mortality, readmission risk) powered by clinical equations derived from Harvard's MIMIC-IV datasets.
 
+V. 2.9.1 Integrated: Robotics enhances Dr. T by turning it from an advisory healthcare AI platform into an action-capable clinical automation layer. In the codebase, “robotics” is mainly represented through UiPath unattended software robots / RPA, not physical robots. These robots connect Dr. T’s Socratic AI, clinical documentation, FHIR data structures, predictive analytics, and enterprise healthcare systems.
+
+
 V. 2.9 Added OB/GYN Care Navigator 
 
 V. 2.8 
