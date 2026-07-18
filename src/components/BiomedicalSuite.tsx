@@ -969,12 +969,12 @@ export const BiomedicalSuite: React.FC<{
             <div className="bg-gradient-to-br from-pink-50 via-white to-rose-50 border border-pink-100 rounded-3xl p-5 shadow-xs">
               <div className="flex flex-col lg:flex-row justify-between gap-4">
                 <div>
-                  <span className="text-[10px] font-mono font-black text-pink-600 uppercase tracking-wider block">Longitudinal maternal pathway</span>
+                  <span className="text-[10px] font-mono font-black text-pink-600 uppercase tracking-wider block">Full-spectrum reproductive health operating system</span>
                   <h4 className="font-display font-black text-xl text-stone-900 flex items-center gap-2 mt-1">
-                    <Baby className="w-6 h-6 text-pink-500" /> Pregnancy, gynecology, and postpartum command center
+                    <Baby className="w-6 h-6 text-pink-500" /> Obstetrics, gynecology, fertility, and postpartum command center
                   </h4>
                   <p className="text-xs text-stone-600 leading-relaxed mt-2 max-w-3xl">
-                    A configurable OB/GYN cockpit for education, documentation rehearsal, and clinician decision-support demos: gestational timeline, prenatal checklist, symptom triage cues, fetal movement logging, postpartum mood screening, and FHIR-ready handoff snippets.
+                    A configurable OB/GYN cockpit for education, documentation rehearsal, and clinician decision-support demos: prenatal care gaps, urgent symptom triage, fetal movement logging, gynecologic screening, fertility-cycle planning, menopause support, postpartum continuity, and FHIR-ready handoff snippets.
                   </p>
                 </div>
                 <div className="grid grid-cols-3 gap-2 min-w-[280px]">
@@ -988,16 +988,20 @@ export const BiomedicalSuite: React.FC<{
               </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
               {[
-                { title: 'Prenatal checklist', icon: ClipboardList, tone: 'rose', items: ['BP + urine protein review', 'Glucose screen completed', 'Tdap due at 30 weeks', 'Rh status verified'] },
-                { title: 'Smart triage cues', icon: ShieldAlert, tone: 'amber', items: ['Severe headache escalation', 'Reduced fetal movement protocol', 'Bleeding or fluid leakage pathway', 'Hypertension warning education'] },
-                { title: 'Postpartum continuity', icon: Heart, tone: 'teal', items: ['Mood screen at 2 and 6 weeks', 'Lactation support plan', 'Contraception counseling prompt', 'Pelvic floor recovery tracker'] }
+                { title: 'Prenatal care', icon: ClipboardList, metric: '4 care gaps', items: ['BP + urine protein review', 'Glucose screen follow-up', 'Tdap due at 30 weeks'] },
+                { title: 'Labor triage', icon: ShieldAlert, metric: '3 red flags', items: ['Reduced fetal movement pathway', 'Bleeding or fluid leakage script', 'Severe headache escalation'] },
+                { title: 'Gynecology', icon: Stethoscope, metric: 'Screening due', items: ['Pap/HPV interval planner', 'AUB symptom timeline', 'Pelvic pain intake prompts'] },
+                { title: 'Postpartum', icon: Heart, metric: '6-week plan', items: ['Mood screen schedule', 'Lactation support handoff', 'Pelvic floor recovery tracker'] }
               ].map((card) => {
                 const Icon = card.icon;
                 return (
                   <div key={card.title} className="bg-white border border-stone-200 rounded-3xl p-5 shadow-xs">
-                    <h4 className="font-black text-stone-850 text-sm flex items-center gap-2 mb-3"><Icon className="w-5 h-5 text-rose-500" /> {card.title}</h4>
+                    <div className="flex items-start justify-between gap-3 mb-3">
+                      <h4 className="font-black text-stone-850 text-sm flex items-center gap-2"><Icon className="w-5 h-5 text-rose-500" /> {card.title}</h4>
+                      <span className="text-[9px] bg-pink-50 text-pink-700 border border-pink-100 rounded-full px-2 py-1 font-black uppercase">{card.metric}</span>
+                    </div>
                     <div className="flex flex-col gap-2">
                       {card.items.map(item => (
                         <div key={item} className="flex items-start gap-2 p-2.5 bg-stone-50 border border-stone-100 rounded-xl">
@@ -1011,24 +1015,35 @@ export const BiomedicalSuite: React.FC<{
               })}
             </div>
 
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-              <div className="bg-white border border-stone-200 rounded-3xl p-5 shadow-xs">
-                <h4 className="font-black text-stone-850 text-sm flex items-center gap-2 mb-4"><Calendar className="w-5 h-5 text-pink-500" /> Trimester timeline and visit readiness</h4>
-                <div className="space-y-3">
-                  {[
-                    { week: '12w', label: 'Dating ultrasound + initial labs', done: true },
-                    { week: '20w', label: 'Anatomy scan documentation review', done: true },
-                    { week: '28w', label: 'Glucose, CBC, antibody screen, kick-count education', done: false },
-                    { week: '36w', label: 'GBS swab + birth preferences handoff', done: false }
-                  ].map(step => (
-                    <div key={step.week} className="flex items-center gap-3">
-                      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black text-xs ${step.done ? 'bg-emerald-100 text-emerald-700' : 'bg-pink-100 text-pink-700'}`}>{step.week}</div>
-                      <div className="flex-1 border-b border-stone-100 pb-3">
-                        <span className="text-sm font-bold text-stone-800 block">{step.label}</span>
-                        <span className="text-[10px] font-mono text-stone-400 uppercase">{step.done ? 'Completed in chart' : 'Upcoming care gap'}</span>
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+              <div className="bg-white border border-stone-200 rounded-3xl p-5 shadow-xs xl:col-span-2">
+                <h4 className="font-black text-stone-850 text-sm flex items-center gap-2 mb-4"><Calendar className="w-5 h-5 text-pink-500" /> Pregnancy timeline, fetal movement, and visit readiness</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-3">
+                    {[
+                      { week: '12w', label: 'Dating ultrasound + initial labs', done: true },
+                      { week: '20w', label: 'Anatomy scan documentation review', done: true },
+                      { week: '28w', label: 'Glucose, CBC, antibody screen, kick-count education', done: false },
+                      { week: '36w', label: 'GBS swab + birth preferences handoff', done: false }
+                    ].map(step => (
+                      <div key={step.week} className="flex items-center gap-3">
+                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black text-xs ${step.done ? 'bg-emerald-100 text-emerald-700' : 'bg-pink-100 text-pink-700'}`}>{step.week}</div>
+                        <div className="flex-1 border-b border-stone-100 pb-3">
+                          <span className="text-sm font-bold text-stone-800 block">{step.label}</span>
+                          <span className="text-[10px] font-mono text-stone-400 uppercase">{step.done ? 'Completed in chart' : 'Upcoming care gap'}</span>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    {[{ label: 'Fetal HR', value: '145 bpm', note: 'Within demo range' }, { label: 'Kick count', value: '10 / 42 min', note: 'Movement log ready' }, { label: 'Fundal height', value: '28 cm', note: 'Matches GA demo' }, { label: 'BP trend', value: '126/78', note: 'No alert in sample' }].map(item => (
+                      <div key={item.label} className="bg-pink-50/60 border border-pink-100 rounded-2xl p-3">
+                        <span className="text-[9px] font-mono font-black text-pink-700 uppercase block">{item.label}</span>
+                        <span className="text-lg font-black text-stone-900 block">{item.value}</span>
+                        <span className="text-[10px] text-stone-500 font-medium">{item.note}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
 
@@ -1037,6 +1052,30 @@ export const BiomedicalSuite: React.FC<{
                 <pre className="text-[10px] leading-relaxed whitespace-pre-wrap bg-black/30 rounded-2xl p-4 border border-stone-800 text-emerald-300 font-mono">{`Observation: gravida 2 para 1, gestational age 28w4d\nVitals: BP 126/78, fetal HR 145 bpm, fundal height 28 cm\nEducation: kick counts, preeclampsia warning signs, hydration\nNext: growth review, Tdap, glucose screen follow-up`}</pre>
                 <button onClick={() => showToast('OB/GYN handoff copied into simulated clinical queue.', 'success')} className="mt-4 w-full bg-pink-600 hover:bg-pink-700 text-white rounded-xl py-2.5 text-xs font-black uppercase tracking-wider cursor-pointer">Queue OB Handoff</button>
               </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+              {[
+                { title: 'Fertility & cycle intelligence', detail: 'Tracks cycle day, ovulation window, luteal symptoms, medication reminders, and assisted-reproduction milestones for coaching demos.', badges: ['Cycle day 14', 'LH surge logged', 'IUI consult ready'] },
+                { title: 'Preventive gynecology', detail: 'Aggregates Pap/HPV intervals, STI screening prompts, breast-health reminders, vaccination status, and abnormal bleeding intake questions.', badges: ['HPV co-test due', 'STI panel optional', 'AUB timeline'] },
+                { title: 'Menopause & pelvic health', detail: 'Supports hot-flash diaries, sleep/mood correlation, genitourinary symptoms, bone-health prompts, and pelvic floor referral tracking.', badges: ['VMS diary', 'DEXA prompt', 'Pelvic PT'] }
+              ].map(module => (
+                <div key={module.title} className="bg-white border border-stone-200 rounded-3xl p-5 shadow-xs">
+                  <span className="text-[10px] font-mono font-black text-rose-600 uppercase tracking-wider">Expanded OB/GYN module</span>
+                  <h4 className="font-black text-stone-850 text-sm mt-1 mb-2">{module.title}</h4>
+                  <p className="text-xs text-stone-600 leading-relaxed mb-3">{module.detail}</p>
+                  <div className="flex flex-wrap gap-2">
+                    {module.badges.map(badge => <span key={badge} className="text-[10px] bg-stone-50 border border-stone-200 text-stone-650 rounded-full px-2.5 py-1 font-bold">{badge}</span>)}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="bg-amber-50 border border-amber-200 rounded-3xl p-4 flex items-start gap-3">
+              <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+              <p className="text-xs text-amber-900 leading-relaxed font-medium">
+                Clinical safety layer: this module is built for education, documentation rehearsal, and care-navigation support. Urgent pregnancy symptoms, acute pelvic pain, heavy bleeding, or suicidal thoughts should route to licensed clinicians or emergency care according to local protocols.
+              </p>
             </div>
           </div>
         )}
