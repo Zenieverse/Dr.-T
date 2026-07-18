@@ -45,7 +45,7 @@ export function UiPathOrchestrator({ onUnlockAchievement }: UiPathOrchestratorPr
   const [priorityLevel, setPriorityLevel] = useState<'Routine' | 'Urgent' | 'Stat'>('Routine');
   const [logs, setLogs] = useState<string[]>([]);
   const [completedJobsCount, setCompletedJobsCount] = useState(0);
-  const [viewMode, setViewMode] = useState<'console' | 'benchmarks' | 'technologies' | 'roadmap'>('console');
+  const [viewMode, setViewMode] = useState<'console' | 'benchmarks' | 'technologies' | 'robotics' | 'roadmap'>('console');
   const [isBenchmarking, setIsBenchmarking] = useState(false);
   const [benchmarkProgress, setBenchmarkProgress] = useState(0);
   const [benchmarkLogs, setBenchmarkLogs] = useState<string[]>([]);
@@ -133,6 +133,37 @@ export function UiPathOrchestrator({ onUnlockAchievement }: UiPathOrchestratorPr
     { label: "Data Integrity Validation", desc: "Analyzing target interface fields for structural anomalies." },
     { label: "System Sync and Auditing", desc: "Committing transactional changes directly with Epic/Cerner endpoints." },
     { label: "Completion and Callback", desc: "Broadcasting successful handshake reports to the Dr. T control plane." }
+  ];
+
+
+  const roboticsCapabilities = [
+    {
+      title: "Care Navigation Robot",
+      metric: "42% faster intake",
+      description: "Turns Dr. T voice consultations into queued follow-up tasks, appointment prep packets, and validated EHR intake updates."
+    },
+    {
+      title: "Ambient Vitals Robot",
+      metric: "24/7 signal watch",
+      description: "Normalizes smartwatch, sleep, hydration, HRV, and activity streams into safe FHIR-ready observations for longitudinal coaching."
+    },
+    {
+      title: "Critical Escalation Robot",
+      metric: "Sub-second triage",
+      description: "Routes high-risk analytics events into pager-style notifications, summaries, and clinician review queues with audit trails."
+    },
+    {
+      title: "Document Understanding Robot",
+      metric: "OCR to HL7",
+      description: "Extracts scanned prescriptions, referral letters, and lab reports into structured metadata before clinician signoff."
+    }
+  ];
+
+  const roboticsGuardrails = [
+    "Human-in-the-loop approval before clinical orders, external alerts, or prescription-related dispatch.",
+    "Zero-clipboard retention and automatic robot workspace cleanup after each transaction.",
+    "Emergency kill switch to pause queues, revoke pending jobs, and preserve audit evidence.",
+    "FHIR validation gate before any robot writes to an EHR-like destination."
   ];
 
   const triggerSimulation = () => {
@@ -259,6 +290,16 @@ export function UiPathOrchestrator({ onUnlockAchievement }: UiPathOrchestratorPr
             }`}
           >
             🛠️ Architecture Stack
+          </button>
+          <button
+            onClick={() => setViewMode('robotics')}
+            className={`flex-1 sm:flex-initial px-4 py-2.5 rounded-xl text-[10px] font-extrabold uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+              viewMode === 'robotics'
+                ? 'bg-rose-600 text-white shadow-sm font-black'
+                : 'text-stone-500 hover:text-stone-850 dark:hover:text-stone-200'
+            }`}
+          >
+            🤖 Robotics Blueprint
           </button>
           <button
             onClick={() => setViewMode('roadmap')}
@@ -987,6 +1028,102 @@ export function UiPathOrchestrator({ onUnlockAchievement }: UiPathOrchestratorPr
               <span className="font-mono text-[9px] text-stone-400 dark:text-stone-500">
                 ZENIVERSE AUTOMATION ENGINE © 2026
               </span>
+            </div>
+          </motion.div>
+        ) : viewMode === 'robotics' ? (
+          <motion.div
+            key="robotics"
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -15 }}
+            transition={{ duration: 0.25 }}
+            className="bg-white dark:bg-stone-850 border border-stone-200 dark:border-stone-800 rounded-3xl p-6 md:p-8 shadow-lg flex flex-col gap-6 font-sans relative overflow-hidden w-full text-stone-800 dark:text-stone-200"
+            id="uipath-robotics-blueprint-container"
+          >
+            <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-br from-rose-500/5 to-transparent rounded-bl-full pointer-events-none" />
+
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-stone-150 dark:border-stone-800 pb-5 gap-4">
+              <div>
+                <span className="text-[10px] font-black text-rose-600 dark:text-rose-400 tracking-widest uppercase font-mono bg-rose-500/10 px-2.5 py-1 rounded-md">
+                  ROBOTICS COMMAND FABRIC
+                </span>
+                <h3 className="text-xl md:text-2xl font-black text-stone-850 dark:text-stone-100 tracking-tight leading-none mt-3">
+                  Dr. T Robotics Enhancement Blueprint
+                </h3>
+                <p className="text-xs text-stone-500 dark:text-stone-400 leading-relaxed max-w-3xl mt-2">
+                  A practical robotics layer that extends Dr. T from conversational guidance into governed robotic execution: care navigation, ambient biometrics, critical escalation, and document automation.
+                </p>
+              </div>
+              <div className="bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900 p-3 rounded-2xl">
+                <span className="text-[8px] font-extrabold uppercase text-emerald-700 dark:text-emerald-300 font-mono tracking-widest block">Deployment Mode</span>
+                <span className="text-xs font-black text-emerald-800 dark:text-emerald-200 font-mono">Simulation-safe / Human-reviewed</span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              {roboticsCapabilities.map((capability) => (
+                <div key={capability.title} className="bg-stone-50 dark:bg-stone-900 border border-stone-150 dark:border-stone-800 rounded-2xl p-5 flex flex-col gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-rose-500/10 text-rose-600 flex items-center justify-center">
+                    <Cpu className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-black text-stone-850 dark:text-stone-100">{capability.title}</h4>
+                    <span className="text-[9px] font-mono font-black text-rose-600 dark:text-rose-400 uppercase">{capability.metric}</span>
+                  </div>
+                  <p className="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">{capability.description}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              <div className="lg:col-span-7 bg-stone-50 dark:bg-stone-900 border border-stone-150 dark:border-stone-800 rounded-2xl p-5">
+                <span className="text-xs font-black uppercase text-stone-850 dark:text-stone-100 font-mono tracking-wider flex items-center gap-1.5 mb-4">
+                  <Network className="w-4 h-4 text-rose-500" />
+                  End-to-end robotics loop
+                </span>
+                <div className="grid grid-cols-1 sm:grid-cols-5 gap-3 text-center">
+                  {["Sense", "Understand", "Queue", "Execute", "Verify"].map((stage, index) => (
+                    <div key={stage} className="bg-white dark:bg-stone-850 border border-stone-200 dark:border-stone-800 rounded-xl p-3 relative">
+                      <span className="w-6 h-6 mx-auto rounded-full bg-rose-600 text-white flex items-center justify-center text-[10px] font-mono font-black">{index + 1}</span>
+                      <p className="text-[10px] font-black text-stone-800 dark:text-stone-200 mt-2 uppercase tracking-wider">{stage}</p>
+                      <p className="text-[9px] text-stone-500 dark:text-stone-450 mt-1 leading-snug">
+                        {index === 0 && "Voice, wearable, document, and portal signals."}
+                        {index === 1 && "Dr. T converts context into FHIR-ready intent."}
+                        {index === 2 && "Orchestrator prioritizes encrypted robot jobs."}
+                        {index === 3 && "Unattended workers complete bounded tasks."}
+                        {index === 4 && "Callbacks, audit checks, and clinician signoff."}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="lg:col-span-5 bg-rose-50/50 dark:bg-rose-950/10 border border-rose-200/70 dark:border-rose-900 rounded-2xl p-5">
+                <span className="text-xs font-black uppercase text-stone-850 dark:text-stone-100 font-mono tracking-wider flex items-center gap-1.5 mb-4">
+                  <Shield className="w-4 h-4 text-rose-500" />
+                  Safety guardrails
+                </span>
+                <div className="space-y-3">
+                  {roboticsGuardrails.map((guardrail, index) => (
+                    <div key={guardrail} className="flex gap-3 text-[11px] text-stone-600 dark:text-stone-350 leading-relaxed">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                      <span><strong className="text-stone-850 dark:text-stone-100">Rule {index + 1}:</strong> {guardrail}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-stone-950 border border-stone-850 p-5 rounded-3xl text-stone-300 font-mono shadow-xl">
+              <div className="flex items-center gap-2 mb-3 border-b border-stone-900 pb-2.5">
+                <Terminal className="w-3.5 h-3.5 text-rose-500" />
+                <span className="text-[10px] tracking-wider uppercase font-extrabold text-stone-300">Reference implementation plan</span>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-[10px]">
+                <div className="bg-stone-900/60 rounded-xl p-3"><span className="text-rose-400 font-bold block">Phase A</span>Connect Dr. T intent events to webhook queue adapters with dry-run validation.</div>
+                <div className="bg-stone-900/60 rounded-xl p-3"><span className="text-amber-400 font-bold block">Phase B</span>Attach robot templates for intake, vitals sync, OCR, and escalation workflows.</div>
+                <div className="bg-stone-900/60 rounded-xl p-3"><span className="text-emerald-400 font-bold block">Phase C</span>Promote only audited, clinician-approved jobs into live clinical operations.</div>
+              </div>
             </div>
           </motion.div>
         ) : (
