@@ -34,6 +34,11 @@ V. 2.9.1 Integrated Robotics
 
 This project was built using OpenAI Codextogether with GPT-5.6. Codex was used as the primary AI software engineering agent to generate, refactor, debug, and test code, while GPT-5.6 was used for architectural reasoning, feature design, documentation, and code review.
 
+Cognitive Intelligence Meets Clinical Action: How Robotics Elevates the Dr. T Platform
+At its core, the integration of software robotics and Robotic Process Automation (RPA)—primarily powered by unattended UiPath software robots—fundamentally transforms the Dr. T platform. It shifts Dr. T from a purely conversational and advisory AI into an action-capable, closed-loop clinical operations hub.
+
+Instead of physical robots walking hospital corridors, Dr. T utilizes silent digital workhorses that bridge the gap between human Socratic companion care and heavy healthcare enterprise backends.
+
 ---
 
 # Tech Stack
