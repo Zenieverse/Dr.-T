@@ -22,6 +22,8 @@ Interoperability & Standards Compliance: Made for health IT professionals who re
 
 Predictive ICU Diagnostics: Built for intensive care specialists and analysts, offering predictive calculations (Length-of-Stay, mortality, readmission risk) powered by clinical equations derived from Harvard's MIMIC-IV datasets.
 
+V. 2.9 Added OB/GYN Care Navigator 
+
 V. 2.8 
 
 Combine Casper Network’s enterprise-grade, upgradeable contract paradigm with Dr. T's Socratic Decision Intelligence and Maternal Privacy Shield, you create a secure, verifiable sandbox for cryptographic signatures, legal-smart agreements, and decentralized credentialing.
