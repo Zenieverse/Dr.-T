@@ -27,7 +27,7 @@ V. 2.9.1 Integrated Robotics
 
 # Project Name
 
-> Robotics enhances Dr. T platform
+> Robotics enhancements on Dr. T platform
 
 ## Overview
 
