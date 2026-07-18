@@ -61,7 +61,7 @@ import drTAvatar from './assets/images/dr_t_avatar_1781184840352.jpg';
 export default function App() {
   // Navigation
   const [activeTab, setActiveTab] = useState<'hub' | 'graph' | 'swarm' | 'trackers' | 'dashboard' | 'avatar' | 'suite' | 'showcase' | 'uipath' | 'stellar-zk' | 'decision' | 'alibaba' | 'symphonies'>('hub');
-  const [activeSuiteSubTab, setActiveSuiteSubTab] = useState<'patient' | 'fhir' | 'analytics' | 'summarizer' | 'imaging' | 'population' | 'coach' | 'lab' | 'mimic' | 'orchestrator'>('patient');
+  const [activeSuiteSubTab, setActiveSuiteSubTab] = useState<'patient' | 'obgyn' | 'fhir' | 'analytics' | 'summarizer' | 'imaging' | 'population' | 'coach' | 'lab' | 'mimic' | 'orchestrator'>('patient');
 
   // State
   const [messages, setMessages] = useState<Message[]>([]);

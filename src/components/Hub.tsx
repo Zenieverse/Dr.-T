@@ -24,7 +24,7 @@ interface HubProps {
   voiceName: string;
   setVoiceName: (name: string) => void;
   stopAudio: () => void;
-  activeSuiteSubTab: 'patient' | 'fhir' | 'analytics' | 'summarizer' | 'imaging' | 'population' | 'coach' | 'lab' | 'mimic' | 'orchestrator';
+  activeSuiteSubTab: 'patient' | 'obgyn' | 'fhir' | 'analytics' | 'summarizer' | 'imaging' | 'population' | 'coach' | 'lab' | 'mimic' | 'orchestrator';
   setActiveSuiteSubTab: (sub: any) => void;
   setActiveTab: (tab: any) => void;
   showAmbientPlayer: boolean;
