@@ -1,10 +1,9 @@
 Dr. T: World-Class Socratic Biomedical Informatics & Healthcare AI Platform
 
-https://tree-nation.com/trees/9421595/view
 
 https://ai.studio/apps/2e1619d9-9932-4538-9b6c-26b489ebfec2?fullscreenApplet=true
 
-Inspiration:
+Inspiration: https://tree-nation.com/trees/9421595/view
 
 Traditional healthcare software is cold and transactional, but we were inspired by a real-life physician, Dr. T, who has been helping her patients with wits, wisdom, and kindness throughout their treatment processes. We built 'Dr. T' — an empathetic, Socratic clinical decision support platform and patient-first wellness guide to carry her legacy of compassionate healthcare into a modern digital experience.
 
