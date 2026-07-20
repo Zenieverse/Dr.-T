@@ -21,7 +21,7 @@ Interoperability & Standards Compliance: Made for health IT professionals who re
 
 Predictive ICU Diagnostics: Built for intensive care specialists and analysts, offering predictive calculations (Length-of-Stay, mortality, readmission risk) powered by clinical equations derived from Harvard's MIMIC-IV datasets.
 
-V.2.9.3 Integrated Fluid Intelligence 
+V.2.9.3 Integrated Fluid Intelligence & ARC-AGI Generalization Sandbox
 
 V.2.9.2 Integrated Autonomous Agent Prediction
 
