@@ -24,7 +24,9 @@ import {
   FileText,
   User,
   CheckSquare,
-  ShieldCheck
+  ShieldCheck,
+  Download,
+  ExternalLink
 } from 'lucide-react';
 
 interface Scenario {
@@ -1315,7 +1317,7 @@ Spoken scripts:
                   </h4>
                   <button
                     onClick={() => handleCopy(getPromptContent(), 'exporter')}
-                    className="flex items-center gap-1.5 p-1.5 px-3 bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-750 border border-stone-200/20 rounded-lg text-xs font-bold transition-all cursor-pointer active:scale-95"
+                    className="flex items-center gap-1.5 p-1.5 px-3 bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-750 border border-stone-200/20 rounded-lg text-xs font-bold transition-all cursor-pointer active:scale-95 text-stone-850 dark:text-stone-200"
                   >
                     <Copy className="w-3.5 h-3.5" />
                     <span>{copiedIndex === 'exporter' ? 'Copied!' : 'Copy Rule Payload'}</span>

@@ -12,7 +12,7 @@ export interface Message {
   }
 }
 
-export type DrTVibe = 'empathetic' | 'witty' | 'philosophical' | 'playful';
+export type DrTVibe = 'empathetic' | 'witty' | 'philosophical' | 'playful' | 'making_sense' | 'fluid_intelligence';
 
 export interface VibeConfig {
   id: DrTVibe;

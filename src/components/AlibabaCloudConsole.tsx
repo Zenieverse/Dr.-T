@@ -17,7 +17,8 @@ import {
   Sparkles,
   ArrowRight,
   Terminal,
-  Plus
+  Plus,
+  Copy
 } from 'lucide-react';
 import { ArchitectureDiagram } from './ArchitectureDiagram';
 
@@ -32,6 +33,7 @@ export default function AlibabaCloudConsole({ memoryNodes, onAddNode }: AlibabaC
   
   const [statusResult, setStatusResult] = useState<any>(null);
   const [uploadResult, setUploadResult] = useState<any>(null);
+  const [copiedOss, setCopiedOss] = useState(false);
   
   const [fileName, setFileName] = useState('alibaba_deployment_proof.txt');
   const [fileContent, setFileContent] = useState('Alibaba Cloud Deployment Verification Report:\n- Running backend service on cloud cluster\n- Object Storage Service (OSS) connection verified.\n- Verified Timestamp: ' + new Date().toUTCString());
@@ -354,17 +356,31 @@ export default function AlibabaCloudConsole({ memoryNodes, onAddNode }: AlibabaC
                 </p>
 
                 {uploadResult.success && uploadResult.url && (
-                  <div className="flex items-center gap-2 mt-2 bg-white/70 p-2 rounded-xl border border-emerald-200/40">
-                    <span className="text-[10px] text-stone-500">OSS URL:</span>
-                    <a 
-                      href={uploadResult.url} 
-                      target="_blank" 
-                      rel="noopener noreferrer" 
-                      className="text-orange-600 hover:text-orange-700 font-semibold underline truncate flex items-center gap-1 flex-1"
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 mt-2 bg-white/70 p-2.5 rounded-xl border border-emerald-200/40 justify-between">
+                    <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                      <span className="text-[10px] text-stone-500 shrink-0">OSS URL:</span>
+                      <a 
+                        href={uploadResult.url} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="text-orange-600 hover:text-orange-700 font-semibold underline truncate flex items-center gap-1 flex-1 text-xs no-underline"
+                      >
+                        {uploadResult.url}
+                        <ExternalLink className="w-3 h-3 flex-shrink-0" />
+                      </a>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigator.clipboard.writeText(uploadResult.url);
+                        setCopiedOss(true);
+                        setTimeout(() => setCopiedOss(false), 3000);
+                      }}
+                      className="flex items-center gap-1 p-1 px-2.5 bg-orange-50 hover:bg-orange-100 text-orange-700 rounded-lg text-[10px] font-bold transition-all cursor-pointer select-none"
                     >
-                      {uploadResult.url}
-                      <ExternalLink className="w-3 h-3 flex-shrink-0" />
-                    </a>
+                      <Copy className="w-2.5 h-2.5" />
+                      <span>{copiedOss ? 'Copied!' : 'Copy Link'}</span>
+                    </button>
                   </div>
                 )}
               </div>

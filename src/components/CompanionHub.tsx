@@ -13,7 +13,9 @@ import {
   RefreshCw,
   Infinity as InfinityIcon,
   Wind,
-  Sparkles
+  Sparkles,
+  Copy,
+  ExternalLink
 } from 'lucide-react';
 import { VOICES, VIBES } from '../constants';
 import { APPEARANCES } from './AvatarSettings';
@@ -486,25 +488,41 @@ export function CompanionHub({
                 </button>
 
                 {/* Dr. T Tab Button */}
-                <a
-                  href="https://vocalbridgeai.com/shared/4ahTePkJBzlh0LQ1ndxolhqau3_hjYVfWWeM4-nwuhc?id=vb_YFqaOSEkoPlUix1yYWr2WVvSUN46YyQbJ6uk_5HGYeA&key=vb_YFqaOSEkoPlUix1yYWr2WVvSUN46YyQbJ6uk_5HGYeA&apiKey=vb_YFqaOSEkoPlUix1yYWr2WVvSUN46YyQbJ6uk_5HGYeA"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex flex-col items-center justify-between p-3.5 bg-white border border-stone-200/40 hover:border-rose-300 hover:shadow-xs hover:shadow-rose-500/5 hover:-translate-y-0.5 rounded-xl transition-all duration-300 cursor-pointer text-center group active:scale-97 no-underline"
-                  id="dr-t-vocal-link-tab"
-                >
-                  <div className="w-10 h-10 rounded-full bg-rose-50 text-rose-500 flex items-center justify-center mb-1.5 group-hover:scale-105 transition-transform duration-300">
-                    <PhoneCall className="w-4 h-4" />
-                  </div>
-                  <div className="flex-1 flex flex-col justify-center">
-                    <span className="text-[11px] font-extrabold tracking-tight text-stone-850 uppercase font-sans">
-                      Dr. T
-                    </span>
-                    <span className="text-[8.5px] text-stone-400 mt-0.5 block font-mono font-semibold leading-none">
-                      VOCAL BRIDGE
-                    </span>
-                  </div>
-                </a>
+                <div className="relative group/card">
+                  <a
+                    href="https://vocalbridgeai.com/shared/4ahTePkJBzlh0LQ1ndxolhqau3_hjYVfWWeM4-nwuhc?id=vb_YFqaOSEkoPlUix1yYWr2WVvSUN46YyQbJ6uk_5HGYeA&key=vb_YFqaOSEkoPlUix1yYWr2WVvSUN46YyQbJ6uk_5HGYeA&apiKey=vb_YFqaOSEkoPlUix1yYWr2WVvSUN46YyQbJ6uk_5HGYeA"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex flex-col items-center justify-between p-3.5 bg-white border border-stone-200/40 hover:border-rose-300 hover:shadow-xs hover:shadow-rose-500/5 hover:-translate-y-0.5 rounded-xl transition-all duration-300 cursor-pointer text-center group active:scale-97 no-underline h-full"
+                    id="dr-t-vocal-link-tab"
+                  >
+                    <div className="w-10 h-10 rounded-full bg-rose-50 text-rose-500 flex items-center justify-center mb-1.5 group-hover:scale-105 transition-transform duration-300">
+                      <PhoneCall className="w-4 h-4 animate-bounce" />
+                    </div>
+                    <div className="flex-1 flex flex-col justify-center">
+                      <span className="text-[11px] font-extrabold tracking-tight text-stone-850 uppercase font-sans flex items-center justify-center gap-1">
+                        Dr. T <ExternalLink className="w-2.5 h-2.5 opacity-60 group-hover:scale-110 transition-transform" />
+                      </span>
+                      <span className="text-[8.5px] text-stone-400 mt-0.5 block font-mono font-semibold leading-none">
+                        VOCAL BRIDGE
+                      </span>
+                    </div>
+                  </a>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      navigator.clipboard.writeText("https://vocalbridgeai.com/shared/4ahTePkJBzlh0LQ1ndxolhqau3_hjYVfWWeM4-nwuhc?id=vb_YFqaOSEkoPlUix1yYWr2WVvSUN46YyQbJ6uk_5HGYeA&key=vb_YFqaOSEkoPlUix1yYWr2WVvSUN46YyQbJ6uk_5HGYeA&apiKey=vb_YFqaOSEkoPlUix1yYWr2WVvSUN46YyQbJ6uk_5HGYeA");
+                      setToastNotice("Dr. T Vocal Bridge URL copied! Paste it in a new tab if popups are blocked by your browser.");
+                      setTimeout(() => setToastNotice(null), 5000);
+                    }}
+                    className="absolute top-1.5 right-1.5 p-1 bg-stone-50 hover:bg-stone-100 border border-stone-200/55 rounded-md text-stone-400 hover:text-rose-600 transition-all cursor-pointer opacity-0 group-hover/card:opacity-100 shadow-2xs"
+                    title="Copy Link to Clipboard"
+                  >
+                    <Copy className="w-3 h-3" />
+                  </button>
+                </div>
 
                 {/* Guided Breathing */}
                 <button

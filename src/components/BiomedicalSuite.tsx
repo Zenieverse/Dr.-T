@@ -4,7 +4,8 @@ import {
   Heart, Activity, ClipboardList, ShieldAlert, Award, FileSpreadsheet, 
   Search, FileText, Camera, Users, Zap, BookOpen, User, Eye, 
   Upload, Download, CheckCircle, AlertTriangle, Code, ArrowRight,
-  Database, RefreshCw, Layers, ShieldCheck, HelpCircle, Flame, Calendar
+  Database, RefreshCw, Layers, ShieldCheck, HelpCircle, Flame, Calendar,
+  Baby, Sparkles, TrendingUp, Play, Square, Terminal, Cpu
 } from 'lucide-react';
 
 interface TerminologyCode {
@@ -96,6 +97,7 @@ export const SUITE_TRANSLATIONS: Record<string, Record<string, string>> = {
     research_paper_lab: "Research Paper Lab",
     mimic_iv_icu: "MIMIC-IV ICU",
     swarm_orchestrator: "Swarm Orchestrator",
+    obgyn_care: "OB/GYN Care Navigator",
     educational_disclaimer: "Educational Protocol: Dr. T is an educational and decision-support platform and not a substitute for professional medical advice.",
     fhir_desc: "Dr. T possesses advanced HL7 FHIR Interoperability pipelines. Review code-ready FHIR JSON modules, import/load precalculated clinical definitions, and run strict syntax validation checks.",
     raw_fhir_title: "1. Raw FHIR Resource JSON",
@@ -125,6 +127,7 @@ export const SUITE_TRANSLATIONS: Record<string, Record<string, string>> = {
     research_paper_lab: "Labo d'Articles",
     mimic_iv_icu: "USI MIMIC-IV",
     swarm_orchestrator: "Orchestrateur Clinique",
+    obgyn_care: "Navigateur gynéco-obstétrique",
     educational_disclaimer: "Protocole Éducatif: Dr. T est une plateforme d'apprentissage et de support clinique, non un substitut d'avis médical.",
     fhir_desc: "Dr. T possède des pipelines d’interopérabilité HL7 FHIR avancés. Examinez les modules JSON FHIR, importez/chargez des définitions cliniques pré-calculées et lancez des examens de validation stricts.",
     raw_fhir_title: "1. Ressource JSON FHIR Brute",
@@ -154,6 +157,7 @@ export const SUITE_TRANSLATIONS: Record<string, Record<string, string>> = {
     research_paper_lab: "Nghiên Cứu Y Văn",
     mimic_iv_icu: "Hồi Sức MIMIC-IV",
     swarm_orchestrator: "Đội Ngũ Đa Tác Nhân",
+    obgyn_care: "Điều hướng Sản Phụ Khoa",
     educational_disclaimer: "Quy chuẩn Giáo dục: Dr. T là một hệ thống hỗ trợ giáo dục và quyết định lâm sàng, không thay thế chẩn đoán y khoa chuyên nghiệp.",
     fhir_desc: "Dr. T sở hữu các quy trình liên thông HL7 FHIR tiên tiến. Kiểm tra các module JSON FHIR sẵn sàng cho mã hóa, nhập/tải các định nghĩa lâm sàng và chạy kiểm tra cú pháp nghiêm ngặt.",
     raw_fhir_title: "1. Chuỗi JSON FHIR Nguyên Bản",
@@ -175,8 +179,8 @@ export const SUITE_TRANSLATIONS: Record<string, Record<string, string>> = {
 
 export const BiomedicalSuite: React.FC<{
   language?: string;
-  activeSubTab?: 'patient' | 'fhir' | 'analytics' | 'summarizer' | 'imaging' | 'population' | 'coach' | 'lab' | 'mimic' | 'orchestrator';
-  onSubTabChange?: (tab: 'patient' | 'fhir' | 'analytics' | 'summarizer' | 'imaging' | 'population' | 'coach' | 'lab' | 'mimic' | 'orchestrator') => void;
+  activeSubTab?: 'patient' | 'fhir' | 'analytics' | 'summarizer' | 'imaging' | 'population' | 'coach' | 'lab' | 'mimic' | 'orchestrator' | 'obgyn' | 'predictions';
+  onSubTabChange?: (tab: 'patient' | 'fhir' | 'analytics' | 'summarizer' | 'imaging' | 'population' | 'coach' | 'lab' | 'mimic' | 'orchestrator' | 'obgyn' | 'predictions') => void;
   onUpdateHeartRate?: (newBpm: number) => void;
 }> = ({ language = 'English', activeSubTab: controlledSubTab, onSubTabChange, onUpdateHeartRate }) => {
   const selectedLang = ['English', 'French', 'Vietnamese'].includes(language) ? language : 'English';
@@ -185,11 +189,11 @@ export const BiomedicalSuite: React.FC<{
     return SUITE_TRANSLATIONS[selectedLang]?.[key] || fallback;
   };
 
-  const [localActiveSubTab, setLocalActiveSubTab] = useState<'patient' | 'fhir' | 'analytics' | 'summarizer' | 'imaging' | 'population' | 'coach' | 'lab' | 'mimic' | 'orchestrator'>('patient');
+  const [localActiveSubTab, setLocalActiveSubTab] = useState<'patient' | 'fhir' | 'analytics' | 'summarizer' | 'imaging' | 'population' | 'coach' | 'lab' | 'mimic' | 'orchestrator' | 'obgyn' | 'predictions'>('patient');
 
   const activeSubTab = controlledSubTab !== undefined ? controlledSubTab : localActiveSubTab;
   
-  const setActiveSubTab = (tab: 'patient' | 'fhir' | 'analytics' | 'summarizer' | 'imaging' | 'population' | 'coach' | 'lab' | 'mimic' | 'orchestrator') => {
+  const setActiveSubTab = (tab: 'patient' | 'fhir' | 'analytics' | 'summarizer' | 'imaging' | 'population' | 'coach' | 'lab' | 'mimic' | 'orchestrator' | 'obgyn' | 'predictions') => {
     if (onSubTabChange) {
       onSubTabChange(tab);
     } else {
@@ -210,6 +214,22 @@ export const BiomedicalSuite: React.FC<{
   // Fitbit & Apple Health wearable states
   const [isFitbitConnected, setIsFitbitConnected] = useState(false);
   const [isAppleHealthConnected, setIsAppleHealthConnected] = useState(false);
+  
+  // OB/GYN Module States
+  const [obgynWeek, setObgynWeek] = useState<number>(28);
+  const [obgynBp, setObgynBp] = useState<string>("118/76");
+  const [obgynWeight, setObgynWeight] = useState<number>(142);
+  const [maternalRisk, setMaternalRisk] = useState<'Low' | 'Moderate' | 'High'>('Moderate');
+  const [obgynHandoffList, setObgynHandoffList] = useState([
+    { id: 1, label: "Confirm gestational age is verified via first-trimester ultrasound", checked: true },
+    { id: 2, label: "Verify GBS screening status (usually 35-37 weeks)", checked: false },
+    { id: 3, label: "Document pre-pregnancy BMI & current weight gain trajectory", checked: true },
+    { id: 4, label: "Record maternal blood type & Rh antibody screen status", checked: true },
+    { id: 5, label: "Confirm fetal anatomy scan completed and documented", checked: true }
+  ]);
+  const [customHandoffText, setCustomHandoffText] = useState<string>("");
+  const [activeWorkflow, setActiveWorkflow] = useState<'prenatal' | 'labor' | 'preventive' | 'postpartum'>('prenatal');
+  const [activeSubSpecialty, setActiveSubSpecialty] = useState<'fertility' | 'menopause' | 'preventive'>('fertility');
   const [wearableHrv, setWearableHrv] = useState<number>(42); // ms
   const [wearableDeepSleep, setWearableDeepSleep] = useState<number>(1.1); // hrs
   const [wearableRemSleep, setWearableRemSleep] = useState<number>(1.2); // hrs
@@ -217,6 +237,96 @@ export const BiomedicalSuite: React.FC<{
   const [wearableRestlessTime, setWearableRestlessTime] = useState<number>(28); // mins
   const [isSyncingWearables, setIsSyncingWearables] = useState(false);
   const [lastWearableSync, setLastWearableSync] = useState<string>("Never synced");
+
+  // AI Clinical Prediction States
+  const [patientPreset, setPatientPreset] = useState<'drt' | 'sepsis' | 'cardio' | 'stable' | 'custom'>('drt');
+  const [patientAge, setPatientAge] = useState<number>(42);
+  const [patientGender, setPatientGender] = useState<string>("Male");
+  const [patientSbp, setPatientSbp] = useState<number>(138);
+  const [patientDbp, setPatientDbp] = useState<number>(88);
+  const [patientGcs, setPatientGcs] = useState<number>(15);
+  const [patientHr, setPatientHr] = useState<number>(92);
+  const [patientTemp, setPatientTemp] = useState<number>(98.6);
+  const [patientRr, setPatientRr] = useState<number>(18);
+  const [patientWbc, setPatientWbc] = useState<number>(8.5);
+  const [patientSpO2, setPatientSpO2] = useState<number>(97);
+  const [patientClinicalNotes, setPatientClinicalNotes] = useState<string>("Experiencing severe occupational stress, prolonged clinical shifts, high caffeine consumption, and subjective autonomic exhaustion. Heart rate variability is markedly reduced.");
+  
+  const [isPredicting, setIsPredicting] = useState<boolean>(false);
+  const [predictiveResult, setPredictiveResult] = useState<{
+    predictedPrimaryDx: string;
+    readmitProb: number;
+    mortalityRisk: number;
+    losDays: number;
+    riskDrivers: string[];
+    recommendations: string[];
+    isSepsisRisk: boolean;
+    cardiovascular10YrRisk: number;
+  } | null>({
+    predictedPrimaryDx: "Acute Autonomic Exhaustion & Mild Tachycardia",
+    readmitProb: 38,
+    mortalityRisk: 14,
+    losDays: 3.5,
+    riskDrivers: [
+      "Prolonged hyper-cortisolemia and poor cardiac recovery intervals",
+      "Marginal volume depletion manifesting as low stroke-volume reserve",
+      "Occupational burnout triggering sympathetic autonomic dominance"
+    ],
+    recommendations: [
+      "Engage in structured 4s-2s-4s breathing exercises to upregulate vagal tone",
+      "Strict overnight screens-off protocol with active sleep-debt repayment",
+      "Dynamic hydration indexing targeting 2.8L water intake daily"
+    ],
+    isSepsisRisk: false,
+    cardiovascular10YrRisk: 6
+  });
+
+  // Autonomous Agent Prediction States
+  const [isAutonomousActive, setIsAutonomousActive] = useState<boolean>(false);
+  const [agentState, setAgentState] = useState<'IDLE' | 'SCANNING_VITALS' | 'NLP_PARSING' | 'GEMINI_INFERENCE' | 'INTERVENTION_GEN' | 'CRITICAL_ALERT'>('IDLE');
+  const [agentLogs, setAgentLogs] = useState<Array<{ id: string; timestamp: string; type: 'info' | 'reasoning' | 'action' | 'warning' | 'alert'; message: string; title: string }>>([
+    {
+      id: "init-log",
+      timestamp: new Date().toLocaleTimeString(),
+      type: "info",
+      title: "Watchdog Initialized",
+      message: "Dr. T Clinical Watchdog Agent is online. Standing by for autonomous telemetry prediction loops."
+    }
+  ]);
+  const [simulationSpeed, setSimulationSpeed] = useState<number>(12000); // 12s default
+
+  const patientStateRef = React.useRef({
+    preset: patientPreset,
+    age: patientAge,
+    gender: patientGender,
+    sbp: patientSbp,
+    dbp: patientDbp,
+    gcs: patientGcs,
+    hr: patientHr,
+    temp: patientTemp,
+    rr: patientRr,
+    wbc: patientWbc,
+    spo2: patientSpO2,
+    notes: patientClinicalNotes
+  });
+
+  // Sync ref to current state whenever they change
+  React.useEffect(() => {
+    patientStateRef.current = {
+      preset: patientPreset,
+      age: patientAge,
+      gender: patientGender,
+      sbp: patientSbp,
+      dbp: patientDbp,
+      gcs: patientGcs,
+      hr: patientHr,
+      temp: patientTemp,
+      rr: patientRr,
+      wbc: patientWbc,
+      spo2: patientSpO2,
+      notes: patientClinicalNotes
+    };
+  }, [patientPreset, patientAge, patientGender, patientSbp, patientDbp, patientGcs, patientHr, patientTemp, patientRr, patientWbc, patientSpO2, patientClinicalNotes]);
 
   const handleSyncWearables = async (type: 'fitbit' | 'apple') => {
     if (type === 'fitbit' && !isFitbitConnected) {
@@ -256,6 +366,294 @@ export const BiomedicalSuite: React.FC<{
     // Deeper diagnostic modeling updates:
     setRiskForecast(`Based on incoming ${type.toUpperCase()} wearable sync (HRV: ${updatedHrv}ms, Deep Sleep: ${updatedDeep}h), Clara's autonomic stress risk is lower. ASCVD 10-Year Index reduced to 8.2% (Low-to-Moderate). Recommend continuing sleep hygiene protocols and Socratic breathing calls.`);
     showToast("Wearable telemetry feed synchronized into Biomedical Suite!", "success");
+  };
+
+  const runClinicalPrediction = async (overrideVitals?: {
+    age?: number;
+    gender?: string;
+    sbp?: number;
+    dbp?: number;
+    gcs?: number;
+    hr?: number;
+    temp?: number;
+    rr?: number;
+    wbc?: number;
+    spo2?: number;
+    notes?: string;
+  }) => {
+    setIsPredicting(true);
+    showToast("Initializing clinical predictive algorithm...", "info");
+    
+    const vAge = overrideVitals?.age ?? patientAge;
+    const vGender = overrideVitals?.gender ?? patientGender;
+    const vSbp = overrideVitals?.sbp ?? patientSbp;
+    const vDbp = overrideVitals?.dbp ?? patientDbp;
+    const vGcs = overrideVitals?.gcs ?? patientGcs;
+    const vHr = overrideVitals?.hr ?? patientHr;
+    const vTemp = overrideVitals?.temp ?? patientTemp;
+    const vRr = overrideVitals?.rr ?? patientRr;
+    const vWbc = overrideVitals?.wbc ?? patientWbc;
+    const vSpO2 = overrideVitals?.spo2 ?? patientSpO2;
+    const vNotes = overrideVitals?.notes ?? patientClinicalNotes;
+
+    try {
+      const promptText = `Patient Profile Details:
+Age: ${vAge}
+Gender: ${vGender}
+Systolic Blood Pressure: ${vSbp} mmHg
+Diastolic Blood Pressure: ${vDbp} mmHg
+Glasgow Coma Scale (GCS): ${vGcs}/15
+Heart Rate: ${vHr} bpm
+Body Temperature: ${vTemp} F
+Respiratory Rate: ${vRr} breaths/min
+White Blood Cell Count: ${vWbc} k/uL
+Oxygen Saturation (SpO2): ${vSpO2}%
+Additional Clinical Notes / Telemetry Log:
+${vNotes}`;
+
+      const res = await fetch("/api/clinical-predict", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: promptText })
+      });
+      if (!res.ok) {
+        throw new Error("Prediction API server error");
+      }
+      const data = await res.json();
+      setPredictiveResult(data);
+      showToast("Predictive analysis updated successfully!", "success");
+      return data;
+    } catch (err: any) {
+      console.error(err);
+      showToast("Prediction pipeline failed. Using high-fidelity biostatistical fallback.", "error");
+      
+      // Clinical static fallback generator based on vitals to keep the app highly responsive
+      const calculatedReadmit = Math.min(95, Math.max(5, Math.floor((vHr / 120) * 45 + (vSbp > 140 ? 25 : 10))));
+      const calculatedMortality = Math.min(85, Math.max(1, Math.floor((15 - vGcs) * 12 + (vTemp > 101 ? 15 : 5))));
+      const calculatedLos = Number((Math.max(1.5, (vHr / 70) * 3 + (vWbc > 12 ? 4 : 0))).toFixed(1));
+      
+      const staticResult = {
+        predictedPrimaryDx: vSbp > 160 ? "Severe Hypertensive Urgency with Autonomic Stress" : vHr > 105 ? "Systemic Inflammatory Response Syndrome (SIRS)" : "Autonomic Strain & Fatigue Exhaustion",
+        readmitProb: calculatedReadmit,
+        mortalityRisk: calculatedMortality,
+        losDays: calculatedLos,
+        riskDrivers: [
+          `Elevated metabolic rate with Heart Rate at ${vHr} bpm`,
+          `Cardiovascular workload load under BP ${vSbp}/${vDbp} mmHg`,
+          vWbc > 12 ? "Inflammatory reaction or leukocytosis detected" : "Autonomic fatigue and physical exhaustion indices"
+        ],
+        recommendations: [
+          "Establish continuous blood pressure monitoring protocols",
+          "Conduct fluid volume indexing and electrolyte recovery protocols",
+          "Ensure complete physical rest cycle with strict sensory stimulation blocks"
+        ],
+        isSepsisRisk: vHr > 100 && vTemp > 100.5 && vWbc > 12,
+        cardiovascular10YrRisk: Math.floor((vAge / 70) * 15 + (vSbp > 140 ? 10 : 2))
+      };
+      setPredictiveResult(staticResult);
+      return staticResult;
+    } finally {
+      setIsPredicting(false);
+    }
+  };
+
+  const triggerAutonomousScan = async () => {
+    if (isPredicting) return;
+    setAgentState('SCANNING_VITALS');
+    
+    const current = patientStateRef.current;
+    
+    // Perturb values
+    let deltaHr = Math.floor(Math.random() * 5) - 2; // -2 to +2
+    let deltaSbp = Math.floor(Math.random() * 7) - 3; // -3 to +3
+    let deltaDbp = Math.floor(Math.random() * 5) - 2; // -2 to +2
+    let deltaTemp = Number((Math.random() * 0.4 - 0.2).toFixed(1)); // -0.2 to +0.2
+    let deltaSpO2 = Math.floor(Math.random() * 3) - 1; // -1 to +1
+
+    let newHr = current.hr + deltaHr;
+    let newSbp = current.sbp + deltaSbp;
+    let newDbp = current.dbp + deltaDbp;
+    let newTemp = Number((current.temp + deltaTemp).toFixed(1));
+    let newSpO2 = current.spo2 + deltaSpO2;
+
+    // Boundary constraints based on preset
+    if (current.preset === 'drt') {
+      newHr = Math.max(80, Math.min(105, newHr));
+      newSbp = Math.max(120, Math.min(145, newSbp));
+      newDbp = Math.max(75, Math.min(95, newDbp));
+      newTemp = Math.max(97.8, Math.min(99.4, newTemp));
+      newSpO2 = Math.max(94, Math.min(99, newSpO2));
+    } else if (current.preset === 'sepsis') {
+      newHr = Math.max(100, Math.min(125, newHr));
+      newSbp = Math.max(85, Math.min(105, newSbp));
+      newDbp = Math.max(50, Math.min(70, newDbp));
+      newTemp = Math.max(100.2, Math.min(102.8, newTemp));
+      newSpO2 = Math.max(88, Math.min(94, newSpO2));
+    } else if (current.preset === 'cardio') {
+      newHr = Math.max(85, Math.min(115, newHr));
+      newSbp = Math.max(150, Math.min(195, newSbp));
+      newDbp = Math.max(90, Math.min(118, newDbp));
+      newTemp = Math.max(97.5, Math.min(99.0, newTemp));
+      newSpO2 = Math.max(92, Math.min(98, newSpO2));
+    } else { // stable or custom
+      newHr = Math.max(60, Math.min(80, newHr));
+      newSbp = Math.max(110, Math.min(128, newSbp));
+      newDbp = Math.max(65, Math.min(82, newDbp));
+      newTemp = Math.max(97.8, Math.min(99.2, newTemp));
+      newSpO2 = Math.max(97, Math.min(100, newSpO2));
+    }
+
+    // Apply to UI states
+    setPatientHr(newHr);
+    setPatientSbp(newSbp);
+    setPatientDbp(newDbp);
+    setPatientTemp(newTemp);
+    setPatientSpO2(newSpO2);
+
+    const scanTimestamp = new Date().toLocaleTimeString();
+    
+    const scanLog = {
+      id: `scan-${Date.now()}`,
+      timestamp: scanTimestamp,
+      type: 'info' as const,
+      title: 'Physiologic Stream Scan',
+      message: `Autonomous scan initiated. Stream metrics: HR: ${newHr} bpm, BP: ${newSbp}/${newDbp} mmHg, Temp: ${newTemp}°F, SpO2: ${newSpO2}%.`
+    };
+
+    setAgentLogs(prev => [scanLog, ...prev].slice(0, 50));
+
+    // Wait a brief simulated delay for the scanner
+    await new Promise(resolve => setTimeout(resolve, 1200));
+    setAgentState('NLP_PARSING');
+    
+    const nlpLog = {
+      id: `nlp-${Date.now()}`,
+      timestamp: new Date().toLocaleTimeString(),
+      type: 'reasoning' as const,
+      title: 'NLP Sentiment Parser',
+      message: `Analyzing clinical narratives for subjective burnout, infection indices, and stress keywords...`
+    };
+    setAgentLogs(prev => [nlpLog, ...prev].slice(0, 50));
+
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    setAgentState('GEMINI_INFERENCE');
+
+    const infLog = {
+      id: `inf-${Date.now()}`,
+      timestamp: new Date().toLocaleTimeString(),
+      type: 'reasoning' as const,
+      title: 'Gemini 3.5-Flash Inference',
+      message: `Invoking Google Gemini AI with high-fidelity MIMIC-IV clinical training weights...`
+    };
+    setAgentLogs(prev => [infLog, ...prev].slice(0, 50));
+
+    // Trigger prediction
+    const res = await runClinicalPrediction({
+      age: current.age,
+      gender: current.gender,
+      sbp: newSbp,
+      dbp: newDbp,
+      gcs: current.gcs,
+      hr: newHr,
+      temp: newTemp,
+      rr: current.rr,
+      wbc: current.wbc,
+      spo2: newSpO2,
+      notes: current.notes
+    });
+
+    setAgentState('INTERVENTION_GEN');
+    await new Promise(resolve => setTimeout(resolve, 800));
+
+    if (res) {
+      const actLog = {
+        id: `act-${Date.now()}`,
+        timestamp: new Date().toLocaleTimeString(),
+        type: res.isSepsisRisk ? ('alert' as const) : ('action' as const),
+        title: res.isSepsisRisk ? 'CRITICAL RISK DETECTED' : 'Autonomous Action Plan Proposed',
+        message: `Primary Diagnosis: "${res.predictedPrimaryDx}". Readmission: ${res.readmitProb}%. Mortality: ${res.mortalityRisk}%. Plan: ${res.recommendations?.[0] || 'Observe continuous monitors.'}`
+      };
+      setAgentLogs(prev => [actLog, ...prev].slice(0, 50));
+
+      if (res.isSepsisRisk) {
+        setAgentState('CRITICAL_ALERT');
+        showToast("⚠️ Clinical Watchdog Alert: Critical Systemic Infection Threat Parameters Exceeded!", "error");
+      } else {
+        setAgentState('IDLE');
+      }
+    } else {
+      setAgentState('IDLE');
+    }
+  };
+
+  // Autonomous Watchdog scan trigger effect
+  React.useEffect(() => {
+    if (!isAutonomousActive) {
+      setAgentState('IDLE');
+      return;
+    }
+
+    // Initial run immediately
+    triggerAutonomousScan();
+
+    const interval = setInterval(() => {
+      triggerAutonomousScan();
+    }, simulationSpeed);
+
+    return () => clearInterval(interval);
+  }, [isAutonomousActive, simulationSpeed]);
+
+  const applyPreset = (preset: 'drt' | 'sepsis' | 'cardio' | 'stable') => {
+    setPatientPreset(preset);
+    if (preset === 'drt') {
+      setPatientAge(42);
+      setPatientGender("Male");
+      setPatientSbp(138);
+      setPatientDbp(88);
+      setPatientGcs(15);
+      setPatientHr(92);
+      setPatientTemp(98.6);
+      setPatientRr(18);
+      setPatientWbc(8.5);
+      setPatientSpO2(97);
+      setPatientClinicalNotes("Experiencing severe occupational stress, prolonged clinical shifts, high caffeine consumption, and subjective autonomic exhaustion. Heart rate variability is markedly reduced.");
+    } else if (preset === 'sepsis') {
+      setPatientAge(65);
+      setPatientGender("Female");
+      setPatientSbp(98);
+      setPatientDbp(60);
+      setPatientGcs(13);
+      setPatientHr(112);
+      setPatientTemp(101.4);
+      setPatientRr(26);
+      setPatientWbc(16.5);
+      setPatientSpO2(91);
+      setPatientClinicalNotes("Admitted from skilled nursing facility with acute confusion, productive cough, high fever, and tachypnea. WBC is severely elevated. Potential septic shock secondary to severe urinary tract or lung infection.");
+    } else if (preset === 'cardio') {
+      setPatientAge(58);
+      setPatientGender("Male");
+      setPatientSbp(178);
+      setPatientDbp(104);
+      setPatientGcs(15);
+      setPatientHr(95);
+      setPatientTemp(98.2);
+      setPatientRr(20);
+      setPatientWbc(9.1);
+      setPatientSpO2(95);
+      setPatientClinicalNotes("Presents with episodic crushing retrosternal pressure radiating to the left arm, acute anxiety, and diaphoresis. History of untreated severe hypertension and hyperlipidemia.");
+    } else if (preset === 'stable') {
+      setPatientAge(33);
+      setPatientGender("Female");
+      setPatientSbp(115);
+      setPatientDbp(70);
+      setPatientGcs(15);
+      setPatientHr(68);
+      setPatientTemp(98.4);
+      setPatientRr(14);
+      setPatientWbc(7.2);
+      setPatientSpO2(99);
+      setPatientClinicalNotes("Routine post-appendectomy recovery Day 2. Patient is ambulatory, pain is well controlled, and tolerating oral fluids/solid foods with normal physiological bounds.");
+    }
   };
 
   // FHIR Tab States
@@ -586,7 +984,9 @@ export const BiomedicalSuite: React.FC<{
               { id: 'coach', label: 'Wellness Coach', translationKey: 'wellness_coach', icon: Award },
               { id: 'lab', label: 'Research Paper Lab', translationKey: 'research_paper_lab', icon: BookOpen },
               { id: 'mimic', label: 'MIMIC-IV ICU', translationKey: 'mimic_iv_icu', icon: Activity },
-              { id: 'orchestrator', label: 'Swarm Orchestrator', translationKey: 'swarm_orchestrator', icon: Layers }
+              { id: 'orchestrator', label: 'Swarm Orchestrator', translationKey: 'swarm_orchestrator', icon: Layers },
+              { id: 'obgyn', label: 'OB/GYN Care Navigator', translationKey: 'obgyn_care', icon: Baby },
+              { id: 'predictions', label: 'AI Predictive Console', translationKey: 'ai_predictions', icon: Sparkles }
             ].map((tab) => {
               const IconComp = tab.icon;
               return (
@@ -626,7 +1026,7 @@ export const BiomedicalSuite: React.FC<{
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-4 border-b border-stone-100 mb-6">
           <div>
             <span className="text-[10px] font-mono font-extrabold text-[#e11d48] uppercase tracking-widest bg-rose-50/80 px-2.5 py-1 rounded-full border border-rose-100/60">
-              Module {activeSubTab === 'patient' ? '3' : activeSubTab === 'fhir' ? '4' : activeSubTab === 'analytics' ? '5' : activeSubTab === 'summarizer' ? '6' : activeSubTab === 'imaging' ? '7' : activeSubTab === 'population' ? '8' : activeSubTab === 'coach' ? '9' : activeSubTab === 'lab' ? '10' : activeSubTab === 'mimic' ? '11' : '12'} • Active Pipeline
+              Module {activeSubTab === 'patient' ? '3' : activeSubTab === 'fhir' ? '4' : activeSubTab === 'analytics' ? '5' : activeSubTab === 'summarizer' ? '6' : activeSubTab === 'imaging' ? '7' : activeSubTab === 'population' ? '8' : activeSubTab === 'coach' ? '9' : activeSubTab === 'lab' ? '10' : activeSubTab === 'mimic' ? '11' : activeSubTab === 'orchestrator' ? '12' : activeSubTab === 'obgyn' ? '13' : '14'} • Active Pipeline
             </span>
             <h3 className="font-display font-black text-2xl text-stone-900 capitalize tracking-tight mt-1.5 flex items-center gap-2">
               {activeSubTab === 'patient' && 'Patient EHR Chart & Wearable Telemetry'}
@@ -639,6 +1039,8 @@ export const BiomedicalSuite: React.FC<{
               {activeSubTab === 'lab' && 'Dr. T Academic Literature Lab'}
               {activeSubTab === 'mimic' && 'MIMIC-IV High-Fidelity ICU Console'}
               {activeSubTab === 'orchestrator' && 'Coordinated Multi-Agent Clinical Routing'}
+              {activeSubTab === 'obgyn' && 'OB/GYN Maternal Care Navigator'}
+              {activeSubTab === 'predictions' && 'Clinical AI Forecasting & Predictive Engine'}
             </h3>
           </div>
         </div>
@@ -1868,6 +2270,1269 @@ export const BiomedicalSuite: React.FC<{
               </div>
 
             </div>
+          </div>
+        )}
+
+        {/* 11. OB/GYN CARE NAVIGATOR PANE */}
+        {activeSubTab === 'obgyn' && (() => {
+          const getFetalGrowth = (week: number) => {
+            if (week < 8) return { fruit: "Sesame Seed", weight: "1g", length: "0.5cm", description: "Early embryonic stage. Heart begins to beat." };
+            if (week < 12) return { fruit: "Raspberry", weight: "4g", length: "2.5cm", description: "Vocal cords form. Face becomes distinct." };
+            if (week < 16) return { fruit: "Lime", weight: "45g", length: "7.4cm", description: "Fingers and toes have nails. Kidney function begins." };
+            if (week < 20) return { fruit: "Avocado", weight: "100g", length: "12cm", description: "Senses are developing rapidly. Fetal movement (quickening) detectable." };
+            if (week < 24) return { fruit: "Banana", weight: "300g", length: "25cm", description: "Inner ear developed. Lungs starting to form surfactant." };
+            if (week < 28) return { fruit: "Cantaloupe", weight: "600g", length: "30cm", description: "Eyes open. Response to external sounds starts." };
+            if (week < 32) return { fruit: "Eggplant", weight: "1000g", length: "37cm", description: "Rhythmic breathing movements occur. Active sleep cycles." };
+            if (week < 36) return { fruit: "Squash", weight: "1700g", length: "42cm", description: "Rapid weight gain. Brain development accelerating." };
+            if (week < 40) return { fruit: "Honeydew Melon", weight: "2600g", length: "47cm", description: "Lungs fully mature. Excellent coordinate reflexes." };
+            return { fruit: "Watermelon", weight: "3400g", length: "51cm", description: "Full term. Ready for labor and delivery." };
+          };
+
+          const getSbarReport = () => {
+            return {
+              situation: `Patient Clarissa Henderson at ${obgynWeek} weeks GA presenting for routine prenatal follow-up with risk profile flagged as ${maternalRisk}.`,
+              background: `G1P0 (first pregnancy), Rh positive, clear anatomy scan. Baseline BP was 110/70. Oral Glucose Tolerance Screen negative at 26 weeks.`,
+              assessment: `Vitals today show BP of ${obgynBp} and weight at ${obgynWeight} lbs. Risk assessment is ${maternalRisk}. Growth benchmark matches fetal fruit comparison: ${getFetalGrowth(obgynWeek).fruit}.`,
+              recommendation: `Schedule next visit in ${obgynWeek >= 36 ? '1 week' : obgynWeek >= 28 ? '2 weeks' : '4 weeks'}. ${obgynWeek >= 35 && !obgynHandoffList.find(x => x.id === 2)?.checked ? 'Order Group B Strep (GBS) swab.' : ''} ${obgynBp.split('/')[0] && parseInt(obgynBp.split('/')[0]) >= 140 ? 'Borderline hypertension: recommend twice-weekly BP monitoring and preeclampsia warning education.' : 'Continue routine prenatal vitamins, daily fetal kick counts, and immunizations (TDAP).'} Ensure Epic FHIR patient resource is synced.`
+            };
+          };
+
+          const b = getFetalGrowth(obgynWeek);
+          const sbar = getSbarReport();
+
+          return (
+            <div className="flex flex-col gap-8 animate-fadeIn" id="pane-obgyn-navigator">
+              {/* HERO OVERVIEW */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="bg-gradient-to-br from-rose-50 to-pink-50/30 border border-rose-100 rounded-2xl p-4 flex items-center gap-3">
+                  <div className="p-2.5 bg-rose-100 text-[#e11d48] rounded-xl">
+                    <Baby className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <span className="text-[10px] font-mono uppercase text-rose-600 font-bold block">Gestational Age</span>
+                    <span className="font-extrabold text-stone-800 text-lg block">{obgynWeek} Weeks</span>
+                    <span className="text-[11px] text-stone-500 font-medium font-mono">Trimester {obgynWeek <= 13 ? '1' : obgynWeek <= 26 ? '2' : '3'}</span>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-indigo-50 to-blue-50/30 border border-indigo-100 rounded-2xl p-4 flex items-center gap-3">
+                  <div className="p-2.5 bg-indigo-100 text-indigo-600 rounded-xl">
+                    <Calendar className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <span className="text-[10px] font-mono uppercase text-indigo-600 font-bold block">Estimated Delivery (EDD)</span>
+                    <span className="font-extrabold text-stone-800 text-sm block leading-normal">
+                      {(() => {
+                        const eddDate = new Date();
+                        eddDate.setDate(eddDate.getDate() + (40 - obgynWeek) * 7);
+                        return eddDate.toLocaleDateString('en-US', {month: 'long', day: 'numeric', year: 'numeric'});
+                      })()}
+                    </span>
+                    <span className="text-[10px] text-stone-500 font-mono">{(40 - obgynWeek) * 7} Days Remaining</span>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-amber-50 to-yellow-50/30 border border-amber-100 rounded-2xl p-4 flex items-center gap-3">
+                  <div className="p-2.5 bg-amber-100 text-amber-600 rounded-xl">
+                    <ShieldAlert className="w-6 h-6" />
+                  </div>
+                  <div className="flex-1">
+                    <span className="text-[10px] font-mono uppercase text-amber-700 font-bold block">Maternal Risk Profile</span>
+                    <div className="flex gap-1.5 mt-1">
+                      {(['Low', 'Moderate', 'High'] as const).map((r) => (
+                        <button
+                          key={r}
+                          onClick={() => {
+                            setMaternalRisk(r);
+                            showToast(`Maternal risk profile updated to ${r}`, r === 'Low' ? 'success' : r === 'Moderate' ? 'info' : 'error');
+                          }}
+                          className={`px-2 py-0.5 rounded text-[9px] font-extrabold uppercase transition-colors cursor-pointer ${
+                            maternalRisk === r 
+                              ? r === 'Low' 
+                                ? 'bg-emerald-600 text-white' 
+                                : r === 'Moderate' 
+                                  ? 'bg-amber-500 text-stone-900' 
+                                  : 'bg-red-600 text-white' 
+                              : 'bg-stone-100 text-stone-400 hover:bg-stone-200'
+                          }`}
+                        >
+                          {r}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-stone-50 border border-stone-200 rounded-2xl p-4 flex items-center gap-3">
+                  <div className="p-2.5 bg-stone-200 text-stone-600 rounded-xl">
+                    <Activity className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <span className="text-[10px] font-mono uppercase text-stone-500 font-bold block">Vitals Status</span>
+                    <span className={`font-bold text-sm block ${
+                      (() => {
+                        const sys = parseInt(obgynBp.split('/')[0] || "120");
+                        const dia = parseInt(obgynBp.split('/')[1] || "80");
+                        return (sys >= 140 || dia >= 90) ? 'text-red-600 animate-pulse' : 'text-emerald-700';
+                      })()
+                    }`}>
+                      {obgynBp} mmHg • {obgynWeight} lbs
+                    </span>
+                    <span className="text-[10px] text-stone-500 block">
+                      {(() => {
+                        const sys = parseInt(obgynBp.split('/')[0] || "120");
+                        const dia = parseInt(obgynBp.split('/')[1] || "80");
+                        return (sys >= 140 || dia >= 90) ? '▲ High BP (Pre-eclampsia monitoring)' : '✓ Normotensive range';
+                      })()}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* PREGNANCY TIMELINE & VITALS TRACKER */}
+              <div className="bg-gradient-to-br from-rose-50/20 via-white to-stone-50/20 border border-stone-200 rounded-3xl p-6 shadow-sm">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+                  <div>
+                    <span className="text-[10px] font-mono font-black text-[#e11d48] uppercase tracking-wider block">CLINICAL STAGING ENGINE</span>
+                    <h4 className="font-display font-black text-lg text-stone-850 flex items-center gap-2">
+                      <Calendar className="w-5 h-5 text-rose-500" /> Gestational Timeline & Biometric Simulator
+                    </h4>
+                  </div>
+                  <div className="flex flex-wrap gap-2 items-center">
+                    <label className="text-xs font-bold text-stone-600">Simulate BP:</label>
+                    <input 
+                      type="text" 
+                      value={obgynBp} 
+                      onChange={(e) => setObgynBp(e.target.value)} 
+                      className="w-20 px-2 py-1 bg-white border border-stone-300 rounded-lg text-xs font-mono outline-none focus:border-rose-400"
+                      placeholder="120/80"
+                    />
+                    <label className="text-xs font-bold text-stone-600">Weight (lbs):</label>
+                    <input 
+                      type="number" 
+                      value={obgynWeight} 
+                      onChange={(e) => setObgynWeight(parseInt(e.target.value) || 140)} 
+                      className="w-16 px-2 py-1 bg-white border border-stone-300 rounded-lg text-xs font-mono outline-none focus:border-rose-400"
+                    />
+                    <button 
+                      onClick={() => {
+                        const sys = parseInt(obgynBp.split('/')[0] || "120");
+                        const dia = parseInt(obgynBp.split('/')[1] || "80");
+                        if (sys >= 140 || dia >= 90) {
+                          setMaternalRisk('High');
+                          showToast("Borderline severe hypertension simulated! Risk upgraded to HIGH. Patient warrants urine protein / preeclampsia workup.", "error");
+                        } else {
+                          showToast("Prenatal vitals locked in normal parameters.", "success");
+                        }
+                      }}
+                      className="px-3 py-1 bg-[#9f1239] hover:bg-[#881337] text-white rounded-lg text-[11px] font-mono font-black uppercase transition-colors cursor-pointer"
+                    >
+                      Assess Vitals
+                    </button>
+                  </div>
+                </div>
+
+                {/* Slider for Week */}
+                <div className="bg-stone-50 border border-stone-200/60 p-4.5 rounded-2xl mb-6">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-xs font-bold text-stone-700">Gestational Progress (Weeks 4 to 40)</span>
+                    <span className="text-xs font-mono bg-rose-100 text-rose-800 px-2.5 py-0.5 rounded-full font-black">Week {obgynWeek} of 40</span>
+                  </div>
+                  <input 
+                    type="range" 
+                    min="4" 
+                    max="40" 
+                    value={obgynWeek} 
+                    onChange={(e) => {
+                      const w = parseInt(e.target.value);
+                      setObgynWeek(w);
+                      // Dynamically set average weight as pregnancy progresses
+                      setObgynWeight(Math.round(110 + w * 1.1 + (w > 20 ? (w - 20) * 0.3 : 0)));
+                    }} 
+                    className="w-full accent-rose-600 h-2 bg-stone-200 rounded-lg appearance-none cursor-pointer"
+                  />
+                  <div className="flex justify-between text-[9px] text-stone-400 font-mono mt-2">
+                    <span>Week 4 (Embryo)</span>
+                    <span>Week 13 (End T1)</span>
+                    <span>Week 20 (Mid-term)</span>
+                    <span>Week 26 (End T2)</span>
+                    <span>Week 36 (Near Term)</span>
+                    <span>Week 40 (Birth)</span>
+                  </div>
+                </div>
+
+                {/* Fetal Benchmark Card */}
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-4 bg-white border border-rose-100 p-4 rounded-2xl items-center">
+                  <div className="md:col-span-3 text-center border-r border-stone-100 md:pr-4 py-2">
+                    <span className="text-[10px] text-rose-500 font-mono font-bold uppercase block">Fetal Size Comparison</span>
+                    <span className="text-3xl mt-1 block">🥝 🍓 🍋 🥑 🍉</span>
+                    <span className="font-black text-stone-800 text-base mt-2 block">Size of {b.fruit}</span>
+                  </div>
+                  <div className="md:col-span-9">
+                    <div className="flex flex-wrap gap-4 text-xs mb-2">
+                      <span className="bg-stone-100 text-stone-700 px-2 py-0.5 rounded-md font-mono"><strong>Est. Weight:</strong> {b.weight}</span>
+                      <span className="bg-stone-100 text-stone-700 px-2 py-0.5 rounded-md font-mono"><strong>Crown-Rump / Ht:</strong> {b.length}</span>
+                      <span className="bg-rose-50 text-rose-800 px-2.5 py-0.5 rounded-md font-mono font-bold"><strong>Staging:</strong> Trimester {obgynWeek <= 13 ? '1' : obgynWeek <= 26 ? '2' : '3'}</span>
+                    </div>
+                    <p className="text-xs text-stone-600 leading-relaxed font-medium">
+                      {b.description} During this developmental interval, clinical milestones focus on {obgynWeek <= 13 ? 'early organogenesis, nutritional safety, and cell-free DNA aneuploidy screening.' : obgynWeek <= 26 ? 'detailed structural fetal ultrasound, gestational diabetes screening (OGTT), and maternal antibody mapping.' : 'fetal growth assessment, Group B Streptococcus prophylaxis planning, labor induction criteria, and preeclampsia screening.'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* 4 CORE CLINICAL WORKFLOWS */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                {/* Selector Sidebar */}
+                <div className="lg:col-span-4 flex flex-col gap-2.5">
+                  <span className="text-xs font-black text-stone-700 uppercase font-mono tracking-wider">OB/GYN Pathway Selection</span>
+                  {[
+                    { id: 'prenatal', title: "Prenatal Care Strategy", desc: "Gestational staging, vaccinations, nutrient guidelines" },
+                    { id: 'labor', title: "Labor & Delivery Guidelines", desc: "Cervical progress, FHR monitor patterns, Bishop triage" },
+                    { id: 'preventive', title: "Preventive Gynecology Procedures", desc: "Pap, HPV co-testing criteria, cancer screens" },
+                    { id: 'postpartum', title: "Postpartum Safety & Discharge", desc: "Eclampsia triage, hemorrhage cues, EPDS depression check" },
+                  ].map((item) => (
+                    <button
+                      key={item.id}
+                      onClick={() => {
+                        setActiveWorkflow(item.id as any);
+                      }}
+                      className={`p-3.5 text-left border rounded-2xl transition-all cursor-pointer flex flex-col gap-1.5
+                        ${activeWorkflow === item.id 
+                          ? 'bg-stone-900 border-stone-900 text-white shadow-md' 
+                          : 'bg-stone-50/50 border-stone-200 hover:bg-stone-100/70 text-stone-800'
+                        }
+                      `}
+                    >
+                      <span className="font-bold text-xs block leading-tight">{item.title}</span>
+                      <span className={`text-[10px] block leading-normal ${activeWorkflow === item.id ? 'text-stone-300' : 'text-stone-500'}`}>{item.desc}</span>
+                    </button>
+                  ))}
+                </div>
+
+                {/* Pathway Panel Detail */}
+                <div className="lg:col-span-8 border border-stone-200 rounded-3xl p-5 shadow-xs bg-white">
+                  {activeWorkflow === 'prenatal' && (
+                    <div className="flex flex-col gap-4 animate-fadeIn">
+                      <div className="flex justify-between items-center border-b border-stone-100 pb-2">
+                        <span className="text-xs font-black text-rose-600 font-mono uppercase">PATHWAY: PRENATAL CARE STRATEGY</span>
+                        <span className="text-[10px] bg-rose-50 text-rose-800 border border-rose-100 px-2 py-0.5 rounded font-bold uppercase">Trimester {obgynWeek <= 13 ? '1' : obgynWeek <= 26 ? '2' : '3'}</span>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="p-3 bg-stone-50 border border-stone-150 rounded-xl">
+                          <span className="text-[10.5px] font-bold text-stone-800 block mb-2">Required Laboratory Screens</span>
+                          <ul className="text-xs text-stone-600 space-y-2 list-disc pl-4 leading-normal">
+                            <li><strong>Week 10-13:</strong> Cell-free DNA (NIPT) screening for chromosomal aneuploidies.</li>
+                            <li><strong>Week 24-28:</strong> 1-hour Oral Glucose Tolerance Test (OGTT) for Gestational Diabetes.</li>
+                            <li><strong>Week 35-37:</strong> Vaginal-rectal screening swab for Group B Streptococcus (GBS).</li>
+                          </ul>
+                        </div>
+
+                        <div className="p-3 bg-stone-50 border border-stone-150 rounded-xl">
+                          <span className="text-[10.5px] font-bold text-stone-800 block mb-2">Immunizations & Nutrients</span>
+                          <ul className="text-xs text-stone-600 space-y-2 list-disc pl-4 leading-normal">
+                            <li><strong>Folic Acid:</strong> 400 mcg daily (preconception to end of T1) to block neural tube defects.</li>
+                            <li><strong>TDAP Vaccine:</strong> Administered between 27-36 weeks of gestation for neonatal pertussis immunity.</li>
+                            <li><strong>Influenza / COVID:</strong> Indicated at any point of gestation to safeguard mother and fetus.</li>
+                          </ul>
+                        </div>
+                      </div>
+
+                      <div className="p-3.5 bg-rose-50/50 border border-rose-100 rounded-xl">
+                        <span className="text-xs font-black text-rose-800 block mb-1">Clinician Note (Gestational week {obgynWeek} tracking)</span>
+                        <p className="text-xs text-stone-600 leading-relaxed font-medium">
+                          Patient Henderson is currently in the {obgynWeek <= 13 ? 'first trimester. Ensure baseline thyroid function test, CBC, and prenatal antibody screen are ordered.' : obgynWeek <= 26 ? 'second trimester. Verify anatomy ultrasound details; evaluate uterine fundal height (expect ~' + obgynWeek + ' cm).' : 'third trimester. Schedule appointments every 2 weeks until 36 weeks, then weekly. Advise mother on fetal kick counting thresholds (minimum 10 movements in 2 hours).'}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {activeWorkflow === 'labor' && (
+                    <div className="flex flex-col gap-4 animate-fadeIn">
+                      <div className="flex justify-between items-center border-b border-stone-100 pb-2">
+                        <span className="text-xs font-black text-indigo-600 font-mono uppercase">PATHWAY: LABOR & DELIVERY TRIAGE</span>
+                        <span className="text-[10px] bg-indigo-50 text-indigo-800 border border-indigo-100 px-2 py-0.5 rounded font-bold uppercase">Intrapartum protocol</span>
+                      </div>
+
+                      {/* Fetal Heart Rate card grids */}
+                      <div>
+                        <span className="text-[10.5px] font-black text-stone-700 block mb-2 font-mono">1. Cardiotocography (CTG) Rhythm Diagnostics</span>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div className="p-3 border border-emerald-200 bg-emerald-50/30 rounded-xl">
+                            <span className="text-[11px] font-bold text-emerald-800 flex items-center gap-1.5 mb-1.5">
+                              <CheckCircle className="w-4 h-4 text-emerald-600" /> Category I: Reassuring (Normal)
+                            </span>
+                            <ul className="text-[11px] text-stone-600 space-y-1 list-disc pl-4 leading-relaxed">
+                              <li>Baseline FHR: 110-160 bpm</li>
+                              <li>Moderate baseline variability (6-25 bpm)</li>
+                              <li>Late or variable decelerations absent</li>
+                              <li>Early decelerations present or absent</li>
+                            </ul>
+                          </div>
+
+                          <div className="p-3 border border-red-200 bg-red-50/30 rounded-xl">
+                            <span className="text-[11px] font-bold text-red-800 flex items-center gap-1.5 mb-1.5">
+                              <AlertTriangle className="w-4 h-4 text-red-600 animate-pulse" /> Category III: Non-Reassuring
+                            </span>
+                            <ul className="text-[11px] text-stone-600 space-y-1 list-disc pl-4 leading-relaxed">
+                              <li>Absent baseline FHR variability AND:</li>
+                              <li>Recurrent late decelerations</li>
+                              <li>Recurrent variable decelerations</li>
+                              <li>Bradycardia (&lt;110 bpm) or sinusoidal pattern</li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Cervical & Rupture guidelines */}
+                      <div className="p-3 bg-stone-50 border border-stone-150 rounded-xl">
+                        <span className="text-[10.5px] font-bold text-stone-800 block mb-1.5">2. Cervical Examination & Bishop Triage Score</span>
+                        <p className="text-xs text-stone-600 leading-relaxed font-medium">
+                          Evaluate Bishop Score components: Dilation (0-10 cm), Effacement (0-100%), Station (-3 to +3), Consistency (Firm/Med/Soft), Position (Posterior/Mid/Anterior). Bishop score &ge; 8 suggests a highly favorable cervical state predictive of successful spontaneous vaginal delivery if labor is induced.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {activeWorkflow === 'preventive' && (
+                    <div className="flex flex-col gap-4 animate-fadeIn">
+                      <div className="flex justify-between items-center border-b border-stone-100 pb-2">
+                        <span className="text-xs font-black text-teal-600 font-mono uppercase">PATHWAY: PREVENTIVE GYN SCREENING</span>
+                        <span className="text-[10px] bg-teal-50 text-teal-800 border border-teal-100 px-2 py-0.5 rounded font-bold uppercase">ACOG / USPSTF Compliance</span>
+                      </div>
+
+                      <div className="space-y-3">
+                        <div className="p-3 bg-stone-50 border border-stone-150 rounded-xl">
+                          <span className="text-[11px] font-bold text-teal-900 block mb-1">Cervical Cancer Screening (Pap + HPV Guidelines)</span>
+                          <ul className="text-xs text-stone-600 space-y-1.5 list-disc pl-4 leading-relaxed">
+                            <li><strong>Ages 21-29:</strong> Pap smear cytology screening alone every 3 years. Primary HPV screening alone is not recommended.</li>
+                            <li><strong>Ages 30-65:</strong> Pap cytology co-testing with high-risk HPV screening every 5 years (preferred), or cytology alone every 3 years.</li>
+                            <li><strong>Ages &gt; 65:</strong> Discontinue screening if adequate prior screenings are negative and no history of high-grade precancer (CIN2/3).</li>
+                          </ul>
+                        </div>
+
+                        <div className="p-3 bg-stone-50 border border-stone-150 rounded-xl">
+                          <span className="text-[11px] font-bold text-teal-900 block mb-1">HPV Vaccination (Gardasil 9)</span>
+                          <p className="text-xs text-stone-600 leading-relaxed font-medium">
+                            Indicated routinely at age 11-12 (can start at 9). Standard dose is 2-dose series if initiated before age 15; 3-dose series if started at 15-26. Clinical shared decision-making is recommended for adults aged 27-45 who are not adequately vaccinated.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {activeWorkflow === 'postpartum' && (
+                    <div className="flex flex-col gap-4 animate-fadeIn">
+                      <div className="flex justify-between items-center border-b border-stone-100 pb-2">
+                        <span className="text-xs font-black text-amber-700 font-mono uppercase">PATHWAY: POSTPARTUM SAFETY SHIELD</span>
+                        <span className="text-[10px] bg-amber-50 text-amber-800 border border-amber-100 px-2 py-0.5 rounded font-bold uppercase">Post-delivery protocols</span>
+                      </div>
+
+                      <div className="p-3.5 border border-red-200 bg-red-50/25 rounded-xl">
+                        <span className="text-xs font-black text-red-800 block mb-2">⚠️ Postpartum Critical Red Flags (Advise Patient)</span>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-[11px] text-stone-600 font-medium">
+                          <div>
+                            <strong className="text-red-700 block">1. Severe Preeclampsia / Eclampsia</strong>
+                            Severe headache, vision anomalies, upper abdominal pain, or blood pressure exceeding 160/110 mmHg.
+                          </div>
+                          <div>
+                            <strong className="text-red-700 block">2. Postpartum Hemorrhage (PPH)</strong>
+                            Soaking more than one sanitary pad per hour or passing clots larger than a coin.
+                          </div>
+                          <div>
+                            <strong className="text-red-700 block">3. Puerperal Infection</strong>
+                            Fever exceeding 100.4&deg;F (38&deg;C), foul-smelling vaginal discharge, or acute uterine tenderness.
+                          </div>
+                          <div>
+                            <strong className="text-red-700 block">4. Venous Thromboembolism (DVT/PE)</strong>
+                            Unilateral swelling or pain in the calf; shortness of breath or sudden chest pain.
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="p-3 bg-stone-50 border border-stone-150 rounded-xl">
+                          <span className="text-[11.5px] font-bold text-stone-800 block mb-1">EPDS Screening (Depression)</span>
+                          <p className="text-xs text-stone-600 leading-relaxed font-medium">
+                            Administer the 10-item Edinburgh Postnatal Depression Scale (EPDS) at the 1-week and 6-week postpartum evaluations to detect depression/anxiety risks.
+                          </p>
+                        </div>
+
+                        <div className="p-3 bg-stone-50 border border-stone-150 rounded-xl">
+                          <span className="text-[11.5px] font-bold text-stone-800 block mb-1">Follow-up Timeline</span>
+                          <p className="text-xs text-stone-600 leading-relaxed font-medium">
+                            Evaluate blood pressure within 3-7 days for hypertensive patients. Indicate a comprehensive postpartum maternal screening within 3 to 12 weeks.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* FHIR-READY MATERNAL-FETAL HANDOFF CONSOLE */}
+              <div className="bg-stone-900 border border-stone-950 text-stone-200 p-5 rounded-3xl shadow-md flex flex-col gap-4 font-mono text-xs">
+                <div className="flex flex-wrap justify-between items-center border-b border-stone-800 pb-3">
+                  <div>
+                    <span className="text-[9px] text-[#f43f5e] font-extrabold uppercase block tracking-wider">FHIR-Ready SBAR Maternal Handoff Engine</span>
+                    <h4 className="font-bold text-sm text-white leading-tight">Structured Patient Handoff Profile: Henderson, Clarissa</h4>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[8px] bg-rose-600/30 text-rose-400 border border-rose-900/60 px-2.5 py-1 rounded-full font-bold uppercase animate-pulse">
+                      ▲ Epic Integration Port Active
+                    </span>
+                  </div>
+                </div>
+
+                {/* Dynamic SBAR Report Content */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* SBAR Monospace Output */}
+                  <div className="bg-stone-950/80 p-4 rounded-xl border border-stone-800 flex flex-col gap-3">
+                    <span className="text-[9px] text-stone-400 font-extrabold uppercase border-b border-stone-850 pb-1">Clinical SBAR Schema</span>
+                    
+                    <div className="space-y-2">
+                      <div>
+                        <span className="text-[9px] text-rose-400 font-bold block">S (Situation):</span>
+                        <p className="text-[10.5px] text-white leading-relaxed">{sbar.situation}</p>
+                      </div>
+                      <div>
+                        <span className="text-[9px] text-amber-400 font-bold block">B (Background):</span>
+                        <p className="text-[10.5px] text-stone-300 leading-relaxed">{sbar.background}</p>
+                      </div>
+                      <div>
+                        <span className="text-[9px] text-teal-400 font-bold block">A (Assessment):</span>
+                        <p className="text-[10.5px] text-stone-300 leading-relaxed">{sbar.assessment}</p>
+                      </div>
+                      <div>
+                        <span className="text-[9px] text-blue-400 font-bold block">R (Recommendation):</span>
+                        <p className="text-[10.5px] text-stone-300 leading-relaxed">{sbar.recommendation}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Checklists and controls */}
+                  <div className="flex flex-col gap-3">
+                    <span className="text-[9px] text-stone-400 font-extrabold uppercase border-b border-stone-850 pb-1">Handoff Validation Checklist</span>
+                    <div className="flex flex-col gap-1.5 max-h-44 overflow-y-auto pr-1">
+                      {obgynHandoffList.map((item) => (
+                        <label key={item.id} className="flex items-start gap-2 p-2 bg-stone-950/45 rounded-lg border border-stone-800 cursor-pointer hover:bg-stone-950 transition-colors">
+                          <input 
+                            type="checkbox" 
+                            checked={item.checked} 
+                            onChange={() => {
+                              setObgynHandoffList(prev => prev.map(x => x.id === item.id ? { ...x, checked: !x.checked } : x));
+                            }}
+                            className="mt-0.5 accent-rose-600 rounded cursor-pointer"
+                          />
+                          <span className={`text-[10.5px] leading-snug ${item.checked ? 'text-stone-400 line-through' : 'text-stone-200'}`}>
+                            {item.label}
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+
+                    {/* Custom checklist element creator */}
+                    <div className="flex gap-2">
+                      <input 
+                        type="text" 
+                        value={customHandoffText} 
+                        onChange={(e) => setCustomHandoffText(e.target.value)} 
+                        placeholder="Add new clinical checklist point..."
+                        className="flex-1 bg-stone-950 border border-stone-850 px-3 py-1.5 rounded-xl text-xs text-stone-100 outline-none focus:border-rose-600 placeholder-stone-500"
+                      />
+                      <button 
+                        onClick={() => {
+                          if (!customHandoffText.trim()) return;
+                          const newItem = {
+                            id: Date.now(),
+                            label: customHandoffText.trim(),
+                            checked: false
+                          };
+                          setObgynHandoffList(prev => [...prev, newItem]);
+                          setCustomHandoffText("");
+                          showToast("Checklist element appended successfully.", "success");
+                        }}
+                        className="bg-rose-700 hover:bg-rose-800 text-white px-3 py-1.5 rounded-xl text-[10.5px] font-black uppercase tracking-wider cursor-pointer"
+                      >
+                        Add
+                      </button>
+                    </div>
+
+                    {/* FHIR Queue button */}
+                    <button 
+                      onClick={() => {
+                        showToast("FHIR-ready SBAR handoff serialized. Queue position: #3. Transmission payload generated for Epic integration.", "success");
+                      }}
+                      className="w-full py-2.5 mt-1 bg-rose-600 hover:bg-rose-700 active:scale-95 text-white font-extrabold text-[11px] font-mono rounded-xl transition-all cursor-pointer shadow-xs uppercase tracking-wider text-center"
+                    >
+                      Queue OB Handoff
+                    </button>
+                  </div>
+                </div>
+
+                {/* View JSON block */}
+                <details className="mt-2 text-[10px] text-stone-400 cursor-pointer">
+                  <summary className="font-bold uppercase tracking-widest text-[#f43f5e] hover:text-rose-400 select-none">Show Raw HL7 FHIR clinicalImpression resource payload</summary>
+                  <pre className="bg-stone-950 p-4 rounded-xl border border-stone-850 mt-2 text-[9.5px] text-rose-300 overflow-x-auto leading-normal">
+{JSON.stringify({
+  resourceType: "ClinicalImpression",
+  id: "obgyn-henderson-impression",
+  status: "completed",
+  subject: { reference: "Patient/EPIC-CP-49112", display: "Henderson, Clarissa" },
+  date: new Date().toISOString().split('T')[0],
+  assessor: { reference: "Practitioner/drt-bot", display: "Dr. T OB/GYN Agentic Assistant" },
+  effectivePeriod: { start: new Date().toISOString() },
+  investigation: [{
+    code: { text: "Prenatal Maternal-Fetal Assessment parameters" },
+    item: [
+      { reference: "Observation/gestational-age", display: `Gestational Age: ${obgynWeek} weeks` },
+      { reference: "Observation/maternal-risk-status", display: `Maternal Risk Status: ${maternalRisk}` },
+      { reference: "Observation/bp-vitals", display: `BP value: ${obgynBp} mmHg` },
+      { reference: "Observation/maternal-weight", display: `Maternal weight: ${obgynWeight} lbs` },
+    ]
+  }],
+  summary: `SBAR: ${sbar.situation} Background: ${sbar.background} Assessment: ${sbar.assessment} Recommendation: ${sbar.recommendation}`,
+  note: obgynHandoffList.map(item => ({ text: `${item.label} [Verified: ${item.checked ? 'YES' : 'NO'}]` }))
+}, null, 2)}
+                  </pre>
+                </details>
+              </div>
+
+              {/* THREE SUB-SPECIALTY MODULES */}
+              <div className="bg-stone-50 border border-stone-200/80 rounded-3xl p-5 shadow-xs">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4">
+                  <div>
+                    <span className="text-[10px] font-mono font-black text-rose-600 uppercase tracking-wider block">EXPANDED CLINICAL PROTOCOLS</span>
+                    <h4 className="font-display font-black text-lg text-stone-850 flex items-center gap-2">
+                      <Award className="w-5 h-5 text-rose-500" /> Specialized Obstetric & Gynecologic Care Panels
+                    </h4>
+                  </div>
+                  
+                  {/* Switch sub-specialty tabs */}
+                  <div className="flex gap-1 bg-stone-200/60 p-1 rounded-xl">
+                    {(['fertility', 'menopause', 'preventive'] as const).map((tab) => (
+                      <button
+                        key={tab}
+                        onClick={() => setActiveSubSpecialty(tab)}
+                        className={`px-3 py-1 rounded-lg text-[10.5px] font-black uppercase transition-all cursor-pointer ${
+                          activeSubSpecialty === tab 
+                            ? 'bg-[#9f1239] text-white shadow-xs' 
+                            : 'text-stone-600 hover:text-stone-850 hover:bg-stone-200'
+                        }`}
+                      >
+                        {tab === 'fertility' && 'Fertility & Preconception'}
+                        {tab === 'menopause' && 'Menopause Management'}
+                        {tab === 'preventive' && 'Preventive Gyn Decision Tree'}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Sub-specialty panel content */}
+                <div className="bg-white border border-stone-150 rounded-2xl p-4.5 min-h-[160px] animate-fadeIn">
+                  {activeSubSpecialty === 'fertility' && (
+                    <div className="flex flex-col gap-3">
+                      <span className="text-xs font-black text-rose-600 font-mono uppercase">1. Preconception Counseling & Fertility Diagnostic Logic</span>
+                      <p className="text-xs text-stone-600 leading-relaxed font-medium">
+                        Optimizing health prior to conception is essential to reduce adverse pregnancy outcomes. Evaluate nutrition (ensure folic acid therapy is active), immunizations (confirm Rubella and Varicella immunity prior to conception), and manage preexisting medical conditions (stabilize Hemoglobin A1c for diabetics, switch ACE inhibitors to pregnancy-safe options for hypertension).
+                      </p>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-1.5 text-xs">
+                        <div className="p-3 bg-stone-50 border border-stone-200 rounded-xl">
+                          <span className="font-extrabold text-stone-800 block mb-1">Ovarian Reserve Assays</span>
+                          <span className="text-stone-500 block leading-normal">Measure Anti-Müllerian Hormone (AMH) and Antral Follicle Count (AFC) to estimate functional oocyte inventory.</span>
+                        </div>
+                        <div className="p-3 bg-stone-50 border border-stone-200 rounded-xl">
+                          <span className="font-extrabold text-stone-800 block mb-1">Semen Analysis Criteria</span>
+                          <span className="text-stone-500 block leading-normal">Evaluate sperm concentration (&gt;15 million/mL), total motility (&gt;40%), and normal morphology (&gt;4% Kruger criteria).</span>
+                        </div>
+                        <div className="p-3 bg-stone-50 border border-stone-200 rounded-xl">
+                          <span className="font-extrabold text-stone-800 block mb-1">Ovulation Predictors</span>
+                          <span className="text-stone-500 block leading-normal">Track Luteinizing Hormone (LH) surge in urine or assess mid-luteal progesterone (typically drawn on Day 21).</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {activeSubSpecialty === 'menopause' && (
+                    <div className="flex flex-col gap-3">
+                      <span className="text-xs font-black text-indigo-600 font-mono uppercase">2. Menopause Transition & Vasomotor Diagnostic Logic</span>
+                      <p className="text-xs text-stone-600 leading-relaxed font-medium">
+                        The menopause transition is characterized by fluctuating estrogen levels leading to clinical symptoms like vasomotor instability (hot flashes, night sweats) and urogenital atrophy. Establish DEXA screening schedules to prevent bone density degradation.
+                      </p>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-1.5 text-xs">
+                        <div className="p-3 bg-stone-50 border border-stone-200 rounded-xl">
+                          <span className="font-extrabold text-[#9f1239] block mb-1">Hormonal Replacement (HRT)</span>
+                          <span className="text-stone-500 block leading-normal">Indicated for moderate-to-severe vasomotor symptoms. Crucial: Systemic estrogen requires a progestogen if uterus is intact to prevent endometrial hyperplasia.</span>
+                        </div>
+                        <div className="p-3 bg-stone-50 border border-stone-200 rounded-xl">
+                          <span className="font-extrabold text-[#1e3a8a] block mb-1">Osteoporosis Dexa Criteria</span>
+                          <span className="text-stone-500 block leading-normal">Order DEXA bone mineral density screening for women aged &ge; 65, or younger women with elevated FRAX risk scores. T-score &le; -2.5 is diagnostic of osteoporosis.</span>
+                        </div>
+                        <div className="p-3 bg-stone-50 border border-stone-200 rounded-xl">
+                          <span className="font-extrabold text-teal-800 block mb-1">Non-Hormonal Therapies</span>
+                          <span className="text-stone-500 block leading-normal">Indicate SSRIs/SNRIs (e.g., Paroxetine, Venlafaxine), Gabapentin, or Fezolinetant (NK3 receptor antagonist) for patients with HRT contraindications.</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {activeSubSpecialty === 'preventive' && (
+                    <div className="flex flex-col gap-3">
+                      <span className="text-xs font-black text-teal-600 font-mono uppercase">3. Gynecologic Preventive Decision Tree & Contraceptive Selection Matrix</span>
+                      <p className="text-xs text-stone-600 leading-relaxed font-medium">
+                        Clinicians should utilize a patient-centered framework to match medical history with contraceptive efficacy. Highly effective Long-Acting Reversible Contraception (LARC) options (IUDs, implants) should be offered as first-line options.
+                      </p>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
+                        <div className="p-3 bg-stone-50 border border-stone-200 rounded-xl">
+                          <span className="font-bold text-stone-850 block mb-1">LARC (Long-Acting Reversible Contraception)</span>
+                          <ul className="text-stone-500 space-y-1 list-disc pl-4 leading-normal">
+                            <li><strong>Intrauterine Device (IUD):</strong> Levonorgestrel-releasing (3-8 years, local progestin, reduces bleeding) vs. Copper T380A (10 years, non-hormonal, normal bleeding patterns preserved).</li>
+                            <li><strong>Etonogestrel Implant:</strong> Subdermal rod (3 years, highly effective, suppresses ovulation completely).</li>
+                          </ul>
+                        </div>
+                        <div className="p-3 bg-stone-50 border border-stone-200 rounded-xl">
+                          <span className="font-bold text-stone-850 block mb-1">Maternal Contraindications (US MEC Criteria)</span>
+                          <ul className="text-stone-500 space-y-1 list-disc pl-4 leading-normal">
+                            <li><strong>Estrogen-containing options (COCs, patch, ring)</strong> are strictly contraindicated (MEC Category 4) for women with migraine with aura, deep vein thrombosis history, or active smoking over age 35.</li>
+                            <li><strong>Progestin-only options</strong> remain safe and indicated for patients with estrogen contraindications.</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* CLINICAL SAFETY DISCLAIMER */}
+              <div className="p-4.5 bg-rose-50 border border-rose-100 rounded-3xl flex flex-col sm:flex-row gap-3 items-start select-none">
+                <span className="text-2xl shrink-0 mt-0.5">⚠️</span>
+                <div>
+                  <strong className="text-xs text-rose-900 block mb-1">EDUCATIONAL PROTOCOL WARNING & SAFETY DISCLAIMER</strong>
+                  <p className="text-[11px] text-rose-800 leading-relaxed font-medium">
+                    The OB/GYN Maternal Care Navigator is presented solely for clinical decision-support simulation, educational workflows, and FHIR interoperability modeling. It is not designed or intended to replace professional maternal counseling, clinical ultrasound evaluation, or actual diagnostic treatment. Always cross-reference simulated telemetry with active ACOG guidelines and professional obstetric consultations.
+                  </p>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
+
+        {activeSubTab === 'predictions' && (
+          <div className="space-y-6">
+            {/* Header / Intro section */}
+            <div className="p-6 bg-gradient-to-r from-stone-900 to-stone-800 rounded-3xl text-white shadow-xl">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-black tracking-widest text-rose-400 uppercase bg-rose-950/60 px-3 py-1 rounded-full border border-rose-900/60">
+                    Proprietary Dr. T Predictive Engine
+                  </span>
+                  <h3 className="text-xl font-display font-black tracking-tight">Clinical AI Forecasting & Predictive Sandbox</h3>
+                  <p className="text-xs text-stone-300 max-w-2xl font-medium">
+                    Analyze critical physiologic data to predict length of stay, 30-day readmissions, and hazard parameters. Harness the combined biostatistics of MIMIC-IV regression indices and Google Gemini 3.5-Flash.
+                  </p>
+                </div>
+                <button
+                  id="clinical-predict-quick-btn"
+                  onClick={() => runClinicalPrediction()}
+                  disabled={isPredicting}
+                  className="px-5 py-2.5 bg-rose-600 hover:bg-rose-500 disabled:bg-rose-800 text-white font-bold text-xs rounded-2xl flex items-center gap-2 shadow-lg hover:shadow-rose-900/30 transition-all cursor-pointer font-sans shrink-0"
+                >
+                  {isPredicting ? (
+                    <>
+                      <RefreshCw className="w-4 h-4 animate-spin" />
+                      <span>Simulating Trials...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-4 h-4" />
+                      <span>Execute Predictive Inference</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* Autonomous Watchdog Agent Dashboard Console */}
+            <div className="bg-stone-900 border border-stone-800 rounded-3xl p-5 text-white shadow-xl space-y-4">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-stone-800 pb-4">
+                <div className="space-y-1.5">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                    <span className="text-[10px] font-mono font-black tracking-widest text-emerald-400 uppercase">
+                      AUTONOMOUS CLINICAL AGENT WATCHDOG
+                    </span>
+                  </div>
+                  <h4 className="text-lg font-display font-black tracking-tight flex items-center gap-2">
+                    <Cpu className="w-5 h-5 text-rose-500" />
+                    Dr. T Clinical Monitor & Predictive Loop
+                  </h4>
+                  <p className="text-[11px] text-stone-400 max-w-xl font-medium">
+                    This AI Agent autonomously monitors physiological streams, slightly perturbs vitals to simulate dynamic bedside monitors, parses clinical notes via NLP sentiment analysis, and runs deep forecasting models at preset clock intervals.
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap gap-2.5 items-center shrink-0">
+                  {/* Select Speed */}
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[8px] font-mono font-bold text-stone-400 uppercase">Scan Interval</span>
+                    <select
+                      id="agent-speed-select"
+                      value={simulationSpeed}
+                      onChange={(e) => setSimulationSpeed(Number(e.target.value))}
+                      className="bg-stone-850 border border-stone-750 text-xs font-bold text-white px-2.5 py-1.5 rounded-xl focus:outline-none"
+                    >
+                      <option value={6000}>High Speed (6s)</option>
+                      <option value={12000}>Balanced (12s)</option>
+                      <option value={24000}>Standard Care (24s)</option>
+                    </select>
+                  </div>
+
+                  {/* Toggle Button */}
+                  <button
+                    id="agent-toggle-btn"
+                    onClick={() => setIsAutonomousActive(!isAutonomousActive)}
+                    className={`px-4.5 py-2.5 rounded-2xl font-black text-xs flex items-center gap-1.5 shadow-md cursor-pointer transition-all ${
+                      isAutonomousActive 
+                        ? 'bg-rose-600 hover:bg-rose-500 text-white' 
+                        : 'bg-emerald-600 hover:bg-emerald-500 text-white'
+                    }`}
+                  >
+                    {isAutonomousActive ? (
+                      <>
+                        <Square className="w-3.5 h-3.5 fill-current" />
+                        <span>Halt Agent Loop</span>
+                      </>
+                    ) : (
+                      <>
+                        <Play className="w-3.5 h-3.5 fill-current" />
+                        <span>Start Watchdog Agent</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {/* Status Visualizer & Active Agent Pipeline */}
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-stretch">
+                
+                {/* Pipeline visualizer */}
+                <div className="md:col-span-4 bg-stone-950/60 border border-stone-850 p-4 rounded-2xl flex flex-col justify-between">
+                  <div className="space-y-1">
+                    <span className="text-[9px] font-mono font-black text-stone-500 uppercase block">AGENT ACTIVITY PIPELINE</span>
+                    <div className="flex items-center gap-2 mt-1">
+                      {isAutonomousActive ? (
+                        <>
+                          <div className={`w-2.5 h-2.5 rounded-full ${
+                            agentState === 'CRITICAL_ALERT' ? 'bg-rose-500 animate-ping' : 'bg-emerald-400 animate-pulse'
+                          }`} />
+                          <span className="text-xs font-mono font-black text-white uppercase tracking-wider">
+                            {agentState === 'IDLE' && 'MONITORING STANDBY'}
+                            {agentState === 'SCANNING_VITALS' && 'SCANNING telemetry...'}
+                            {agentState === 'NLP_PARSING' && 'PARSING narratives...'}
+                            {agentState === 'GEMINI_INFERENCE' && 'GEMINI INFERENCE...'}
+                            {agentState === 'INTERVENTION_GEN' && 'GENERATING PROTOCOL'}
+                            {agentState === 'CRITICAL_ALERT' && '🚨 CRITICAL OVERLOAD ALERT'}
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          <div className="w-2.5 h-2.5 rounded-full bg-stone-600" />
+                          <span className="text-xs font-mono font-black text-stone-400 uppercase tracking-wider">STANDBY (INACTIVE)</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Stepper Pipeline */}
+                  <div className="space-y-2.5 mt-4">
+                    {[
+                      { state: 'SCANNING_VITALS', label: '1. Bedside Telemetry Scan' },
+                      { state: 'NLP_PARSING', label: '2. Socratic EHR NLP Parse' },
+                      { state: 'GEMINI_INFERENCE', label: '3. Neural Prediction Execution' },
+                      { state: 'INTERVENTION_GEN', label: '4. Dynamic Action Synthesis' }
+                    ].map((step, idx) => {
+                      const isActive = agentState === step.state;
+                      const isCompleted = isAutonomousActive && (
+                        (step.state === 'SCANNING_VITALS' && agentState !== 'SCANNING_VITALS') ||
+                        (step.state === 'NLP_PARSING' && agentState !== 'SCANNING_VITALS' && agentState !== 'NLP_PARSING') ||
+                        (step.state === 'GEMINI_INFERENCE' && agentState === 'INTERVENTION_GEN')
+                      );
+                      return (
+                        <div key={idx} className="flex items-center justify-between text-xs font-medium">
+                          <span className={`transition-colors ${
+                            isActive ? 'text-emerald-400 font-bold' : isCompleted ? 'text-stone-300' : 'text-stone-500'
+                          }`}>
+                            {step.label}
+                          </span>
+                          <span className={`w-2 h-2 rounded-full ${
+                            isActive ? 'bg-emerald-400 animate-pulse' : isCompleted ? 'bg-emerald-500' : 'bg-stone-800'
+                          }`} />
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Log Terminal console */}
+                <div className="md:col-span-8 bg-stone-950 border border-stone-850 p-4 rounded-2xl flex flex-col justify-between">
+                  <div className="flex justify-between items-center border-b border-stone-850 pb-2 mb-2">
+                    <span className="text-[9px] font-mono font-black text-stone-500 uppercase flex items-center gap-1">
+                      <Terminal className="w-3 h-3 text-rose-500" />
+                      INTERNAL THOUGHT FEED & ACTION LOGS
+                    </span>
+                    <button
+                      id="clear-logs-btn"
+                      onClick={() => setAgentLogs([{ id: 'init', timestamp: new Date().toLocaleTimeString(), type: 'info', title: 'Watchdog Initialized', message: 'Agent Logs cleared by clinical manager.' }])}
+                      className="text-[9px] font-mono text-stone-500 hover:text-white cursor-pointer"
+                    >
+                      CLEAR FEED
+                    </button>
+                  </div>
+
+                  {/* Terminal Screen Container */}
+                  <div className="h-40 overflow-y-auto font-mono text-[10.5px] leading-relaxed space-y-2 pr-1 custom-scrollbar">
+                    {agentLogs.map((log) => (
+                      <div key={log.id} className="border-b border-stone-900 pb-1.5 last:border-0">
+                        <div className="flex justify-between text-stone-500 text-[9px] mb-0.5">
+                          <span>{log.timestamp} - {log.title}</span>
+                          <span className={`px-1 rounded text-[8px] font-bold ${
+                            log.type === 'alert' ? 'bg-red-950 text-red-400 border border-red-900' :
+                            log.type === 'warning' ? 'bg-amber-950/60 text-amber-400' :
+                            log.type === 'action' ? 'bg-teal-950 text-teal-300 border border-teal-900/60' :
+                            log.type === 'reasoning' ? 'bg-purple-950 text-purple-300' : 'bg-stone-850 text-stone-400'
+                          }`}>
+                            {log.type.toUpperCase()}
+                          </span>
+                        </div>
+                        <p className={`font-medium ${
+                          log.type === 'alert' ? 'text-rose-400 font-bold' :
+                          log.type === 'warning' ? 'text-amber-300' :
+                          log.type === 'action' ? 'text-teal-300 font-bold' :
+                          log.type === 'reasoning' ? 'text-purple-300' : 'text-stone-300'
+                        }`}>
+                          {log.message}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            {/* Main Interactive Workspace Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              
+              {/* Telemetry Inputs Column */}
+              <div className="lg:col-span-5 bg-white border border-stone-200/80 rounded-3xl p-5 shadow-sm space-y-5">
+                <div className="border-b border-stone-100 pb-3">
+                  <h4 className="font-bold text-stone-900 text-sm flex items-center gap-1.5">
+                    <TrendingUp className="w-4 h-4 text-rose-500" />
+                    Patient Telemetry Configuration
+                  </h4>
+                  <p className="text-[11px] text-stone-500 mt-0.5 font-medium">Select clinical presets or customize physiological attributes.</p>
+                </div>
+
+                {/* Preset Selector */}
+                <div className="space-y-2">
+                  <label className="text-[10px] font-mono font-black text-stone-500 uppercase">1. Patient Profile Preset</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {[
+                      { id: 'drt', label: 'Dr. T Burnout', desc: 'Sympathetic dominance' },
+                      { id: 'sepsis', label: 'Sepsis Threat', desc: 'Severe infection' },
+                      { id: 'cardio', label: 'Cardio Crisis', desc: 'Hypertension/Ischemia' },
+                      { id: 'stable', label: 'Post-Op Stable', desc: 'Normal recovery' }
+                    ].map((p) => (
+                      <button
+                        key={p.id}
+                        id={`preset-btn-${p.id}`}
+                        onClick={() => applyPreset(p.id as any)}
+                        className={`p-2.5 rounded-2xl text-left border transition-all cursor-pointer ${
+                          patientPreset === p.id
+                            ? 'bg-rose-50/80 border-rose-300 shadow-sm'
+                            : 'bg-stone-50/50 border-stone-200 hover:bg-stone-50'
+                        }`}
+                      >
+                        <span className={`block font-bold text-xs ${patientPreset === p.id ? 'text-rose-900' : 'text-stone-800'}`}>
+                          {p.label}
+                        </span>
+                        <span className="text-[9px] text-stone-500 block leading-tight mt-0.5">{p.desc}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Patient Metadata & Vitals */}
+                <div className="space-y-4">
+                  <span className="text-[10px] font-mono font-black text-stone-500 uppercase block">2. Physiological Metrics & Lab Telemetry</span>
+                  
+                  {/* Age & Gender */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-[10px] text-stone-600 font-bold block mb-1">Age</label>
+                      <input
+                        id="predict-age-input"
+                        type="number"
+                        value={patientAge}
+                        onChange={(e) => { setPatientAge(Number(e.target.value)); setPatientPreset('custom'); }}
+                        className="w-full text-xs font-bold text-stone-800 p-2 border border-stone-200 rounded-xl focus:border-rose-400 focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-stone-600 font-bold block mb-1">Gender</label>
+                      <select
+                        id="predict-gender-select"
+                        value={patientGender}
+                        onChange={(e) => { setPatientGender(e.target.value); setPatientPreset('custom'); }}
+                        className="w-full text-xs font-bold text-stone-800 p-2 border border-stone-200 rounded-xl focus:border-rose-400 focus:outline-none"
+                      >
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Non-binary">Non-binary</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* BP, GCS & HR */}
+                  <div className="grid grid-cols-3 gap-2">
+                    <div>
+                      <label className="text-[10px] text-stone-600 font-bold block mb-0.5">SBP (mmHg)</label>
+                      <input
+                        id="predict-sbp"
+                        type="number"
+                        value={patientSbp}
+                        onChange={(e) => { setPatientSbp(Number(e.target.value)); setPatientPreset('custom'); }}
+                        className="w-full text-xs font-bold text-stone-800 p-2 border border-stone-200 rounded-xl"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-stone-600 font-bold block mb-0.5">DBP (mmHg)</label>
+                      <input
+                        id="predict-dbp"
+                        type="number"
+                        value={patientDbp}
+                        onChange={(e) => { setPatientDbp(Number(e.target.value)); setPatientPreset('custom'); }}
+                        className="w-full text-xs font-bold text-stone-800 p-2 border border-stone-200 rounded-xl"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-stone-600 font-bold block mb-0.5">GCS Scale</label>
+                      <select
+                        id="predict-gcs"
+                        value={patientGcs}
+                        onChange={(e) => { setPatientGcs(Number(e.target.value)); setPatientPreset('custom'); }}
+                        className="w-full text-xs font-bold text-stone-800 p-2 border border-stone-200 rounded-xl"
+                      >
+                        {[15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3].map((val) => (
+                          <option key={val} value={val}>{val}/15</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Vitals inputs */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    <div>
+                      <label className="text-[10px] text-stone-600 font-bold block mb-0.5">Heart Rate</label>
+                      <input
+                        id="predict-hr"
+                        type="number"
+                        value={patientHr}
+                        onChange={(e) => { setPatientHr(Number(e.target.value)); setPatientPreset('custom'); }}
+                        className="w-full text-xs font-bold text-stone-800 p-2 border border-stone-200 rounded-xl"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-stone-600 font-bold block mb-0.5">Temp (°F)</label>
+                      <input
+                        id="predict-temp"
+                        type="number"
+                        step="0.1"
+                        value={patientTemp}
+                        onChange={(e) => { setPatientTemp(Number(e.target.value)); setPatientPreset('custom'); }}
+                        className="w-full text-xs font-bold text-stone-800 p-2 border border-stone-200 rounded-xl"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-stone-600 font-bold block mb-0.5">Resp Rate</label>
+                      <input
+                        id="predict-rr"
+                        type="number"
+                        value={patientRr}
+                        onChange={(e) => { setPatientRr(Number(e.target.value)); setPatientPreset('custom'); }}
+                        className="w-full text-xs font-bold text-stone-800 p-2 border border-stone-200 rounded-xl"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-stone-600 font-bold block mb-0.5">SpO2 %</label>
+                      <input
+                        id="predict-spo2"
+                        type="number"
+                        value={patientSpO2}
+                        onChange={(e) => { setPatientSpO2(Number(e.target.value)); setPatientPreset('custom'); }}
+                        className="w-full text-xs font-bold text-stone-800 p-2 border border-stone-200 rounded-xl"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] text-stone-600 font-bold block mb-1">WBC Count (k/uL)</label>
+                    <input
+                      id="predict-wbc"
+                      type="number"
+                      step="0.1"
+                      value={patientWbc}
+                      onChange={(e) => { setPatientWbc(Number(e.target.value)); setPatientPreset('custom'); }}
+                      className="w-full text-xs font-bold text-stone-800 p-2 border border-stone-200 rounded-xl"
+                    />
+                  </div>
+                </div>
+
+                {/* Notes */}
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-mono font-black text-stone-500 uppercase block">3. NLP Context / Clinical Narrative Logs</label>
+                  <textarea
+                    id="predict-notes"
+                    rows={4}
+                    value={patientClinicalNotes}
+                    onChange={(e) => { setPatientClinicalNotes(e.target.value); setPatientPreset('custom'); }}
+                    placeholder="Enter raw clinician observations, symptoms, and dynamic EHR patient entries for the NLP parser..."
+                    className="w-full p-3 text-xs border border-stone-200 rounded-2xl focus:border-rose-400 focus:outline-none font-medium leading-relaxed"
+                  />
+                </div>
+
+                <button
+                  id="clinical-predict-bottom-btn"
+                  onClick={() => runClinicalPrediction()}
+                  disabled={isPredicting}
+                  className="w-full py-3 bg-[#9f1239] hover:bg-[#881337] disabled:bg-rose-900 text-white font-bold text-xs rounded-2xl flex items-center justify-center gap-2 shadow-md cursor-pointer transition-all"
+                >
+                  {isPredicting ? (
+                    <>
+                      <RefreshCw className="w-4 h-4 animate-spin" />
+                      <span>Recalculating Predictive Indices...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-4 h-4" />
+                      <span>Generate Advanced Predictor Report</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
+              {/* Predictions Dashboard Output */}
+              <div className="lg:col-span-7 space-y-6">
+                
+                {/* Visual KPIs Dashboard */}
+                <div className="bg-stone-50 border border-stone-200 rounded-3xl p-5 space-y-6 shadow-inner">
+                  <div className="flex justify-between items-center border-b border-stone-200/60 pb-3">
+                    <span className="text-xs font-mono font-black text-stone-600 uppercase">PROBABILISTIC CLASSIFICATION INDICATORS</span>
+                    <span className="px-2 py-0.5 bg-rose-100 border border-rose-200 text-rose-700 rounded-lg text-[9px] font-mono font-black">
+                      CLINICAL METRICS LOGGED
+                    </span>
+                  </div>
+
+                  {predictiveResult ? (
+                    <div className="space-y-6">
+                      
+                      {/* Primary Diagnosis Alert */}
+                      <div className="p-4 bg-white border border-stone-200 rounded-2xl shadow-sm flex items-start gap-3">
+                        <span className="text-xl">🧬</span>
+                        <div>
+                          <span className="text-[9px] font-mono font-extrabold text-stone-400 uppercase">Predicted Primary Clinical Diagnosis</span>
+                          <h4 className="font-sans font-black text-stone-900 text-sm mt-0.5 leading-snug">
+                            {predictiveResult.predictedPrimaryDx}
+                          </h4>
+                        </div>
+                      </div>
+
+                      {/* Gauges Grid */}
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        
+                        {/* KPI 1: Readmission Risk */}
+                        <div className="p-4 bg-white border border-stone-200 rounded-2xl shadow-sm flex flex-col justify-between">
+                          <div>
+                            <span className="text-[8px] font-mono font-black text-stone-400 uppercase block">30-Day Readmission Risk</span>
+                            <span className="text-2xl font-black text-stone-900 block mt-1">{predictiveResult.readmitProb}%</span>
+                          </div>
+                          <div className="mt-2.5">
+                            <div className="w-full bg-stone-100 rounded-full h-1.5 overflow-hidden">
+                              <div
+                                className={`h-1.5 rounded-full ${
+                                  predictiveResult.readmitProb > 50 ? 'bg-red-500' : predictiveResult.readmitProb > 30 ? 'bg-amber-500' : 'bg-green-500'
+                                }`}
+                                style={{ width: `${predictiveResult.readmitProb}%` }}
+                              />
+                            </div>
+                            <span className="text-[8px] text-stone-500 mt-1 block">
+                              {predictiveResult.readmitProb > 50 ? '🚨 High Return Hazard' : predictiveResult.readmitProb > 30 ? '⚠️ Moderate Return Risk' : '✓ Favorable Recovery'}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* KPI 2: Mortality Index */}
+                        <div className="p-4 bg-white border border-stone-200 rounded-2xl shadow-sm flex flex-col justify-between">
+                          <div>
+                            <span className="text-[8px] font-mono font-black text-stone-400 uppercase block">ICU Mortality Index (OASIS-III)</span>
+                            <span className="text-2xl font-black text-stone-900 block mt-1">{predictiveResult.mortalityRisk}%</span>
+                          </div>
+                          <div className="mt-2.5">
+                            <div className="w-full bg-stone-100 rounded-full h-1.5 overflow-hidden">
+                              <div
+                                className={`h-1.5 rounded-full ${
+                                  predictiveResult.mortalityRisk > 40 ? 'bg-red-600' : predictiveResult.mortalityRisk > 15 ? 'bg-amber-500' : 'bg-green-500'
+                                }`}
+                                style={{ width: `${predictiveResult.mortalityRisk}%` }}
+                              />
+                            </div>
+                            <span className="text-[8px] text-stone-500 mt-1 block">
+                              {predictiveResult.mortalityRisk > 40 ? '🚨 High ICU Mortality Alert' : predictiveResult.mortalityRisk > 15 ? '⚠️ Alert Level Moderate' : '✓ Safe Baseline'}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* KPI 3: Predicted Length of Stay */}
+                        <div className="p-4 bg-white border border-stone-200 rounded-2xl shadow-sm flex flex-col justify-between">
+                          <div>
+                            <span className="text-[8px] font-mono font-black text-stone-400 uppercase block">Predicted Length of Stay</span>
+                            <span className="text-2xl font-black text-[#9f1239] block mt-1">{predictiveResult.losDays} Days</span>
+                          </div>
+                          <div className="mt-2.5">
+                            <div className="flex gap-1 items-center">
+                              <span className="text-xs">📅</span>
+                              <span className="text-[9px] text-stone-600 font-bold">Inpatient discharge timeline target</span>
+                            </div>
+                          </div>
+                        </div>
+
+                      </div>
+
+                      {/* Sepsis & Cardiovascular Risks Row */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        
+                        {/* Card 1: 10-Yr Cardiovascular Risk */}
+                        <div className="p-4 bg-white border border-stone-200 rounded-2xl shadow-sm flex items-center justify-between">
+                          <div>
+                            <span className="text-[8px] font-mono font-black text-stone-400 uppercase block">10-Yr Cardiovascular Risk</span>
+                            <span className="text-xl font-extrabold text-stone-800">{predictiveResult.cardiovascular10YrRisk}%</span>
+                            <span className="text-[9px] text-stone-500 block leading-normal mt-0.5">Framingham Heart Equivalent Index</span>
+                          </div>
+                          <div className="w-12 h-12 rounded-full border-4 border-rose-50 flex items-center justify-center relative">
+                            <span className="text-[10px] font-black text-rose-600">{predictiveResult.cardiovascular10YrRisk}%</span>
+                          </div>
+                        </div>
+
+                        {/* Card 2: Sepsis Status */}
+                        <div className={`p-4 border rounded-2xl shadow-sm flex items-center gap-3 transition-colors ${
+                          predictiveResult.isSepsisRisk 
+                            ? 'bg-rose-50 border-rose-200' 
+                            : 'bg-white border-stone-200'
+                        }`}>
+                          <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-sm ${
+                            predictiveResult.isSepsisRisk ? 'bg-rose-100 text-rose-700' : 'bg-stone-100 text-stone-500'
+                          }`}>
+                            ⚠️
+                          </div>
+                          <div>
+                            <span className="text-[8px] font-mono font-black text-stone-400 uppercase block">Systemic Sepsis Risk</span>
+                            <span className={`text-xs font-black uppercase ${predictiveResult.isSepsisRisk ? 'text-rose-700' : 'text-stone-700'}`}>
+                              {predictiveResult.isSepsisRisk ? '🚨 CRITICAL IMMINENT THREAT' : '✓ Negative / Normal Baseline'}
+                            </span>
+                          </div>
+                        </div>
+
+                      </div>
+
+                      {/* Risk Drivers & Recommendations */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        
+                        <div className="p-4.5 bg-white border border-stone-200 rounded-2xl shadow-sm space-y-2">
+                          <span className="text-[9px] font-mono font-black text-stone-500 uppercase block">Key Physiologic Risk Drivers</span>
+                          <ul className="space-y-1.5">
+                            {predictiveResult.riskDrivers?.map((driver, index) => (
+                              <li key={index} className="text-xs text-stone-600 leading-normal font-medium flex items-start gap-1.5">
+                                <span className="text-rose-500 shrink-0 mt-0.5">•</span>
+                                <span>{driver}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+
+                        <div className="p-4.5 bg-white border border-stone-200 rounded-2xl shadow-sm space-y-2">
+                          <span className="text-[9px] font-mono font-black text-stone-500 uppercase block">Preventative Action Plan</span>
+                          <ul className="space-y-1.5">
+                            {predictiveResult.recommendations?.map((rec, index) => (
+                              <li key={index} className="text-xs text-stone-600 leading-normal font-medium flex items-start gap-1.5">
+                                <span className="text-teal-600 shrink-0 mt-0.5">✓</span>
+                                <span>{rec}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+
+                      </div>
+
+                    </div>
+                  ) : (
+                    <div className="py-12 flex flex-col items-center justify-center text-center space-y-2">
+                      <span className="text-3xl">🧮</span>
+                      <strong className="text-stone-850 text-sm">Predictive Report Unloaded</strong>
+                      <p className="text-xs text-stone-500 max-w-sm">
+                        Configure clinical vitals on the left panel, and execute the predictive algorithm to generate a custom probabilistic risk profile report.
+                      </p>
+                    </div>
+                  )}
+
+                </div>
+
+                {/* Educational / Mathematical background on the predictor */}
+                <div className="p-5 bg-stone-50 border border-stone-200 rounded-3xl space-y-4">
+                  <h4 className="font-bold text-stone-900 text-xs font-mono uppercase tracking-wider flex items-center gap-1.5">
+                    📖 Theoretical Foundations of Clinical AI Prediction
+                  </h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+                    
+                    <div className="p-3 bg-white border border-stone-200 rounded-xl space-y-1">
+                      <strong className="text-stone-850 block font-bold text-[11px]">OASIS-III Regression</strong>
+                      <p className="text-[10px] text-stone-500 leading-normal font-medium">
+                        OASIS-III combines parameters such as GCS score, age, pre-admission stay, heart rate, and temperature to calculate real-time relative ICU mortality indices with extreme statistical fidelity.
+                      </p>
+                    </div>
+
+                    <div className="p-3 bg-white border border-stone-200 rounded-xl space-y-1">
+                      <strong className="text-stone-850 block font-bold text-[11px]">MIMIC-IV Training</strong>
+                      <p className="text-[10px] text-stone-500 leading-normal font-medium">
+                        Length of stay and 30-day readmission prediction equations are modeled upon anonymized EHR datasets from Harvard's MIMIC-IV database, mapping physiological deviations to return curves.
+                      </p>
+                    </div>
+
+                    <div className="p-3 bg-white border border-stone-200 rounded-xl space-y-1">
+                      <strong className="text-stone-850 block font-bold text-[11px]">Socratic NLP Reasoning</strong>
+                      <p className="text-[10px] text-stone-500 leading-normal font-medium">
+                        By integrating Gemini 3.5-Flash to digest clinicians' narrative, the engine correlates subjective observations with structured lab vitals to detect autonomic stress in Dr. T.
+                      </p>
+                    </div>
+
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+
+            {/* Safety disclaimer */}
+            <div className="p-4 bg-rose-50 border border-rose-100 rounded-3xl flex items-start gap-2.5 select-none">
+              <span className="text-xl">⚠️</span>
+              <div>
+                <strong className="text-[11px] text-rose-900 block font-bold">EDUCATIONAL CLINICAL SANDBOX DISCLAIMER</strong>
+                <p className="text-[10px] text-rose-800 leading-relaxed font-medium">
+                  This clinical forecasting interface operates on a simulated high-fidelity model to demonstrate the diagnostic power of neural networks, logistic biostatistics, and NLP parsing. It is intended purely for instructional workflow simulation and decision-support modeling. Always consult direct medical professionals and active medical standards (such as ACC/AHA and ACOG) for real patient treatments.
+                </p>
+              </div>
+            </div>
+
           </div>
         )}
 

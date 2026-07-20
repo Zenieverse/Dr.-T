@@ -33,6 +33,22 @@ export const VIBES: VibeConfig[] = [
     bgGradient: 'from-purple-100 via-fuchsia-50 to-stone-50',
     tagline: '“No topic is too strange! Let’s explore, create, and have absolute fun together.”'
   },
+  {
+    id: 'making_sense',
+    name: 'Making Sense / Rational',
+    description: 'Highly logical, structured, clear-thinking, and grounded. Helps you organize ideas, cut through confusion, and make absolute sense of things.',
+    colorClass: 'text-emerald-700 border-emerald-200 hover:border-emerald-300 bg-emerald-50/80 shadow-sm rim-emerald-500/30',
+    bgGradient: 'from-emerald-100 via-teal-50 to-stone-50',
+    tagline: '“Let’s organize the chaos, analyze clearly, and make some perfect, simple sense of it all.”'
+  },
+  {
+    id: 'fluid_intelligence',
+    name: 'Fluid Socratic Intelligence',
+    description: 'Active Socratic inquiry, inductive pattern recognition, dynamic hypothesis validation, and deconstruction of complex ideas.',
+    colorClass: 'text-violet-700 border-violet-200 hover:border-violet-300 bg-violet-50/80 shadow-sm rim-violet-500/30',
+    bgGradient: 'from-violet-100 via-fuchsia-50 to-stone-50',
+    tagline: '“Let us apply deep inductive logic and dynamic hypothesis testing to unearth the underlying patterns of this challenge.”'
+  },
 ];
 
 export const VOICES: VoiceChoice[] = [

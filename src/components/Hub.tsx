@@ -15,6 +15,7 @@ import { PortfolioShowcase } from './PortfolioShowcase';
 import { LifeGraph } from './LifeGraph';
 import { AgentSwarm } from './AgentSwarm';
 import { Trackers } from './Trackers';
+import { FluidIntelligence } from './FluidIntelligence';
 import { Message, DrTVibe, DrTAppearance, MemoryNode, SpecialistAgent, MedLog, HealthMetric, SkillNode, TaskItem, CalendarEvent, SmartNote, CarbonHabit } from '../types';
 
 interface HubProps {
@@ -24,7 +25,7 @@ interface HubProps {
   voiceName: string;
   setVoiceName: (name: string) => void;
   stopAudio: () => void;
-  activeSuiteSubTab: 'patient' | 'fhir' | 'analytics' | 'summarizer' | 'imaging' | 'population' | 'coach' | 'lab' | 'mimic' | 'orchestrator';
+  activeSuiteSubTab: 'patient' | 'fhir' | 'analytics' | 'summarizer' | 'imaging' | 'population' | 'coach' | 'lab' | 'mimic' | 'orchestrator' | 'obgyn' | 'predictions';
   setActiveSuiteSubTab: (sub: any) => void;
   setActiveTab: (tab: any) => void;
   showAmbientPlayer: boolean;
@@ -198,7 +199,7 @@ export function Hub({
 }: HubProps) {
 
   // Local state for active sub-tab inside Hub
-  const [activeSubTab, setActiveSubTab] = useState<'companion' | 'suite' | 'showcase' | 'graph' | 'swarm' | 'trackers'>('companion');
+  const [activeSubTab, setActiveSubTab] = useState<'companion' | 'suite' | 'showcase' | 'graph' | 'swarm' | 'trackers' | 'fluid_intel'>('companion');
 
   return (
     <div className="flex flex-col gap-6" id="dr-t-infinity-hub-root">
@@ -282,6 +283,19 @@ export function Hub({
           >
             <Layers className="w-4 h-4" />
             📊 Ecosystems
+          </button>
+
+          <button
+            type="button"
+            onClick={() => { stopAudio(); setActiveSubTab('fluid_intel'); }}
+            className={`flex-1 sm:flex-initial px-4 py-2.5 rounded-xl text-[10px] font-extrabold uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-2 ${
+              activeSubTab === 'fluid_intel'
+                ? 'bg-[#9f1239] text-white shadow-sm font-black'
+                : 'text-stone-500 hover:text-stone-850 bg-transparent'
+            }`}
+          >
+            <Brain className="w-4 h-4 text-violet-500" />
+            🧠 Fluid Core
           </button>
         </div>
       </div>
@@ -464,6 +478,18 @@ export function Hub({
                 carbonHabits={carbonHabits}
                 onToggleCarbonHabit={handleToggleCarbonHabit}
               />
+            </motion.div>
+          )}
+
+          {activeSubTab === 'fluid_intel' && (
+            <motion.div
+              key="fluid_intel"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -15 }}
+              transition={{ duration: 0.3 }}
+            >
+              <FluidIntelligence />
             </motion.div>
           )}
         </AnimatePresence>

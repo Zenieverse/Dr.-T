@@ -52,16 +52,26 @@ import { UiPathOrchestrator } from './components/UiPathOrchestrator';
 import StellarZkPlayground from './components/StellarZkPlayground';
 import { DecisionIntelligence } from './components/DecisionIntelligence';
 import AlibabaCloudConsole from './components/AlibabaCloudConsole';
+import CasperAtlasConsole from './components/CasperAtlasConsole';
 import { AmbientMusicPlayer } from './components/AmbientMusicPlayer';
 import { SymphonyConcertHall } from './components/SymphonyConcertHall';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db, isDummy, OperationType, handleFirestoreError } from './firebase';
 import drTAvatar from './assets/images/dr_t_avatar_1781184840352.jpg';
+import avatarFemaleProfessional from './assets/images/dr_t_avatar_professional_1784385013135.jpg';
+import avatarFemaleAoDai from './assets/images/dr_t_avatar_ao_dai_1784385028832.jpg';
+import avatarFemaleScrubs from './assets/images/dr_t_avatar_scrubs_1784385043151.jpg';
+import avatarFemaleCyberSuit from './assets/images/dr_t_avatar_cyber_suit_1784385056517.jpg';
+import avatarFemaleCasual from './assets/images/dr_t_avatar_casual_1784385070582.jpg';
+import avatarMaleProfessional from './assets/images/dr_t_avatar_male_pro_1784385085444.jpg';
+import avatarMaleScrubs from './assets/images/dr_t_avatar_male_scrubs_1784385101589.jpg';
+import avatarMaleCyberSuit from './assets/images/dr_t_avatar_male_cyber_1784385116322.jpg';
+import avatarMaleCasual from './assets/images/dr_t_avatar_male_cas_1784385129666.jpg';
 
 export default function App() {
   // Navigation
-  const [activeTab, setActiveTab] = useState<'hub' | 'graph' | 'swarm' | 'trackers' | 'dashboard' | 'avatar' | 'suite' | 'showcase' | 'uipath' | 'stellar-zk' | 'decision' | 'alibaba' | 'symphonies'>('hub');
-  const [activeSuiteSubTab, setActiveSuiteSubTab] = useState<'patient' | 'fhir' | 'analytics' | 'summarizer' | 'imaging' | 'population' | 'coach' | 'lab' | 'mimic' | 'orchestrator'>('patient');
+  const [activeTab, setActiveTab] = useState<'hub' | 'graph' | 'swarm' | 'trackers' | 'dashboard' | 'avatar' | 'suite' | 'showcase' | 'uipath' | 'stellar-zk' | 'decision' | 'alibaba' | 'symphonies' | 'casper-las'>('hub');
+  const [activeSuiteSubTab, setActiveSuiteSubTab] = useState<'patient' | 'fhir' | 'analytics' | 'summarizer' | 'imaging' | 'population' | 'coach' | 'lab' | 'mimic' | 'orchestrator' | 'obgyn' | 'predictions'>('patient');
 
   // State
   const [messages, setMessages] = useState<Message[]>([]);
@@ -109,6 +119,10 @@ export default function App() {
     productivityStreak: 8,
     carbonSavedKg: 94
   });
+
+  const getCurrentAvatar = () => {
+    return drTAvatar;
+  };
 
   // Emotional detection metrics
   const [emotionMeter, setEmotionMeter] = useState<{ stress: number; fatigue: number; happiness: number }>({
@@ -1636,6 +1650,7 @@ export default function App() {
               ${vibe === 'empathetic' ? 'border-rose-300 text-rose-500 glow-rose' : 
                 vibe === 'witty' ? 'border-amber-300 text-amber-500 glow-amber' : 
                 vibe === 'philosophical' ? 'border-indigo-300 text-indigo-500 glow-indigo' : 
+                vibe === 'making_sense' ? 'border-emerald-300 text-emerald-500 glow-emerald' : 
                 'border-purple-300 text-purple-500 glow-purple'}
             `}>
               <InfinityIcon className="w-5 h-5 animate-pulse-slow" />
@@ -1662,12 +1677,18 @@ export default function App() {
               <span>🌸</span> <span className="font-bold">Hub</span>
             </button>
             <a
-              href="https://comsing-764082783379.us-west1.run.app/"
+              href="https://ai.studio/apps/fc762f9b-65fd-4400-9fc0-c6e1dcbedd9d?fullscreenApplet=true"
               target="_blank"
               rel="noopener noreferrer"
-              onClick={() => stopAudio()}
-              className="p-1.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer text-stone-500 hover:text-stone-800 hover:bg-stone-50"
+              onClick={() => {
+                stopAudio();
+                navigator.clipboard.writeText("https://ai.studio/apps/fc762f9b-65fd-4400-9fc0-c6e1dcbedd9d?fullscreenApplet=true");
+                setToastNotice("ComSing App URL copied! Paste in a new tab if popups are blocked by your browser.");
+                setTimeout(() => setToastNotice(null), 5000);
+              }}
+              className="p-1.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer text-stone-500 hover:text-stone-800 hover:bg-stone-50 no-underline"
               id="tab-symphonies-btn"
+              title="Click to open or copy URL"
             >
               <span>🎤</span> <span className="font-bold">ComSing ↗</span>
             </a>
@@ -1718,6 +1739,16 @@ export default function App() {
               id="tab-alibaba-btn"
             >
               <span>☁️</span> <span className="font-bold">Alibaba Cloud</span>
+            </button>
+
+            <button
+              onClick={() => { stopAudio(); setActiveTab('casper-las'); }}
+              className={`p-1.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer
+                ${activeTab === 'casper-las' ? 'bg-[#9f1239] text-white shadow-xs' : 'text-stone-500 hover:text-stone-800'}
+              `}
+              id="tab-casper-las-btn"
+            >
+              <span>🌌</span> <span className="font-bold">Casper Atlas</span>
             </button>
 
             <button
@@ -1856,7 +1887,7 @@ export default function App() {
               toastNotice={toastNotice}
               setToastNotice={setToastNotice}
               averageSpeakIntensity={averageSpeakIntensity}
-              drTAvatar={drTAvatar}
+              drTAvatar={getCurrentAvatar()}
               triggerGreeting={triggerGreeting}
               handleUpdateHeartRate={handleUpdateHeartRate}
               getHeartRateValue={getHeartRateValue}
@@ -1984,6 +2015,13 @@ export default function App() {
           </div>
         )}
 
+        {/* Tab 13: CASPER ATLAS CONSOLE */}
+        {activeTab === 'casper-las' && (
+          <div className="animate-fadeIn">
+            <CasperAtlasConsole />
+          </div>
+        )}
+
 
 
 
@@ -2040,7 +2078,7 @@ export default function App() {
                 initial={{ width: "100%" }}
                 animate={{ width: `${(breathingSeconds / 60) * 100}%` }}
                 transition={{ duration: 1, ease: "linear" }}
-                className={`h-full ${vibe === 'empathetic' ? 'bg-rose-500' : vibe === 'witty' ? 'bg-amber-500' : vibe === 'philosophical' ? 'bg-indigo-500' : 'bg-purple-500'}`}
+                className={`h-full ${vibe === 'empathetic' ? 'bg-rose-500' : vibe === 'witty' ? 'bg-amber-500' : vibe === 'philosophical' ? 'bg-indigo-500' : vibe === 'making_sense' ? 'bg-emerald-500' : 'bg-purple-500'}`}
               />
             </div>
 
@@ -2076,18 +2114,18 @@ export default function App() {
                 
                 {/* Visual expansion pulse indicator background */}
                 <div className={`absolute inset-0 rounded-full blur-3xl transition-all duration-1000 opacity-30 scale-150
-                  ${vibe === 'empathetic' ? 'bg-gradient-to-tr from-rose-500 to-pink-500' : vibe === 'witty' ? 'bg-gradient-to-tr from-amber-400 to-yellow-450' : vibe === 'philosophical' ? 'bg-gradient-to-tr from-indigo-400 to-sky-450' : 'bg-gradient-to-tr from-purple-400 to-fuchsia-450'}
+                  ${vibe === 'empathetic' ? 'bg-gradient-to-tr from-rose-500 to-pink-500' : vibe === 'witty' ? 'bg-gradient-to-tr from-amber-400 to-yellow-450' : vibe === 'philosophical' ? 'bg-gradient-to-tr from-indigo-400 to-sky-450' : vibe === 'making_sense' ? 'bg-gradient-to-tr from-emerald-500 to-teal-450' : 'bg-gradient-to-tr from-purple-400 to-fuchsia-450'}
                   ${breathingPhase === 'inhale' ? 'scale-175 opacity-40' : breathingPhase === 'hold' ? 'scale-190 opacity-50' : 'scale-130 opacity-20'}
                 `} />
 
                 {/* Outer spinning dashed orbital ring */}
                 <div className={`absolute inset-0 rounded-full border border-dashed animate-spin-slow opacity-20
-                  ${vibe === 'empathetic' ? 'border-rose-400' : vibe === 'witty' ? 'border-amber-400' : vibe === 'philosophical' ? 'border-indigo-400' : 'border-purple-400'}
+                  ${vibe === 'empathetic' ? 'border-rose-400' : vibe === 'witty' ? 'border-amber-400' : vibe === 'philosophical' ? 'border-indigo-400' : vibe === 'making_sense' ? 'border-emerald-400' : 'border-purple-400'}
                 `} />
 
                 {/* Inner spinner dotted ring */}
                 <div className={`absolute inset-8 rounded-full border border-dotted animate-spin-reverse opacity-15
-                  ${vibe === 'empathetic' ? 'border-pink-300' : vibe === 'witty' ? 'border-yellow-300' : vibe === 'philosophical' ? 'border-sky-300' : 'border-fuchsia-300'}
+                  ${vibe === 'empathetic' ? 'border-pink-300' : vibe === 'witty' ? 'border-yellow-300' : vibe === 'philosophical' ? 'border-sky-300' : vibe === 'making_sense' ? 'border-emerald-300' : 'border-fuchsia-300'}
                 `} />
 
                 {/* Synchronized Expanding Breathing Circle container */}
@@ -2104,6 +2142,7 @@ export default function App() {
                     ${vibe === 'empathetic' ? 'bg-rose-500/15 border-rose-300/60 shadow-rose-500/20' : 
                       vibe === 'witty' ? 'bg-amber-500/15 border-amber-300/60 shadow-amber-500/20' : 
                       vibe === 'philosophical' ? 'bg-indigo-500/15 border-indigo-300/60 shadow-indigo-500/20' : 
+                      vibe === 'making_sense' ? 'bg-emerald-500/15 border-emerald-300/60 shadow-emerald-500/20' : 
                       'bg-purple-500/15 border-purple-300/60 shadow-purple-500/20'}
                   `}
                 >
@@ -2112,6 +2151,7 @@ export default function App() {
                     ${vibe === 'empathetic' ? 'bg-rose-400 shadow-lg shadow-rose-400/50' : 
                       vibe === 'witty' ? 'bg-amber-400 shadow-lg shadow-amber-400/50' : 
                       vibe === 'philosophical' ? 'bg-indigo-400 shadow-lg shadow-indigo-400/50' : 
+                      vibe === 'making_sense' ? 'bg-emerald-400 shadow-lg shadow-emerald-400/50' : 
                       'bg-purple-400 shadow-lg shadow-purple-400/50'}
                   `}>
                     <span className="text-2xl text-stone-900 select-none">🧘</span>
@@ -2126,7 +2166,7 @@ export default function App() {
                   CURRENT PATTERN: 4s INHALE • 2s HOLD • 4s EXHALE
                 </span>
                 <h3 className={`text-4xl font-extrabold tracking-widest uppercase mt-2
-                  ${vibe === 'empathetic' ? 'text-rose-300' : vibe === 'witty' ? 'text-amber-300' : vibe === 'philosophical' ? 'text-indigo-300' : 'text-purple-300'}
+                  ${vibe === 'empathetic' ? 'text-rose-300' : vibe === 'witty' ? 'text-amber-300' : vibe === 'philosophical' ? 'text-indigo-300' : vibe === 'making_sense' ? 'text-emerald-300' : 'text-purple-300'}
                 `}>
                   {breathingPhase === 'inhale' ? 'Breathe In' : breathingPhase === 'hold' ? 'Hold' : breathingPhase === 'exhale' ? 'Breathe Out' : 'Serenity Rest'}
                 </h3>
@@ -2173,8 +2213,6 @@ export default function App() {
           </motion.div>
         )}
 
-
-
         {/* Immersive Full-Screen Voice Agent Call Overlay */}
         {isVoiceAgentActive && (
           <motion.div
@@ -2190,6 +2228,7 @@ export default function App() {
               ${vibe === 'empathetic' ? 'bg-gradient-to-tr from-rose-500 to-pink-500 scale-150' : 
                 vibe === 'witty' ? 'bg-gradient-to-tr from-amber-400 to-yellow-500 scale-150' : 
                 vibe === 'philosophical' ? 'bg-gradient-to-tr from-indigo-400 to-sky-500 scale-150' : 
+                vibe === 'making_sense' ? 'bg-gradient-to-tr from-emerald-500 to-teal-500 scale-150' : 
                 'bg-gradient-to-tr from-purple-400 to-fuchsia-500 scale-150'}
             `} />
 
@@ -2222,16 +2261,16 @@ export default function App() {
               <div className="relative w-64 h-64 flex items-center justify-center">
                 {/* Outer shimmering waves */}
                 <div className={`absolute inset-0 rounded-full blur-2xl transition-all duration-1000 opacity-40 scale-135
-                  ${vibe === 'empathetic' ? 'bg-gradient-to-tr from-rose-500 to-pink-550' : vibe === 'witty' ? 'bg-gradient-to-tr from-amber-300 to-yellow-500' : vibe === 'philosophical' ? 'bg-gradient-to-tr from-indigo-400 to-sky-500' : 'bg-gradient-to-tr from-purple-400 to-fuchsia-500'}
+                  ${vibe === 'empathetic' ? 'bg-gradient-to-tr from-rose-500 to-pink-550' : vibe === 'witty' ? 'bg-gradient-to-tr from-amber-300 to-yellow-500' : vibe === 'philosophical' ? 'bg-gradient-to-tr from-indigo-400 to-sky-500' : vibe === 'making_sense' ? 'bg-gradient-to-tr from-emerald-500 to-teal-500' : 'bg-gradient-to-tr from-purple-400 to-fuchsia-500'}
                   ${isSpeaking ? 'scale-150 opacity-60' : isThinking ? 'scale-125 opacity-30 animate-pulse' : isRecording ? 'scale-140 opacity-55' : 'scale-100 opacity-20'}
                 `} />
 
                 {/* Rotating orbital coordinate rings */}
                 <div className={`absolute inset-0 rounded-full border border-dashed animate-spin-slow opacity-30
-                  ${vibe === 'empathetic' ? 'border-rose-455' : vibe === 'witty' ? 'border-amber-455' : vibe === 'philosophical' ? 'border-indigo-455' : 'border-purple-455'}
+                  ${vibe === 'empathetic' ? 'border-rose-455' : vibe === 'witty' ? 'border-amber-455' : vibe === 'philosophical' ? 'border-indigo-455' : vibe === 'making_sense' ? 'border-emerald-400' : 'border-purple-455'}
                 `} />
                 <div className={`absolute inset-4 rounded-full border border-dotted animate-spin-reverse opacity-20
-                  ${vibe === 'empathetic' ? 'border-pink-300' : vibe === 'witty' ? 'border-yellow-300' : vibe === 'philosophical' ? 'border-sky-300' : 'border-fuchsia-300'}
+                  ${vibe === 'empathetic' ? 'border-pink-300' : vibe === 'witty' ? 'border-yellow-300' : vibe === 'philosophical' ? 'border-sky-300' : vibe === 'making_sense' ? 'border-emerald-300' : 'border-fuchsia-300'}
                 `} />
 
                 {/* Avatar Core Frame */}
@@ -2239,11 +2278,12 @@ export default function App() {
                   ${vibe === 'empathetic' ? 'border-rose-300 ring-rose-500/20' : 
                     vibe === 'witty' ? 'border-amber-300 ring-amber-500/20' : 
                     vibe === 'philosophical' ? 'border-indigo-300 ring-indigo-500/20' : 
+                    vibe === 'making_sense' ? 'border-emerald-300 ring-emerald-500/20' : 
                     'border-purple-300 ring-purple-500/20'}
                   ${isRecording ? 'scale-105 border-rose-455' : isSpeaking ? 'scale-110' : 'scale-100'}
                 `}>
                   <img 
-                    src={drTAvatar}
+                    src={getCurrentAvatar()}
                     alt="Dr. T Avatar" 
                     referrerPolicy="no-referrer"
                     className="w-full h-full object-cover select-none pointer-events-none"
@@ -2299,7 +2339,7 @@ export default function App() {
                   <span 
                     key={idx} 
                     className={`w-1 rounded-full transition-all duration-150
-                      ${vibe === 'empathetic' ? 'bg-rose-400' : vibe === 'witty' ? 'bg-amber-400' : vibe === 'philosophical' ? 'bg-indigo-400' : 'bg-purple-400'}
+                      ${vibe === 'empathetic' ? 'bg-rose-400' : vibe === 'witty' ? 'bg-amber-400' : vibe === 'philosophical' ? 'bg-indigo-400' : vibe === 'making_sense' ? 'bg-emerald-400' : 'bg-purple-400'}
                     `}
                     style={{ height: `${h * 1.3}px` }}
                   ></span>
