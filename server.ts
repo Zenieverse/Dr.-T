@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import { GoogleGenAI, Type } from "@google/genai";
 import { createServer as createViteServer } from "vite";
 import { testAlibabaCloudConnection, uploadToAlibabaOSS, hasQwenCredentials, callQwenAPI } from "./src/alibabaCloud";
+import { runRegressionTests } from "./packages/fluid-core/regression";
 
 dotenv.config();
 
@@ -1511,6 +1512,25 @@ app.post("/api/alibaba-cloud/upload", async (req: any, res: any) => {
       success: false,
       message: error.message || "Failed to upload to Alibaba Cloud Object Storage Service.",
       timestamp: new Date().toISOString()
+    });
+  }
+});
+
+// ==========================================
+// OFFLINE REGRESSION TESTING & EVALUATION
+// ==========================================
+app.post("/api/run-regression-tests", (req: any, res: any) => {
+  try {
+    const reports = runRegressionTests();
+    res.json({
+      success: true,
+      reports,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      error: error.message || "Failed to execute offline regression suite."
     });
   }
 });
