@@ -205,7 +205,7 @@ export function Hub({
     <div className="flex flex-col gap-6" id="dr-t-infinity-hub-root">
       
       {/* Sub-Tab Navigation System inside Hub */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-stone-50 border border-stone-200/60 rounded-2xl p-2 gap-2" id="hub-subtab-navigation">
+      <div className="sticky top-[148px] sm:top-[128px] md:top-[66px] z-30 flex flex-col sm:flex-row justify-between items-start sm:items-center bg-stone-50/95 backdrop-blur-md border border-stone-200/60 rounded-2xl p-2 gap-2 shadow-xs transition-all" id="hub-subtab-navigation">
         <div className="flex flex-wrap gap-1.5 w-full">
           <button
             type="button"

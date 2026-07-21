@@ -156,7 +156,7 @@ export default function App() {
   const [cloudSyncTime, setCloudSyncTime] = useState<string>('Never');
   const [isCloudSyncLoaded, setIsCloudSyncLoaded] = useState<boolean>(false);
 
-  // Firestore Synchronization Initial Load
+  // Firestore Synchronization Initial Load with LocalStorage Fallback
   useEffect(() => {
     if (isDummy) {
       setCloudSyncStatus('idle');
@@ -173,9 +173,11 @@ export default function App() {
           const data = docSnap.data();
           if (data.memoryNodes) {
             setMemoryNodes(data.memoryNodes);
+            localStorage.setItem('drt_memoryNodes', JSON.stringify(data.memoryNodes));
           }
           if (data.tasks) {
             setTasks(data.tasks);
+            localStorage.setItem('drt_tasks', JSON.stringify(data.tasks));
           }
           setCloudSyncTime(new Date().toLocaleTimeString());
           setCloudSyncStatus('success');
@@ -187,18 +189,37 @@ export default function App() {
               tasks: INITIAL_TASK_LIST,
               updatedAt: new Date().toISOString()
             });
+            localStorage.setItem('drt_memoryNodes', JSON.stringify(INITIAL_MEMORY_NODES));
+            localStorage.setItem('drt_tasks', JSON.stringify(INITIAL_TASK_LIST));
             setCloudSyncTime(new Date().toLocaleTimeString());
             setCloudSyncStatus('success');
           } catch (writeErr) {
-            handleFirestoreError(writeErr, OperationType.WRITE, 'appState/clarissa_jane_drt');
+            console.warn("Firestore initialization failed, using local storage instead.", writeErr);
+            localStorage.setItem('drt_memoryNodes', JSON.stringify(INITIAL_MEMORY_NODES));
+            localStorage.setItem('drt_tasks', JSON.stringify(INITIAL_TASK_LIST));
+            setCloudSyncStatus('error');
           }
         }
       } catch (error) {
-        console.error("Firestore loading error:", error);
+        console.warn("Firestore is offline or unreachable. Restoring state from local storage:", error);
         setCloudSyncStatus('error');
-        // If it wasn't already handled by the nested block, report the read error
-        if (error instanceof Error && !error.message.startsWith('{')) {
-          handleFirestoreError(error, OperationType.GET, 'appState/clarissa_jane_drt');
+        
+        // Retrieve from localStorage cache
+        const cachedNodes = localStorage.getItem('drt_memoryNodes');
+        const cachedTasks = localStorage.getItem('drt_tasks');
+        if (cachedNodes) {
+          try {
+            setMemoryNodes(JSON.parse(cachedNodes));
+          } catch (e) {
+            console.error("Failed to parse cached memory nodes:", e);
+          }
+        }
+        if (cachedTasks) {
+          try {
+            setTasks(JSON.parse(cachedTasks));
+          } catch (e) {
+            console.error("Failed to parse cached tasks:", e);
+          }
         }
       } finally {
         setIsCloudSyncLoaded(true);
@@ -208,12 +229,16 @@ export default function App() {
     loadInitialState();
   }, []);
 
-  // Sync to Cloud whenever state changes
+  // Sync to Cloud & Local Cache whenever state changes
   useEffect(() => {
     if (!isCloudSyncLoaded || isDummy) return;
 
     const docRef = doc(db, 'appState', 'clarissa_jane_drt');
     const saveData = async () => {
+      // Always persist to localStorage first so work is never lost offline!
+      localStorage.setItem('drt_memoryNodes', JSON.stringify(memoryNodes));
+      localStorage.setItem('drt_tasks', JSON.stringify(tasks));
+
       setCloudSyncStatus('loading');
       try {
         await setDoc(docRef, {
@@ -224,9 +249,8 @@ export default function App() {
         setCloudSyncTime(new Date().toLocaleTimeString());
         setCloudSyncStatus('success');
       } catch (error) {
-        console.error("Firestore saving error:", error);
+        console.warn("Firestore sync failed (offline or disconnected). Local cache remains preserved.", error);
         setCloudSyncStatus('error');
-        handleFirestoreError(error, OperationType.WRITE, 'appState/clarissa_jane_drt');
       }
     };
 
@@ -926,10 +950,10 @@ export default function App() {
       if (!response.ok) {
         const errObj = await response.json().catch(() => ({}));
         const errMsg = errObj.error || 'Failed to synthesize voice.';
-        if (response.status === 429 || errMsg.toLowerCase().includes('quota') || errMsg.toLowerCase().includes('rate')) {
+        if (response.status === 429 || response.status === 503 || errMsg.toLowerCase().includes('quota') || errMsg.toLowerCase().includes('rate') || errMsg.toLowerCase().includes('unavailable') || errMsg.toLowerCase().includes('demand')) {
           setTtsEngine('browser');
           speakViaWebSpeechAPI(cleanedText, messageId, overrideLang);
-          setAudioError("Defaulted to local device voice (Gemini TTS limit reached). Engine switched to browser.");
+          setAudioError("Defaulted to local device voice (Gemini TTS limit or high demand). Engine switched to browser.");
           return;
         }
         throw new Error(errMsg);
@@ -1027,9 +1051,9 @@ export default function App() {
       if (!response.ok) {
         const errObj = await response.json().catch(() => ({}));
         const errMsg = errObj.error || '';
-        if (response.status === 429 || errMsg.toLowerCase().includes('quota') || errMsg.toLowerCase().includes('rate')) {
+        if (response.status === 429 || response.status === 503 || errMsg.toLowerCase().includes('quota') || errMsg.toLowerCase().includes('rate') || errMsg.toLowerCase().includes('unavailable') || errMsg.toLowerCase().includes('demand')) {
           setTtsEngine('browser');
-          setAudioError("Defaulted to local device voice (Gemini TTS limit reached). Engine switched to browser.");
+          setAudioError("Defaulted to local device voice (Gemini TTS limit or high demand). Engine switched to browser.");
         }
         if (typeof window !== 'undefined' && window.speechSynthesis) {
           const ut = new SpeechSynthesisUtterance(cleanedText);

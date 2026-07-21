@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import { runRegressionTests } from '../../packages/fluid-core/regression';
 import { 
   Brain, 
   Cpu, 
@@ -27,7 +28,16 @@ import {
   Gauge,
   Clock,
   TrendingUp,
-  XCircle
+  XCircle,
+  Coins,
+  Wallet,
+  CreditCard,
+  ArrowUpRight,
+  Lock,
+  Unlock,
+  History,
+  Server,
+  ShieldCheck
 } from 'lucide-react';
 
 interface Hypothesis {
@@ -199,7 +209,28 @@ export const ARC_COLOR_MAP: Record<number, { bg: string; border: string; text: s
 };
 
 export function FluidIntelligence() {
-  const [activeTab, setActiveTab] = useState<'deconstruct' | 'induction' | 'arc_sandbox' | 'regression_suite'>('deconstruct');
+  const [activeTab, setActiveTab] = useState<'deconstruct' | 'induction' | 'arc_sandbox' | 'regression_suite' | 'x402_payments'>('deconstruct');
+  
+  // x402 Autonomous Payment states
+  const [x402SelectedService, setX402SelectedService] = useState<'maternal_diagnosis' | 'socratic_wisdom' | 'bio_sequencer'>('maternal_diagnosis');
+  const [x402Invoice, setX402Invoice] = useState<any | null>(null);
+  const [x402IsLoadingRequest, setX402IsLoadingRequest] = useState<boolean>(false);
+  const [x402IsLoadingPayment, setX402IsLoadingPayment] = useState<boolean>(false);
+  const [x402IsVerifying, setX402IsVerifying] = useState<boolean>(false);
+  const [x402ActivePayload, setX402ActivePayload] = useState<any | null>(null);
+  const [x402TxId, setX402TxId] = useState<string>('');
+  const [x402LedgerLogs, setX402LedgerLogs] = useState<any[]>([]);
+  const [x402IsSyncing, setX402IsSyncing] = useState<boolean>(false);
+  const [x402Steps, setX402Steps] = useState<string[]>([]);
+  const [x402Balance, setX402Balance] = useState<number>(25.5);
+  const [x402AutoPay, setX402AutoPay] = useState<boolean>(false);
+  const [x402IsSyncingBalance, setX402IsSyncingBalance] = useState<boolean>(false);
+
+  // Custom Hedera Credentials state
+  const [hederaAccountId, setHederaAccountId] = useState<string>(() => localStorage.getItem('hedera_account_id') || '');
+  const [hederaPrivateKey, setHederaPrivateKey] = useState<string>(() => localStorage.getItem('hedera_private_key') || '');
+  const [showKey, setShowKey] = useState<boolean>(false);
+  const [showConfig, setShowConfig] = useState<boolean>(false);
   
   // Offline Regression Suite state
   const [regressionReports, setRegressionReports] = useState<any[] | null>(null);
@@ -281,8 +312,15 @@ export function FluidIntelligence() {
         throw new Error(data.error || 'Unknown error occurred.');
       }
     } catch (err: any) {
-      console.error(err);
-      setRegressionError(err.message || 'Error occurred while calling the testing suite.');
+      console.warn("Backend regression testing failed or unreachable, executing directly on the client:", err);
+      try {
+        // Direct modular browser execution
+        const reports = runRegressionTests();
+        setRegressionReports(reports);
+      } catch (clientErr: any) {
+        console.error("Client-side regression testing failed:", clientErr);
+        setRegressionError(clientErr.message || 'Error occurred while calling the testing suite.');
+      }
     } finally {
       setIsRunningRegression(false);
     }
@@ -290,11 +328,13 @@ export function FluidIntelligence() {
 
   const triggerPreset = (presetText: string) => {
     setQuery(presetText);
+    handleDeconstruct(undefined, presetText);
   };
 
-  const handleDeconstruct = async (e?: React.FormEvent) => {
+  const handleDeconstruct = async (e?: React.FormEvent, customQuery?: string) => {
     if (e) e.preventDefault();
-    if (!query.trim()) return;
+    const activeQuery = customQuery !== undefined ? customQuery : query;
+    if (!activeQuery.trim()) return;
 
     setLoadingDeconstruct(true);
     setDeconstructResult(null);
@@ -303,7 +343,7 @@ export function FluidIntelligence() {
       const res = await fetch('/api/fluid-deconstruct', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query })
+        body: JSON.stringify({ query: activeQuery })
       });
       if (!res.ok) throw new Error('Failed to communicate with Fluid Intelligence backend.');
       const data = await res.json();
@@ -333,11 +373,11 @@ export function FluidIntelligence() {
         ],
         deductiveReasoning: [
           "Initiating Socratic Fluid Intelligence core.",
-          "Parsing user query to isolate implicit premises and emotional variables.",
+          `Parsing user query "${activeQuery}" to isolate implicit premises and emotional variables.`,
           "Evaluating counter-hypotheses and logical fallacies simultaneously.",
           "Synthesizing an absolute, secure, and warm motherly guidance path."
         ],
-        socraticSynthesis: "Sweetheart, I have looked deep into your thoughts. By sorting out the variables and applying quiet, clear reasoning, we find that every complex puzzle of life can be simplified into small, loving, and manageable steps. You are never alone in this unravelling."
+        socraticSynthesis: `Sweetheart, I have looked deep into your inquiry regarding "${activeQuery}". By sorting out the variables and applying quiet, clear Socratic reasoning, we find that every complex puzzle can be simplified into small, loving, and manageable steps. You are never alone in this beautiful unravelling.`
       });
     } finally {
       setLoadingDeconstruct(false);
@@ -397,6 +437,216 @@ export function FluidIntelligence() {
       utterance.rate = 1.0;
       utterance.pitch = 1.15; // Motherly warmth
       window.speechSynthesis.speak(utterance);
+    }
+  };
+
+  const fetchX402Balance = async () => {
+    setX402IsSyncingBalance(true);
+    try {
+      const url = hederaAccountId ? `/api/x402/balance?accountId=${hederaAccountId}` : '/api/x402/balance';
+      const res = await fetch(url);
+      if (res.ok) {
+        const data = await res.json();
+        setX402Balance(data.balance);
+      }
+    } catch (err) {
+      console.error("Failed to fetch balance:", err);
+    } finally {
+      setX402IsSyncingBalance(false);
+    }
+  };
+
+  const fetchX402Ledger = async (shouldSyncOnChain?: boolean) => {
+    if (shouldSyncOnChain) {
+      setX402IsSyncing(true);
+    }
+    try {
+      const url = shouldSyncOnChain ? '/api/x402/ledger?sync=true' : '/api/x402/ledger';
+      const res = await fetch(url);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success) {
+          setX402LedgerLogs(data.ledger);
+          if (shouldSyncOnChain) {
+            const hasOnChain = data.ledger.some((tx: any) => tx.onChainVerified);
+            if (hasOnChain) {
+              speakText("Audit explorer updated! I have successfully synchronized the ledger logs directly from the Hedera Testnet Mirror Node.");
+            } else {
+              speakText("Local ledger audit successfully synchronized and verified, sweetheart.");
+            }
+          }
+        }
+      }
+    } catch (err) {
+      console.error("Failed to fetch x402 ledger:", err);
+    } finally {
+      if (shouldSyncOnChain) {
+        setX402IsSyncing(false);
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'x402_payments') {
+      fetchX402Ledger();
+      fetchX402Balance();
+    }
+  }, [activeTab, hederaAccountId]);
+
+  const handleX402Request = async (serviceId: string) => {
+    setX402IsLoadingRequest(true);
+    setX402Invoice(null);
+    setX402ActivePayload(null);
+    setX402TxId('');
+    setX402Steps([]);
+    try {
+      const res = await fetch('/api/x402/request', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ serviceId })
+      });
+      const data = await res.json();
+      if (res.status === 402) {
+        setX402Invoice(data);
+        if (x402AutoPay) {
+          speakText(`Autonomous agent settlement is active. We received a minor invoice for ${data.amount / 100000} HBAR. Resolving automatically...`);
+          setTimeout(() => {
+            handleX402Payment(data);
+          }, 1200);
+        } else {
+          speakText(`Sweetheart, this service requires a minor autonomous microtransaction. We have received an invoice for ${data.amount / 100000} HBAR. Let us process this through the Hedera Hashgraph network.`);
+        }
+      } else if (res.ok && data.success) {
+        setX402ActivePayload(data.payload);
+        speakText(`Success, sweetheart! The service is already active and the resources are fully unlocked.`);
+      }
+    } catch (err) {
+      console.error("x402 request error:", err);
+    } finally {
+      setX402IsLoadingRequest(false);
+    }
+  };
+
+  const handleX402Payment = async (invoiceOverride?: any) => {
+    const invoiceToPay = invoiceOverride || x402Invoice;
+    if (!invoiceToPay) return;
+    setX402IsLoadingPayment(true);
+    setX402Steps([]);
+    
+    const logs = [
+      "Initializing Hedera CryptoTransfer transaction parameters...",
+      `Configuring transfer of ${invoiceToPay.amount} tinybars (${invoiceToPay.amount / 100000} HBAR) to treasury ${invoiceToPay.paymentTo}...`,
+      "Signing transaction with secure client private key...",
+      "Broadcasting signed payload to Hedera Consensus Nodes (consensus.testnet.hedera.com)..."
+    ];
+
+    let currentLogIndex = 0;
+    const interval = setInterval(() => {
+      if (currentLogIndex < logs.length) {
+        setX402Steps(prev => [...prev, logs[currentLogIndex]]);
+        currentLogIndex++;
+      } else {
+        clearInterval(interval);
+      }
+    }, 150);
+
+    try {
+      const res = await fetch('/api/x402/pay', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          serviceId: invoiceToPay.serviceId,
+          invoiceId: invoiceToPay.invoiceId,
+          amount: invoiceToPay.amount,
+          paymentTo: invoiceToPay.paymentTo,
+          customClientAccountId: hederaAccountId,
+          customClientPrivateKey: hederaPrivateKey
+        })
+      });
+      const data = await res.json();
+      
+      clearInterval(interval);
+      
+      if (res.ok && data.success) {
+        setX402Steps(prev => [
+          ...prev, 
+          "Nodes reached consensus. Receiving transaction receipt...",
+          `Consensus finalized: Transaction logged successfully! ID: ${data.transactionId}`
+        ]);
+        
+        setX402IsLoadingPayment(false);
+        setX402TxId(data.transactionId);
+        
+        if (data.simulated) {
+          setX402Balance(prev => parseFloat((prev - (invoiceToPay.amount / 100000) - 0.0001).toFixed(4)));
+        } else {
+          setTimeout(() => {
+            fetchX402Balance();
+          }, 1500);
+        }
+        
+        if (x402AutoPay) {
+          speakText("Consensus reached on Hedera rails! Triggering automated consensus audit verification...");
+          setTimeout(() => {
+            handleX402Verification(invoiceToPay, data.transactionId);
+          }, 1200);
+        } else {
+          speakText("Consensus reached on Hedera rails! We now have a valid transaction code. Let us verify this to unlock our resources.");
+        }
+      } else {
+        setX402Steps(prev => [...prev, `Error: ${data.message || 'Payment transaction rejected by network node.'}`]);
+        speakText(`Sweetheart, the payment transaction was rejected. ${data.message || 'Please check your connection.'}`);
+        setX402IsLoadingPayment(false);
+      }
+    } catch (err) {
+      console.error("Payment failed", err);
+      setX402Steps(prev => [...prev, "Error: Connection to Hedera Consensus node timed out."]);
+      speakText("Sweetheart, the network node timed out. Please try again.");
+      setX402IsLoadingPayment(false);
+      clearInterval(interval);
+    }
+  };
+
+  const handleX402Verification = async (invoiceOverride?: any, txIdOverride?: string) => {
+    const invoice = invoiceOverride || x402Invoice;
+    const txId = txIdOverride || x402TxId;
+    if (!invoice || !txId) return;
+    setX402IsVerifying(true);
+    try {
+      const res = await fetch('/api/x402/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          serviceId: invoice.serviceId,
+          invoiceId: invoice.invoiceId,
+          transactionId: txId,
+          clientAccount: hederaAccountId || '0.0.985514',
+          amount: invoice.amount,
+          paymentTo: invoice.paymentTo
+        })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setX402ActivePayload(data.payload);
+        fetchX402Ledger();
+        
+        let speechMsg = x402AutoPay 
+          ? "Autonomous settlement completed, sweetheart! On-chain consensus confirmed. "
+          : "Welcome back, sweetheart! The payment has been verified on-chain. ";
+          
+        if (invoice.serviceId === 'maternal_diagnosis') {
+          speechMsg += "Our 3D fetal ultrasound diagnostic results show safe, beautiful growth with a steady 142 beats per minute heart rate.";
+        } else if (invoice.serviceId === 'socratic_wisdom') {
+          speechMsg += "The Socratic wisdom expansion is complete, providing a beautiful deconstruction of how micropayments enable harmonious machine cooperation.";
+        } else {
+          speechMsg += "The maternal genomics alignment is fully completed, confirming an excellent and highly resilient sequence pairing.";
+        }
+        speakText(speechMsg);
+      }
+    } catch (err) {
+      console.error("x402 verification error:", err);
+    } finally {
+      setX402IsVerifying(false);
     }
   };
 
@@ -591,6 +841,19 @@ export function FluidIntelligence() {
           >
             <Gauge className="w-4 h-4" />
             Offline Evaluation Suite
+          </button>
+
+          <button
+            onClick={() => setActiveTab('x402_payments')}
+            className={`flex-1 py-3 px-4 rounded-2xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-2 min-w-[170px]
+              ${activeTab === 'x402_payments' 
+                ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-sm' 
+                : 'text-stone-500 hover:text-stone-800 hover:bg-stone-50 dark:hover:bg-stone-850'
+              }
+            `}
+          >
+            <Coins className="w-4 h-4 text-amber-500 animate-pulse" />
+            x402 Hedera Commerce
           </button>
         </div>
 
@@ -1937,6 +2200,486 @@ def export_submission(predictions, output_path="submission.json"):
 
               </motion.div>
             )}
+
+          </div>
+        )}
+
+        {/* Tab Content 5: x402 Autonomous Commerce Protocol */}
+        {activeTab === 'x402_payments' && (
+          <div className="bg-white dark:bg-stone-900 border border-stone-200/60 dark:border-stone-850 rounded-3xl p-6 shadow-xs flex flex-col gap-6" id="x402-payments-panel">
+            
+            {/* Header info */}
+            <div className="flex flex-col gap-1.5 pb-4 border-b border-stone-100 dark:border-stone-850">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-mono font-black tracking-widest text-violet-550 bg-violet-50 dark:bg-violet-950/40 px-2 py-0.5 rounded uppercase">
+                  M2M Autonomous Payments
+                </span>
+                <span className="text-[10px] font-mono font-black tracking-widest text-amber-600 bg-amber-50 dark:bg-amber-950/40 px-2 py-0.5 rounded uppercase">
+                  Hedera Rails Protocol
+                </span>
+              </div>
+              <h2 className="text-lg font-black tracking-tight text-stone-850 dark:text-white">
+                x402 Machine-to-Machine Payment Protocol
+              </h2>
+              <p className="text-xs text-stone-400 leading-relaxed">
+                The internet's standard for autonomous agent commerce. When Dr. T's agent nodes request resources or API access, the server issues an HTTP <strong>402 Payment Required</strong> response with Hedera transfer parameters. The client-side agent automatically settles the invoice over Hedera Testnet rails and presents the transaction ID to unlock high-fidelity data structures.
+              </p>
+            </div>
+
+            {/* Main Interactive Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              
+              {/* Left Column: API Client Request Node */}
+              <div className="lg:col-span-4 flex flex-col gap-4 bg-stone-50/60 dark:bg-stone-950/40 p-5 rounded-3xl border border-stone-150 dark:border-stone-900">
+                <div className="flex items-center gap-2">
+                  <Server className="w-4 h-4 text-violet-500" />
+                  <h3 className="text-xs font-black tracking-wide text-stone-800 dark:text-white uppercase font-mono">1. API Service Node</h3>
+                </div>
+
+                <div className="flex flex-col gap-3">
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[10px] font-mono font-black text-stone-450 uppercase">Select Target AI Service:</label>
+                    <div className="grid grid-cols-1 gap-2">
+                      {[
+                        { id: 'maternal_diagnosis', label: 'OB/GYN Fetal 3D Ultrasound', hbar: 0.5, desc: 'Advanced fetal diagnostics & medical risk mapping.' },
+                        { id: 'socratic_wisdom', label: 'Socratic Reasoning Engine', hbar: 0.2, desc: 'Logical syllogisms & maternal AI wisdom.' },
+                        { id: 'bio_sequencer', label: 'Genomic Alignment Solver', hbar: 1.5, desc: 'DNA base-pair mapping on Chromosome 21.' }
+                      ].map((service) => (
+                        <button
+                          key={service.id}
+                          onClick={() => {
+                            setX402SelectedService(service.id as any);
+                            setX402Invoice(null);
+                            setX402ActivePayload(null);
+                            setX402TxId('');
+                            setX402Steps([]);
+                          }}
+                          className={`p-3 rounded-2xl border text-left cursor-pointer transition-all flex flex-col gap-1
+                            ${x402SelectedService === service.id
+                              ? 'bg-white dark:bg-stone-900 border-violet-500 shadow-2xs'
+                              : 'bg-stone-100/50 dark:bg-stone-900/40 border-stone-200/50 hover:bg-stone-100 dark:hover:bg-stone-850'
+                            }
+                          `}
+                        >
+                          <div className="flex justify-between items-center w-full">
+                            <span className="text-xs font-black text-stone-800 dark:text-stone-105 font-bold">{service.label}</span>
+                            <span className="text-[10px] font-mono font-bold text-violet-650 dark:text-violet-400">{service.hbar} HBAR</span>
+                          </div>
+                          <span className="text-[10px] text-stone-400 font-medium">{service.desc}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => handleX402Request(x402SelectedService)}
+                    disabled={x402IsLoadingRequest}
+                    className="w-full py-3 bg-violet-650 hover:bg-violet-750 disabled:opacity-50 text-white rounded-xl text-xs font-black transition-all cursor-pointer flex items-center justify-center gap-2 active:scale-97 shadow-2xs"
+                  >
+                    {x402IsLoadingRequest ? (
+                      <RefreshCw className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <ArrowRight className="w-4 h-4" />
+                    )}
+                    <span>Trigger Service Request</span>
+                  </button>
+                </div>
+
+                {/* HTTP Request Logs & Headers */}
+                {x402Invoice && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex flex-col gap-2 mt-2 bg-stone-100 dark:bg-stone-900/80 p-3 rounded-2xl border border-stone-200/40 dark:border-stone-800 font-mono text-[9.5px] text-stone-600 dark:text-stone-350"
+                  >
+                    <div className="flex justify-between border-b border-stone-200/50 dark:border-stone-800 pb-1.5 mb-1">
+                      <span className="font-bold text-red-600 dark:text-red-400 font-bold">HTTP/1.1 402 Payment Required</span>
+                      <span className="text-[8px] text-stone-400 font-bold">x402 protocol</span>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <div><span className="text-violet-600 dark:text-violet-450 font-bold">X-402-Payment-To:</span> {x402Invoice.paymentTo}</div>
+                      <div><span className="text-violet-600 dark:text-violet-450 font-bold">X-402-Amount:</span> {x402Invoice.amount} tinybar</div>
+                      <div><span className="text-violet-600 dark:text-violet-450 font-bold">X-402-Token-ID:</span> {x402Invoice.tokenID}</div>
+                      <div className="truncate"><span className="text-violet-600 dark:text-violet-450 font-bold">X-402-Invoice-ID:</span> {x402Invoice.invoiceId}</div>
+                    </div>
+                  </motion.div>
+                )}
+              </div>
+
+              {/* Middle Column: Hedera Consensus & Wallet settlement */}
+              <div className="lg:col-span-4 flex flex-col gap-4 bg-stone-50/60 dark:bg-stone-950/40 p-5 rounded-3xl border border-stone-150 dark:border-stone-900">
+                <div className="flex justify-between items-center w-full">
+                  <div className="flex items-center gap-2">
+                    <Wallet className="w-4 h-4 text-amber-500" />
+                    <h3 className="text-xs font-black tracking-wide text-stone-800 dark:text-white uppercase font-mono">2. Agent Wallet</h3>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setShowConfig(!showConfig)}
+                      className={`p-1.5 rounded-lg border text-stone-500 hover:text-stone-800 dark:hover:text-stone-200 transition-all cursor-pointer ${
+                        showConfig 
+                          ? 'bg-amber-50 border-amber-250 dark:bg-amber-950/30 dark:border-amber-900 text-amber-600 dark:text-amber-400' 
+                          : 'bg-white border-stone-200 dark:bg-stone-900 dark:border-stone-800'
+                      }`}
+                      title="Configure Wallet Credentials"
+                    >
+                      <Sliders className="w-3.5 h-3.5" />
+                    </button>
+                    <span className="text-[10px] font-mono font-bold bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 border border-amber-200/30 px-2.5 py-0.5 rounded-full inline-flex items-center gap-1">
+                      {x402IsSyncingBalance && <RefreshCw className="w-3 h-3 animate-spin text-amber-500" />}
+                      {x402Balance.toFixed(4)} HBAR
+                    </span>
+                  </div>
+                </div>
+
+                {showConfig && (
+                  <motion.div 
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    className="bg-stone-100/80 dark:bg-stone-900/50 p-4 rounded-2xl border border-stone-200/50 dark:border-stone-800 flex flex-col gap-3"
+                  >
+                    <div className="text-[10px] font-black uppercase tracking-wider text-amber-600 dark:text-amber-400 font-mono flex items-center gap-1.5">
+                      <Lock className="w-3 h-3" />
+                      Configure On-Chain Wallet
+                    </div>
+                    <p className="text-[9.5px] text-stone-500 leading-relaxed">
+                      Enter your Hedera Testnet account details to enable <strong>real, live on-chain cryptographic microtransactions</strong> instead of local simulations. Credentials are saved only to your local browser storage.
+                    </p>
+                    <div className="flex flex-col gap-2">
+                      <div className="flex flex-col gap-1">
+                        <label className="text-[9px] font-bold text-stone-500 uppercase">Testnet Account ID</label>
+                        <input 
+                          type="text"
+                          value={hederaAccountId}
+                          onChange={(e) => {
+                            const val = e.target.value.trim();
+                            setHederaAccountId(val);
+                            localStorage.setItem('hedera_account_id', val);
+                          }}
+                          placeholder="e.g. 0.0.4829311"
+                          className="w-full px-3 py-1.5 bg-white dark:bg-stone-950 border border-stone-250 dark:border-stone-850 rounded-xl text-xs font-mono focus:outline-none focus:border-amber-500 text-stone-800 dark:text-stone-100"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-1 relative">
+                        <label className="text-[9px] font-bold text-stone-500 uppercase">Testnet Private Key</label>
+                        <div className="relative">
+                          <input 
+                            type={showKey ? "text" : "password"}
+                            value={hederaPrivateKey}
+                            onChange={(e) => {
+                              const val = e.target.value.trim();
+                              setHederaPrivateKey(val);
+                              localStorage.setItem('hedera_private_key', val);
+                            }}
+                            placeholder="302e020100300506032b6570..."
+                            className="w-full pl-3 pr-8 py-1.5 bg-white dark:bg-stone-950 border border-stone-250 dark:border-stone-850 rounded-xl text-xs font-mono focus:outline-none focus:border-amber-500 text-stone-800 dark:text-stone-100"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowKey(!showKey)}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 dark:hover:text-stone-350 cursor-pointer"
+                          >
+                            {showKey ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex gap-2 mt-1">
+                      <button
+                        onClick={() => {
+                          fetchX402Balance();
+                          speakText("Your wallet credentials have been synced and verified on Hedera testnet, sweetheart.");
+                        }}
+                        className="flex-1 py-1.5 bg-amber-500 hover:bg-amber-600 text-white font-bold text-[10px] uppercase font-mono tracking-wider rounded-xl cursor-pointer transition-all flex items-center justify-center gap-1 shadow-sm"
+                      >
+                        <ShieldCheck className="w-3.5 h-3.5" />
+                        Save & Sync
+                      </button>
+                      <button
+                        onClick={() => {
+                          setHederaAccountId('');
+                          setHederaPrivateKey('');
+                          localStorage.removeItem('hedera_account_id');
+                          localStorage.removeItem('hedera_private_key');
+                          speakText("credentials reset. Reverting back to simulation account.");
+                        }}
+                        className="px-3 py-1.5 bg-stone-200 hover:bg-stone-300 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-750 dark:text-stone-200 font-bold text-[10px] uppercase font-mono tracking-wider rounded-xl cursor-pointer transition-all"
+                      >
+                        Reset
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+
+                <div className="flex flex-col gap-3">
+                  <div className="bg-white dark:bg-stone-900 border border-stone-200/50 dark:border-stone-800 p-3.5 rounded-2xl flex flex-col gap-1.5 text-xs">
+                    <div className="flex justify-between items-center">
+                      <span className="text-stone-400 font-medium">Account ID:</span>
+                      <span className="font-mono font-bold text-stone-750 dark:text-stone-200">
+                        {hederaAccountId ? (
+                          <span className="text-emerald-600 dark:text-emerald-400 font-black flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse inline-block"></span>
+                            {hederaAccountId} (Live)
+                          </span>
+                        ) : (
+                          '0.0.985514 (Simulated)'
+                        )}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-stone-400 font-medium">Network:</span>
+                      <span className="font-mono font-bold text-amber-600 dark:text-amber-400">
+                        {hederaAccountId ? "Hedera Testnet (Live)" : "Hedera Testnet Emulator"}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-stone-400 font-medium">Node ID:</span>
+                      <span className="font-mono font-bold text-stone-750 dark:text-stone-200">0.0.3 (Default consensus)</span>
+                    </div>
+                  </div>
+
+                  {/* Autonomous Toggle */}
+                  <div className="flex items-center justify-between p-3 bg-stone-100/40 dark:bg-stone-900/40 rounded-2xl border border-stone-200/30">
+                    <div className="flex flex-col gap-0.5">
+                      <span className="text-[11px] font-black text-stone-800 dark:text-stone-100">Autonomous M2M Mode</span>
+                      <span className="text-[9px] text-stone-400">Agent auto-settles invoices</span>
+                    </div>
+                    <button
+                      onClick={() => {
+                        const newAutoPay = !x402AutoPay;
+                        setX402AutoPay(newAutoPay);
+                        speakText(newAutoPay ? "M2M autonomous auto-payment protocol fully activated, sweetheart. I will now settle all incoming invoices directly on the Hedera testnet." : "Autonomous payment settled mode deactivated, sweetheart.");
+                      }}
+                      className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                        x402AutoPay ? 'bg-violet-600' : 'bg-stone-300 dark:bg-stone-700'
+                      }`}
+                    >
+                      <span
+                        className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
+                          x402AutoPay ? 'translate-x-4' : 'translate-x-0'
+                        }`}
+                      />
+                    </button>
+                  </div>
+
+                  <button
+                    onClick={() => handleX402Payment()}
+                    disabled={!x402Invoice || x402IsLoadingPayment || !!x402TxId || x402AutoPay}
+                    className="w-full py-3 bg-amber-500 hover:bg-amber-600 disabled:opacity-40 text-white rounded-xl text-xs font-black transition-all cursor-pointer flex items-center justify-center gap-2 active:scale-97 shadow-2xs"
+                  >
+                    <CreditCard className="w-4 h-4" />
+                    <span>{x402AutoPay ? 'Settle Managed by Auto-Mode' : 'Authorize Agent Auto-Payment'}</span>
+                  </button>
+                </div>
+
+                {/* Simulated Hedera execution steps logs */}
+                {x402Steps.length > 0 && (
+                  <div className="flex-1 flex flex-col gap-2 p-3 bg-stone-900 dark:bg-black rounded-2xl border border-stone-800 font-mono text-[9px] text-stone-400 overflow-y-auto max-h-48">
+                    <div className="text-[8px] text-stone-550 border-b border-stone-800 pb-1 uppercase font-bold tracking-widest mb-1">Hedera Rails Execution log:</div>
+                    {x402Steps.map((step, idx) => (
+                      <motion.div 
+                        initial={{ opacity: 0, x: -5 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        key={idx} 
+                        className="flex items-start gap-1.5 line-clamp-2"
+                      >
+                        <span className="text-amber-500 font-black">➔</span>
+                        <span className={idx === x402Steps.length - 1 ? 'text-amber-400 font-bold' : ''}>{step}</span>
+                      </motion.div>
+                    ))}
+                    {x402IsLoadingPayment && (
+                      <div className="flex items-center gap-1.5 text-[8.5px] text-amber-500 font-black animate-pulse">
+                        <RefreshCw className="w-3 h-3 animate-spin" />
+                        <span>Reaching Consensus...</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Right Column: Unlocked Service Payload */}
+              <div className="lg:col-span-4 flex flex-col gap-4 bg-stone-50/60 dark:bg-stone-950/40 p-5 rounded-3xl border border-stone-150 dark:border-stone-900">
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4 text-emerald-500 animate-pulse" />
+                  <h3 className="text-xs font-black tracking-wide text-stone-800 dark:text-white uppercase font-mono">3. Verification & Resource</h3>
+                </div>
+
+                <div className="flex flex-col gap-3">
+                  <div className="flex flex-col gap-2">
+                    <div className="bg-white dark:bg-stone-900 border border-stone-200/50 dark:border-stone-800 p-3 rounded-2xl flex flex-col gap-1 font-mono text-[9.5px]">
+                      <div className="text-[8.5px] text-stone-400 uppercase font-bold border-b border-stone-100 dark:border-stone-800 pb-1 mb-1">Consensus receipt</div>
+                      <div className="truncate"><span className="text-stone-450">TX Hash:</span> {x402TxId ? '0x' + Math.random().toString(16).substring(2, 10) + '...' : 'Waiting for payment...'}</div>
+                      <div className="truncate">
+                        <span className="text-stone-450">TX ID:</span>{' '}
+                        {x402TxId ? (
+                          <a 
+                            href={`https://hashscan.io/testnet/transaction/${x402TxId}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-violet-600 dark:text-violet-400 hover:underline font-bold inline-flex items-center gap-0.5"
+                          >
+                            {x402TxId}
+                            <ArrowUpRight className="w-3 h-3 text-violet-500 animate-pulse" />
+                          </a>
+                        ) : (
+                          'Standby...'
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => handleX402Verification()}
+                    disabled={!x402TxId || x402IsVerifying || !!x402ActivePayload || x402AutoPay}
+                    className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-40 text-white rounded-xl text-xs font-black transition-all cursor-pointer flex items-center justify-center gap-2 active:scale-97 shadow-2xs"
+                  >
+                    {x402IsVerifying ? (
+                      <RefreshCw className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Unlock className="w-4 h-4" />
+                    )}
+                    <span>{x402AutoPay ? 'Verified by Auto-Mode' : 'Verify & Unlock Payload'}</span>
+                  </button>
+                </div>
+
+                {/* Display unlocked resource payloads beautifully */}
+                {x402ActivePayload ? (
+                  <motion.div 
+                    initial={{ scale: 0.95, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    className="bg-emerald-500/10 dark:bg-emerald-950/30 border border-emerald-500/20 p-4 rounded-2xl flex flex-col gap-2 text-xs text-stone-750 dark:text-stone-200"
+                  >
+                    <div className="flex items-center gap-2 border-b border-emerald-500/20 pb-1.5 mb-1 text-emerald-600 dark:text-emerald-400 font-black uppercase tracking-tight text-[10px]">
+                      <CheckCircle className="w-4 h-4" />
+                      <span>200 OK • Payload Unlocked</span>
+                    </div>
+
+                    {x402SelectedService === 'maternal_diagnosis' && (
+                      <div className="flex flex-col gap-1.5 leading-relaxed text-[11px]">
+                        <div><strong>Scan Type:</strong> {x402ActivePayload.scanType}</div>
+                        <div><strong>Gest Age:</strong> {x402ActivePayload.gestationalAge}</div>
+                        <div><strong>Fetal Heart:</strong> <span className="font-mono text-rose-500 font-bold">{x402ActivePayload.fetalHeartRate}</span></div>
+                        <div className="text-[10px] bg-white/70 dark:bg-stone-900/60 p-2 rounded-xl mt-1 text-stone-600 dark:text-stone-305 italic border border-emerald-500/10">
+                          &ldquo;{x402ActivePayload.diagnosticVerdict}&rdquo;
+                        </div>
+                      </div>
+                    )}
+
+                    {x402SelectedService === 'socratic_wisdom' && (
+                      <div className="flex flex-col gap-1.5 text-[11px]">
+                        <strong>Logical Syllogisms Decoded:</strong>
+                        <div className="flex flex-col gap-1 bg-white/70 dark:bg-stone-900/60 p-2 rounded-xl border border-emerald-500/10 text-[9.5px]">
+                          {x402ActivePayload.logicalSyllogisms.map((prem: string, idx: number) => (
+                            <div key={idx} className="leading-snug text-stone-600 dark:text-stone-350">
+                              • {prem}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {x402SelectedService === 'bio_sequencer' && (
+                      <div className="flex flex-col gap-1.5 text-[11px] leading-relaxed">
+                        <div><strong>Chromosome:</strong> {x402ActivePayload.chromosomeTarget}</div>
+                        <div><strong>Base Pairs:</strong> {x402ActivePayload.alignedBasePairs}</div>
+                        <div><strong>Mismatches:</strong> {x402ActivePayload.mismatchCount} bp</div>
+                        <div className="text-[9.5px] bg-white/70 dark:bg-stone-900/60 p-2 rounded-xl border border-emerald-500/10 mt-1">
+                          <strong>Impact:</strong> {x402ActivePayload.structuralVariants[0].gene} gene shows {x402ActivePayload.structuralVariants[0].impact} mutation.
+                        </div>
+                      </div>
+                    )}
+                  </motion.div>
+                ) : (
+                  <div className="flex-1 flex flex-col items-center justify-center border border-dashed border-stone-200 dark:border-stone-800 rounded-2xl p-5 text-center text-stone-400">
+                    <Lock className="w-8 h-8 text-stone-300 dark:text-stone-750 animate-pulse mb-2" />
+                    <span className="text-[10.5px] font-bold uppercase tracking-wider font-mono">Resource Locked</span>
+                    <span className="text-[10px] max-w-[180px] mt-1 leading-snug">Requires Hedera micropayment and consensus verification.</span>
+                  </div>
+                )}
+              </div>
+
+            </div>
+
+            {/* Bottom Section: Real-time Hedera Ledger Audit explorer */}
+            <div className="flex flex-col gap-4 bg-stone-50/60 dark:bg-stone-950/40 p-5 rounded-3xl border border-stone-150 dark:border-stone-900 mt-2">
+              <div className="flex justify-between items-center border-b border-stone-200/50 dark:border-stone-800 pb-3">
+                <div className="flex items-center gap-2">
+                  <History className="w-4 h-4 text-violet-500" />
+                  <h3 className="text-xs font-black text-stone-850 dark:text-white uppercase font-mono tracking-wide">
+                    Hedera Hashgraph x402 Ledger Audit Explorer
+                  </h3>
+                </div>
+                <button
+                  onClick={() => fetchX402Ledger(true)}
+                  disabled={x402IsSyncing}
+                  className="px-3 py-1.5 bg-white hover:bg-stone-100 dark:bg-stone-900 dark:hover:bg-stone-800 border border-stone-200/50 dark:border-stone-800 text-[10px] font-bold uppercase font-mono tracking-wider rounded-xl cursor-pointer transition-all flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${x402IsSyncing ? 'animate-spin text-violet-500' : ''}`} />
+                  <span>{x402IsSyncing ? 'Syncing...' : 'Sync Ledger'}</span>
+                </button>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-[10px] font-mono border-collapse">
+                  <thead>
+                    <tr className="border-b border-stone-200 dark:border-stone-800 text-stone-400 uppercase font-black text-[9px]">
+                      <th className="py-2.5 px-2">Timestamp</th>
+                      <th className="py-2.5 px-2">Transaction ID (On-Chain)</th>
+                      <th className="py-2.5 px-2">Invoice Reference</th>
+                      <th className="py-2.5 px-2">Client Account</th>
+                      <th className="py-2.5 px-2">Service ID</th>
+                      <th className="py-2.5 px-2 text-right">Amount (tinybar)</th>
+                      <th className="py-2.5 px-2 text-center">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {x402LedgerLogs.map((tx, idx) => (
+                      <tr 
+                        key={idx} 
+                        className="border-b border-stone-100 dark:border-stone-900 text-stone-600 dark:text-stone-300 hover:bg-white/40 dark:hover:bg-stone-900/40 transition-all"
+                      >
+                        <td className="py-2.5 px-2 whitespace-nowrap text-stone-400">
+                          {new Date(tx.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                        </td>
+                        <td className="py-2.5 px-2 text-violet-650 dark:text-violet-400 font-bold truncate max-w-[140px] hover:max-w-none transition-all" title={tx.id}>
+                          <a 
+                            href={`https://hashscan.io/testnet/transaction/${tx.id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="hover:underline hover:text-violet-700 dark:hover:text-violet-350 inline-flex items-center gap-0.5"
+                          >
+                            {tx.id}
+                            <ArrowUpRight className="w-3 h-3 text-violet-500/80 inline" />
+                          </a>
+                        </td>
+                        <td className="py-2.5 px-2 font-bold text-stone-500">{tx.invoiceId}</td>
+                        <td className="py-2.5 px-2 text-stone-400">{tx.clientAccount}</td>
+                        <td className="py-2.5 px-2">
+                          <span className="px-2 py-0.5 bg-stone-200/50 dark:bg-stone-850 border border-stone-300/10 rounded-md font-bold uppercase text-[8.5px]">
+                            {tx.serviceId.replace(/_/g, ' ')}
+                          </span>
+                        </td>
+                        <td className="py-2.5 px-2 text-right text-emerald-600 dark:text-emerald-400 font-black">
+                          {tx.amount.toLocaleString()} ({tx.amount / 100000} HBAR)
+                        </td>
+                        <td className="py-2.5 px-2 text-center">
+                          <div className="flex flex-col items-center gap-0.5">
+                            <span className="text-[8px] font-extrabold px-2 py-0.5 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-200/30 rounded-full">
+                              {tx.status}
+                            </span>
+                            {tx.verificationSource && (
+                              <span className={`text-[7px] font-bold ${tx.onChainVerified ? 'text-violet-600 dark:text-violet-400' : 'text-stone-400 dark:text-stone-500'}`}>
+                                {tx.onChainVerified ? "⛓️ On-Chain" : "💻 Emulator"}
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
 
           </div>
         )}

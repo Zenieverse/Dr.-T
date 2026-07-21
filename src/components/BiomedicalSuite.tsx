@@ -961,7 +961,7 @@ ${vNotes}`;
       )}
       
       {/* Sidebar Navigation */}
-      <div className="w-full md:w-64 bg-stone-50 border-b md:border-b-0 md:border-r border-stone-200 p-4 shrink-0 flex flex-col justify-between">
+      <div className="w-full md:w-64 bg-stone-50 border-b md:border-b-0 md:border-r border-stone-200 p-4 shrink-0 flex flex-col justify-between md:sticky md:top-[124px] md:h-[calc(100vh-140px)] md:overflow-y-auto">
         <div id="biomedical-menu-container">
           <div className="flex items-center gap-2 px-2 py-3 border-b border-stone-200/60 mb-4">
             <Database className="w-5 h-5 text-rose-500 animate-pulse" />
