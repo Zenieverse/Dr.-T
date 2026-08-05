@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { 
   Terminal, ShieldCheck, Layers, GitFork, Award, CheckCircle, 
   HelpCircle, ArrowRight, Star, FileText, ChevronRight, Play, BookOpen,
-  Settings, Database, Network, MessageSquare, Volume2, HardDrive
+  Settings, Database, Network, MessageSquare, Volume2, HardDrive, BarChart3
 } from 'lucide-react';
+import { RealWorldImpactAndCaseStudies } from './RealWorldImpactAndCaseStudies';
 
 export const PORTFOLIO_TRANSLATIONS: Record<string, Record<string, string>> = {
   English: {
@@ -66,7 +67,7 @@ interface PortfolioShowcaseProps {
 
 export const PortfolioShowcase: React.FC<PortfolioShowcaseProps> = ({ language = 'English', onNavigate }) => {
   const [activeSlide, setActiveSlide] = useState(0);
-  const [activeDocSection, setActiveDocSection] = useState<'architecture' | 'fhir-spec' | 'mimic-analytics' | 'paper'>('architecture');
+  const [activeDocSection, setActiveDocSection] = useState<'architecture' | 'fhir-spec' | 'mimic-analytics' | 'paper' | 'impact-cases'>('architecture');
 
   const selectedLang = ['English', 'French', 'Vietnamese'].includes(language || 'English') ? (language || 'English') : 'English';
 
@@ -239,7 +240,8 @@ export const PortfolioShowcase: React.FC<PortfolioShowcaseProps> = ({ language =
               { id: 'architecture', label: 'Architecture Topology', translationKey: 'tab_arch', icon: Network },
               { id: 'fhir-spec', label: 'HL7 FHIR Schema Spec', translationKey: 'tab_fhir', icon: Settings },
               { id: 'mimic-analytics', label: 'MIMIC-IV Analytics Flow', translationKey: 'tab_mimic', icon: Database },
-              { id: 'paper', label: 'Research Whitepaper', translationKey: 'tab_paper', icon: FileText }
+              { id: 'paper', label: 'Research Whitepaper', translationKey: 'tab_paper', icon: FileText },
+              { id: 'impact-cases', label: 'Real-World Impact & Case Studies', translationKey: 'tab_impact', icon: BarChart3 }
             ].map((sec) => {
               const Icon = sec.icon;
               return (
@@ -428,6 +430,13 @@ export const PortfolioShowcase: React.FC<PortfolioShowcaseProps> = ({ language =
                     <strong>3. Findings:</strong> Under verbal Socratic intervals, patients' mean resting heart rate stabilized from 88 bpm to 72 bpm. The synthesis of HL7 DocumentReference objects allowed instant Epic EHR updates, saving an estimated 45 mins administrative clinician time per day.
                   </p>
                 </div>
+              </div>
+            )}
+
+            {/* 5. REAL-WORLD IMPACT & CASE STUDIES */}
+            {activeDocSection === 'impact-cases' && (
+              <div className="animate-fadeIn" id="doc-impact-cases">
+                <RealWorldImpactAndCaseStudies />
               </div>
             )}
 

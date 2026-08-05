@@ -944,7 +944,7 @@ An Ouch! feeling just like when my Dr. renewed my Birth Cert, ...`,
               ) : unboxedItem.id === 'many-happy-returns' ? (
                 <div className="w-full my-3 px-3.5 py-4 bg-gradient-to-b from-rose-50/40 to-pink-50/20 dark:from-rose-950/10 dark:to-pink-950/5 border border-rose-150/40 dark:border-rose-950/30 rounded-2xl shadow-[inset_0_1px_2px_rgba(244,63,94,0.03)] select-text">
                   <p className="text-[9px] text-rose-500 dark:text-rose-400 font-sans font-extrabold tracking-widest uppercase mb-3 text-center">
-                    🎁 Happy WOAH WOAH! 🎁
+                    🎁 Happy Waaah Waaah! 🎁
                   </p>
                   <p className="text-[10px] sm:text-[10.5px] text-stone-700 dark:text-stone-300 font-serif italic leading-relaxed whitespace-pre-line text-center antialiased">
                     {unboxedItem.description}

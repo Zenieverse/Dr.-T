@@ -6,6 +6,51 @@ service cloud.firestore {
     match /appState/{docId} {
       allow read, write: if docId == "clarissa_jane_drt";
     }
+
+    // Allow read/write to anonymized R&D health research cases
+    match /rndCases/{caseId} {
+      allow read, write: if true;
+    }
+
+    // Allow read/write to real-time clinical case studies
+    match /clinicalCases/{caseId} {
+      allow read, write: if true;
+    }
+
+    // Allow read/write to real-time clinician feedback and patient user insights
+    match /clinicianFeedback/{feedbackId} {
+      allow read, write: if true;
+    }
+
+    // Allow read/write to real-time system metrics
+    match /realtimeMetrics/{metricId} {
+      allow read, write: if true;
+    }
+
+    // Allow read/write to Longevity Academy progress & certifications
+    match /longevityProgress/{progressId} {
+      allow read, write: if true;
+    }
+
+    // Allow read/write to Longevity Academy health journals & caregiver logs
+    match /longevityJournals/{journalId} {
+      allow read, write: if true;
+    }
+
+    // Allow read/write to Longevity Academy community forum posts
+    match /longevityForum/{postId} {
+      allow read, write: if true;
+    }
+
+    // Allow read/write to visitor headcount and live online statistics
+    match /visitorStats/{docId} {
+      allow read, write: if true;
+    }
+
+    // Allow read/write to detailed visitor session logs and usage analytics
+    match /visitorLogs/{logId} {
+      allow read, write: if true;
+    }
     
     // Safety Net: Deny all other read/write operations by default.
     match /{document=**} {

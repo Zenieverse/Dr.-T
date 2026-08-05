@@ -14,7 +14,8 @@ import {
   Smile,
   X,
   Compass,
-  Activity
+  Activity,
+  FileText
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { MedLog, TaskItem, CarbonHabit, LifetimeStreak, MemoryNode } from '../types';
@@ -23,6 +24,7 @@ import { DiagnosticsAnalytics } from './DiagnosticsAnalytics';
 import { DiagnosticsMilestones } from './DiagnosticsMilestones';
 import { DiagnosticsDeclarator } from './DiagnosticsDeclarator';
 import { DiagnosticsLicensing } from './DiagnosticsLicensing';
+import { RealWorldImpactAndCaseStudies } from './RealWorldImpactAndCaseStudies';
 
 interface DashboardProps {
   medList: MedLog[];
@@ -149,7 +151,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   });
 
   // Diagnostics view tab state
-  const [diagnosticsTab, setDiagnosticsTab] = useState<'analytics' | 'milestones' | 'declarator' | 'licensing'>('analytics');
+  const [diagnosticsTab, setDiagnosticsTab] = useState<'analytics' | 'milestones' | 'declarator' | 'licensing' | 'casestudies'>('analytics');
 
   // Local state for licensing & badges
   const [subTier, setSubTier] = useState<'free' | 'premium' | 'family'>('free');
@@ -316,6 +318,17 @@ export const Dashboard: React.FC<DashboardProps> = ({
             <CreditCard className="w-4 h-4" />
             Licensing &amp; Skills
           </button>
+          <button
+            onClick={() => setDiagnosticsTab('casestudies')}
+            className={`flex-1 sm:flex-initial px-4 py-2.5 rounded-xl text-[10px] font-extrabold uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-2 ${
+              diagnosticsTab === 'casestudies'
+                ? 'bg-rose-600 text-white shadow-sm font-black'
+                : 'text-stone-500 hover:text-stone-850 bg-transparent'
+            }`}
+          >
+            <FileText className="w-4 h-4" />
+            Real-World Impact &amp; Case Studies
+          </button>
         </div>
       </div>
 
@@ -371,6 +384,17 @@ export const Dashboard: React.FC<DashboardProps> = ({
               language={language}
               setLanguage={setLanguage}
             />
+          )}
+
+          {diagnosticsTab === 'casestudies' && (
+            <motion.div
+              key="casestudies"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -15 }}
+            >
+              <RealWorldImpactAndCaseStudies />
+            </motion.div>
           )}
         </AnimatePresence>
       </div>

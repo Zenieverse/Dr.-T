@@ -16,6 +16,7 @@ import { LifeGraph } from './LifeGraph';
 import { AgentSwarm } from './AgentSwarm';
 import { Trackers } from './Trackers';
 import { FluidIntelligence } from './FluidIntelligence';
+import { VisitorHeadcountTracker } from './VisitorHeadcountTracker';
 import { Message, DrTVibe, DrTAppearance, MemoryNode, SpecialistAgent, MedLog, HealthMetric, SkillNode, TaskItem, CalendarEvent, SmartNote, CarbonHabit } from '../types';
 
 interface HubProps {
@@ -296,6 +297,30 @@ export function Hub({
           >
             <Brain className="w-4 h-4 text-violet-500" />
             🧠 Fluid Core
+          </button>
+
+          <button
+            type="button"
+            onClick={() => { stopAudio(); setActiveTab('datahub'); }}
+            className="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl text-[10px] font-extrabold uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-2 text-amber-700 dark:text-amber-300 hover:text-amber-900 bg-amber-50 dark:bg-amber-950/40 border border-amber-200/50 dark:border-amber-900"
+          >
+            <span>📊</span> DataHub Agents
+          </button>
+
+          <button
+            type="button"
+            onClick={() => { stopAudio(); setActiveTab('longevity-academy'); }}
+            className="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl text-[10px] font-extrabold uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-2 text-amber-700 dark:text-amber-300 hover:text-amber-900 bg-amber-50 dark:bg-amber-950/40 border border-amber-200/50 dark:border-amber-900"
+          >
+            <span>🎓</span> Dr. T Institute
+          </button>
+
+          <button
+            type="button"
+            onClick={() => { stopAudio(); setActiveTab('google-suite'); }}
+            className="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl text-[10px] font-extrabold uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-2 text-rose-600 hover:text-rose-800 bg-rose-50 dark:bg-rose-950/40 border border-rose-200/50 dark:border-rose-900"
+          >
+            <span>🔵</span> Google Tech Suite
           </button>
         </div>
       </div>

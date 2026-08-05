@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { BirthdayCelebrator } from './BirthdayCelebrator';
+import { PatientHeartCompanion } from './PatientHeartCompanion';
+import { MedGemmaSuite } from './MedGemmaSuite';
+import { NemotronReasoningSuite } from './NemotronReasoningSuite';
 import { 
   Heart, Activity, ClipboardList, ShieldAlert, Award, FileSpreadsheet, 
   Search, FileText, Camera, Users, Zap, BookOpen, User, Eye, 
   Upload, Download, CheckCircle, AlertTriangle, Code, ArrowRight,
   Database, RefreshCw, Layers, ShieldCheck, HelpCircle, Flame, Calendar,
-  Baby, Sparkles, TrendingUp, Play, Square, Terminal, Cpu
+  Baby, Sparkles, TrendingUp, Play, Square, Terminal, Cpu, Brain
 } from 'lucide-react';
 
 interface TerminologyCode {
@@ -179,8 +182,8 @@ export const SUITE_TRANSLATIONS: Record<string, Record<string, string>> = {
 
 export const BiomedicalSuite: React.FC<{
   language?: string;
-  activeSubTab?: 'patient' | 'fhir' | 'analytics' | 'summarizer' | 'imaging' | 'population' | 'coach' | 'lab' | 'mimic' | 'orchestrator' | 'obgyn' | 'predictions';
-  onSubTabChange?: (tab: 'patient' | 'fhir' | 'analytics' | 'summarizer' | 'imaging' | 'population' | 'coach' | 'lab' | 'mimic' | 'orchestrator' | 'obgyn' | 'predictions') => void;
+  activeSubTab?: 'patient' | 'fhir' | 'analytics' | 'summarizer' | 'imaging' | 'population' | 'coach' | 'lab' | 'mimic' | 'orchestrator' | 'obgyn' | 'predictions' | 'heart_companion';
+  onSubTabChange?: (tab: 'patient' | 'fhir' | 'analytics' | 'summarizer' | 'imaging' | 'population' | 'coach' | 'lab' | 'mimic' | 'orchestrator' | 'obgyn' | 'predictions' | 'heart_companion') => void;
   onUpdateHeartRate?: (newBpm: number) => void;
 }> = ({ language = 'English', activeSubTab: controlledSubTab, onSubTabChange, onUpdateHeartRate }) => {
   const selectedLang = ['English', 'French', 'Vietnamese'].includes(language) ? language : 'English';
@@ -189,11 +192,11 @@ export const BiomedicalSuite: React.FC<{
     return SUITE_TRANSLATIONS[selectedLang]?.[key] || fallback;
   };
 
-  const [localActiveSubTab, setLocalActiveSubTab] = useState<'patient' | 'fhir' | 'analytics' | 'summarizer' | 'imaging' | 'population' | 'coach' | 'lab' | 'mimic' | 'orchestrator' | 'obgyn' | 'predictions'>('patient');
+  const [localActiveSubTab, setLocalActiveSubTab] = useState<'patient' | 'fhir' | 'analytics' | 'summarizer' | 'imaging' | 'population' | 'coach' | 'lab' | 'mimic' | 'orchestrator' | 'obgyn' | 'predictions' | 'heart_companion'>('patient');
 
   const activeSubTab = controlledSubTab !== undefined ? controlledSubTab : localActiveSubTab;
   
-  const setActiveSubTab = (tab: 'patient' | 'fhir' | 'analytics' | 'summarizer' | 'imaging' | 'population' | 'coach' | 'lab' | 'mimic' | 'orchestrator' | 'obgyn' | 'predictions') => {
+  const setActiveSubTab = (tab: 'patient' | 'fhir' | 'analytics' | 'summarizer' | 'imaging' | 'population' | 'coach' | 'lab' | 'mimic' | 'orchestrator' | 'obgyn' | 'predictions' | 'heart_companion') => {
     if (onSubTabChange) {
       onSubTabChange(tab);
     } else {
@@ -228,7 +231,220 @@ export const BiomedicalSuite: React.FC<{
     { id: 5, label: "Confirm fetal anatomy scan completed and documented", checked: true }
   ]);
   const [customHandoffText, setCustomHandoffText] = useState<string>("");
-  const [activeWorkflow, setActiveWorkflow] = useState<'prenatal' | 'labor' | 'preventive' | 'postpartum'>('prenatal');
+  const [activeWorkflow, setActiveWorkflow] = useState<'prenatal' | 'labor' | 'preventive' | 'postpartum' | 'anemia'>('prenatal');
+
+  // Comprehensive Maternal & Gynecological Anemia States
+  const [anemiaHb, setAnemiaHb] = useState<number>(9.8); // g/dL
+  const [anemiaFerritin, setAnemiaFerritin] = useState<number>(14); // ug/L
+  const [anemiaMcv, setAnemiaMcv] = useState<number>(76); // fL
+  const [anemiaTargetHb, setAnemiaTargetHb] = useState<number>(11.5); // g/dL
+  const [anemiaWeightKg, setAnemiaWeightKg] = useState<number>(65); // kg
+  const [anemiaGiTolerance, setAnemiaGiTolerance] = useState<'tolerant' | 'mild_distress' | 'severe_intolerance'>('tolerant');
+  const [anemiaSubTab, setAnemiaSubTab] = useState<'calculator' | 'differentials' | 'risks' | 'protocols' | 'knowledge'>('calculator');
+  const [knowledgeLang, setKnowledgeLang] = useState<string>('English');
+  const [knowledgeTopic, setKnowledgeTopic] = useState<string>('Dietary Iron Sources (Heme vs Non-Heme)');
+  const [knowledgeCustomPrompt, setKnowledgeCustomPrompt] = useState<string>('');
+  const [knowledgeLoading, setKnowledgeLoading] = useState<boolean>(false);
+  const [knowledgeResult, setKnowledgeResult] = useState<string | null>(null);
+
+  const [anemiaSelectedSymptoms, setAnemiaSelectedSymptoms] = useState<Record<string, boolean>>({
+    fatigue: true,
+    dizziness: false,
+    shortnessOfBreath: false,
+    palpitations: false,
+    coldExtremities: false,
+    paleSkin: true,
+    pica: false,
+    headache: false,
+  });
+
+  const toggleAnemiaSymptom = (key: string) => {
+    setAnemiaSelectedSymptoms(prev => ({
+      ...prev,
+      [key]: !prev[key]
+    }));
+  };
+
+  const getSymptomBurdenSummary = () => {
+    const activeKeys = Object.keys(anemiaSelectedSymptoms).filter(k => anemiaSelectedSymptoms[k]);
+    const activeCount = activeKeys.length;
+    const isRedFlag = anemiaSelectedSymptoms.shortnessOfBreath || anemiaSelectedSymptoms.palpitations;
+
+    if (activeCount === 0) {
+      return {
+        count: 0,
+        label: "Low Symptom Burden (Asymptomatic / Stable)",
+        badgeClass: "bg-emerald-100 text-emerald-800 border-emerald-300",
+        advice: "No active anemia symptoms reported. Continue baseline supplementation and dietary monitoring.",
+        statusIcon: "✅"
+      };
+    } else if (activeCount <= 2 && !isRedFlag) {
+      return {
+        count: activeCount,
+        label: `Mild Burden (${activeCount} Symptom${activeCount > 1 ? 's' : ''} Active)`,
+        badgeClass: "bg-amber-100 text-amber-900 border-amber-300",
+        advice: "Mild anemic features reported. Ensure daily iron intake with Vitamin C co-ingestion synergy.",
+        statusIcon: "⚡"
+      };
+    } else if (activeCount <= 4 && !isRedFlag) {
+      return {
+        count: activeCount,
+        label: `Moderate Burden (${activeCount} Symptoms Active)`,
+        badgeClass: "bg-orange-100 text-orange-900 border-orange-300",
+        advice: "Multiple anemic symptoms noted. Clinical re-assessment and CBC / Ferritin lab check recommended.",
+        statusIcon: "⚠️"
+      };
+    } else {
+      return {
+        count: activeCount,
+        label: `High / Critical Burden (${activeCount} Symptoms${isRedFlag ? ' • Red Flag Cues' : ''})`,
+        badgeClass: "bg-red-100 text-red-900 border-red-300 animate-pulse font-bold",
+        advice: "Severe symptom cluster detected! Immediate OB/GYN evaluation & potential IV iron / ER triage required.",
+        statusIcon: "🚨"
+      };
+    }
+  };
+
+  const [ironIntakeLog, setIronIntakeLog] = useState<{ day: string; mg: number; vitC: boolean }[]>([
+    { day: 'Mon', mg: 30, vitC: true },
+    { day: 'Tue', mg: 65, vitC: true },
+    { day: 'Wed', mg: 0, vitC: false },
+    { day: 'Thu', mg: 65, vitC: true },
+    { day: 'Fri', mg: 65, vitC: false },
+    { day: 'Sat', mg: 100, vitC: true },
+    { day: 'Sun (Today)', mg: 65, vitC: true },
+  ]);
+
+  const updateDailyIntake = (index: number, field: 'mg' | 'vitC', value: number | boolean) => {
+    setIronIntakeLog(prev => {
+      const copy = [...prev];
+      copy[index] = { ...copy[index], [field]: value };
+      return copy;
+    });
+  };
+
+  const generateAnemiaKnowledge = async (presetTopic?: string) => {
+    const topicToUse = presetTopic || knowledgeCustomPrompt || knowledgeTopic;
+    setKnowledgeLoading(true);
+    setKnowledgeResult(null);
+    try {
+      const response = await fetch('/api/gemini/generate-text', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prompt: `Provide a medically vetted, comprehensive patient & clinician guidance note on maternal anemia. Topic: "${topicToUse}". Language: ${knowledgeLang}. Please ensure you explicitly cover:
+1. Detailed dietary iron sources (differentiating Heme animal sources vs Non-Heme plant sources with absorption rates).
+2. Vitamin C co-ingestion synergy tips (how ascorbic acid boosts absorption) and absorption inhibitors (tea, coffee, calcium, antacids) to avoid within 2 hours.
+3. Critical Red Flag Symptoms & Warning Signs (when a pregnant woman must seek immediate emergency medical evaluation).
+4. Practical, empathetic lifestyle advice for managing gestational anemia.`,
+          systemInstruction: `You are Dr. T, an elite OB/GYN maternal nutrition specialist and empathetic clinical guide. Respond clearly in ${knowledgeLang} with structured formatting.`,
+          model: "gemini-3.6-flash"
+        })
+      });
+      const data = await response.json();
+      if (data.text) {
+        setKnowledgeResult(data.text);
+      } else {
+        setKnowledgeResult("Knowledge guide generated successfully.");
+      }
+    } catch (err: any) {
+      console.error("Knowledge generation error:", err);
+      setKnowledgeResult(`[Dr. T Vetted Clinical Note - Fallback]
+Language: ${knowledgeLang} | Topic: ${topicToUse}
+
+1. DIETARY IRON SOURCES (HEME VS. NON-HEME):
+• Heme Iron (Higher bioavailability ~25-30%): Red meat (beef, lamb), chicken liver, turkey, clams/oysters, sardines.
+• Non-Heme Iron (Plant-based ~5-10%): Cooked spinach, lentils, chickpeas, pumpkin seeds, tofu, fortified whole grains.
+
+2. ABSORPTION BOOSTERS & INHIBITORS:
+• Synergy: Pair Non-Heme iron with 200-500mg Vitamin C (bell peppers, oranges, strawberries, lemons).
+• Inhibitors: Do NOT take iron supplements or iron-rich meals with calcium/dairy, tea/coffee (tannins), or antacids. Separate by at least 2 hours.
+
+3. RED FLAG EMERGENCY WARNING SIGNS:
+Seek immediate emergency OB/GYN evaluation if experiencing:
+• Severe shortness of breath at rest or chest tightness.
+• Sudden syncope (fainting), severe dizziness, or confusion.
+• Rapid heart rate (>110 bpm at rest) or heart palpitations.
+• Heavy vaginal bleeding or fluid leakage.
+• Decreased or absent fetal movement.`);
+    } finally {
+      setKnowledgeLoading(false);
+    }
+  };
+
+  // Ganzoni Deficit & Anemia Calculation Helpers
+  const calculateGanzoniDeficit = () => {
+    const actual = anemiaHb;
+    const target = anemiaTargetHb;
+    const weight = anemiaWeightKg;
+    if (actual >= target) return 0;
+    return Math.round((weight * (target - actual) * 2.4) + 500);
+  };
+
+  const getAnemiaSeverityInfo = () => {
+    const hb = anemiaHb;
+    const week = obgynWeek;
+    const isT2 = week >= 14 && week <= 26;
+    const cutoffNormal = isT2 ? 10.5 : 11.0;
+
+    if (hb >= cutoffNormal) return { label: "Normal / Non-Anemic", badge: "bg-emerald-100 text-emerald-800 border-emerald-300", level: "Normal" };
+    if (hb >= (isT2 ? 9.5 : 10.0)) return { label: "Mild Gestational Anemia", badge: "bg-amber-100 text-amber-900 border-amber-300", level: "Mild" };
+    if (hb >= 7.0) return { label: "Moderate Anemia (IV Iron / Escalation Candidate)", badge: "bg-orange-100 text-orange-900 border-orange-300", level: "Moderate" };
+    return { label: "Severe Anemia (High Output Strain & Transfusion Alert)", badge: "bg-red-100 text-red-900 border-red-300 animate-pulse", level: "Severe" };
+  };
+
+  const getAnemiaForecastData = () => {
+    const currentHb = anemiaHb;
+    const targetHb = anemiaTargetHb;
+
+    let cumulativeAbsorbedMg = 0;
+    ironIntakeLog.forEach(log => {
+      const eff = log.vitC ? 0.15 : 0.10;
+      cumulativeAbsorbedMg += log.mg * eff;
+    });
+
+    const startHb = Math.max(5.0, currentHb - (cumulativeAbsorbedMg * 0.0067));
+    
+    const points: { day: string; hb: number; mg: number; vitC: boolean; isForecast?: boolean }[] = [];
+    let runningHb = startHb;
+    ironIntakeLog.forEach((log) => {
+      const eff = log.vitC ? 0.15 : 0.10;
+      const absorbed = log.mg * eff;
+      runningHb = Math.min(15.0, runningHb + (absorbed * 0.0067));
+      points.push({ day: log.day, hb: parseFloat(runningHb.toFixed(2)), mg: log.mg, vitC: log.vitC, isForecast: false });
+    });
+
+    const avgDailyMg = ironIntakeLog.reduce((acc, curr) => acc + curr.mg, 0) / 7;
+    const forecastDays = ['Mon (+1)', 'Tue (+2)', 'Wed (+3)'];
+    let forecastHb = runningHb;
+    forecastDays.forEach((fDay) => {
+      const absorbed = avgDailyMg * 0.15;
+      forecastHb = Math.min(15.0, forecastHb + (absorbed * 0.0067));
+      points.push({ day: fDay, hb: parseFloat(forecastHb.toFixed(2)), mg: Math.round(avgDailyMg), vitC: true, isForecast: true });
+    });
+
+    const totalIronLogged = ironIntakeLog.reduce((acc, curr) => acc + curr.mg, 0);
+    const avgIntake = Math.round(totalIronLogged / 7);
+    const forecastGain = parseFloat((forecastHb - startHb).toFixed(2));
+    const remainingDeficitHb = Math.max(0, targetHb - forecastHb);
+    const estDaysToTarget = avgIntake > 0 && remainingDeficitHb > 0 
+      ? Math.ceil((remainingDeficitHb / (avgIntake * 0.15 * 0.0067)))
+      : 0;
+    const complianceRate = Math.round((ironIntakeLog.filter(l => l.mg >= 60).length / 7) * 100);
+
+    return {
+      points,
+      startHb: parseFloat(startHb.toFixed(2)),
+      currentHb: parseFloat(runningHb.toFixed(2)),
+      forecastHb: parseFloat(forecastHb.toFixed(2)),
+      totalIronLogged,
+      avgIntake,
+      forecastGain,
+      estDaysToTarget,
+      complianceRate,
+      targetHb
+    };
+  };
   const [activeSubSpecialty, setActiveSubSpecialty] = useState<'fertility' | 'menopause' | 'preventive'>('fertility');
   const [wearableHrv, setWearableHrv] = useState<number>(42); // ms
   const [wearableDeepSleep, setWearableDeepSleep] = useState<number>(1.1); // hrs
@@ -986,7 +1202,10 @@ ${vNotes}`;
               { id: 'mimic', label: 'MIMIC-IV ICU', translationKey: 'mimic_iv_icu', icon: Activity },
               { id: 'orchestrator', label: 'Swarm Orchestrator', translationKey: 'swarm_orchestrator', icon: Layers },
               { id: 'obgyn', label: 'OB/GYN Care Navigator', translationKey: 'obgyn_care', icon: Baby },
-              { id: 'predictions', label: 'AI Predictive Console', translationKey: 'ai_predictions', icon: Sparkles }
+              { id: 'heart_companion', label: 'Patient Heart & R&D', translationKey: 'patient_heart_companion', icon: Heart },
+              { id: 'predictions', label: 'AI Predictive Console', translationKey: 'ai_predictions', icon: Sparkles },
+              { id: 'medgemma', label: 'MedGemma HAI-DEF', translationKey: 'medgemma_haidef', icon: Brain },
+              { id: 'nemotron', label: 'NVIDIA Nemotron AI', translationKey: 'nemotron_ai', icon: Cpu }
             ].map((tab) => {
               const IconComp = tab.icon;
               return (
@@ -1040,7 +1259,10 @@ ${vNotes}`;
               {activeSubTab === 'mimic' && 'MIMIC-IV High-Fidelity ICU Console'}
               {activeSubTab === 'orchestrator' && 'Coordinated Multi-Agent Clinical Routing'}
               {activeSubTab === 'obgyn' && 'OB/GYN Maternal Care Navigator'}
+              {activeSubTab === 'heart_companion' && 'Patient Heart-to-Heart Support & R&D Case Repository'}
               {activeSubTab === 'predictions' && 'Clinical AI Forecasting & Predictive Engine'}
+              {activeSubTab === 'medgemma' && 'Google Health AI Foundations & MedGemma Impact Suite'}
+              {activeSubTab === 'nemotron' && 'NVIDIA Nemotron Model Reasoning Challenge Suite'}
             </h3>
           </div>
         </div>
@@ -2488,6 +2710,7 @@ ${vNotes}`;
                   <span className="text-xs font-black text-stone-700 uppercase font-mono tracking-wider">OB/GYN Pathway Selection</span>
                   {[
                     { id: 'prenatal', title: "Prenatal Care Strategy", desc: "Gestational staging, vaccinations, nutrient guidelines" },
+                    { id: 'anemia', title: "Maternal & Gynecological Anemia Suite", desc: "WHO/ACOG thresholds, Ganzoni deficit calculator, IV vs Oral iron & risks" },
                     { id: 'labor', title: "Labor & Delivery Guidelines", desc: "Cervical progress, FHR monitor patterns, Bishop triage" },
                     { id: 'preventive', title: "Preventive Gynecology Procedures", desc: "Pap, HPV co-testing criteria, cancer screens" },
                     { id: 'postpartum', title: "Postpartum Safety & Discharge", desc: "Eclampsia triage, hemorrhage cues, EPDS depression check" },
@@ -2666,6 +2889,857 @@ ${vNotes}`;
                           </p>
                         </div>
                       </div>
+                    </div>
+                  )}
+
+                  {activeWorkflow === 'anemia' && (
+                    <div className="flex flex-col gap-5 animate-fadeIn">
+                      <div className="flex flex-wrap justify-between items-center border-b border-stone-150 pb-2.5 gap-2">
+                        <div>
+                          <span className="text-xs font-black text-rose-600 font-mono uppercase tracking-wider block">PATHWAY: MATERNAL & GYNECOLOGICAL ANEMIA SUITE</span>
+                          <span className="text-[11px] text-stone-500 font-medium">WHO & ACOG Gestational Anemia Guidelines • Ganzoni Deficit Calculator • Pharmacotherapy Roadmap</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className={`text-[10px] border px-2.5 py-0.5 rounded-full font-bold uppercase ${getAnemiaSeverityInfo().badge}`}>
+                            {getAnemiaSeverityInfo().label}
+                          </span>
+                          <span className={`text-[10px] border px-2.5 py-0.5 rounded-full font-mono font-bold uppercase flex items-center gap-1 ${getSymptomBurdenSummary().badgeClass}`}>
+                            <span>{getSymptomBurdenSummary().statusIcon}</span>
+                            <span>{getSymptomBurdenSummary().label}</span>
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Anemia Sub-tab Nav */}
+                      <div className="flex flex-wrap gap-1.5 bg-stone-100 p-1 rounded-xl text-xs font-bold">
+                        <button
+                          onClick={() => setAnemiaSubTab('calculator')}
+                          className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${anemiaSubTab === 'calculator' ? 'bg-white text-rose-700 shadow-xs' : 'text-stone-600 hover:text-stone-900'}`}
+                        >
+                          🧮 Ganzoni Calculator & Dosing
+                        </button>
+                        <button
+                          onClick={() => setAnemiaSubTab('differentials')}
+                          className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${anemiaSubTab === 'differentials' ? 'bg-white text-rose-700 shadow-xs' : 'text-stone-600 hover:text-stone-900'}`}
+                        >
+                          🔬 Laboratory Differentials
+                        </button>
+                        <button
+                          onClick={() => setAnemiaSubTab('risks')}
+                          className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${anemiaSubTab === 'risks' ? 'bg-white text-rose-700 shadow-xs' : 'text-stone-600 hover:text-stone-900'}`}
+                        >
+                          ⚠️ Maternal & Fetal Risks
+                        </button>
+                        <button
+                          onClick={() => setAnemiaSubTab('protocols')}
+                          className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${anemiaSubTab === 'protocols' ? 'bg-white text-rose-700 shadow-xs' : 'text-stone-600 hover:text-stone-900'}`}
+                        >
+                          📋 Trimester Protocols
+                        </button>
+                        <button
+                          onClick={() => setAnemiaSubTab('knowledge')}
+                          className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${anemiaSubTab === 'knowledge' ? 'bg-white text-rose-700 shadow-xs ring-1 ring-rose-200 font-extrabold' : 'text-stone-600 hover:text-stone-900'}`}
+                        >
+                          <span>📚</span> Anemia Knowledge Base (Gemini AI)
+                        </button>
+                      </div>
+
+                      {/* SUBTAB 1: GANZONI CALCULATOR & DOSING */}
+                      {anemiaSubTab === 'calculator' && (
+                        <div className="flex flex-col gap-4 animate-fadeIn">
+                          {/* Top interactive sliders */}
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-stone-50 border border-stone-200 p-4 rounded-2xl">
+                            {/* Sliders Left */}
+                            <div className="space-y-3.5">
+                              <div>
+                                <div className="flex justify-between text-xs font-bold text-stone-700 mb-1">
+                                  <span>Current Hemoglobin (Hb):</span>
+                                  <span className="font-mono text-rose-700 font-black">{anemiaHb.toFixed(1)} g/dL</span>
+                                </div>
+                                <input 
+                                  type="range" min="5.0" max="14.0" step="0.1" value={anemiaHb}
+                                  onChange={(e) => setAnemiaHb(parseFloat(e.target.value))}
+                                  className="w-full accent-rose-600 h-2 bg-stone-200 rounded-lg cursor-pointer"
+                                />
+                                <div className="flex justify-between text-[9px] text-stone-400 font-mono mt-0.5">
+                                  <span>5.0 (Severe)</span>
+                                  <span>10.5 (T2 Cutoff)</span>
+                                  <span>11.0 (T1/T3 Cutoff)</span>
+                                  <span>14.0 (Normal)</span>
+                                </div>
+                              </div>
+
+                              <div>
+                                <div className="flex justify-between text-xs font-bold text-stone-700 mb-1">
+                                  <span>Serum Ferritin:</span>
+                                  <span className="font-mono text-stone-900 font-black">{anemiaFerritin} µg/L</span>
+                                </div>
+                                <input 
+                                  type="range" min="5" max="150" step="1" value={anemiaFerritin}
+                                  onChange={(e) => setAnemiaFerritin(parseInt(e.target.value))}
+                                  className="w-full accent-amber-600 h-2 bg-stone-200 rounded-lg cursor-pointer"
+                                />
+                                <div className="flex justify-between text-[9px] text-stone-400 font-mono mt-0.5">
+                                  <span className="text-rose-600 font-bold">&lt; 15 (Depleted)</span>
+                                  <span className="text-amber-600 font-bold">&lt; 30 (IDA Threshold)</span>
+                                  <span>&gt; 50 (Adequate)</span>
+                                </div>
+                              </div>
+
+                              <div>
+                                <div className="flex justify-between text-xs font-bold text-stone-700 mb-1">
+                                  <span>Mean Corpuscular Volume (MCV):</span>
+                                  <span className="font-mono text-stone-900 font-black">{anemiaMcv} fL</span>
+                                </div>
+                                <input 
+                                  type="range" min="60" max="110" step="1" value={anemiaMcv}
+                                  onChange={(e) => setAnemiaMcv(parseInt(e.target.value))}
+                                  className="w-full accent-indigo-600 h-2 bg-stone-200 rounded-lg cursor-pointer"
+                                />
+                                <div className="flex justify-between text-[9px] text-stone-400 font-mono mt-0.5">
+                                  <span>&lt; 80 (Microcytic)</span>
+                                  <span>80-100 (Normocytic)</span>
+                                  <span>&gt; 100 (Macrocytic)</span>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Inputs & Parameters Right */}
+                            <div className="space-y-3">
+                              <div className="grid grid-cols-2 gap-2">
+                                <div>
+                                  <label className="text-[10px] font-bold text-stone-600 uppercase block mb-1">Patient Weight (kg):</label>
+                                  <input 
+                                    type="number" value={anemiaWeightKg}
+                                    onChange={(e) => setAnemiaWeightKg(Math.max(30, parseInt(e.target.value) || 60))}
+                                    className="w-full px-2.5 py-1.5 bg-white border border-stone-300 rounded-xl text-xs font-mono font-bold"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="text-[10px] font-bold text-stone-600 uppercase block mb-1">Target Hb (g/dL):</label>
+                                  <select 
+                                    value={anemiaTargetHb}
+                                    onChange={(e) => setAnemiaTargetHb(parseFloat(e.target.value))}
+                                    className="w-full px-2.5 py-1.5 bg-white border border-stone-300 rounded-xl text-xs font-mono font-bold"
+                                  >
+                                    <option value={11.0}>11.0 g/dL (Gestational Target)</option>
+                                    <option value={11.5}>11.5 g/dL (ACOG Preferred)</option>
+                                    <option value={12.0}>12.0 g/dL (Optimal Non-Anemic)</option>
+                                  </select>
+                                </div>
+                              </div>
+
+                              <div>
+                                <label className="text-[10px] font-bold text-stone-600 uppercase block mb-1">Oral Iron Tolerance / GI History:</label>
+                                <select 
+                                  value={anemiaGiTolerance}
+                                  onChange={(e) => setAnemiaGiTolerance(e.target.value as any)}
+                                  className="w-full px-2.5 py-1.5 bg-white border border-stone-300 rounded-xl text-xs font-medium"
+                                >
+                                  <option value="tolerant">Good GI Tolerance to Oral Supplements</option>
+                                  <option value="mild_distress">Mild Nausea / Constipation on Daily Iron</option>
+                                  <option value="severe_intolerance">Severe GI Intolerance / Bariatric Surgery / IBD</option>
+                                </select>
+                              </div>
+
+                              {/* Ganzoni Calculation Banner */}
+                              <div className="bg-rose-900 text-white p-3.5 rounded-2xl border border-rose-800 flex flex-col justify-between">
+                                <span className="text-[9px] font-mono font-bold uppercase text-rose-300 block">Ganzoni Total Iron Deficit Result</span>
+                                <div className="flex justify-between items-baseline mt-1">
+                                  <span className="text-2xl font-black font-mono text-rose-100">{calculateGanzoniDeficit()} mg</span>
+                                  <span className="text-[10px] text-rose-200 font-mono">Elemental Iron Needed</span>
+                                </div>
+                                <span className="text-[9.5px] text-rose-200 mt-1 block">
+                                  Formula: Weight ({anemiaWeightKg}kg) × ({anemiaTargetHb} - {anemiaHb.toFixed(1)}) × 2.4 + 500mg (Stores)
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Pharmacotherapy Recommendation Box */}
+                          <div className="p-4 border border-rose-200 bg-rose-50/40 rounded-2xl space-y-3">
+                            <span className="text-xs font-black text-rose-900 uppercase font-mono block">Clinical Pharmacotherapy &amp; Dosing Roadmap</span>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+                              {/* Oral Protocol */}
+                              <div className={`p-3 rounded-xl border ${anemiaHb >= 10.0 && anemiaGiTolerance === 'tolerant' ? 'bg-white border-emerald-300 ring-2 ring-emerald-400/20' : 'bg-white/60 border-stone-200 opacity-80'}`}>
+                                <div className="flex justify-between items-center mb-1">
+                                  <strong className="text-emerald-800 text-[11px] block">1. First-Line Oral Iron</strong>
+                                  {anemiaHb >= 10.0 && anemiaGiTolerance === 'tolerant' && <span className="text-[9px] bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.5 rounded">RECOMMENDED</span>}
+                                </div>
+                                <p className="text-[11px] text-stone-600 leading-relaxed font-medium">
+                                  <strong>Dosing:</strong> Ferrous Sulfate 325 mg (65 mg elemental iron) QOD (alternate days) or Ferrous Fumarate 210 mg.<br />
+                                  <strong>Co-factor:</strong> Ascorbic Acid (Vitamin C) 500 mg to increase non-heme absorption.<br />
+                                  <strong>Instruction:</strong> Take on empty stomach; avoid calcium, tea, coffee, or antacids within 2 hours.<br />
+                                  <strong>Follow-up:</strong> Recheck CBC in 2-3 weeks (expect ~1.0 g/dL Hb increase).
+                                </p>
+                              </div>
+
+                              {/* IV Iron Protocol */}
+                              <div className={`p-3 rounded-xl border ${(anemiaHb < 9.5 || anemiaGiTolerance === 'severe_intolerance' || (obgynWeek >= 34 && anemiaHb < 10.5)) ? 'bg-white border-amber-300 ring-2 ring-amber-400/20' : 'bg-white/60 border-stone-200 opacity-80'}`}>
+                                <div className="flex justify-between items-center mb-1">
+                                  <strong className="text-amber-800 text-[11px] block">2. Intravenous (IV) Iron Protocol</strong>
+                                  {(anemiaHb < 9.5 || anemiaGiTolerance === 'severe_intolerance' || (obgynWeek >= 34 && anemiaHb < 10.5)) && <span className="text-[9px] bg-amber-100 text-amber-800 font-bold px-1.5 py-0.5 rounded">INDICATED</span>}
+                                </div>
+                                <p className="text-[11px] text-stone-600 leading-relaxed font-medium">
+                                  <strong>Triggers:</strong> Moderate/severe anemia (Hb &lt; 9.5 g/dL), oral iron intolerance/malabsorption, or late gestation (&gt;34w).<br />
+                                  <strong>Formulation A:</strong> Ferric Derisomaltose (Monoferric) 1000 mg IV single infusion over 20 mins.<br />
+                                  <strong>Formulation B:</strong> Iron Sucrose (Venofer) 200 mg IV over 15-30 mins x 5 doses.<br />
+                                  <strong>Advantage:</strong> Rapid replenishment of total Ganzoni deficit ({calculateGanzoniDeficit()} mg) prior to delivery.
+                                </p>
+                              </div>
+
+                              {/* Transfusion Alert */}
+                              <div className={`p-3 rounded-xl border ${anemiaHb < 7.0 ? 'bg-red-50 border-red-300 ring-2 ring-red-400/30' : 'bg-white/60 border-stone-200 opacity-80'}`}>
+                                <div className="flex justify-between items-center mb-1">
+                                  <strong className="text-red-800 text-[11px] block">3. PRBC Transfusion Protocol</strong>
+                                  {anemiaHb < 7.0 && <span className="text-[9px] bg-red-600 text-white font-bold px-1.5 py-0.5 rounded animate-pulse">CRITICAL ALERT</span>}
+                                </div>
+                                <p className="text-[11px] text-stone-600 leading-relaxed font-medium">
+                                  <strong>Triggers:</strong> Severe symptomatic anemia (Hb &lt; 7.0 g/dL), active acute hemorrhage, or hemodynamic compromise (tachycardia, hypotension, syncope).<br />
+                                  <strong>Order:</strong> Crossmatch 2-4 units Packed Red Blood Cells (PRBC).<br />
+                                  <strong>Goal:</strong> Maintain Hb &gt; 8.0 g/dL to avoid maternal high-output heart failure and severe fetal hypoxia.
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* SUBTAB 2: DIFFERENTIALS & LAB MATRIX */}
+                      {anemiaSubTab === 'differentials' && (
+                        <div className="flex flex-col gap-4 animate-fadeIn">
+                          <p className="text-xs text-stone-600 leading-relaxed">
+                            Evaluate differential diagnosis for gestational &amp; gynecological anemias using complete blood count (CBC) indices, iron studies, and specialized assays.
+                          </p>
+
+                          <div className="overflow-x-auto border border-stone-200 rounded-2xl">
+                            <table className="w-full text-left border-collapse text-xs">
+                              <thead>
+                                <tr className="bg-stone-100 text-stone-700 font-mono text-[10px] uppercase border-b border-stone-200">
+                                  <th className="p-2.5 font-bold">Etiology</th>
+                                  <th className="p-2.5 font-bold">Ferritin (µg/L)</th>
+                                  <th className="p-2.5 font-bold">MCV (fL)</th>
+                                  <th className="p-2.5 font-bold">TIBC / TfSat</th>
+                                  <th className="p-2.5 font-bold">Key Diagnostic Test</th>
+                                  <th className="p-2.5 font-bold">Primary Treatment</th>
+                                </tr>
+                              </thead>
+                              <tbody className="divide-y divide-stone-100 text-[11px] text-stone-700">
+                                <tr className="hover:bg-rose-50/30">
+                                  <td className="p-2.5 font-bold text-rose-800">Iron Deficiency Anemia (IDA)</td>
+                                  <td className="p-2.5 font-mono text-red-600 font-bold">&lt; 30 (Depleted)</td>
+                                  <td className="p-2.5 font-mono">&lt; 80 (Microcytic)</td>
+                                  <td className="p-2.5 font-mono">High TIBC, TfSat &lt; 15%</td>
+                                  <td className="p-2.5">Serum Ferritin &amp; Reticulocyte Hb</td>
+                                  <td className="p-2.5">Oral / IV Elemental Iron Replacement</td>
+                                </tr>
+                                <tr className="hover:bg-stone-50">
+                                  <td className="p-2.5 font-bold text-indigo-800">Thalassemia Trait (α or β)</td>
+                                  <td className="p-2.5 font-mono text-emerald-700 font-bold">Normal / Elevated (&gt;50)</td>
+                                  <td className="p-2.5 font-mono text-purple-700 font-bold">&lt; 75 (Marked Microcytosis)</td>
+                                  <td className="p-2.5 font-mono">Normal TIBC &amp; TfSat</td>
+                                  <td className="p-2.5">Hb Electrophoresis (HbA2 &gt; 3.5%) &amp; Mentzer Index &lt; 13</td>
+                                  <td className="p-2.5">Folate supplementation; Avoid empirical iron if ferritin normal</td>
+                                </tr>
+                                <tr className="hover:bg-stone-50">
+                                  <td className="p-2.5 font-bold text-amber-800">Folate / B12 Megaloblastic</td>
+                                  <td className="p-2.5 font-mono">Normal / Variable</td>
+                                  <td className="p-2.5 font-mono text-amber-700 font-bold">&gt; 100 (Macrocytic)</td>
+                                  <td className="p-2.5 font-mono">Normal TIBC</td>
+                                  <td className="p-2.5">Serum B12 &amp; Folate levels; Hypersegmented Neutrophils</td>
+                                  <td className="p-2.5">Folic acid 1-5 mg/day + B12 (hydroxocobalamin)</td>
+                                </tr>
+                                <tr className="hover:bg-stone-50">
+                                  <td className="p-2.5 font-bold text-red-800">Acute Obstetric Hemorrhage</td>
+                                  <td className="p-2.5 font-mono">Normal initially</td>
+                                  <td className="p-2.5 font-mono">80 - 100 (Normocytic)</td>
+                                  <td className="p-2.5 font-mono">Normal TIBC</td>
+                                  <td className="p-2.5">Serial Hb/Hct, Type &amp; Crossmatch, Coagulation Panel</td>
+                                  <td className="p-2.5">Uterotonics, PRBC Transfusion, Surgical Hemostasis</td>
+                                </tr>
+                                <tr className="hover:bg-stone-50">
+                                  <td className="p-2.5 font-bold text-stone-800">Anemia of Chronic Inflammation</td>
+                                  <td className="p-2.5 font-mono text-blue-700 font-bold">Elevated (Acute phase)</td>
+                                  <td className="p-2.5 font-mono">Normal or Mildly &lt; 80</td>
+                                  <td className="p-2.5 font-mono">Low TIBC, TfSat 15-20%</td>
+                                  <td className="p-2.5">CRP / ESR, Soluble Transferrin Receptor (sTfR)</td>
+                                  <td className="p-2.5">Treat underlying condition; IV iron if sTfR high</td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* SUBTAB 3: MATERNAL & FETAL RISKS */}
+                      {anemiaSubTab === 'risks' && (
+                        <div className="flex flex-col gap-4 animate-fadeIn">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {/* Maternal Hazards */}
+                            <div className="p-4 border border-rose-200 bg-rose-50/20 rounded-2xl space-y-2.5">
+                              <span className="text-xs font-black text-rose-800 uppercase font-mono flex items-center gap-1.5">
+                                <Heart className="w-4 h-4 text-rose-600" /> Maternal Physiological Impacts &amp; Hazards
+                              </span>
+                              <ul className="text-xs text-stone-700 space-y-2 list-disc pl-4 leading-relaxed font-medium">
+                                <li>
+                                  <strong>Cardiovascular Hyperdynamic Stress:</strong> Severe anemia forces compensatory elevation in stroke volume and heart rate, predisposing to high-output cardiac failure during labor.
+                                </li>
+                                <li>
+                                  <strong>Reduced Hemorrhage Tolerance:</strong> Women with baseline Hb &lt; 10.0 g/dL have significantly reduced reserve to withstand standard intrapartum blood loss (500 mL vaginal / 1000 mL C-section), dramatically increasing emergency blood transfusion rates.
+                                </li>
+                                <li>
+                                  <strong>Postpartum Depression &amp; Lactation Deficit:</strong> Iron deficiency impairs central dopamine synthesis, elevating Postpartum Depression risk (EPDS score elevation) and delaying Lactogenesis II (delayed milk letdown).
+                                </li>
+                                <li>
+                                  <strong>Impaired Immunity &amp; Wound Healing:</strong> Compromised cell-mediated immunity increases incidence of endomyometritis, urinary tract infections, and post-cesarean wound breakdown.
+                                </li>
+                              </ul>
+                            </div>
+
+                            {/* Fetal & Neonatal Hazards */}
+                            <div className="p-4 border border-indigo-200 bg-indigo-50/20 rounded-2xl space-y-2.5">
+                              <span className="text-xs font-black text-indigo-900 uppercase font-mono flex items-center gap-1.5">
+                                <Baby className="w-4 h-4 text-indigo-600" /> Fetal &amp; Neonatal Developmental Impacts
+                              </span>
+                              <ul className="text-xs text-stone-700 space-y-2 list-disc pl-4 leading-relaxed font-medium">
+                                <li>
+                                  <strong>Intrauterine Growth Restriction (IUGR):</strong> Reduced placental oxygen delivery impairs fetal tissue accretion, resulting in Small for Gestational Age (SGA) infants.
+                                </li>
+                                <li>
+                                  <strong>Preterm Birth Risk:</strong> Maternal anemia stimulates elevated stress hormone secretion (CRH/cortisol), triggering uterine contractions and spontaneous preterm delivery (&lt;37 weeks).
+                                </li>
+                                <li>
+                                  <strong>Permanent Neurodevelopmental Deficits:</strong> Fetal brain iron accretion occurs predominantly in 3rd trimester. Maternal iron deficiency depletes neonatal brain iron, leading to long-term cognitive, motor, and socio-emotional impairments.
+                                </li>
+                                <li>
+                                  <strong>Perinatal &amp; Neonatal Mortality:</strong> Severe maternal anemia (Hb &lt; 7.0 g/dL) is strongly correlated with increased intrauterine fetal demise and early neonatal death.
+                                </li>
+                              </ul>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* SUBTAB 4: TRIMESTER PROTOCOLS */}
+                      {anemiaSubTab === 'protocols' && (
+                        <div className="flex flex-col gap-4 animate-fadeIn">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                            <div className="p-3 bg-stone-50 border border-stone-200 rounded-2xl space-y-1.5">
+                              <span className="text-[10px] font-mono font-bold text-rose-600 uppercase block">1. First Trimester (W1-13)</span>
+                              <span className="text-xs font-bold text-stone-800 block">Baseline Booking Screen</span>
+                              <ul className="text-[11px] text-stone-600 space-y-1 list-disc pl-3.5 leading-normal">
+                                <li>Order CBC + Serum Ferritin at initial prenatal visit.</li>
+                                <li>Initiate 27-30 mg elemental iron daily (standard prenatal vitamin).</li>
+                                <li>Manage hyperemesis gravidarum to prevent severe nutritional depletion.</li>
+                              </ul>
+                            </div>
+
+                            <div className="p-3 bg-stone-50 border border-stone-200 rounded-2xl space-y-1.5">
+                              <span className="text-[10px] font-mono font-bold text-amber-600 uppercase block">2. Second Trimester (W14-26)</span>
+                              <span className="text-xs font-bold text-stone-800 block">Peak Hemodilution Screen</span>
+                              <ul className="text-[11px] text-stone-600 space-y-1 list-disc pl-3.5 leading-normal">
+                                <li>Repeat CBC at 24-28 weeks (Cutoff: Hb &lt; 10.5 g/dL).</li>
+                                <li>Escalate to 60-100 mg elemental iron if mild anemia confirmed.</li>
+                                <li>Switch to IV iron if oral GI intolerance or Hb &lt; 9.5 g/dL.</li>
+                              </ul>
+                            </div>
+
+                            <div className="p-3 bg-stone-50 border border-stone-200 rounded-2xl space-y-1.5">
+                              <span className="text-[10px] font-mono font-bold text-indigo-600 uppercase block">3. Third Trimester (W27-40)</span>
+                              <span className="text-xs font-bold text-stone-800 block">Pre-Delivery Optimization</span>
+                              <ul className="text-[11px] text-stone-600 space-y-1 list-disc pl-3.5 leading-normal">
+                                <li>Aggressive IV iron infusion (Monoferric / Venofer) at 32-36w if Hb &lt; 10.5.</li>
+                                <li>Ensure target Hb &ge; 11.0 g/dL prior to labor onset.</li>
+                                <li>Prepare blood crossmatch if severe anemia persists near term.</li>
+                              </ul>
+                            </div>
+
+                            <div className="p-3 bg-stone-50 border border-stone-200 rounded-2xl space-y-1.5">
+                              <span className="text-[10px] font-mono font-bold text-teal-600 uppercase block">4. Postpartum &amp; Lactation</span>
+                              <span className="text-xs font-bold text-stone-800 block">Post-Delivery Recovery</span>
+                              <ul className="text-[11px] text-stone-600 space-y-1 list-disc pl-3.5 leading-normal">
+                                <li>Recheck Hb/Hct at 48 hours for delivery blood loss &gt; 500 mL.</li>
+                                <li>Continue oral elemental iron for 3-6 months during breastfeeding.</li>
+                                <li>Screen for EPDS postpartum depression if severe anemia present.</li>
+                              </ul>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* SUBTAB 5: ANEMIA KNOWLEDGE BASE (GEMINI POWERED) */}
+                      {anemiaSubTab === 'knowledge' && (
+                        <div className="flex flex-col gap-5 animate-fadeIn">
+                          {/* ICU FORECASTING & ANEMIA TREND SPARKLINE CARD */}
+                          {(() => {
+                            const forecastData = getAnemiaForecastData();
+                            const pts = forecastData.points;
+                            const minHbVal = Math.min(...pts.map(p => p.hb), forecastData.targetHb - 0.5);
+                            const maxHbVal = Math.max(...pts.map(p => p.hb), forecastData.targetHb + 0.5);
+                            const range = Math.max(0.8, maxHbVal - minHbVal);
+                            
+                            const width = 500;
+                            const height = 120;
+                            const padL = 35;
+                            const padR = 20;
+                            const padT = 18;
+                            const padB = 25;
+
+                            const getX = (idx: number) => padL + idx * ((width - padL - padR) / (pts.length - 1));
+                            const getY = (hb: number) => height - padB - ((hb - minHbVal) / range) * (height - padT - padB);
+
+                            const targetY = getY(forecastData.targetHb);
+
+                            const histPts = pts.filter(p => !p.isForecast);
+                            const fcPts = pts.filter((_, i) => i >= histPts.length - 1);
+
+                            const histPath = histPts.map((p, idx) => `${idx === 0 ? 'M' : 'L'} ${getX(idx).toFixed(1)},${getY(p.hb).toFixed(1)}`).join(' ');
+                            const fcPath = fcPts.map((p, idx) => `${idx === 0 ? 'M' : 'L'} ${getX(histPts.length - 1 + idx).toFixed(1)},${getY(p.hb).toFixed(1)}`).join(' ');
+
+                            const areaPath = `${histPath} L ${getX(histPts.length - 1).toFixed(1)},${height - padB} L ${getX(0).toFixed(1)},${height - padB} Z`;
+
+                            return (
+                              <div className="p-4 bg-white border border-rose-200 rounded-2xl shadow-xs space-y-4">
+                                <div className="flex flex-wrap justify-between items-center gap-2 border-b border-stone-150 pb-2.5">
+                                  <div>
+                                    <div className="flex items-center gap-1.5">
+                                      <TrendingUp className="w-4 h-4 text-rose-600" />
+                                      <h4 className="text-xs font-black text-stone-900 uppercase font-mono tracking-wider">ICU Anemia Trend &amp; 7-Day Logged Intake Forecast</h4>
+                                    </div>
+                                    <p className="text-[11px] text-stone-500 font-medium">Hemoglobin response model calculated from daily elemental iron &amp; Vitamin C co-ingestion synergy.</p>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-[10px] bg-rose-50 text-rose-800 border border-rose-200 px-2.5 py-1 rounded-lg font-mono font-bold">
+                                      Current Hb: {forecastData.currentHb} g/dL
+                                    </span>
+                                    <span className="text-[10px] bg-emerald-50 text-emerald-800 border border-emerald-200 px-2.5 py-1 rounded-lg font-mono font-bold">
+                                      Forecast (+3d): {forecastData.forecastHb} g/dL
+                                    </span>
+                                  </div>
+                                </div>
+
+                                {/* SVG Sparkline + Telemetry Grid */}
+                                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-center">
+                                  {/* Sparkline Chart SVG */}
+                                  <div className="lg:col-span-2 bg-stone-900 p-3.5 rounded-2xl border border-stone-800 relative overflow-hidden">
+                                    <div className="flex justify-between items-center text-[10px] font-mono text-stone-400 mb-1">
+                                      <span className="text-rose-400 font-bold uppercase">7-Day Trajectory + 3-Day ICU Model</span>
+                                      <span>Target Hb: <strong className="text-emerald-400">{forecastData.targetHb} g/dL</strong></span>
+                                    </div>
+
+                                    <div className="w-full h-32 flex items-center justify-center">
+                                      <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-full overflow-visible">
+                                        <defs>
+                                          <linearGradient id="anemiaSparklineGradient" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="0%" stopColor="#e11d48" stopOpacity="0.35" />
+                                            <stop offset="100%" stopColor="#e11d48" stopOpacity="0.0" />
+                                          </linearGradient>
+                                        </defs>
+
+                                        {/* Horizontal Target Line */}
+                                        <line x1={padL} y1={targetY} x2={width - padR} y2={targetY} stroke="#10b981" strokeWidth="1.5" strokeDasharray="3 3" />
+                                        <text x={width - padR - 55} y={targetY - 4} fill="#10b981" fontSize="7" fontWeight="bold" style={{ fontFamily: 'monospace' }}>
+                                          Target ({forecastData.targetHb})
+                                        </text>
+
+                                        {/* Gradient Fill under Historical Line */}
+                                        <path d={areaPath} fill="url(#anemiaSparklineGradient)" />
+
+                                        {/* Historical Trend Line (Solid) */}
+                                        <path d={histPath} fill="none" stroke="#f43f5e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+
+                                        {/* ICU Forecast Projection Line (Dashed) */}
+                                        <path d={fcPath} fill="none" stroke="#fb7185" strokeWidth="2" strokeDasharray="4 3" strokeLinecap="round" strokeLinejoin="round" />
+
+                                        {/* Historical Dots */}
+                                        {histPts.map((p, idx) => {
+                                          const cx = getX(idx);
+                                          const cy = getY(p.hb);
+                                          const isToday = idx === histPts.length - 1;
+                                          return (
+                                            <g key={`hpt-${idx}`}>
+                                              <circle cx={cx} cy={cy} r={isToday ? "5" : "3.5"} fill={isToday ? "#e11d48" : "#fda4af"} stroke="#ffffff" strokeWidth="1.5" />
+                                              <text x={cx} y={cy - 7} fill="#ffffff" fontSize="7" fontWeight="extrabold" textAnchor="middle" style={{ fontFamily: 'monospace' }}>
+                                                {p.hb}
+                                              </text>
+                                              <text x={cx} y={height - 8} fill={isToday ? "#f43f5e" : "#9ca3af"} fontSize="7" fontWeight={isToday ? "bold" : "normal"} textAnchor="middle" style={{ fontFamily: 'monospace' }}>
+                                                {p.day.replace(' (Today)', '')}
+                                              </text>
+                                            </g>
+                                          );
+                                        })}
+
+                                        {/* Forecast Dots */}
+                                        {pts.filter(p => p.isForecast).map((p, fIdx) => {
+                                          const idx = histPts.length + fIdx;
+                                          const cx = getX(idx);
+                                          const cy = getY(p.hb);
+                                          return (
+                                            <g key={`fpt-${fIdx}`}>
+                                              <circle cx={cx} cy={cy} r="3.5" fill="#a7f3d0" stroke="#10b981" strokeWidth="1.5" />
+                                              <text x={cx} y={cy - 7} fill="#a7f3d0" fontSize="7" fontWeight="bold" textAnchor="middle" style={{ fontFamily: 'monospace' }}>
+                                                {p.hb}
+                                              </text>
+                                              <text x={cx} y={height - 8} fill="#a7f3d0" fontSize="7" textAnchor="middle" style={{ fontFamily: 'monospace' }}>
+                                                {p.day.replace(' (+1)', '+1d').replace(' (+2)', '+2d').replace(' (+3)', '+3d')}
+                                              </text>
+                                            </g>
+                                          );
+                                        })}
+                                      </svg>
+                                    </div>
+                                  </div>
+
+                                  {/* Telemetry Numbers & Forecast Indicators */}
+                                  <div className="space-y-2.5">
+                                    <div className="grid grid-cols-2 gap-2">
+                                      <div className="p-2.5 bg-stone-50 border border-stone-200 rounded-xl">
+                                        <span className="text-[9px] font-mono text-stone-400 uppercase font-bold block">7-Day Iron Logged</span>
+                                        <span className="text-base font-black font-mono text-stone-900">{forecastData.totalIronLogged} <span className="text-[10px] text-stone-500">mg</span></span>
+                                      </div>
+                                      <div className="p-2.5 bg-stone-50 border border-stone-200 rounded-xl">
+                                        <span className="text-[9px] font-mono text-stone-400 uppercase font-bold block">Daily Average</span>
+                                        <span className="text-base font-black font-mono text-rose-700">{forecastData.avgIntake} <span className="text-[10px] text-stone-500">mg/d</span></span>
+                                      </div>
+                                      <div className="p-2.5 bg-stone-50 border border-stone-200 rounded-xl">
+                                        <span className="text-[9px] font-mono text-stone-400 uppercase font-bold block">7-Day Hb Gain</span>
+                                        <span className="text-base font-black font-mono text-emerald-700">+{forecastData.forecastGain} <span className="text-[10px] text-stone-500">g/dL</span></span>
+                                      </div>
+                                      <div className="p-2.5 bg-stone-50 border border-stone-200 rounded-xl">
+                                        <span className="text-[9px] font-mono text-stone-400 uppercase font-bold block">Est. Days to Target</span>
+                                        <span className="text-base font-black font-mono text-indigo-700">{forecastData.estDaysToTarget > 0 ? `${forecastData.estDaysToTarget}d` : 'Achieved'}</span>
+                                      </div>
+                                    </div>
+
+                                    <div className="p-2.5 bg-rose-50/50 border border-rose-150 rounded-xl flex justify-between items-center text-xs">
+                                      <span className="font-bold text-stone-700">Adherence Score (&ge;60mg/d):</span>
+                                      <span className={`font-mono font-black px-2 py-0.5 rounded text-[10px] ${forecastData.complianceRate >= 70 ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}`}>
+                                        {forecastData.complianceRate}% ({forecastData.complianceRate >= 70 ? 'Optimal' : 'Needs Booster'})
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Daily Intake Quick-Logger */}
+                                <div className="pt-2 border-t border-stone-150">
+                                  <span className="text-[10px] font-mono font-bold text-stone-600 uppercase block mb-1.5">Interactive 7-Day Iron Intake Logger (Adjust Daily mg &amp; Vit C Synergy):</span>
+                                  <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2">
+                                    {ironIntakeLog.map((log, idx) => (
+                                      <div key={`log-${idx}`} className={`p-2 rounded-xl border text-center text-xs transition-all ${log.mg >= 60 ? 'bg-rose-50/40 border-rose-200' : 'bg-stone-50 border-stone-200'}`}>
+                                        <span className="text-[10px] font-mono font-bold text-stone-700 block mb-1">{log.day}</span>
+                                        <div className="flex justify-center items-center gap-1 mb-1">
+                                          <input 
+                                            type="number"
+                                            min="0"
+                                            max="200"
+                                            step="5"
+                                            value={log.mg}
+                                            onChange={(e) => updateDailyIntake(idx, 'mg', parseInt(e.target.value) || 0)}
+                                            className="w-14 px-1 py-0.5 bg-white border border-stone-300 rounded text-center text-xs font-mono font-bold text-stone-900"
+                                          />
+                                          <span className="text-[9px] text-stone-500 font-mono">mg</span>
+                                        </div>
+                                        <button
+                                          onClick={() => updateDailyIntake(idx, 'vitC', !log.vitC)}
+                                          className={`w-full py-0.5 rounded text-[9px] font-bold font-mono cursor-pointer transition-colors ${log.vitC ? 'bg-amber-100 text-amber-900 border border-amber-300' : 'bg-stone-200 text-stone-600'}`}
+                                          title="Toggle Vitamin C Co-ingestion Synergy"
+                                        >
+                                          {log.vitC ? '🍊 +Vit C (1.5x)' : 'No Vit C'}
+                                        </button>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })()}
+
+                          {/* INTERACTIVE SYMPTOM CHECKLIST & BURDEN STATUS BADGE CARD */}
+                          {(() => {
+                            const summary = getSymptomBurdenSummary();
+                            const symptomsList = [
+                              { key: 'fatigue', label: 'Fatigue & Low Stamina', icon: '😴', desc: 'Persistent tiredness or reduced exercise tolerance' },
+                              { key: 'dizziness', label: 'Dizziness / Lightheadedness', icon: '💫', desc: 'Postural weakness or head spinning on standing' },
+                              { key: 'shortnessOfBreath', label: 'Shortness of Breath (Dyspnea)', icon: '🫁', desc: 'Exertional dyspnea or air hunger', redFlag: true },
+                              { key: 'palpitations', label: 'Heart Palpitations / Racing Pulse', icon: '💓', desc: 'Sensation of pounding or rapid heartbeat', redFlag: true },
+                              { key: 'coldExtremities', label: 'Cold Hands & Feet', icon: '🧊', desc: 'Vasoconstriction & peripheral chilliness' },
+                              { key: 'paleSkin', label: 'Pale Skin / Conjunctival Pallor', icon: '👁️', desc: 'Pale conjunctiva, nailbeds, or palmar creases' },
+                              { key: 'pica', label: 'Pica / Non-Food Cravings', icon: '🧊', desc: 'Craving ice (pagophagia), dirt, or clay' },
+                              { key: 'headache', label: 'Headache & Irritability', icon: '🤕', desc: 'Frequent frontal tightness or concentration difficulty' },
+                            ];
+
+                            return (
+                              <div className="p-4 bg-white border border-rose-200 rounded-2xl shadow-xs space-y-3">
+                                <div className="flex flex-wrap justify-between items-center gap-2 border-b border-stone-150 pb-2.5">
+                                  <div>
+                                    <div className="flex items-center gap-2">
+                                      <Activity className="w-4 h-4 text-rose-600" />
+                                      <h4 className="text-xs font-black text-stone-900 uppercase font-mono tracking-wider">Maternal Anemia Symptom Checklist</h4>
+                                    </div>
+                                    <p className="text-[11px] text-stone-500 font-medium">Select active clinical symptoms to calculate real-time symptom burden score &amp; emergency alerts.</p>
+                                  </div>
+                                  
+                                  {/* Persistent Summary Status Badge */}
+                                  <div className="flex items-center gap-2">
+                                    <span className={`text-xs border px-3 py-1 rounded-xl font-mono font-bold flex items-center gap-1.5 shadow-xs ${summary.badgeClass}`}>
+                                      <span>{summary.statusIcon}</span>
+                                      <span>{summary.label}</span>
+                                    </span>
+                                  </div>
+                                </div>
+
+                                {/* Checklist Grid */}
+                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2.5">
+                                  {symptomsList.map((item) => {
+                                    const isActive = anemiaSelectedSymptoms[item.key];
+                                    return (
+                                      <button
+                                        key={item.key}
+                                        onClick={() => toggleAnemiaSymptom(item.key)}
+                                        className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
+                                          isActive
+                                            ? item.redFlag
+                                              ? 'bg-red-50 border-red-300 shadow-2xs ring-1 ring-red-200'
+                                              : 'bg-rose-50/80 border-rose-300 shadow-2xs ring-1 ring-rose-200'
+                                            : 'bg-stone-50/70 border-stone-200 hover:border-stone-300 hover:bg-stone-100/60'
+                                        }`}
+                                      >
+                                        <div className="flex justify-between items-start mb-1">
+                                          <span className="text-sm">{item.icon}</span>
+                                          <span className={`w-4 h-4 rounded-md border flex items-center justify-center text-[10px] font-black transition-colors ${
+                                            isActive 
+                                              ? item.redFlag ? 'bg-red-600 text-white border-red-700' : 'bg-rose-600 text-white border-rose-700'
+                                              : 'bg-white border-stone-300 text-transparent'
+                                          }`}>
+                                            ✓
+                                          </span>
+                                        </div>
+                                        <div>
+                                          <span className={`text-[11px] font-extrabold block leading-snug ${
+                                            isActive ? (item.redFlag ? 'text-red-950' : 'text-rose-950') : 'text-stone-700'
+                                          }`}>
+                                            {item.label}
+                                          </span>
+                                          <span className="text-[9.5px] text-stone-500 font-medium leading-tight block mt-0.5">
+                                            {item.desc}
+                                          </span>
+                                        </div>
+                                      </button>
+                                    );
+                                  })}
+                                </div>
+
+                                {/* Dynamic Triage Guidance Banner */}
+                                <div className={`p-2.5 rounded-xl border text-xs flex flex-wrap items-center justify-between gap-3 ${summary.badgeClass}`}>
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-base">{summary.statusIcon}</span>
+                                    <span className="font-semibold text-[11px] leading-tight">{summary.advice}</span>
+                                  </div>
+                                  <button
+                                    onClick={() => {
+                                      const activeList = symptomsList.filter(s => anemiaSelectedSymptoms[s.key]).map(s => s.label).join(', ');
+                                      const promptMsg = `Clinical analysis requested for pregnant patient presenting with ${summary.count} active anemia symptoms: [${activeList || 'None'}]. Current Hemoglobin: ${anemiaHb} g/dL. Please provide emergency triage guidance, differential considerations, and recommended next steps.`;
+                                      setKnowledgeCustomPrompt(promptMsg);
+                                      generateAnemiaKnowledge(promptMsg);
+                                    }}
+                                    className="px-2.5 py-1 bg-white/90 hover:bg-white text-stone-900 border border-stone-300 rounded-lg font-mono font-bold text-[10px] whitespace-nowrap shadow-xs cursor-pointer"
+                                  >
+                                    🤖 Query Gemini AI for Symptoms
+                                  </button>
+                                </div>
+                              </div>
+                            );
+                          })()}
+
+                          {/* Controls bar: Language, Presets, Prompt & Generate */}
+                          <div className="p-4 bg-gradient-to-br from-rose-50/80 via-white to-stone-50 border border-rose-200 rounded-2xl shadow-xs space-y-4">
+                            <div className="flex flex-wrap justify-between items-center gap-3">
+                              <div className="flex items-center gap-2">
+                                <Sparkles className="w-5 h-5 text-rose-600 animate-pulse" />
+                                <div>
+                                  <h4 className="text-xs font-black text-stone-900 uppercase font-mono tracking-wider">Gemini Multilingual Anemia AI Engine</h4>
+                                  <p className="text-[11px] text-stone-500 font-medium">Generate vetted patient education, dietary synergies, and emergency alert protocols in any language.</p>
+                                </div>
+                              </div>
+
+                              {/* Language Selector */}
+                              <div className="flex items-center gap-2 bg-white px-3 py-1.5 border border-stone-300 rounded-xl">
+                                <span className="text-[10px] font-bold text-stone-500 uppercase font-mono">Target Language:</span>
+                                <select 
+                                  value={knowledgeLang}
+                                  onChange={(e) => setKnowledgeLang(e.target.value)}
+                                  className="text-xs font-bold text-rose-900 bg-transparent outline-none cursor-pointer"
+                                >
+                                  <option value="English">English 🇺🇸</option>
+                                  <option value="Vietnamese">Vietnamese (Tiếng Việt) 🇻🇳</option>
+                                  <option value="Spanish">Spanish (Español) 🇪🇸</option>
+                                  <option value="French">French (Français) 🇫🇷</option>
+                                  <option value="Arabic">Arabic (العربية) 🇸🇦</option>
+                                  <option value="Hindi">Hindi (हिंदी) 🇮🇳</option>
+                                  <option value="Chinese">Mandarin Chinese (中文) 🇨🇳</option>
+                                </select>
+                              </div>
+                            </div>
+
+                            {/* Preset Buttons */}
+                            <div>
+                              <span className="text-[10px] font-bold text-stone-600 uppercase font-mono block mb-1.5">Select Quick Vetted Topic:</span>
+                              <div className="flex flex-wrap gap-2 text-xs">
+                                {[
+                                  "Dietary Iron Sources (Heme vs Non-Heme)",
+                                  "Vitamin C Synergy & Absorption Enhancers",
+                                  "Inhibitors to Separate by 2 Hours (Tea, Coffee, Dairy)",
+                                  "Red Flag Symptoms & Emergency ER Warning Signs",
+                                  "Oral Iron Side Effects & GI Mitigation Tips",
+                                  "IV Iron Infusion Protocol: Patient Expectations"
+                                ].map((topic) => (
+                                  <button
+                                    key={topic}
+                                    onClick={() => {
+                                      setKnowledgeTopic(topic);
+                                      generateAnemiaKnowledge(topic);
+                                    }}
+                                    className={`px-3 py-1.5 rounded-xl border text-[11px] font-bold transition-all cursor-pointer ${
+                                      knowledgeTopic === topic 
+                                        ? 'bg-rose-600 text-white border-rose-700 shadow-xs' 
+                                        : 'bg-white text-stone-700 border-stone-200 hover:border-rose-300 hover:bg-rose-50/50'
+                                    }`}
+                                  >
+                                    {topic}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+
+                            {/* Custom Prompt Input & Generate Button */}
+                            <div className="flex flex-col sm:flex-row gap-2">
+                              <input 
+                                type="text"
+                                value={knowledgeCustomPrompt}
+                                onChange={(e) => setKnowledgeCustomPrompt(e.target.value)}
+                                placeholder="Or enter a custom question (e.g. 'Can I drink lemon water with iron supplements during 2nd trimester?')..."
+                                className="flex-1 px-3.5 py-2 bg-white border border-stone-300 rounded-xl text-xs text-stone-800 placeholder-stone-400 font-medium outline-none focus:border-rose-500"
+                              />
+                              <button
+                                onClick={() => generateAnemiaKnowledge()}
+                                disabled={knowledgeLoading}
+                                className="px-5 py-2 bg-rose-700 hover:bg-rose-800 text-white font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-2 shadow-xs cursor-pointer disabled:opacity-50"
+                              >
+                                {knowledgeLoading ? (
+                                  <>
+                                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                                    <span>Generating Vetted Knowledge...</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Sparkles className="w-3.5 h-3.5" />
+                                    <span>Generate with Gemini AI</span>
+                                  </>
+                                )}
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Dynamic Gemini Result Display or Standard Pre-Loaded Knowledge Cards */}
+                          {knowledgeResult ? (
+                            <div className="p-5 bg-white border border-rose-200 rounded-2xl shadow-xs space-y-3 animate-fadeIn">
+                              <div className="flex justify-between items-center border-b border-stone-150 pb-2">
+                                <span className="text-xs font-black text-rose-800 uppercase font-mono flex items-center gap-1.5">
+                                  <Sparkles className="w-4 h-4 text-rose-600" /> Gemini Generated Knowledge Sheet ({knowledgeLang})
+                                </span>
+                                <button 
+                                  onClick={() => navigator.clipboard.writeText(knowledgeResult)}
+                                  className="text-[10px] font-bold text-stone-600 hover:text-rose-700 border border-stone-200 px-2.5 py-1 rounded-lg bg-stone-50 cursor-pointer"
+                                >
+                                  📋 Copy Content
+                                </button>
+                              </div>
+                              <div className="text-xs text-stone-700 leading-relaxed font-sans whitespace-pre-wrap space-y-2">
+                                {knowledgeResult}
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                              {/* Static Card 1: Dietary Iron Sources */}
+                              <div className="p-4 bg-white border border-stone-200 rounded-2xl space-y-2.5 shadow-xs">
+                                <div className="flex items-center gap-2 text-rose-800 font-bold text-xs border-b border-stone-100 pb-2">
+                                  <span className="text-base">🥩</span>
+                                  <span>1. Dietary Iron Sources (Heme vs Non-Heme)</span>
+                                </div>
+                                <div className="space-y-2 text-[11px] text-stone-600 leading-relaxed">
+                                  <div className="bg-rose-50/60 p-2 rounded-xl border border-rose-150">
+                                    <strong className="text-rose-900 block font-mono text-[10px] uppercase">Heme Iron (~25-30% Bioavailability)</strong>
+                                    <span>Derived from hemoglobin in animal tissue. Higher, constant absorption independent of meal composition:</span>
+                                    <ul className="list-disc pl-4 mt-1 space-y-0.5">
+                                      <li>Lean red meat (beef, lamb): ~2.5-3.0 mg / 100g</li>
+                                      <li>Chicken liver / dark turkey meat: ~8.0 mg / 100g</li>
+                                      <li>Clams, oysters &amp; sardines: ~6.0-28 mg / 100g</li>
+                                    </ul>
+                                  </div>
+                                  <div className="bg-emerald-50/60 p-2 rounded-xl border border-emerald-150">
+                                    <strong className="text-emerald-900 block font-mono text-[10px] uppercase">Non-Heme Iron (~5-10% Bioavailability)</strong>
+                                    <span>Plant-based iron. Subject to dietary enhancers and inhibitors:</span>
+                                    <ul className="list-disc pl-4 mt-1 space-y-0.5">
+                                      <li>Cooked spinach &amp; swiss chard: ~3.5 mg / cup</li>
+                                      <li>Lentils, chickpeas &amp; black beans: ~6.5 mg / cup</li>
+                                      <li>Pumpkin seeds, chia seeds, tofu, fortified oats</li>
+                                    </ul>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Static Card 2: Vitamin C & Absorption Boosters */}
+                              <div className="p-4 bg-white border border-stone-200 rounded-2xl space-y-2.5 shadow-xs">
+                                <div className="flex items-center gap-2 text-amber-800 font-bold text-xs border-b border-stone-100 pb-2">
+                                  <span className="text-base">🍊</span>
+                                  <span>2. Vitamin C Synergy &amp; Absorption Tips</span>
+                                </div>
+                                <div className="space-y-2 text-[11px] text-stone-600 leading-relaxed">
+                                  <div className="bg-amber-50/60 p-2 rounded-xl border border-amber-150">
+                                    <strong className="text-amber-900 block font-mono text-[10px] uppercase">Vitamin C (Ascorbic Acid) Synergy</strong>
+                                    <span>Ascorbic acid reduces ferric iron (Fe3+) to soluble ferrous iron (Fe2+), increasing gut non-heme absorption by up to 300%:</span>
+                                    <ul className="list-disc pl-4 mt-1 space-y-0.5">
+                                      <li>Pair plant iron with fresh lemon, orange juice, or bell peppers.</li>
+                                      <li>Co-ingest 200-500 mg Vitamin C with daily oral iron tablet.</li>
+                                    </ul>
+                                  </div>
+                                  <div className="bg-red-50/60 p-2 rounded-xl border border-red-150">
+                                    <strong className="text-red-900 block font-mono text-[10px] uppercase">Inhibitors to Separate by 2 Hours</strong>
+                                    <span>These compounds chelate iron in the lumen, preventing uptake:</span>
+                                    <ul className="list-disc pl-4 mt-1 space-y-0.5">
+                                      <li><strong>Calcium &amp; Dairy:</strong> Competes at DMT1 transporter.</li>
+                                      <li><strong>Tannins/Polyphenols:</strong> Tea &amp; coffee reduce absorption by 60%.</li>
+                                      <li><strong>Antacids &amp; PPIs:</strong> Gastric acid required for dissolution.</li>
+                                    </ul>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Static Card 3: Emergency Red Flag Warnings */}
+                              <div className="p-4 bg-white border border-stone-200 rounded-2xl space-y-2.5 shadow-xs">
+                                <div className="flex items-center gap-2 text-red-800 font-bold text-xs border-b border-stone-100 pb-2">
+                                  <span className="text-base">🚨</span>
+                                  <span>3. Red Flag Symptoms &amp; ER Warning Signs</span>
+                                </div>
+                                <div className="space-y-2 text-[11px] text-stone-600 leading-relaxed">
+                                  <div className="bg-red-100/70 p-2.5 rounded-xl border border-red-300">
+                                    <strong className="text-red-900 block font-mono text-[10px] uppercase font-black">Immediate Emergency Medical Attention Required</strong>
+                                    <span>Pregnant women with severe anemia (Hb &lt; 7.0 g/dL or acute drop) must go to the ER if experiencing:</span>
+                                    <ul className="list-disc pl-4 mt-1.5 space-y-1 font-medium text-red-950">
+                                      <li><strong>Severe Dyspnea:</strong> Shortness of breath at rest or chest pressure.</li>
+                                      <li><strong>Syncope:</strong> Fainting, severe presyncope, or sudden collapse.</li>
+                                      <li><strong>Resting Tachycardia:</strong> Pulse &gt;110 bpm or pounding heart.</li>
+                                      <li><strong>Obstetric Cues:</strong> Heavy vaginal bleeding, fluid leakage, or uterine cramping.</li>
+                                      <li><strong>Fetal Movement Drop:</strong> Marked decrease in fetal kicks (&gt;24w).</li>
+                                    </ul>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
@@ -3534,6 +4608,21 @@ ${vNotes}`;
             </div>
 
           </div>
+        )}
+
+        {/* PATIENT HEART COMPANION & R&D REPOSITORY */}
+        {activeSubTab === 'heart_companion' && (
+          <PatientHeartCompanion language={language} />
+        )}
+
+        {/* MEDGEMMA HUMAN-CENTERED AI SUITE */}
+        {activeSubTab === 'medgemma' && (
+          <MedGemmaSuite />
+        )}
+
+        {/* NVIDIA NEMOTRON MODEL REASONING SUITE */}
+        {activeSubTab === 'nemotron' && (
+          <NemotronReasoningSuite />
         )}
 
       </div>

@@ -28,6 +28,9 @@ export interface PredictionOutput {
   success: boolean;
 }
 
+export * from './submission';
+
+
 /**
  * Frozen Competition Inference Entry Point: solve_task(task) -> prediction
  * Completely decoupled from React and any browser elements.

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { runRegressionTests } from '../../packages/fluid-core/regression';
+import { runRegressionTests, REGRESSION_TESTS } from '../../packages/fluid-core/regression';
+import { generateArcSubmission, evaluateArcSubmission } from '../../packages/fluid-core/submission';
 import { 
   Brain, 
   Cpu, 
@@ -37,7 +38,11 @@ import {
   Unlock,
   History,
   Server,
-  ShieldCheck
+  ShieldCheck,
+  Download,
+  Copy,
+  FileCode,
+  Check
 } from 'lucide-react';
 
 interface Hypothesis {
@@ -254,10 +259,165 @@ export function FluidIntelligence() {
   const [selectedArcTask, setSelectedArcTask] = useState<ARCTask>(ARC_TASKS[0]);
   const [interactiveGrid, setInteractiveGrid] = useState<number[][]>(() => ARC_TASKS[0].inputGrid.map(row => [...row]));
   const [selectedColor, setSelectedColor] = useState<number>(1);
+  const [toolMode, setToolMode] = useState<'pencil' | 'bucket'>('pencil');
   const [arcLogs, setArcLogs] = useState<string[]>([]);
   const [isSolvingArc, setIsSolvingArc] = useState(false);
   const [arcSocraticHypothesis, setArcSocraticHypothesis] = useState<string>('');
   const [arcFeedback, setArcFeedback] = useState<{ status: 'idle' | 'success' | 'incorrect'; message: string }>({ status: 'idle', message: '' });
+
+  // Reset Grid Handler
+  const handleResetGrid = () => {
+    if (!selectedArcTask) return;
+    const freshGrid = selectedArcTask.inputGrid.map(row => [...row]);
+    setInteractiveGrid(freshGrid);
+    setArcLogs(prev => [...prev, `Workspace reset to baseline input state for task "${selectedArcTask.title}".`]);
+    setArcFeedback({ 
+      status: 'idle', 
+      message: 'Grid restored to baseline task input state.' 
+    });
+  };
+
+  // Flood Fill Handler (BFS)
+  const handleFloodFill = (startR?: number, startC?: number) => {
+    if (!interactiveGrid || interactiveGrid.length === 0) return;
+    const grid = interactiveGrid.map(row => [...row]);
+    const R = grid.length;
+    const C = grid[0].length;
+
+    // Selected target color (default to selectedColor, or Teal 8 if pencil color is 0)
+    const fillColor = selectedColor !== 0 ? selectedColor : 8;
+
+    // Case 1: Specific start coordinate (e.g. user clicked a cell with Bucket Tool)
+    if (startR !== undefined && startC !== undefined) {
+      const targetColor = grid[startR][startC];
+      if (targetColor === fillColor) return; // Already filled
+
+      const queue: [number, number][] = [[startR, startC]];
+      grid[startR][startC] = fillColor;
+      let filledCount = 1;
+
+      while (queue.length > 0) {
+        const [r, c] = queue.shift()!;
+        const neighbors = [[r+1, c], [r-1, c], [r, c+1], [r, c-1]];
+        for (const [nr, nc] of neighbors) {
+          if (nr >= 0 && nr < R && nc >= 0 && nc < C && grid[nr][nc] === targetColor) {
+            grid[nr][nc] = fillColor;
+            queue.push([nr, nc]);
+            filledCount++;
+          }
+        }
+      }
+
+      setInteractiveGrid(grid);
+      setArcLogs(prev => [...prev, `Flood Fill starting at cell [Row ${startR}, Col ${startC}] replaced color ${targetColor} with ${fillColor} (${filledCount} cells).`]);
+      setArcFeedback({
+        status: 'idle',
+        message: `💧 Flood Fill applied! Filled ${filledCount} connected cells with color ${fillColor}.`
+      });
+      return;
+    }
+
+    // Case 2: Flood Fill Operator Button clicked - fill enclosed background holes (0s)
+    const visited = Array.from({ length: R }, () => Array(C).fill(false));
+    const queue: [number, number][] = [];
+
+    // Enqueue all border 0 cells
+    for (let r = 0; r < R; r++) {
+      for (let c = 0; c < C; c++) {
+        if ((r === 0 || r === R - 1 || c === 0 || c === C - 1) && grid[r][c] === 0) {
+          queue.push([r, c]);
+          visited[r][c] = true;
+        }
+      }
+    }
+
+    while (queue.length > 0) {
+      const [r, c] = queue.shift()!;
+      const neighbors = [[r+1, c], [r-1, c], [r, c+1], [r, c-1]];
+      for (const [nr, nc] of neighbors) {
+        if (nr >= 0 && nr < R && nc >= 0 && nc < C && !visited[nr][nc] && grid[nr][nc] === 0) {
+          visited[nr][nc] = true;
+          queue.push([nr, nc]);
+        }
+      }
+    }
+
+    let filledCount = 0;
+    for (let r = 0; r < R; r++) {
+      for (let c = 0; c < C; c++) {
+        if (grid[r][c] === 0 && !visited[r][c]) {
+          grid[r][c] = fillColor;
+          filledCount++;
+        }
+      }
+    }
+
+    // Fallback: If no enclosed 0s exist, fill all 0 cells with fillColor
+    if (filledCount === 0) {
+      for (let r = 0; r < R; r++) {
+        for (let c = 0; c < C; c++) {
+          if (grid[r][c] === 0) {
+            grid[r][c] = fillColor;
+            filledCount++;
+          }
+        }
+      }
+    }
+
+    setInteractiveGrid(grid);
+    setArcLogs(prev => [...prev, `Flood Fill operator completed. Filled ${filledCount} enclosed region cells with color ${fillColor}.`]);
+    setArcFeedback({
+      status: 'idle',
+      message: `💧 Flood Fill operator completed! Filled ${filledCount} cells with color ${fillColor}.`
+    });
+  };
+
+  // Verify Solution Handler
+  const handleVerifySolution = () => {
+    if (!selectedArcTask || !selectedArcTask.outputGrid) return;
+
+    const targetGrid = selectedArcTask.outputGrid;
+    const R = interactiveGrid.length;
+    const C = interactiveGrid[0].length;
+    const targetR = targetGrid.length;
+    const targetC = targetGrid[0].length;
+
+    if (R !== targetR || C !== targetC) {
+      setArcFeedback({
+        status: 'incorrect',
+        message: `⚠️ Dimension mismatch! Current grid is ${R}x${C}, but expected solution is ${targetR}x${targetC}.`
+      });
+      setArcLogs(prev => [...prev, `Validation check FAILED: Dimension mismatch (${R}x${C} vs ${targetR}x${targetC}).`]);
+      return;
+    }
+
+    let matchCount = 0;
+    let totalCells = R * C;
+
+    for (let r = 0; r < R; r++) {
+      for (let c = 0; c < C; c++) {
+        if (interactiveGrid[r][c] === targetGrid[r][c]) {
+          matchCount++;
+        }
+      }
+    }
+
+    const accuracyPct = Math.round((matchCount / totalCells) * 100);
+
+    if (accuracyPct === 100) {
+      setArcFeedback({
+        status: 'success',
+        message: `🎉 Solution Verified! 100% matched target grid (${matchCount}/${totalCells} cells correct). Perfect generalization!`
+      });
+      setArcLogs(prev => [...prev, `Validation Check PASSED: 100% exact match on task "${selectedArcTask.title}".`]);
+    } else {
+      setArcFeedback({
+        status: 'incorrect',
+        message: `⚠️ Verification Result: ${accuracyPct}% match (${matchCount}/${totalCells} cells correct). ${totalCells - matchCount} cells misaligned. Keep exploring!`
+      });
+      setArcLogs(prev => [...prev, `Validation Check Result: ${accuracyPct}% accuracy (${matchCount}/${totalCells} correct).`]);
+    }
+  };
 
   // New Suggested Architecture states
   const [arcSubPanel, setArcSubPanel] = useState<'solver' | 'operators' | 'code' | 'gemini'>('solver');
@@ -269,6 +429,46 @@ export function FluidIntelligence() {
   const [geminiPrompt, setGeminiPrompt] = useState<string>('Suggest a modular connectivity operator to detect holes in boundaries.');
   const [geminiAdvice, setGeminiAdvice] = useState<string>('');
   const [isGeminiThinking, setIsGeminiThinking] = useState<boolean>(false);
+
+  // ARC Submission Generator state
+  const [submissionData, setSubmissionData] = useState<any | null>(null);
+  const [evaluationSummary, setEvaluationSummary] = useState<any | null>(null);
+  const [isGeneratingSubmission, setIsGeneratingSubmission] = useState<boolean>(false);
+  const [copiedSubmission, setCopiedSubmission] = useState<boolean>(false);
+
+  const handleGenerateArcSubmission = async () => {
+    setIsGeneratingSubmission(true);
+    try {
+      const res = await fetch('/api/generate-arc-submission', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      if (!res.ok) throw new Error('API failed');
+      const data = await res.json();
+      if (data.success) {
+        setSubmissionData(data.submission);
+        setEvaluationSummary(data.evaluation);
+      } else {
+        throw new Error(data.error);
+      }
+    } catch (err) {
+      console.warn("Client side submission generation fallback:", err);
+      const sub = generateArcSubmission(REGRESSION_TESTS);
+      const evalSum = evaluateArcSubmission(REGRESSION_TESTS, sub);
+      setSubmissionData(sub);
+      setEvaluationSummary(evalSum);
+    } finally {
+      setIsGeneratingSubmission(false);
+    }
+  };
+
+  const copySubmissionToClipboard = () => {
+    if (!submissionData) return;
+    navigator.clipboard.writeText(JSON.stringify(submissionData, null, 2));
+    setCopiedSubmission(true);
+    setTimeout(() => setCopiedSubmission(false), 2000);
+  };
+
 
   // Reset ARC states when task changes
   useEffect(() => {
@@ -1246,9 +1446,35 @@ export function FluidIntelligence() {
                   <span className="text-[9.5px] font-mono font-bold text-stone-400 uppercase">
                     Interactive Grid Workspace
                   </span>
-                  <span className="text-[9px] font-mono font-semibold text-stone-400">
-                    Size: {selectedArcTask.inputGrid.length}x{selectedArcTask.inputGrid[0].length}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1 bg-stone-200/60 dark:bg-stone-900 p-0.5 rounded-lg border border-stone-300/40 dark:border-stone-800">
+                      <button
+                        type="button"
+                        onClick={() => setToolMode('pencil')}
+                        className={`px-2 py-0.5 rounded text-[9px] font-bold transition-all cursor-pointer ${
+                          toolMode === 'pencil' 
+                            ? 'bg-white dark:bg-stone-800 text-stone-900 dark:text-white shadow-xs' 
+                            : 'text-stone-500 hover:text-stone-800 dark:hover:text-stone-300'
+                        }`}
+                      >
+                        ✏️ Pencil
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setToolMode('bucket')}
+                        className={`px-2 py-0.5 rounded text-[9px] font-bold transition-all cursor-pointer ${
+                          toolMode === 'bucket' 
+                            ? 'bg-violet-600 text-white shadow-xs' 
+                            : 'text-stone-500 hover:text-stone-800 dark:hover:text-stone-300'
+                        }`}
+                      >
+                        🪣 Bucket Fill
+                      </button>
+                    </div>
+                    <span className="text-[9px] font-mono font-semibold text-stone-400">
+                      Size: {interactiveGrid.length}x{interactiveGrid[0]?.length || 0}
+                    </span>
+                  </div>
                 </div>
 
                 {/* 2D ARC Grid */}
@@ -1262,11 +1488,15 @@ export function FluidIntelligence() {
                             <button
                               key={`${rIdx}-${cIdx}`}
                               onClick={() => {
-                                const newGrid = interactiveGrid.map((r, ri) => 
-                                  r.map((v, ci) => (ri === rIdx && ci === cIdx) ? selectedColor : v)
-                                );
-                                setInteractiveGrid(newGrid);
-                                setArcFeedback({ status: 'idle', message: '' });
+                                if (toolMode === 'bucket') {
+                                  handleFloodFill(rIdx, cIdx);
+                                } else {
+                                  const newGrid = interactiveGrid.map((r, ri) => 
+                                    r.map((v, ci) => (ri === rIdx && ci === cIdx) ? selectedColor : v)
+                                  );
+                                  setInteractiveGrid(newGrid);
+                                  setArcFeedback({ status: 'idle', message: '' });
+                                }
                               }}
                               className={`w-10 h-10 rounded-lg border cursor-pointer hover:scale-105 active:scale-95 transition-all flex items-center justify-center font-mono font-black text-[10px] text-white/50
                                 ${colMeta.bg} ${colMeta.border}
@@ -1306,6 +1536,32 @@ export function FluidIntelligence() {
                   </div>
                 </div>
 
+                {/* Interactive Exploration Feedback Banner */}
+                <AnimatePresence>
+                  {arcFeedback.message && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -6 }}
+                      className={`p-3 rounded-2xl text-xs font-bold border flex items-center justify-between gap-2 ${
+                        arcFeedback.status === 'success'
+                          ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300'
+                          : arcFeedback.status === 'incorrect'
+                          ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-800 text-amber-800 dark:text-amber-300'
+                          : 'bg-stone-100 dark:bg-stone-900 border-stone-200 dark:border-stone-800 text-stone-700 dark:text-stone-300'
+                      }`}
+                    >
+                      <span className="flex-1">{arcFeedback.message}</span>
+                      <button
+                        onClick={() => setArcFeedback({ status: 'idle', message: '' })}
+                        className="text-[10px] font-mono font-bold opacity-60 hover:opacity-100 uppercase cursor-pointer"
+                      >
+                        Dismiss
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
                 {/* Interactive Exploration Toolbelt */}
                 <div className="flex flex-col gap-2 pt-2 border-t border-stone-200/40 dark:border-stone-850">
                   <span className="text-[9px] font-mono font-bold text-stone-400 uppercase">
@@ -1313,18 +1569,24 @@ export function FluidIntelligence() {
                   </span>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                     <button
-                      onClick={() => {
-                        setInteractiveGrid(selectedArcTask.inputGrid.map(row => [...row]));
-                        setArcLogs(prev => [...prev, "Workspace reset to baseline input state."]);
-                        setArcFeedback({ status: 'idle', message: '' });
-                      }}
-                      className="py-2 px-3 bg-white hover:bg-stone-100 border border-stone-200 rounded-xl text-[10.5px] font-bold text-stone-700 cursor-pointer transition-all dark:bg-stone-900 dark:border-stone-800 dark:text-stone-300"
+                      type="button"
+                      onClick={handleResetGrid}
+                      className="py-2 px-3 bg-white hover:bg-stone-100 border border-stone-200 rounded-xl text-[10.5px] font-bold text-stone-700 cursor-pointer transition-all dark:bg-stone-900 dark:border-stone-800 dark:text-stone-300 flex items-center justify-center gap-1.5"
                     >
                       🔄 Reset Grid
                     </button>
 
+                    <button
+                      type="button"
+                      onClick={() => handleFloodFill()}
+                      className="py-2 px-3 bg-teal-50 hover:bg-teal-100 border border-teal-200 rounded-xl text-[10.5px] font-bold text-teal-700 cursor-pointer transition-all dark:bg-teal-950/40 dark:border-teal-900 dark:text-teal-300 flex items-center justify-center gap-1.5"
+                    >
+                      💧 Flood Fill
+                    </button>
+
                     {selectedArcTask.id === 'gravity_fall' && (
                       <button
+                        type="button"
                         onClick={() => {
                           let changed = false;
                           const grid = interactiveGrid.map(row => [...row]);
@@ -1349,7 +1611,7 @@ export function FluidIntelligence() {
                           setInteractiveGrid(grid);
                           setArcLogs(prev => [...prev, changed ? "Physics Gravity Step applied. Particles shifted downward." : "Gravity simulation stabilized. No active particles moved."]);
                         }}
-                        className="py-2 px-3 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-xl text-[10.5px] font-bold text-blue-700 cursor-pointer transition-all dark:bg-blue-950/40 dark:border-blue-900 dark:text-blue-300"
+                        className="py-2 px-3 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-xl text-[10.5px] font-bold text-blue-700 cursor-pointer transition-all dark:bg-blue-950/40 dark:border-blue-900 dark:text-blue-300 flex items-center justify-center gap-1.5"
                       >
                         ☄️ Step Gravity
                       </button>
@@ -1357,6 +1619,7 @@ export function FluidIntelligence() {
 
                     {selectedArcTask.id === 'reflection_pivot' && (
                       <button
+                        type="button"
                         onClick={() => {
                           const grid = interactiveGrid.map(row => [...row]);
                           const R = grid.length;
@@ -1373,55 +1636,16 @@ export function FluidIntelligence() {
                           setInteractiveGrid(grid);
                           setArcLogs(prev => [...prev, "Reflection operator complete. Orange elements mirrored across yellow pivot."]);
                         }}
-                        className="py-2 px-3 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-xl text-[10.5px] font-bold text-amber-700 cursor-pointer transition-all dark:bg-amber-950/40 dark:border-amber-900 dark:text-amber-300"
+                        className="py-2 px-3 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-xl text-[10.5px] font-bold text-amber-700 cursor-pointer transition-all dark:bg-amber-950/40 dark:border-amber-900 dark:text-amber-300 flex items-center justify-center gap-1.5"
                       >
                         🪞 Mirror Completion
                       </button>
                     )}
 
-                    {selectedArcTask.id === 'boundary_flood' && (
-                      <button
-                        onClick={() => {
-                          const grid = selectedArcTask.outputGrid.map(row => [...row]);
-                          setInteractiveGrid(grid);
-                          setArcLogs(prev => [...prev, "Flood Fill operator triggered. Interior empty spaces loaded with Teal (8)."]);
-                        }}
-                        className="py-2 px-3 bg-teal-50 hover:bg-teal-100 border border-teal-200 rounded-xl text-[10.5px] font-bold text-teal-700 cursor-pointer transition-all dark:bg-teal-950/40 dark:border-teal-900 dark:text-teal-300"
-                      >
-                        💧 Flood Fill
-                      </button>
-                    )}
-
                     <button
-                      onClick={() => {
-                        let matchCount = 0;
-                        let total = 0;
-                        const R = interactiveGrid.length;
-                        const C = interactiveGrid[0].length;
-                        for (let r = 0; r < R; r++) {
-                          for (let c = 0; c < C; c++) {
-                            total++;
-                            if (interactiveGrid[r][c] === selectedArcTask.outputGrid[r][c]) {
-                              matchCount++;
-                            }
-                          }
-                        }
-                        const pct = Math.round((matchCount / total) * 100);
-                        if (pct === 100) {
-                          setArcFeedback({
-                            status: 'success',
-                            message: `🎉 Incredible generalization! 100% matched (${matchCount}/${total} cells correct). You successfully solved the puzzle!`
-                          });
-                          setArcLogs(prev => [...prev, "Validation check PASSED. Solution perfectly conforms to target model!"]);
-                        } else {
-                          setArcFeedback({
-                            status: 'incorrect',
-                            message: `⚠️ Match accuracy is ${pct}% (${matchCount}/${total} cells correct). Some elements are still misaligned or unadapted. Keep exploring!`
-                          });
-                          setArcLogs(prev => [...prev, `Validation check triggered: ${pct}% accuracy.`]);
-                        }
-                      }}
-                      className="py-2 px-3 bg-emerald-600 hover:bg-emerald-700 border border-emerald-500 text-white rounded-xl text-[10.5px] font-black cursor-pointer transition-all"
+                      type="button"
+                      onClick={handleVerifySolution}
+                      className="py-2 px-3 bg-emerald-600 hover:bg-emerald-700 border border-emerald-500 text-white rounded-xl text-[10.5px] font-black cursor-pointer transition-all flex items-center justify-center gap-1.5"
                     >
                       ✅ Verify Solution
                     </button>
@@ -1758,7 +1982,7 @@ export function FluidIntelligence() {
                     <div className="flex gap-1.5 pt-2 border-t border-stone-200/40 dark:border-stone-850">
                       {[
                         { id: 'fluid-core', label: 'fluid-core/index.ts' },
-                        { id: 'inference.py', label: 'kaggle/inference.py' },
+                        { id: 'inference.py', label: 'kaggle_notebook.py' },
                         { id: 'export_submission.py', label: 'export_submission.py' }
                       ].map(file => (
                         <button
@@ -1776,8 +2000,202 @@ export function FluidIntelligence() {
                       ))}
                     </div>
 
+                    {/* Copy Button Row */}
+                    <div className="flex justify-between items-center px-1">
+                      <span className="text-[9.5px] font-mono text-stone-400 font-bold uppercase">
+                        {selectedCodeFile === 'inference.py' ? '🐍 Complete Kaggle Notebook Cell Code' : selectedCodeFile}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          let codeToCopy = '';
+                          if (selectedCodeFile === 'inference.py') {
+                            codeToCopy = `import json
+import os
+import glob
+from collections import deque
+
+print("=== Starting ARC Fluid Intelligence Dual-Attempt Kaggle Submission Generator ===")
+
+# 1. Locate ARC Challenges Dataset File on Kaggle
+possible_paths = [
+    "/kaggle/input/arc-prize-2024/arc-agi_evaluation_challenges.json",
+    "/kaggle/input/arc-prize-2024/arc-agi_test_challenges.json",
+    "/kaggle/input/abstraction-and-reasoning-corpus/arc-agi_evaluation_challenges.json",
+    "/kaggle/input/abstraction-and-reasoning-corpus/arc-agi_test_challenges.json",
+    "./arc-agi_evaluation_challenges.json",
+    "./challenges.json"
+]
+
+challenge_file = None
+for path in possible_paths:
+    if os.path.exists(path):
+        challenge_file = path
+        break
+
+if not challenge_file:
+    found = glob.glob("/kaggle/input/**/*.json", recursive=True)
+    for f in found:
+        if "challenge" in f.lower() or "test" in f.lower() or "evaluation" in f.lower():
+            challenge_file = f
+            break
+
+if challenge_file:
+    print(f"Loading challenges from: {challenge_file}")
+    with open(challenge_file, "r") as f:
+        tasks_data = json.load(f)
+else:
+    print("Warning: Competition challenge file not found in input paths. Creating synthetic benchmark tasks...")
+    tasks_data = {
+        "00576224": {
+            "train": [{"input": [[0, 3, 0], [3, 3, 3], [0, 3, 0]], "output": [[0, 3, 0], [3, 8, 3], [0, 3, 0]]}],
+            "test": [{"input": [[0, 3, 0], [3, 3, 3], [0, 3, 0]]}]
+        },
+        "009d5c81": {
+            "train": [{"input": [[1, 0, 1], [0, 1, 0], [1, 0, 1]], "output": [[1, 1, 1], [1, 0, 1], [1, 1, 1]]}],
+            "test": [{"input": [[1, 0, 1], [0, 1, 0], [1, 0, 1]]}]
+        },
+        "12997ef3": {
+            "train": [{"input": [[2, 0, 0], [0, 2, 0], [0, 0, 2]], "output": [[2, 2, 2], [2, 2, 2], [2, 2, 2]]}],
+            "test": [
+                {"input": [[2, 0, 0], [0, 2, 0], [0, 0, 2]]},
+                {"input": [[0, 2, 0], [2, 0, 2], [0, 2, 0]]}
+            ]
+        }
+    }
+
+print(f"Total Tasks to Process: {len(tasks_data)}")
+
+# 2. Spatial & DSL Operators
+def rotate_90(grid):
+    R, C = len(grid), len(grid[0]) if len(grid) > 0 else 0
+    res = [[0]*R for _ in range(C)]
+    for r in range(R):
+        for c in range(C):
+            res[c][R - 1 - r] = grid[r][c]
+    return res
+
+def mirror_horizontal(grid):
+    return [row[::-1] for row in grid]
+
+def mirror_vertical(grid):
+    return grid[::-1]
+
+def apply_gravity(grid):
+    R, C = len(grid), len(grid[0]) if len(grid) > 0 else 0
+    res = [row[:] for row in grid]
+    for c in range(C):
+        col_vals = [res[r][c] for r in range(R) if res[r][c] != 0]
+        num_zeros = R - len(col_vals)
+        for r in range(num_zeros):
+            res[r][c] = 0
+        for r in range(len(col_vals)):
+            res[num_zeros + r][c] = col_vals[r]
+    return res
+
+def flood_fill_holes(grid, fill_color=8):
+    R, C = len(grid), len(grid[0]) if len(grid) > 0 else 0
+    res = [row[:] for row in grid]
+    visited = [[False]*C for _ in range(R)]
+    q = deque()
+    for r in range(R):
+        for c in range(C):
+            if (r == 0 or r == R - 1 or c == 0 or c == C - 1) and res[r][c] == 0:
+                q.append((r, c))
+                visited[r][c] = True
+    while q:
+        r, c = q.popleft()
+        for nr, nc in [(r+1, c), (r-1, c), (r, c+1), (r, c-1)]:
+            if 0 <= nr < R and 0 <= nc < C and not visited[nr][nc] and res[nr][nc] == 0:
+                visited[nr][nc] = True
+                q.append((nr, nc))
+    for r in range(R):
+        for c in range(C):
+            if res[r][c] == 0 and not visited[r][c]:
+                res[r][c] = fill_color
+    return res
+
+OPERATORS = [
+    ("identity", lambda g: [r[:] for r in g]),
+    ("gravity", apply_gravity),
+    ("mirror_h", mirror_horizontal),
+    ("mirror_v", mirror_vertical),
+    ("rotate_90", rotate_90),
+    ("rotate_180", lambda g: rotate_90(rotate_90(g))),
+    ("flood_fill", flood_fill_holes)
+]
+
+def grids_equal(g1, g2):
+    if len(g1) != len(g2) or (len(g1) > 0 and len(g1[0]) != len(g2[0])): return False
+    for r in range(len(g1)):
+        for c in range(len(g1[0])):
+            if g1[r][c] != g2[r][c]: return False
+    return True
+
+def learn_best_operators(train_pairs):
+    if not train_pairs: return [OPERATORS[0]]
+    scored = []
+    for name, op_func in OPERATORS:
+        matches = 0
+        for pair in train_pairs:
+            inp, out = pair.get("input"), pair.get("output")
+            if inp and out:
+                try:
+                    if grids_equal(op_func(inp), out): matches += 1
+                except Exception: pass
+        scored.append((matches, name, op_func))
+    scored.sort(key=lambda x: x[0], reverse=True)
+    return scored
+
+def predict_dual_attempts(task_data, test_input_grid):
+    train_pairs = task_data.get("train", [])
+    ranked = learn_best_operators(train_pairs)
+    best_op = ranked[0][2]
+    try: attempt_1 = best_op(test_input_grid)
+    except Exception: attempt_1 = [r[:] for r in test_input_grid]
+    
+    if len(ranked) > 1 and ranked[1][0] > 0:
+        try: attempt_2 = ranked[1][2](test_input_grid)
+        except Exception: attempt_2 = rotate_90(test_input_grid)
+    else:
+        attempt_2 = rotate_90(test_input_grid)
+        
+    if grids_equal(attempt_1, attempt_2):
+        attempt_2 = mirror_horizontal(test_input_grid)
+        
+    return {"attempt_1": attempt_1, "attempt_2": attempt_2}
+
+# 3. Generate Submission Dictionary
+submission = {}
+for task_id, task in tasks_data.items():
+    submission[task_id] = []
+    for test_item in task.get("test", []):
+        inp_grid = test_item.get("input", [[0]])
+        submission[task_id].append(predict_dual_attempts(task, inp_grid))
+
+# 4. Save submission.json to /kaggle/working/
+out_path = "/kaggle/working/submission.json" if os.path.exists("/kaggle/working") else "submission.json"
+with open(out_path, "w") as f:
+    json.dump(submission, f)
+
+print(f"✅ Successfully exported submission.json with {len(submission)} tasks to {out_path}")
+`;
+                          } else {
+                            codeToCopy = selectedCodeFile;
+                          }
+                          navigator.clipboard.writeText(codeToCopy);
+                          setCopiedSubmission(true);
+                          setTimeout(() => setCopiedSubmission(false), 2000);
+                        }}
+                        className="px-2.5 py-1 bg-stone-800 hover:bg-stone-700 text-stone-200 rounded-lg text-[10px] font-bold transition-all flex items-center gap-1 cursor-pointer"
+                      >
+                        {copiedSubmission ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                        <span>{copiedSubmission ? 'Copied!' : 'Copy Code'}</span>
+                      </button>
+                    </div>
+
                     {/* Simple Code Viewer */}
-                    <div className="bg-stone-950 border border-stone-850 p-3.5 rounded-2xl h-52 overflow-y-auto font-mono text-[9.5px] text-emerald-400/90 leading-relaxed">
+                    <div className="bg-stone-950 border border-stone-850 p-3.5 rounded-2xl h-56 overflow-y-auto font-mono text-[9.5px] text-emerald-400/90 leading-relaxed">
                       {selectedCodeFile === 'fluid-core' && (
                         <pre>{`/**
  * @file fluid-core/index.ts - Orchestration Engine
@@ -1802,41 +2220,195 @@ export function solveTaskOffline(input: Grid, target: Grid): EvaluationResult {
                       )}
 
                       {selectedCodeFile === 'inference.py' && (
-                        <pre>{`# kaggle/inference.py - Offline Python Solver
-import sys
+                        <pre>{`# kaggle_notebook.py - Complete Runnable Kaggle Cell Code
 import json
-import numpy as np
+import os
+import glob
+from collections import deque
 
-def run_beam_search(input_grid, target_grid, beam_width=3, max_depth=4):
-    """Explores compositions of operators completely offline."""
-    operators = [
-        {"name": "Gravity", "func": ARCOperators.apply_gravity},
-        {"name": "Mirror-H", "func": ARCOperators.mirror_horizontal},
-        {"name": "Mirror-V", "func": ARCOperators.mirror_vertical},
-        {"name": "Rotate-90", "func": ARCOperators.rotate_90}
-    ]
-    beam = [(input_grid, [], evaluate_fitness(input_grid, target_grid))]
-    # Beam search loop runs offline on Kaggle server...
-    return best_path, best_grid, success`}</pre>
+print("=== Starting ARC Fluid Intelligence Dual-Attempt Kaggle Submission Generator ===")
+
+# 1. Locate ARC Challenges Dataset File on Kaggle
+possible_paths = [
+    "/kaggle/input/arc-prize-2024/arc-agi_evaluation_challenges.json",
+    "/kaggle/input/arc-prize-2024/arc-agi_test_challenges.json",
+    "/kaggle/input/abstraction-and-reasoning-corpus/arc-agi_evaluation_challenges.json",
+    "/kaggle/input/abstraction-and-reasoning-corpus/arc-agi_test_challenges.json",
+    "./arc-agi_evaluation_challenges.json",
+    "./challenges.json"
+]
+
+challenge_file = None
+for path in possible_paths:
+    if os.path.exists(path):
+        challenge_file = path
+        break
+
+if not challenge_file:
+    found = glob.glob("/kaggle/input/**/*.json", recursive=True)
+    for f in found:
+        if "challenge" in f.lower() or "test" in f.lower() or "evaluation" in f.lower():
+            challenge_file = f
+            break
+
+if challenge_file:
+    print(f"Loading challenges from: {challenge_file}")
+    with open(challenge_file, "r") as f:
+        tasks_data = json.load(f)
+else:
+    print("Warning: Challenge file not found in input paths. Creating synthetic benchmark tasks...")
+    tasks_data = {
+        "00576224": {
+            "train": [{"input": [[0, 3, 0], [3, 3, 3], [0, 3, 0]], "output": [[0, 3, 0], [3, 8, 3], [0, 3, 0]]}],
+            "test": [{"input": [[0, 3, 0], [3, 3, 3], [0, 3, 0]]}]
+        },
+        "009d5c81": {
+            "train": [{"input": [[1, 0, 1], [0, 1, 0], [1, 0, 1]], "output": [[1, 1, 1], [1, 0, 1], [1, 1, 1]]}],
+            "test": [{"input": [[1, 0, 1], [0, 1, 0], [1, 0, 1]]}]
+        },
+        "12997ef3": {
+            "train": [{"input": [[2, 0, 0], [0, 2, 0], [0, 0, 2]], "output": [[2, 2, 2], [2, 2, 2], [2, 2, 2]]}],
+            "test": [
+                {"input": [[2, 0, 0], [0, 2, 0], [0, 0, 2]]},
+                {"input": [[0, 2, 0], [2, 0, 2], [0, 2, 0]]}
+            ]
+        }
+    }
+
+print(f"Total Tasks to Process: {len(tasks_data)}")
+
+# 2. Spatial & DSL Operators
+def rotate_90(grid):
+    R, C = len(grid), len(grid[0]) if len(grid) > 0 else 0
+    res = [[0]*R for _ in range(C)]
+    for r in range(R):
+        for c in range(C):
+            res[c][R - 1 - r] = grid[r][c]
+    return res
+
+def mirror_horizontal(grid):
+    return [row[::-1] for row in grid]
+
+def mirror_vertical(grid):
+    return grid[::-1]
+
+def apply_gravity(grid):
+    R, C = len(grid), len(grid[0]) if len(grid) > 0 else 0
+    res = [row[:] for row in grid]
+    for c in range(C):
+        col_vals = [res[r][c] for r in range(R) if res[r][c] != 0]
+        num_zeros = R - len(col_vals)
+        for r in range(num_zeros):
+            res[r][c] = 0
+        for r in range(len(col_vals)):
+            res[num_zeros + r][c] = col_vals[r]
+    return res
+
+def flood_fill_holes(grid, fill_color=8):
+    R, C = len(grid), len(grid[0]) if len(grid) > 0 else 0
+    res = [row[:] for row in grid]
+    visited = [[False]*C for _ in range(R)]
+    q = deque()
+    for r in range(R):
+        for c in range(C):
+            if (r == 0 or r == R - 1 or c == 0 or c == C - 1) and res[r][c] == 0:
+                q.append((r, c))
+                visited[r][c] = True
+    while q:
+        r, c = q.popleft()
+        for nr, nc in [(r+1, c), (r-1, c), (r, c+1), (r, c-1)]:
+            if 0 <= nr < R and 0 <= nc < C and not visited[nr][nc] and res[nr][nc] == 0:
+                visited[nr][nc] = True
+                q.append((nr, nc))
+    for r in range(R):
+        for c in range(C):
+            if res[r][c] == 0 and not visited[r][c]:
+                res[r][c] = fill_color
+    return res
+
+OPERATORS = [
+    ("identity", lambda g: [r[:] for r in g]),
+    ("gravity", apply_gravity),
+    ("mirror_h", mirror_horizontal),
+    ("mirror_v", mirror_vertical),
+    ("rotate_90", rotate_90),
+    ("rotate_180", lambda g: rotate_90(rotate_90(g))),
+    ("flood_fill", flood_fill_holes)
+]
+
+def grids_equal(g1, g2):
+    if len(g1) != len(g2) or (len(g1) > 0 and len(g1[0]) != len(g2[0])): return False
+    for r in range(len(g1)):
+        for c in range(len(g1[0])):
+            if g1[r][c] != g2[r][c]: return False
+    return True
+
+def learn_best_operators(train_pairs):
+    if not train_pairs: return [OPERATORS[0]]
+    scored = []
+    for name, op_func in OPERATORS:
+        matches = 0
+        for pair in train_pairs:
+            inp, out = pair.get("input"), pair.get("output")
+            if inp and out:
+                try:
+                    if grids_equal(op_func(inp), out): matches += 1
+                except Exception: pass
+        scored.append((matches, name, op_func))
+    scored.sort(key=lambda x: x[0], reverse=True)
+    return scored
+
+def predict_dual_attempts(task_data, test_input_grid):
+    train_pairs = task_data.get("train", [])
+    ranked = learn_best_operators(train_pairs)
+    best_op = ranked[0][2]
+    try: attempt_1 = best_op(test_input_grid)
+    except Exception: attempt_1 = [r[:] for r in test_input_grid]
+    
+    if len(ranked) > 1 and ranked[1][0] > 0:
+        try: attempt_2 = ranked[1][2](test_input_grid)
+        except Exception: attempt_2 = rotate_90(test_input_grid)
+    else:
+        attempt_2 = rotate_90(test_input_grid)
+        
+    if grids_equal(attempt_1, attempt_2):
+        attempt_2 = mirror_horizontal(test_input_grid)
+        
+    return {"attempt_1": attempt_1, "attempt_2": attempt_2}
+
+# 3. Generate Submission Dictionary
+submission = {}
+for task_id, task in tasks_data.items():
+    submission[task_id] = []
+    for test_item in task.get("test", []):
+        inp_grid = test_item.get("input", [[0]])
+        submission[task_id].append(predict_dual_attempts(task, inp_grid))
+
+# 4. Save submission.json to /kaggle/working/
+out_path = "/kaggle/working/submission.json" if os.path.exists("/kaggle/working") else "submission.json"
+with open(out_path, "w") as f:
+    json.dump(submission, f)
+
+print(f"✅ Successfully exported submission.json with {len(submission)} tasks to {out_path}")`}</pre>
                       )}
 
                       {selectedCodeFile === 'export_submission.py' && (
-                        <pre>{`# kaggle/export_submission.py
+                        <pre>{`# export_submission.py - Standalone Python Helper
 import json
 
 def export_submission(predictions, output_path="submission.json"):
     """Saves predictions to output file."""
     submission = {}
-    for task_id, pred_grid in predictions.items():
+    for task_id, test_preds in predictions.items():
         submission[task_id] = [
             {
-                "attempt_1": format_prediction(pred_grid),
-                "attempt_2": format_prediction(pred_grid)
-            }
+                "attempt_1": p["attempt_1"],
+                "attempt_2": p["attempt_2"]
+            } for p in test_preds
         ]
     with open(output_path, "w") as f:
         json.dump(submission, f, indent=2)
-    print("Successfully exported predictions!")`}</pre>
+    print("Successfully exported predictions to submission.json!")`}</pre>
                       )}
                     </div>
                   </div>
@@ -1983,31 +2555,151 @@ def export_submission(predictions, output_path="submission.json"):
               </p>
             </div>
 
-            {/* Run CTA Button */}
-            <div className="p-5 bg-stone-55 dark:bg-stone-950/45 border border-stone-150 dark:border-stone-900 rounded-3xl flex flex-col md:flex-row items-center justify-between gap-4">
-              <div className="flex flex-col gap-1 text-center md:text-left">
-                <span className="text-xs font-black text-stone-850 dark:text-white">Evaluate 5 Diverse Symbolic Challenge Matrices</span>
-                <span className="text-[10.5px] text-stone-400 font-medium">Verifies Gravity, Mirror-Pivot, FloodFill, ColorReplace, and Rotate-90 algorithms.</span>
+            {/* Run CTA Buttons Row */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Button 1: Regression Suite */}
+              <div className="p-5 bg-stone-55 dark:bg-stone-950/45 border border-stone-150 dark:border-stone-900 rounded-3xl flex flex-col justify-between gap-3">
+                <div className="flex flex-col gap-1">
+                  <span className="text-xs font-black text-stone-850 dark:text-white">Evaluate Symbolic Puzzles</span>
+                  <span className="text-[10.5px] text-stone-400 font-medium">Runs local heuristic search algorithms across benchmark task matrices.</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={runRegressionSuite}
+                  disabled={isRunningRegression}
+                  className="w-full py-3 bg-stone-850 hover:bg-black dark:bg-stone-800 dark:hover:bg-stone-700 text-white rounded-xl text-xs font-black transition-all cursor-pointer flex items-center justify-center gap-2 shadow-sm disabled:opacity-50 active:scale-97"
+                >
+                  {isRunningRegression ? (
+                    <>
+                      <RefreshCw className="w-4 h-4 animate-spin" />
+                      <span>Evaluating Core Solver...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Play className="w-4 h-4" />
+                      <span>Execute Regression Suite</span>
+                    </>
+                  )}
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={runRegressionSuite}
-                disabled={isRunningRegression}
-                className="w-full md:w-auto px-6 py-3 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white rounded-xl text-xs font-black transition-all cursor-pointer flex items-center justify-center gap-2 shadow-sm disabled:opacity-50 active:scale-97"
-              >
-                {isRunningRegression ? (
-                  <>
-                    <RefreshCw className="w-4 h-4 animate-spin" />
-                    <span>Evaluating Core Solver...</span>
-                  </>
-                ) : (
-                  <>
-                    <Play className="w-4 h-4" />
-                    <span>Execute Complete Regression Suite</span>
-                  </>
-                )}
-              </button>
+
+              {/* Button 2: Competition submission.json Pipeline */}
+              <div className="p-5 bg-violet-50/50 dark:bg-violet-950/30 border border-violet-200/60 dark:border-violet-900/50 rounded-3xl flex flex-col justify-between gap-3">
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs font-black text-stone-850 dark:text-white">Generate Official submission.json</span>
+                    <span className="text-[9px] font-mono font-bold bg-violet-200 dark:bg-violet-900/60 text-violet-800 dark:text-violet-300 px-1.5 py-0.2 rounded uppercase">Dual-Attempt</span>
+                  </div>
+                  <span className="text-[10.5px] text-stone-400 font-medium">Outputs exact attempt_1 & attempt_2 JSON predictions for every test output.</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleGenerateArcSubmission}
+                  disabled={isGeneratingSubmission}
+                  className="w-full py-3 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white rounded-xl text-xs font-black transition-all cursor-pointer flex items-center justify-center gap-2 shadow-sm disabled:opacity-50 active:scale-97"
+                >
+                  {isGeneratingSubmission ? (
+                    <>
+                      <RefreshCw className="w-4 h-4 animate-spin" />
+                      <span>Building submission.json...</span>
+                    </>
+                  ) : (
+                    <>
+                      <FileCode className="w-4 h-4" />
+                      <span>Generate & Evaluate submission.json</span>
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
+
+            {/* Submission Evaluation Summary Panel */}
+            {evaluationSummary && submissionData && (
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="p-5 bg-gradient-to-br from-violet-900/10 via-stone-900/20 to-indigo-900/10 border border-violet-500/30 rounded-3xl flex flex-col gap-5 shadow-xs"
+              >
+                {/* Header Row */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-violet-500/20">
+                  <div className="flex flex-col gap-1">
+                    <div className="flex items-center gap-2">
+                      <Award className="w-5 h-5 text-violet-500" />
+                      <h3 className="text-sm font-black text-stone-850 dark:text-white font-mono uppercase tracking-tight">
+                        ARC Competition Submission Accuracy Report
+                      </h3>
+                    </div>
+                    <p className="text-[11px] text-stone-400">
+                      Evaluated according to official ARC rules: Score = average of max(attempt_1 == ground_truth, attempt_2 == ground_truth) over all test outputs.
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={copySubmissionToClipboard}
+                      className="px-3.5 py-2 bg-stone-200 dark:bg-stone-800 hover:bg-stone-300 dark:hover:bg-stone-700 text-stone-800 dark:text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+                    >
+                      {copiedSubmission ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+                      <span>{copiedSubmission ? 'Copied JSON!' : 'Copy submission.json'}</span>
+                    </button>
+                    <a
+                      href="/submission.json"
+                      download="submission.json"
+                      className="px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-xl text-xs font-black transition-all flex items-center gap-1.5 shadow-2xs"
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                      <span>Download submission.json</span>
+                    </a>
+                  </div>
+                </div>
+
+                {/* Accuracy Scorecards Grid */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <div className="p-3.5 bg-white/80 dark:bg-stone-900/80 rounded-2xl border border-stone-200/50 dark:border-stone-800 flex flex-col gap-0.5">
+                    <span className="text-[9px] font-mono font-bold text-stone-400 uppercase">Official Score</span>
+                    <span className="text-xl font-black text-emerald-600 dark:text-emerald-400 font-mono">
+                      {evaluationSummary.accuracyPercentage}%
+                    </span>
+                    <span className="text-[9px] text-stone-500">Dual-attempt pass rate</span>
+                  </div>
+
+                  <div className="p-3.5 bg-white/80 dark:bg-stone-900/80 rounded-2xl border border-stone-200/50 dark:border-stone-800 flex flex-col gap-0.5">
+                    <span className="text-[9px] font-mono font-bold text-stone-400 uppercase">Combined Hits</span>
+                    <span className="text-xl font-black text-violet-600 dark:text-violet-400 font-mono">
+                      {evaluationSummary.combinedHits} / {evaluationSummary.totalOutputs}
+                    </span>
+                    <span className="text-[9px] text-stone-500">Outputs solved</span>
+                  </div>
+
+                  <div className="p-3.5 bg-white/80 dark:bg-stone-900/80 rounded-2xl border border-stone-200/50 dark:border-stone-800 flex flex-col gap-0.5">
+                    <span className="text-[9px] font-mono font-bold text-stone-400 uppercase">Attempt 1 Hits</span>
+                    <span className="text-xl font-black text-blue-600 dark:text-blue-400 font-mono">
+                      {evaluationSummary.attempt1Hits} / {evaluationSummary.totalOutputs}
+                    </span>
+                    <span className="text-[9px] text-stone-500">Primary DSL prediction</span>
+                  </div>
+
+                  <div className="p-3.5 bg-white/80 dark:bg-stone-900/80 rounded-2xl border border-stone-200/50 dark:border-stone-800 flex flex-col gap-0.5">
+                    <span className="text-[9px] font-mono font-bold text-stone-400 uppercase">Attempt 2 Hits</span>
+                    <span className="text-xl font-black text-indigo-600 dark:text-indigo-400 font-mono">
+                      {evaluationSummary.attempt2Hits} / {evaluationSummary.totalOutputs}
+                    </span>
+                    <span className="text-[9px] text-stone-500">Secondary fallback hypothesis</span>
+                  </div>
+                </div>
+
+                {/* JSON File Preview */}
+                <div className="flex flex-col gap-2">
+                  <span className="text-[10px] font-mono font-bold text-stone-400 uppercase">
+                    Validated submission.json Output Structure
+                  </span>
+                  <div className="bg-stone-950 text-stone-200 p-4 rounded-2xl font-mono text-[10.5px] max-h-48 overflow-y-auto border border-stone-800 leading-relaxed">
+                    <pre>{JSON.stringify(submissionData, null, 2)}</pre>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
 
             {regressionError && (
               <div className="p-4 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900 rounded-2xl flex items-center gap-3 text-xs text-red-700 dark:text-red-400 font-medium">

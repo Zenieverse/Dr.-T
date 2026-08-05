@@ -4,6 +4,111 @@ import { solve_task } from './index';
 // Comprehensive set of known regression test cases matching the core training database
 export const REGRESSION_TESTS: ARCTask[] = [
   {
+    id: '00576224',
+    train: [
+      {
+        input: [
+          [0, 3, 0],
+          [3, 3, 3],
+          [0, 3, 0]
+        ],
+        output: [
+          [0, 3, 0],
+          [3, 8, 3],
+          [0, 3, 0]
+        ]
+      }
+    ],
+    test: [
+      {
+        input: [
+          [0, 3, 0],
+          [3, 3, 3],
+          [0, 3, 0]
+        ],
+        output: [
+          [0, 3, 0],
+          [3, 8, 3],
+          [0, 3, 0]
+        ]
+      }
+    ]
+  },
+  {
+    id: '009d5c81',
+    train: [
+      {
+        input: [
+          [1, 0, 1],
+          [0, 1, 0],
+          [1, 0, 1]
+        ],
+        output: [
+          [1, 1, 1],
+          [1, 0, 1],
+          [1, 1, 1]
+        ]
+      }
+    ],
+    test: [
+      {
+        input: [
+          [1, 0, 1],
+          [0, 1, 0],
+          [1, 0, 1]
+        ],
+        output: [
+          [1, 1, 1],
+          [1, 0, 1],
+          [1, 1, 1]
+        ]
+      }
+    ]
+  },
+  {
+    id: '12997ef3',
+    train: [
+      {
+        input: [
+          [2, 0, 0],
+          [0, 2, 0],
+          [0, 0, 2]
+        ],
+        output: [
+          [2, 2, 2],
+          [2, 2, 2],
+          [2, 2, 2]
+        ]
+      }
+    ],
+    test: [
+      {
+        input: [
+          [2, 0, 0],
+          [0, 2, 0],
+          [0, 0, 2]
+        ],
+        output: [
+          [2, 2, 2],
+          [2, 2, 2],
+          [2, 2, 2]
+        ]
+      },
+      {
+        input: [
+          [0, 2, 0],
+          [2, 0, 2],
+          [0, 2, 0]
+        ],
+        output: [
+          [2, 2, 2],
+          [2, 2, 2],
+          [2, 2, 2]
+        ]
+      }
+    ]
+  },
+  {
     id: 'gravity_fall_test',
     train: [
       {

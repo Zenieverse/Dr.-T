@@ -4,7 +4,7 @@ import {
   Heart, Shield, Check, Lock, Unlock, Send, RefreshCw, Cpu, 
   Layers, Compass, Eye, EyeOff, Users, Award, Terminal, Copy, Info, 
   AlertTriangle, Sparkles, MessageSquare, Flame, HelpCircle, Database,
-  Globe, Smartphone, Key, Radio, Wifi, Zap, Share2
+  Globe, Smartphone, Key, Radio, Wifi, Zap, Share2, BookOpen, ExternalLink
 } from 'lucide-react';
 import SovereignIdentityConsole from './SovereignIdentityConsole';
 
@@ -76,7 +76,7 @@ export default function StellarZkPlayground() {
   const [onChainLogs, setOnChainLogs] = useState<{ id: string; type: 'info' | 'success' | 'warn' | 'process'; message: string; timestamp: string }[]>([]);
   
   // Active explanation tabs
-  const [activeTab, setActiveTab] = useState<'how' | 'stellar' | 'merkle' | 'privacy'>('how');
+  const [activeTab, setActiveTab] = useState<'how' | 'stellar' | 'merkle' | 'privacy' | 'skills'>('how');
 
   // Ledger / Feed list
   const [feed, setFeed] = useState<Attestation[]>([
@@ -343,11 +343,53 @@ export default function StellarZkPlayground() {
             <span className="flex items-center gap-1 text-[10px] font-bold text-amber-600 dark:text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-md">
               <Sparkles className="w-3 h-3 animate-spin" /> humble community zk active
             </span>
+            <a 
+              href="http://skills.stellar.org/" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="inline-flex items-center gap-1.5 text-[10px] font-extrabold text-blue-600 dark:text-blue-400 bg-blue-500/10 hover:bg-blue-500/20 px-2.5 py-0.5 rounded-md transition-all border border-blue-500/20"
+            >
+              <BookOpen className="w-3 h-3 text-blue-500" />
+              Stellar Skills: skills.stellar.org
+              <ExternalLink className="w-2.5 h-2.5" />
+            </a>
           </div>
           <p className="text-xs text-stone-700 dark:text-stone-300 leading-relaxed font-sans font-medium">
-            An anonymous feedback and voting portal where community members leave encrypted expressions of appreciation, share feedback, and vote on community initiatives completely privately using secure, low-fee Stellar zero-knowledge proofs.
+            An anonymous feedback and voting portal where community members leave encrypted expressions of appreciation, share feedback, and vote on community initiatives completely privately using secure, low-fee Stellar zero-knowledge proofs developed with <a href="http://skills.stellar.org/" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 underline font-bold hover:opacity-80">skills.stellar.org</a> specifications.
           </p>
         </div>
+      </div>
+
+      {/* Stellar Skills Hub Banner (http://skills.stellar.org/) */}
+      <div className="bg-gradient-to-r from-blue-900/90 via-indigo-900/90 to-purple-900/90 text-white p-4.5 rounded-2xl border border-blue-500/30 shadow-sm mb-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="flex items-center gap-3.5">
+          <div className="w-11 h-11 rounded-xl bg-blue-500/20 border border-blue-400/30 flex items-center justify-center shrink-0 text-xl text-blue-300 shadow-inner">
+            ⚡
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h3 className="text-xs font-black uppercase tracking-wider text-blue-200">
+                Powered by Stellar Skills (skills.stellar.org)
+              </h3>
+              <span className="text-[9px] font-mono bg-blue-500/30 text-blue-300 px-1.5 py-0.5 rounded border border-blue-400/30">
+                Soroban ZK Circuit Standard
+              </span>
+            </div>
+            <p className="text-[11px] text-stone-300 mt-0.5">
+              Incorporates zero-knowledge contract standards, Soroban WASM verification, and spent nullifier tracking curated at <a href="http://skills.stellar.org/" target="_blank" rel="noopener noreferrer" className="text-blue-300 underline font-bold">skills.stellar.org</a>.
+            </p>
+          </div>
+        </div>
+        <a
+          href="http://skills.stellar.org/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-500 hover:bg-blue-400 text-white text-xs font-extrabold transition-all shadow-sm shrink-0 cursor-pointer active:scale-95"
+        >
+          <BookOpen className="w-3.5 h-3.5" />
+          <span>http://skills.stellar.org/</span>
+          <ExternalLink className="w-3 h-3" />
+        </a>
       </div>
 
       {/* Subtab Navigation Selector */}
@@ -1040,6 +1082,15 @@ export default function StellarZkPlayground() {
           >
             Anti-Double Voting
           </button>
+          <button
+            onClick={() => setActiveTab('skills')}
+            className={`pb-2 text-[10px] font-bold uppercase tracking-wider transition-colors flex items-center gap-1 ${
+              activeTab === 'skills' ? 'text-blue-500 border-b-2 border-blue-500 font-extrabold' : 'text-stone-400 hover:text-stone-600'
+            }`}
+          >
+            <BookOpen className="w-3 h-3 text-blue-500" />
+            skills.stellar.org Docs
+          </button>
         </div>
 
         <div className="text-stone-600 dark:text-stone-400 text-xs leading-relaxed">
@@ -1106,6 +1157,55 @@ export default function StellarZkPlayground() {
               <p className="mt-1">
                 The smart contract maintains a registry of spent nullifiers. If a user tries to submit a second vote, the nullifier matches a previously spent entry and is rejected, yet no one can trace the nullifier back to your personal identity!
               </p>
+            </div>
+          )}
+
+          {activeTab === 'skills' && (
+            <div className="space-y-3">
+              <p>
+                This Zero-Knowledge Playground incorporates developer guidelines and Soroban contract architectures documented at <a href="http://skills.stellar.org/" target="_blank" rel="noopener noreferrer" className="text-blue-500 underline font-extrabold hover:text-blue-600">http://skills.stellar.org/</a>:
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-2">
+                <div className="p-3 bg-stone-50 dark:bg-stone-900 rounded-xl border border-stone-200/50 dark:border-stone-800">
+                  <div className="flex items-center gap-1.5 font-bold text-stone-850 dark:text-stone-200 text-[10px] uppercase mb-1">
+                    <Zap className="w-3.5 h-3.5 text-blue-500" />
+                    <span>Soroban Contracts</span>
+                  </div>
+                  <p className="text-[9px] text-stone-500 leading-relaxed">
+                    Rust-based Wasm contracts for zero-knowledge pairings verification, Merkle root storage, and state management.
+                  </p>
+                </div>
+                <div className="p-3 bg-stone-50 dark:bg-stone-900 rounded-xl border border-stone-200/50 dark:border-stone-800">
+                  <div className="flex items-center gap-1.5 font-bold text-stone-850 dark:text-stone-200 text-[10px] uppercase mb-1">
+                    <Shield className="w-3.5 h-3.5 text-purple-500" />
+                    <span>ZK Proof Verification</span>
+                  </div>
+                  <p className="text-[9px] text-stone-500 leading-relaxed">
+                    Groth16 SNARK & RISC Zero STARK proof verification algorithms running natively inside Soroban's runtime.
+                  </p>
+                </div>
+                <div className="p-3 bg-stone-50 dark:bg-stone-900 rounded-xl border border-stone-200/50 dark:border-stone-800">
+                  <div className="flex items-center gap-1.5 font-bold text-stone-850 dark:text-stone-200 text-[10px] uppercase mb-1">
+                    <Database className="w-3.5 h-3.5 text-emerald-500" />
+                    <span>Spent Nullifiers</span>
+                  </div>
+                  <p className="text-[9px] text-stone-500 leading-relaxed">
+                    Preventing double-spending and multi-voting using cryptographic nullifier maps stored in Soroban contract storage.
+                  </p>
+                </div>
+              </div>
+              <div className="pt-2 flex items-center justify-between border-t border-stone-100 dark:border-stone-800 mt-2">
+                <span className="text-[10px] font-mono text-stone-500">Official Resource URL: http://skills.stellar.org/</span>
+                <a
+                  href="http://skills.stellar.org/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-[10px] font-bold transition-all shadow-2xs"
+                >
+                  <span>Open skills.stellar.org</span>
+                  <ExternalLink className="w-2.5 h-2.5" />
+                </a>
+              </div>
             </div>
           )}
         </div>

@@ -55,6 +55,18 @@ import AlibabaCloudConsole from './components/AlibabaCloudConsole';
 import CasperAtlasConsole from './components/CasperAtlasConsole';
 import { AmbientMusicPlayer } from './components/AmbientMusicPlayer';
 import { SymphonyConcertHall } from './components/SymphonyConcertHall';
+import { GoogleMapsShowcase } from './components/GoogleMapsShowcase';
+import { X402AlgorandConsole } from './components/X402AlgorandConsole';
+import { GeminiStudioLab } from './components/GeminiStudioLab';
+import { DataHubAgentSuite } from './components/DataHubAgentSuite';
+import { CosmosBioFarmAgent } from './components/CosmosBioFarmAgent';
+import { MedGemmaSuite } from './components/MedGemmaSuite';
+import { NemotronReasoningSuite } from './components/NemotronReasoningSuite';
+import { ComfortFoodLanding } from './components/ComfortFoodLanding';
+import { ClinicalAISuite } from './components/ClinicalAISuite';
+import { LongevityAcademy } from './components/LongevityAcademy';
+import { GoogleEcosystemHub } from './components/GoogleEcosystemHub';
+import { VisitorHeadcountTracker } from './components/VisitorHeadcountTracker';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db, isDummy, OperationType, handleFirestoreError } from './firebase';
 import drTAvatar from './assets/images/dr_t_avatar_1781184840352.jpg';
@@ -70,8 +82,8 @@ import avatarMaleCasual from './assets/images/dr_t_avatar_male_cas_1784385129666
 
 export default function App() {
   // Navigation
-  const [activeTab, setActiveTab] = useState<'hub' | 'graph' | 'swarm' | 'trackers' | 'dashboard' | 'avatar' | 'suite' | 'showcase' | 'uipath' | 'stellar-zk' | 'decision' | 'alibaba' | 'symphonies' | 'casper-las'>('hub');
-  const [activeSuiteSubTab, setActiveSuiteSubTab] = useState<'patient' | 'fhir' | 'analytics' | 'summarizer' | 'imaging' | 'population' | 'coach' | 'lab' | 'mimic' | 'orchestrator' | 'obgyn' | 'predictions'>('patient');
+  const [activeTab, setActiveTab] = useState<'hub' | 'graph' | 'swarm' | 'trackers' | 'dashboard' | 'avatar' | 'suite' | 'showcase' | 'uipath' | 'stellar-zk' | 'decision' | 'alibaba' | 'symphonies' | 'casper-las' | 'google-maps' | 'x402-algo' | 'gemini-lab' | 'medgemma' | 'nemotron' | 'comfort-food' | 'google-suite' | 'clinical-ai' | 'longevity-academy'>('hub');
+  const [activeSuiteSubTab, setActiveSuiteSubTab] = useState<'patient' | 'fhir' | 'analytics' | 'summarizer' | 'imaging' | 'population' | 'coach' | 'lab' | 'mimic' | 'orchestrator' | 'obgyn' | 'predictions' | 'heart_companion' | 'medgemma' | 'nemotron'>('patient');
 
   // State
   const [messages, setMessages] = useState<Message[]>([]);
@@ -134,7 +146,7 @@ export default function App() {
   // Guided Breathing Overlay states
   const [showBreathing, setShowBreathing] = useState<boolean>(false);
   const [showAmbientPlayer, setShowAmbientPlayer] = useState<boolean>(false);
-  const [showHappyWoahWoah, setShowHappyWoahWoah] = useState<boolean>(true);
+  const [showHappyWaaahWaaah, setShowHappyWaaahWaaah] = useState<boolean>(true);
   const [breathingPhase, setBreathingPhase] = useState<'inhale' | 'hold' | 'exhale' | 'complete'>('inhale');
   const [breathingSeconds, setBreathingSeconds] = useState<number>(60);
   const [breathingCycleSeconds, setBreathingCycleSeconds] = useState<number>(0);
@@ -1776,6 +1788,66 @@ export default function App() {
             </button>
 
             <button
+              onClick={() => { stopAudio(); setActiveTab('x402-algo'); }}
+              className={`p-1.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer
+                ${activeTab === 'x402-algo' ? 'bg-emerald-600 text-white shadow-xs' : 'text-stone-500 hover:text-stone-800'}
+              `}
+              id="tab-x402-algo-btn"
+            >
+              <span>⚡</span> <span className="font-bold">Algorand x402</span>
+            </button>
+
+            <button
+              onClick={() => { stopAudio(); setActiveTab('datahub'); }}
+              className={`p-1.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer
+                ${activeTab === 'datahub' ? 'bg-gradient-to-r from-amber-500 to-rose-600 text-white shadow-xs font-black' : 'text-stone-500 hover:text-stone-800'}
+              `}
+              id="tab-datahub-btn"
+            >
+              <span>📊</span> <span className="font-bold">DataHub Agents</span>
+            </button>
+
+            <button
+              onClick={() => { stopAudio(); setActiveTab('longevity-academy'); }}
+              className={`p-1.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer
+                ${activeTab === 'longevity-academy' ? 'bg-gradient-to-r from-rose-600 to-amber-600 text-white shadow-xs font-black' : 'text-stone-500 hover:text-stone-800'}
+              `}
+              id="tab-longevity-academy-btn"
+            >
+              <span>🎓</span> <span className="font-bold">Dr. T Institute</span>
+            </button>
+
+            <button
+              onClick={() => { stopAudio(); setActiveTab('clinical-ai'); }}
+              className={`p-1.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer
+                ${(activeTab === 'clinical-ai' || activeTab === 'medgemma' || activeTab === 'nemotron' || activeTab === 'comfort-food') ? 'bg-gradient-to-r from-rose-600 via-emerald-600 to-amber-600 text-white shadow-xs font-black' : 'text-stone-500 hover:text-stone-800'}
+              `}
+              id="tab-clinical-ai-btn"
+            >
+              <span>🩺</span> <span className="font-bold">Clinical AI & Comfort</span>
+            </button>
+
+            <button
+              onClick={() => { stopAudio(); setActiveTab('cosmos-farm'); }}
+              className={`p-1.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer
+                ${activeTab === 'cosmos-farm' ? 'bg-gradient-to-r from-emerald-600 via-teal-600 to-amber-600 text-white shadow-xs font-black' : 'text-stone-500 hover:text-stone-800'}
+              `}
+              id="tab-cosmos-farm-btn"
+            >
+              <span>🌱</span> <span className="font-bold">Cosmos Green Agent</span>
+            </button>
+
+            <button
+              onClick={() => { stopAudio(); setActiveTab('google-suite'); }}
+              className={`p-1.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer
+                ${activeTab === 'google-suite' ? 'bg-gradient-to-r from-blue-600 to-rose-600 text-white shadow-xs font-black' : 'text-stone-500 hover:text-stone-800'}
+              `}
+              id="tab-google-suite-btn"
+            >
+              <span>🔵</span> <span className="font-bold">Google Tech Suite</span>
+            </button>
+
+            <button
               onClick={() => { stopAudio(); setActiveTab('avatar'); }}
               className={`p-1.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer
                 ${activeTab === 'avatar' ? 'bg-white shadow-xs text-rose-600' : 'text-stone-500 hover:text-stone-800'}
@@ -1804,6 +1876,9 @@ export default function App() {
                 ))}
               </select>
             </div>
+
+            {/* Live Headcount & Visitor Telemetry */}
+            <VisitorHeadcountTracker activeTab={activeTab} />
 
             {/* Durable Cloud Sync Status */}
             <div className="flex items-center gap-1.5 bg-white border border-stone-200/60 rounded-xl px-2.5 py-1 text-xs shadow-xs">
@@ -2046,6 +2121,68 @@ export default function App() {
           </div>
         )}
 
+        {/* Tab 14: GOOGLE MAPS PLATFORM SHOWCASE */}
+        {activeTab === 'google-maps' && (
+          <div className="animate-fadeIn">
+            <GoogleMapsShowcase />
+          </div>
+        )}
+
+        {/* Tab 15: ALGORAND x402 MAINNET & BAZAAR CONSOLE */}
+        {activeTab === 'x402-algo' && (
+          <div className="animate-fadeIn">
+            <X402AlgorandConsole />
+          </div>
+        )}
+
+        {/* Tab 16: BUILD WITH GEMINI API INTERACTIVE STUDIO */}
+        {activeTab === 'gemini-lab' && (
+          <div className="animate-fadeIn">
+            <GeminiStudioLab />
+          </div>
+        )}
+
+        {/* Tab: DATAHUB HACKATHON AI AGENT SUITE */}
+        {activeTab === 'datahub' && (
+          <div className="animate-fadeIn">
+            <DataHubAgentSuite />
+          </div>
+        )}
+
+        {/* Tab: LONGEVITY & HEALTHY AGING ACADEMY */}
+        {activeTab === 'longevity-academy' && (
+          <div className="animate-fadeIn">
+            <LongevityAcademy />
+          </div>
+        )}
+
+        {/* Tab 17: UNIFIED CLINICAL AI & HEALING SUITE */}
+        {(activeTab === 'clinical-ai' || activeTab === 'medgemma' || activeTab === 'nemotron' || activeTab === 'comfort-food') && (
+          <div className="animate-fadeIn">
+            <ClinicalAISuite 
+              initialSubTab={
+                activeTab === 'nemotron' ? 'nemotron' : 
+                activeTab === 'comfort-food' ? 'comfort_food' : 'medgemma'
+              } 
+            />
+          </div>
+        )}
+
+        {/* Tab 20: GOOGLE TECH SUITE (INCLUDES GOOGLE MAPS & FIREBASE) */}
+        {(activeTab === 'google-suite' || activeTab === 'google-maps') && (
+          <div className="animate-fadeIn">
+            <GoogleEcosystemHub />
+          </div>
+        )}
+
+        {/* Tab 22: COSMOS BIO-FARM AUTONOMOUS AI AGENT */}
+        {activeTab === 'cosmos-farm' && (
+          <div className="animate-fadeIn">
+            <CosmosBioFarmAgent />
+          </div>
+        )}
+
+
 
 
 
@@ -2054,7 +2191,7 @@ export default function App() {
 
       </main>
 
-       {/* Global Disclaimer Footer */}
+      {/* Global Disclaimer & Headcount Footer */}
       <footer className="w-full border-t border-rose-100/50 bg-white/50 backdrop-blur-xs py-4 px-4 select-none shrink-0">
         <div className="max-w-6xl mx-auto flex flex-col items-center justify-between gap-3 text-[11px] text-stone-500 font-sans">
           <div className="w-full flex flex-col md:flex-row items-center justify-between gap-3">
@@ -2066,8 +2203,12 @@ export default function App() {
               Dr. T is an educational and decision-support platform and not a substitute for professional medical advice.
             </p>
           </div>
-          <div className="w-full text-center border-t border-dashed border-stone-200 pt-3 flex justify-center">
+          <div className="w-full text-center border-t border-dashed border-stone-200 pt-3 flex flex-wrap items-center justify-between gap-3">
             <BirthdayCelebrator textSize="text-[10px]" />
+            <div className="flex items-center gap-2 font-mono text-[10px]">
+              <span className="text-stone-400">Live Visitor Headcount:</span>
+              <VisitorHeadcountTracker activeTab={activeTab} compactBadgeOnly />
+            </div>
           </div>
         </div>
       </footer>
@@ -2484,15 +2625,15 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* HAPPY WOAH WOAH Celebration Overlay */}
+      {/* HAPPY WAAAH WAAAH Celebration Overlay */}
       <AnimatePresence>
-        {showHappyWoahWoah && (
+        {showHappyWaaahWaaah && (
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 30 }}
             className="fixed bottom-16 right-4 sm:bottom-20 sm:right-6 md:right-10 z-[100] pointer-events-none select-none"
-            id="happy-woah-woah-overlay"
+            id="happy-waaah-waaah-overlay"
           >
             <motion.div
               initial={{ scale: 0.9, rotate: -1 }}
@@ -2515,7 +2656,7 @@ export default function App() {
               
               {/* Close Button */}
               <button
-                onClick={() => setShowHappyWoahWoah(false)}
+                onClick={() => setShowHappyWaaahWaaah(false)}
                 className="absolute top-2 right-2 p-1 rounded-full hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 transition-colors cursor-pointer animate-none z-10"
                 aria-label="Close celebration"
               >
@@ -2531,7 +2672,7 @@ export default function App() {
               <div className="flex items-center gap-1 mb-2 relative z-10">
                 <span className="text-sm animate-bounce">🎁</span>
                 <h2 className="text-xs font-black tracking-tight bg-gradient-to-r from-pink-600 via-purple-500 to-rose-500 bg-clip-text text-transparent">
-                  HAPPY WOAH WOAH! 🎉✨
+                  HAPPY WAAAH WAAAH! 🎉✨
                 </h2>
                 <span className="text-sm animate-bounce">🎁</span>
               </div>
@@ -2560,7 +2701,7 @@ export default function App() {
 
               {/* Action Button */}
               <button
-                onClick={() => setShowHappyWoahWoah(false)}
+                onClick={() => setShowHappyWaaahWaaah(false)}
                 className="w-full py-2 bg-gradient-to-r from-pink-500 via-rose-500 to-amber-500 hover:from-pink-600 hover:to-rose-600 text-white font-extrabold rounded-lg text-[9px] tracking-widest uppercase transition-all active:scale-[0.98] cursor-pointer shadow-sm shadow-pink-500/15 border border-pink-400/10 flex items-center justify-center gap-1 hover:shadow-md hover:shadow-pink-500/20 relative z-10"
               >
                 Claim Joy & Celebrate! ✨
