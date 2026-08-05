@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Stethoscope, Brain, Utensils, Sparkles, ShieldCheck, Cpu, Flame, Layers } from 'lucide-react';
+import { Stethoscope, Brain, Utensils, Sparkles, ShieldCheck, Cpu, Flame, Layers, GraduationCap } from 'lucide-react';
 import { MedGemmaSuite } from './MedGemmaSuite';
 import { NemotronReasoningSuite } from './NemotronReasoningSuite';
 import { ComfortFoodLanding } from './ComfortFoodLanding';
+import { LongevityAcademy } from './LongevityAcademy';
 
 export interface ClinicalAISuiteProps {
-  initialSubTab?: 'medgemma' | 'nemotron' | 'comfort_food';
+  initialSubTab?: 'longevity' | 'medgemma' | 'nemotron' | 'comfort_food';
 }
 
-export function ClinicalAISuite({ initialSubTab = 'medgemma' }: ClinicalAISuiteProps) {
-  const [activeSubTab, setActiveSubTab] = useState<'medgemma' | 'nemotron' | 'comfort_food'>(initialSubTab);
+export function ClinicalAISuite({ initialSubTab = 'longevity' }: ClinicalAISuiteProps) {
+  const [activeSubTab, setActiveSubTab] = useState<'longevity' | 'medgemma' | 'nemotron' | 'comfort_food'>(initialSubTab);
 
   return (
     <div className="space-y-6 font-sans">
@@ -22,18 +23,30 @@ export function ClinicalAISuite({ initialSubTab = 'medgemma' }: ClinicalAISuiteP
           <div className="space-y-1">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-500/20 border border-rose-400/30 text-rose-300 text-xs font-mono font-black uppercase tracking-wider">
               <Sparkles className="w-3.5 h-3.5 text-rose-400 animate-pulse" />
-              Unified Clinical AI & Healing Suite
+              Unified Dr. T Institute & Clinical AI Suite
             </div>
             <h2 className="text-xl sm:text-3xl font-black font-display tracking-tight text-white">
-              Dr. T Clinical Intelligence & Healing Table
+              Dr. T Institute & Clinical Intelligence
             </h2>
             <p className="text-xs sm:text-sm text-stone-300 max-w-2xl leading-relaxed">
-              Consolidating Google MedGemma 2B WebGPU diagnostics, NVIDIA Nemotron AI reasoning benchmarks, and Dr. T’s Therapeutic Comfort Nutrition into one unified clinical hub.
+              Consolidating the Longevity & Healthy Aging Academy, Google MedGemma 2B diagnostics, NVIDIA Nemotron AI reasoning, and Therapeutic Comfort Nutrition into one master hub.
             </p>
           </div>
 
           {/* Sub-tab Pills */}
           <div className="flex flex-wrap items-center gap-1.5 bg-stone-950/80 p-1.5 rounded-2xl border border-stone-800 self-start md:self-auto">
+            <button
+              onClick={() => setActiveSubTab('longevity')}
+              className={`px-3.5 py-2 rounded-xl text-xs font-mono font-bold transition-all flex items-center gap-2 cursor-pointer ${
+                activeSubTab === 'longevity'
+                  ? 'bg-gradient-to-r from-rose-600 to-amber-600 text-white shadow-md font-black'
+                  : 'text-stone-400 hover:text-white hover:bg-stone-800/60'
+              }`}
+            >
+              <GraduationCap className="w-4 h-4 text-rose-300" />
+              <span>Longevity Academy</span>
+            </button>
+
             <button
               onClick={() => setActiveSubTab('medgemma')}
               className={`px-3.5 py-2 rounded-xl text-xs font-mono font-bold transition-all flex items-center gap-2 cursor-pointer ${
@@ -75,6 +88,18 @@ export function ClinicalAISuite({ initialSubTab = 'medgemma' }: ClinicalAISuiteP
 
       {/* Render Active Module */}
       <AnimatePresence mode="wait">
+        {activeSubTab === 'longevity' && (
+          <motion.div
+            key="longevity"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+          >
+            <LongevityAcademy />
+          </motion.div>
+        )}
+
         {activeSubTab === 'medgemma' && (
           <motion.div
             key="medgemma"

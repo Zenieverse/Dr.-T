@@ -46,7 +46,7 @@ const DEFAULT_PAGE_STATS: PageVisitorStat[] = [
   { pageId: 'swarm', pageName: 'Multi-Agent Clinical Swarm', icon: '🐝', currentlyViewing: 4, totalViews: 11200, avgTimeSeconds: 220 },
   { pageId: 'trackers', pageName: 'Symptom & Medication Trackers', icon: '📊', currentlyViewing: 6, totalViews: 9830, avgTimeSeconds: 165 },
   { pageId: 'casper-las', pageName: 'Casper Atlas Protocol', icon: '🌌', currentlyViewing: 3, totalViews: 8140, avgTimeSeconds: 140 },
-  { pageId: 'x402-algo', pageName: 'Algorand x402 Micropayments', icon: '⚡', currentlyViewing: 2, totalViews: 6720, avgTimeSeconds: 115 },
+  { pageId: 'x402-algo', pageName: 'x402 Micropayments', icon: '⚡', currentlyViewing: 2, totalViews: 6720, avgTimeSeconds: 115 },
 ];
 
 const INITIAL_FEATURE_METRICS: FeatureUsageMetric[] = [

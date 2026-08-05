@@ -1794,7 +1794,7 @@ export default function App() {
               `}
               id="tab-x402-algo-btn"
             >
-              <span>⚡</span> <span className="font-bold">Algorand x402</span>
+              <span>⚡</span> <span className="font-bold">x402</span>
             </button>
 
             <button
@@ -1808,23 +1808,13 @@ export default function App() {
             </button>
 
             <button
-              onClick={() => { stopAudio(); setActiveTab('longevity-academy'); }}
-              className={`p-1.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer
-                ${activeTab === 'longevity-academy' ? 'bg-gradient-to-r from-rose-600 to-amber-600 text-white shadow-xs font-black' : 'text-stone-500 hover:text-stone-800'}
-              `}
-              id="tab-longevity-academy-btn"
-            >
-              <span>🎓</span> <span className="font-bold">Dr. T Institute</span>
-            </button>
-
-            <button
               onClick={() => { stopAudio(); setActiveTab('clinical-ai'); }}
               className={`p-1.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer
-                ${(activeTab === 'clinical-ai' || activeTab === 'medgemma' || activeTab === 'nemotron' || activeTab === 'comfort-food') ? 'bg-gradient-to-r from-rose-600 via-emerald-600 to-amber-600 text-white shadow-xs font-black' : 'text-stone-500 hover:text-stone-800'}
+                ${(activeTab === 'clinical-ai' || activeTab === 'longevity-academy' || activeTab === 'medgemma' || activeTab === 'nemotron' || activeTab === 'comfort-food') ? 'bg-gradient-to-r from-rose-600 via-emerald-600 to-amber-600 text-white shadow-xs font-black' : 'text-stone-500 hover:text-stone-800'}
               `}
               id="tab-clinical-ai-btn"
             >
-              <span>🩺</span> <span className="font-bold">Clinical AI & Comfort</span>
+              <span>🎓</span> <span className="font-bold">Dr. T Institute & Clinical</span>
             </button>
 
             <button
@@ -2121,24 +2111,10 @@ export default function App() {
           </div>
         )}
 
-        {/* Tab 14: GOOGLE MAPS PLATFORM SHOWCASE */}
-        {activeTab === 'google-maps' && (
-          <div className="animate-fadeIn">
-            <GoogleMapsShowcase />
-          </div>
-        )}
-
         {/* Tab 15: ALGORAND x402 MAINNET & BAZAAR CONSOLE */}
         {activeTab === 'x402-algo' && (
           <div className="animate-fadeIn">
             <X402AlgorandConsole />
-          </div>
-        )}
-
-        {/* Tab 16: BUILD WITH GEMINI API INTERACTIVE STUDIO */}
-        {activeTab === 'gemini-lab' && (
-          <div className="animate-fadeIn">
-            <GeminiStudioLab />
           </div>
         )}
 
@@ -2149,27 +2125,21 @@ export default function App() {
           </div>
         )}
 
-        {/* Tab: LONGEVITY & HEALTHY AGING ACADEMY */}
-        {activeTab === 'longevity-academy' && (
-          <div className="animate-fadeIn">
-            <LongevityAcademy />
-          </div>
-        )}
-
-        {/* Tab 17: UNIFIED CLINICAL AI & HEALING SUITE */}
-        {(activeTab === 'clinical-ai' || activeTab === 'medgemma' || activeTab === 'nemotron' || activeTab === 'comfort-food') && (
+        {/* Tab 17: UNIFIED DR. T INSTITUTE & CLINICAL AI SUITE */}
+        {(activeTab === 'clinical-ai' || activeTab === 'longevity-academy' || activeTab === 'medgemma' || activeTab === 'nemotron' || activeTab === 'comfort-food') && (
           <div className="animate-fadeIn">
             <ClinicalAISuite 
               initialSubTab={
                 activeTab === 'nemotron' ? 'nemotron' : 
-                activeTab === 'comfort-food' ? 'comfort_food' : 'medgemma'
+                activeTab === 'comfort-food' ? 'comfort_food' : 
+                activeTab === 'medgemma' ? 'medgemma' : 'longevity'
               } 
             />
           </div>
         )}
 
-        {/* Tab 20: GOOGLE TECH SUITE (INCLUDES GOOGLE MAPS & FIREBASE) */}
-        {(activeTab === 'google-suite' || activeTab === 'google-maps') && (
+        {/* Tab 20: UNIFIED GOOGLE TECH SUITE (GEMINI AI, GOOGLE MAPS, FIREBASE, WORKSPACE, CLOUD) */}
+        {activeTab === 'google-suite' && (
           <div className="animate-fadeIn">
             <GoogleEcosystemHub />
           </div>

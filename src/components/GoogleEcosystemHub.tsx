@@ -41,6 +41,8 @@ import {
 } from '@vis.gl/react-google-maps';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db, isDummy } from '../firebase';
+import { GeminiStudioLab } from './GeminiStudioLab';
+import { GoogleMapsShowcase } from './GoogleMapsShowcase';
 
 const MAPS_KEY =
   process.env.GOOGLE_MAPS_PLATFORM_KEY ||
@@ -222,189 +224,17 @@ export function GoogleEcosystemHub() {
         ))}
       </div>
 
-      {/* MODULE 1: GEMINI CLINICAL AI */}
+      {/* MODULE 1: GEMINI CLINICAL AI & INTERACTIVE STUDIO */}
       {activeModule === 'gemini' && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <div className="lg:col-span-7 bg-white dark:bg-stone-900 rounded-3xl p-6 border border-stone-200 dark:border-stone-800 shadow-sm space-y-5">
-            <div className="flex items-center justify-between border-b border-stone-100 dark:border-stone-800 pb-3">
-              <div className="flex items-center gap-2">
-                <Bot className="w-5 h-5 text-rose-500" />
-                <h3 className="text-sm font-black uppercase font-mono tracking-wider text-stone-900 dark:text-white">
-                  Gemini 3.5 Flash Clinical Reasoning
-                </h3>
-              </div>
-              <span className="text-[10px] font-mono text-stone-400 bg-stone-100 dark:bg-stone-800 px-2.5 py-1 rounded-full font-bold">
-                @google/genai SDK
-              </span>
-            </div>
-
-            <div className="space-y-3">
-              <label className="text-xs font-bold text-stone-700 dark:text-stone-300">
-                Clinical Prompt or Symptom & Lab Report Description:
-              </label>
-              <textarea
-                rows={4}
-                value={geminiPrompt}
-                onChange={(e) => setGeminiPrompt(e.target.value)}
-                className="w-full p-3.5 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-2xl text-xs text-stone-900 dark:text-white focus:outline-none focus:border-rose-500 font-sans"
-                placeholder="Enter patient symptoms, lab values, or dietary questions..."
-              />
-
-              <div className="flex items-center justify-between">
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setGeminiPrompt('Analyze hemoglobin 10.2 g/dL and recommend iron-rich therapeutic recipes with Vitamin C synergistic pairing.')}
-                    className="px-2.5 py-1 bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 text-[10px] font-mono font-bold text-stone-600 dark:text-stone-300 rounded-lg cursor-pointer"
-                  >
-                    Preset: Ferritin Analysis
-                  </button>
-                  <button
-                    onClick={() => setGeminiPrompt('Generate a maternal SOAP clinical note for a 28-week pregnant patient with mild fatigue and restless legs.')}
-                    className="px-2.5 py-1 bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 text-[10px] font-mono font-bold text-stone-600 dark:text-stone-300 rounded-lg cursor-pointer"
-                  >
-                    Preset: SOAP Note
-                  </button>
-                </div>
-
-                <button
-                  onClick={handleRunGemini}
-                  disabled={isGeminiLoading}
-                  className="px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold uppercase font-mono tracking-wider flex items-center gap-2 cursor-pointer shadow-xs transition-all"
-                >
-                  {isGeminiLoading ? (
-                    <RefreshCw className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <Sparkles className="w-4 h-4" />
-                  )}
-                  Run Gemini AI
-                </button>
-              </div>
-            </div>
-
-            {geminiResponse && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="p-4 bg-rose-50/70 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/60 rounded-2xl text-xs space-y-2"
-              >
-                <div className="flex items-center justify-between font-bold text-rose-900 dark:text-rose-300 border-b border-rose-200/50 pb-2">
-                  <span className="flex items-center gap-1.5">
-                    <Sparkles className="w-4 h-4 text-rose-600" />
-                    Dr. T Gemini Synthesis
-                  </span>
-                  <span className="text-[9px] font-mono bg-rose-100 dark:bg-rose-900/80 text-rose-700 dark:text-rose-300 px-2 py-0.5 rounded-full">
-                    Server-Side Verified
-                  </span>
-                </div>
-                <p className="text-stone-800 dark:text-stone-200 leading-relaxed font-sans text-[12px]">
-                  {geminiResponse}
-                </p>
-              </motion.div>
-            )}
-          </div>
-
-          <div className="lg:col-span-5 bg-white dark:bg-stone-900 rounded-3xl p-6 border border-stone-200 dark:border-stone-800 shadow-sm space-y-4">
-            <h4 className="text-xs font-black uppercase font-mono tracking-wider text-stone-900 dark:text-white flex items-center gap-2 border-b border-stone-100 dark:border-stone-800 pb-3">
-              <ShieldCheck className="w-4 h-4 text-emerald-500" />
-              Gemini Integration Specifications
-            </h4>
-
-            <div className="space-y-3 text-xs text-stone-600 dark:text-stone-400">
-              <div className="p-3 bg-stone-50 dark:bg-stone-950 rounded-2xl border border-stone-200 dark:border-stone-800">
-                <span className="font-bold text-stone-900 dark:text-white block mb-1">
-                  1. Server-Side Execution Mode
-                </span>
-                <p className="text-[11px] leading-relaxed">
-                  All API calls use standard <code className="bg-stone-200 dark:bg-stone-800 px-1 py-0.5 rounded font-mono">/api/chat</code> server proxy endpoints. The <code className="bg-stone-200 dark:bg-stone-800 px-1 py-0.5 rounded font-mono">GEMINI_API_KEY</code> is never exposed to client browsers.
-                </p>
-              </div>
-
-              <div className="p-3 bg-stone-50 dark:bg-stone-950 rounded-2xl border border-stone-200 dark:border-stone-800">
-                <span className="font-bold text-stone-900 dark:text-white block mb-1">
-                  2. Socratic Multilingual Reasoning
-                </span>
-                <p className="text-[11px] leading-relaxed">
-                  Automatically detects Vietnamese, English, French, Spanish, German, Japanese, and 7 other languages with maternal tone adaptation.
-                </p>
-              </div>
-
-              <div className="p-3 bg-stone-50 dark:bg-stone-950 rounded-2xl border border-stone-200 dark:border-stone-800">
-                <span className="font-bold text-stone-900 dark:text-white block mb-1">
-                  3. Multimodal Image Analysis
-                </span>
-                <p className="text-[11px] leading-relaxed">
-                  Supports ultrasound images, blood panel lab scans, and meal photos for non-heme iron analysis.
-                </p>
-              </div>
-            </div>
-          </div>
+        <div className="space-y-6">
+          <GeminiStudioLab />
         </div>
       )}
 
-      {/* MODULE 2: GOOGLE MAPS PLATFORM */}
+      {/* MODULE 2: GOOGLE MAPS PLATFORM SHOWCASE */}
       {activeModule === 'maps' && (
         <div className="space-y-6">
-          <div className="bg-white dark:bg-stone-900 rounded-3xl p-6 border border-stone-200 dark:border-stone-800 shadow-sm space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-stone-100 dark:border-stone-800 pb-4">
-              <div>
-                <span className="text-[10px] font-mono font-bold text-sky-600 dark:text-sky-400 uppercase tracking-widest">
-                  Google Maps Platform Integration
-                </span>
-                <h3 className="text-lg font-black text-stone-900 dark:text-white font-display">
-                  Care Facilities, Blood Donation Hubs & Therapeutic Farms
-                </h3>
-              </div>
-
-              {/* Hub selection */}
-              <div className="flex items-center gap-2 overflow-x-auto">
-                {CARE_HUBS.map(hub => (
-                  <button
-                    key={hub.id}
-                    onClick={() => setSelectedHub(hub)}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 ${
-                      selectedHub.id === hub.id
-                        ? 'bg-sky-600 text-white'
-                        : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300'
-                    }`}
-                  >
-                    {hub.name}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Map Canvas */}
-            {hasValidMapsKey ? (
-              <APIProvider apiKey={MAPS_KEY} version="weekly">
-                <div className="w-full h-[450px] rounded-3xl overflow-hidden border border-stone-200 dark:border-stone-800 shadow-inner">
-                  <Map
-                    defaultCenter={selectedHub.center}
-                    defaultZoom={selectedHub.zoom}
-                    mapId="DEMO_MAP_ID"
-                    internalUsageAttributionIds={['gmp_mcp_codeassist_v1_aistudio']}
-                    style={{ width: '100%', height: '100%' }}
-                    gestureHandling="greedy"
-                  >
-                    <AdvancedMarker position={selectedHub.center} title={selectedHub.name}>
-                      <Pin background="#0284c7" borderColor="#ffffff" glyphColor="#ffffff" scale={1.2}>
-                        <Hospital className="w-4 h-4 text-white" />
-                      </Pin>
-                    </AdvancedMarker>
-                  </Map>
-                </div>
-              </APIProvider>
-            ) : (
-              <div className="bg-stone-50 dark:bg-stone-950 rounded-3xl p-8 text-center border border-stone-200 dark:border-stone-800 space-y-3">
-                <MapPin className="w-10 h-10 text-sky-500 mx-auto animate-bounce" />
-                <h4 className="text-base font-extrabold text-stone-900 dark:text-white">
-                  Google Maps Platform Enabled
-                </h4>
-                <p className="text-xs text-stone-500 dark:text-stone-400 max-w-md mx-auto">
-                  Interactive map components are configured with <code className="bg-stone-200 dark:bg-stone-800 px-1 py-0.5 rounded font-mono">@vis.gl/react-google-maps</code> and ready for live rendering with your Google Maps API key in Settings &gt; Secrets.
-                </p>
-              </div>
-            )}
-          </div>
+          <GoogleMapsShowcase />
         </div>
       )}
 

@@ -100,7 +100,7 @@ export interface GalacticSector {
 export interface Quest {
   id: string;
   title: string;
-  category: 'Daily' | 'Milky Way Challenge' | 'Ecosystem Goal';
+  category: 'Daily' | 'Dr. T Galaxy Challenge' | 'Ecosystem Goal';
   description: string;
   progress: number;
   maxProgress: number;
@@ -132,7 +132,7 @@ export interface ClaimedVoucher {
   claimedAt: string;
 }
 
-// Milky Way Galactic Sectors
+// Dr. T Galactic Sectors
 const GALACTIC_SECTORS: GalacticSector[] = [
   {
     id: 'sol-orion',
@@ -196,7 +196,7 @@ const INITIAL_CROPS: Crop[] = [
   },
   {
     id: 'ginseng',
-    name: 'Milky Way Quantum Ginseng',
+    name: 'Dr. T Galaxy Quantum Ginseng',
     category: 'Cosmic Bio-Herbal',
     icon: '🌿',
     growthTimeSec: 12,
@@ -321,7 +321,7 @@ const INITIAL_ANIMALS: Animal[] = [
 
 // Intergalactic Leaderboard
 const INITIAL_LEADERBOARD: LeaderboardEntry[] = [
-  { rank: 1, farmerName: 'Grandma Evelyn & Bio-Cosmos AI', starSystemOrigin: 'Sol-3 Earth Prime', isAI: false, avatarIcon: '👵🏼', badge: 'Milky Way Grand Master', longevityPoints: 16420, bioRevenue: 108450, sustainabilityRating: 'A++', activeCropsCount: 6, seniorCareRating: 100 },
+  { rank: 1, farmerName: 'Grandma Evelyn & Bio-Cosmos AI', starSystemOrigin: 'Sol-3 Earth Prime', isAI: false, avatarIcon: '👵🏼', badge: 'Dr. T Galaxy Grand Master', longevityPoints: 16420, bioRevenue: 108450, sustainabilityRating: 'A++', activeCropsCount: 6, seniorCareRating: 100 },
   { rank: 2, farmerName: 'Dr. T Autonomous Agent v5.2', starSystemOrigin: 'Orion Arm AI Hub', isAI: true, avatarIcon: '🤖', badge: 'Core AI Champion', longevityPoints: 15150, bioRevenue: 99200, sustainabilityRating: 'A+', activeCropsCount: 6, seniorCareRating: 98 },
   { rank: 3, farmerName: 'Master Chen (Age 84) Green Oasis', starSystemOrigin: 'Kepler-186f Colony', isAI: false, avatarIcon: '👨🏼‍🌾', badge: 'Quantum Ginseng Pioneer', longevityPoints: 14900, bioRevenue: 92600, sustainabilityRating: 'A+', activeCropsCount: 5, seniorCareRating: 99 },
   { rank: 4, farmerName: 'Aura-Swarm Autonomous Farm', starSystemOrigin: 'Perseus Outpost Alpha', isAI: true, avatarIcon: '⚡', badge: 'Reinforcement Learning', longevityPoints: 13400, bioRevenue: 85100, sustainabilityRating: 'A', activeCropsCount: 6, seniorCareRating: 95 },
@@ -418,7 +418,7 @@ export const CosmosBioFarmAgent: React.FC = () => {
     wool: 4
   });
   
-  // Farm Plots (6 Grid Slots across Milky Way Sectors)
+  // Farm Plots (6 Grid Slots across Dr. T Galaxy Sectors)
   const [plots, setPlots] = useState<FarmPlot[]>([
     { id: 1, crop: INITIAL_CROPS[0], stage: 'growing', growthProgress: 75, waterLevel: 85, nutrientLevel: 88, isAutoManagedByAI: true, yieldBoost: 1.25, sectorName: 'Orion Arm Bio-Domes' },
     { id: 2, crop: INITIAL_CROPS[3], stage: 'growing', growthProgress: 95, waterLevel: 80, nutrientLevel: 92, isAutoManagedByAI: true, yieldBoost: 1.30, sectorName: 'Perseus Plasma Hydroponics' },
@@ -431,7 +431,7 @@ export const CosmosBioFarmAgent: React.FC = () => {
   // Quests & Winning Logics
   const [quests, setQuests] = useState<Quest[]>([
     { id: 'q1', title: 'Harvest 3 Starlight Astragalus Plots', category: 'Daily', description: 'Reap cell-lengthening Astragalus across Orion Bio-Domes.', progress: 1, maxProgress: 3, rewardCoins: 300, rewardPoints: 150, isCompleted: false, icon: '🌱' },
-    { id: 'q2', title: 'Trade 50kg Algae on Interstellar Market', category: 'Milky Way Challenge', description: 'Supply micro-algae superfoods to elder colonies.', progress: 28, maxProgress: 50, rewardCoins: 450, rewardPoints: 200, isCompleted: false, icon: '🧪' },
+    { id: 'q2', title: 'Trade 50kg Algae on Interstellar Market', category: 'Dr. T Galaxy Challenge', description: 'Supply micro-algae superfoods to elder colonies.', progress: 28, maxProgress: 50, rewardCoins: 450, rewardPoints: 200, isCompleted: false, icon: '🧪' },
     { id: 'q3', title: 'Achieve 90%+ Starlight Nutrients in 4 Plots', category: 'Ecosystem Goal', description: 'Maintain maximum soil fertility for galactic harvests.', progress: 3, maxProgress: 4, rewardCoins: 600, rewardPoints: 300, isCompleted: false, icon: '✨' }
   ]);
 
@@ -449,22 +449,22 @@ export const CosmosBioFarmAgent: React.FC = () => {
   const [isAIAgentActive, setIsAIAgentActive] = useState<boolean>(true);
   const [agentStrategy, setAgentStrategy] = useState<'longevity' | 'arbitrage' | 'sustainability' | 'aggressive'>('longevity');
   const [agentDecisionLogs, setAgentDecisionLogs] = useState<AgentDecisionLog[]>([
-    { id: '1', time: '10:50:01', phase: 'Perception', message: 'Milky Way Sensors detected Solar Astragalus telomere demand surging (+14.2%) in Sol-3 sector.', detail: 'Interstellar healthcare order volume increased across elder colonies.', impactScore: 88, galacticSector: 'Orion Arm Bio-Domes' },
+    { id: '1', time: '10:50:01', phase: 'Perception', message: 'Dr. T Galaxy Sensors detected Solar Astragalus telomere demand surging (+14.2%) in Sol-3 sector.', detail: 'Interstellar healthcare order volume increased across elder colonies.', impactScore: 88, galacticSector: 'Orion Arm Bio-Domes' },
     { id: '2', time: '10:50:05', phase: 'Planning', message: 'Re-routed Perseus Plasma light beams to boost Spirulina amino-acid yield per watt.', detail: 'Optimized micro-gravity photosynthesis cycle.', impactScore: 94, galacticSector: 'Perseus Plasma Hydroponics' },
-    { id: '3', time: '10:50:10', phase: 'Action', message: 'Harvested Plot #3 (Milky Way Quantum Ginseng) -> Traded 30 units at peak price $235/kg.', detail: 'Earned +$7,050 Bio-Coins and +350 Interstellar Longevity Health Points.', impactScore: 99, galacticSector: 'Cygnus Senior Haven' },
+    { id: '3', time: '10:50:10', phase: 'Action', message: 'Harvested Plot #3 (Dr. T Galaxy Quantum Ginseng) -> Traded 30 units at peak price $235/kg.', detail: 'Earned +$7,050 Bio-Coins and +350 Interstellar Longevity Health Points.', impactScore: 99, galacticSector: 'Cygnus Senior Haven' },
     { id: '4', time: '10:50:15', phase: 'Learning', message: 'Updated soil starlight radiation schedule. Growth time reduced by 18%.', detail: 'Neural policy updated for Zero-G root extension.', impactScore: 91, galacticSector: 'Sagittarius Quantum Ring' }
   ]);
 
   // Market Events
   const [marketEvents] = useState<MarketEvent[]>([
-    { id: 'e1', timestamp: '2 mins ago', title: 'Milky Way Senior Longevity Summit Announced', description: 'Surge in demand for Astragalus & Ginseng bio-compounds across Kepler-186f & Sol-3 wellness sanctuaries.', impactedItem: 'Stellar Astragalus Radix', priceMultiplier: 1.30, type: 'health_surge', starSystem: 'Kepler-186f Colony' },
+    { id: 'e1', timestamp: '2 mins ago', title: 'Dr. T Galaxy Senior Longevity Summit Announced', description: 'Surge in demand for Astragalus & Ginseng bio-compounds across Kepler-186f & Sol-3 wellness sanctuaries.', impactedItem: 'Stellar Astragalus Radix', priceMultiplier: 1.30, type: 'health_surge', starSystem: 'Kepler-186f Colony' },
     { id: 'e2', timestamp: '6 mins ago', title: 'Solar Flare Enhances Perseus Algae Ponds', description: 'Cosmic radiation boost doubled photosynthesis efficiency for Spirulina bio-chambers.', impactedItem: 'Perseus Solar Spirulina Algae', priceMultiplier: 1.20, type: 'weather_boost', starSystem: 'Perseus Arm' }
   ]);
 
   // Accessibility & Senior Features
   const [voiceNarratorEnabled, setVoiceNarratorEnabled] = useState<boolean>(false);
   const [largeFontMode, setLargeFontMode] = useState<boolean>(false);
-  const [speechMessage, setSpeechMessage] = useState<string>('Welcome to Cosmos Green Agent, the premier Milky Way Intergalactic Play-to-Earn Platform for Dr. T Ecosystem.');
+  const [speechMessage, setSpeechMessage] = useState<string>('Welcome to Cosmos Green Agent, the premier Dr. T Galaxy Intergalactic Play-to-Earn Platform for Dr. T Ecosystem.');
 
   // Leaderboard
   const [leaderboard] = useState<LeaderboardEntry[]>(INITIAL_LEADERBOARD);
@@ -729,7 +729,7 @@ export const CosmosBioFarmAgent: React.FC = () => {
     setLongevityPoints((points) => points + pts);
     setInventory((inv) => ({ ...inv, [cropId]: 0 }));
 
-    triggerWinToast(`💰 TRADE WIN! Sold ${qty} kg across Milky Way routes for +${totalVal} Bio-Coins!`);
+    triggerWinToast(`💰 TRADE WIN! Sold ${qty} kg across Dr. T Galaxy routes for +${totalVal} Bio-Coins!`);
 
     if (voiceNarratorEnabled) {
       speakMessage(`Traded ${qty} kg of intergalactic harvest for ${totalVal} Bio-Coins.`);
@@ -795,7 +795,7 @@ export const CosmosBioFarmAgent: React.FC = () => {
         </div>
       )}
 
-      {/* HEADER BANNER - COSMOS GREEN AGENT (MILKY WAY GALAXY FARMS PLATFORM) */}
+      {/* HEADER BANNER - COSMOS GREEN AGENT (DR. T GALAXY FARMS PLATFORM) */}
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-950 via-teal-950 to-stone-900 p-6 md:p-8 text-white shadow-2xl border border-emerald-800">
         <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none"></div>
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl -ml-20 -mb-20 pointer-events-none"></div>
@@ -842,11 +842,11 @@ export const CosmosBioFarmAgent: React.FC = () => {
             <h1 className="text-2xl md:text-4xl font-extrabold tracking-tight text-white flex items-center gap-3">
               <span>Cosmos Green Agent</span>
               <span className="text-xs px-3 py-1 bg-amber-500/20 text-amber-300 border border-amber-400/40 rounded-full font-mono font-bold uppercase tracking-wider">
-                Milky Way Galaxy • Ecosystem Play-to-Earn
+                Dr. T Galaxy • Play-to-Earn Ecosystem
               </span>
             </h1>
             <p className="text-emerald-100/90 text-sm md:text-base max-w-4xl leading-relaxed">
-              Play & cultivate longevity bio-crops across Milky Way sectors. Convert your harvest wins & Bio-Coins directly into real payment vouchers for Dr. T Institute Courses, Clinical AI consultations, Caregiver Hub passes, and Comfort Food nutrient plans!
+              Play & cultivate longevity bio-crops across Dr. T Galaxy sectors. Convert your harvest wins & Bio-Coins directly into real payment vouchers for Dr. T Institute Courses, Clinical AI consultations, Caregiver Hub passes, and Comfort Food nutrient plans!
             </p>
           </div>
 
@@ -909,7 +909,7 @@ export const CosmosBioFarmAgent: React.FC = () => {
                 <Heart className="w-4 h-4 text-rose-400 fill-current" />
                 <span>{longevityPoints.toLocaleString()} pts</span>
               </div>
-              <div className="text-[10px] text-emerald-300">Milky Way Vitality Index</div>
+              <div className="text-[10px] text-emerald-300">Dr. T Galaxy Vitality Index</div>
             </div>
 
             <div className="p-3 bg-stone-950/70 rounded-2xl border border-emerald-800/60">
@@ -992,7 +992,7 @@ export const CosmosBioFarmAgent: React.FC = () => {
             }`}
           >
             <Globe className="w-4 h-4" />
-            <span>Milky Way Sectors</span>
+            <span>Dr. T Galaxy Sectors</span>
           </button>
 
           <button
@@ -1418,13 +1418,13 @@ export const CosmosBioFarmAgent: React.FC = () => {
         </div>
       )}
 
-      {/* TAB 2: MILKY WAY SECTORS */}
+      {/* TAB 2: DR. T GALAXY SECTORS */}
       {activeTab === 'sectors' && (
         <div className="space-y-6 animate-fadeIn">
           <div className="p-5 bg-white rounded-2xl border border-stone-200 shadow-xs space-y-4">
             <h3 className="font-bold text-stone-900 text-base flex items-center gap-2">
               <Globe className="w-5 h-5 text-emerald-600" />
-              <span>Milky Way Galactic Sectors & Bio-Dome Enclaves</span>
+              <span>Dr. T Galaxy Sectors & Bio-Dome Enclaves</span>
             </h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1718,7 +1718,7 @@ export const CosmosBioFarmAgent: React.FC = () => {
               <div>
                 <h3 className="font-bold text-stone-900 text-base flex items-center gap-2">
                   <Award className="w-5 h-5 text-amber-500" />
-                  <span>Milky Way Head-to-Head Master Farmer Leaderboard</span>
+                  <span>Dr. T Galaxy Head-to-Head Master Farmer Leaderboard</span>
                 </h3>
                 <p className="text-xs text-stone-500">Human Elders & Autonomous AI Agents competing on Longevity Impact & Interstellar Revenue</p>
               </div>
