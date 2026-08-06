@@ -42,7 +42,9 @@ export interface X402Endpoint {
   trackLabel: string;
   type: 'Standard' | 'Composite' | 'Orchestrator';
   path: string;
+  priceTCoin: string;
   priceUSDC: string;
+  amountMicroT: number;
   amountMicroUSDC: number;
   description: string;
   payTo: string;
@@ -51,13 +53,15 @@ export interface X402Endpoint {
   sampleInput: string;
 }
 
-export const MAINNET_USDC_ASA = 31566704;
-export const TESTNET_USDC_ASA = 10458941;
+export const MAINNET_TCOIN_ASA = 31566704;
+export const TESTNET_TCOIN_ASA = 10458941;
+export const MAINNET_USDC_ASA = MAINNET_TCOIN_ASA;
+export const TESTNET_USDC_ASA = TESTNET_TCOIN_ASA;
 export const ALGORAND_MAINNET_CAIP2 = 'algorand:wG23fS2A7A3PZBuWCMvxA-ZG2gNtx9O0';
 export const ALGORAND_MAINNET_NAME = 'ALGORAND_Mainnet_CAIP2';
 export const GOPLAUSIBLE_FACILITATOR = 'https://facilitator.goplausible.com';
 export const TESTNET_GOPLAUSIBLE_FACILITATOR = 'https://testnet.facilitator.goplausible.com';
-export const DEFAULT_PAY_TO_ADDRESS = 'DRT402MAINNETPAYMENTRECEIVERADDRESS31566704USDC';
+export const DEFAULT_PAY_TO_ADDRESS = 'DRT402MAINNETPAYMENTRECEIVERADDRESS31566704TCOIN';
 
 export const X402_ENDPOINTS_CATALOG: X402Endpoint[] = [
   // Track 1 — x402-Powered AI Applications
@@ -68,11 +72,13 @@ export const X402_ENDPOINTS_CATALOG: X402Endpoint[] = [
     trackLabel: 'Track 1 — AI App',
     type: 'Standard',
     path: '/api/x402/app/clinical-risk-analyzer',
+    priceTCoin: '0.05 T-Coins',
     priceUSDC: '$0.05',
+    amountMicroT: 50000,
     amountMicroUSDC: 50000,
     description: 'Track 1 AI App: Pay-per-call clinical trial contract risk scorer, HIPAA compliance validator, and data sovereignty risk checker.',
     payTo: DEFAULT_PAY_TO_ADDRESS,
-    tags: ['x402-global-solution', 'track-1', 'clinical-ai', 'contract-risk'],
+    tags: ['x402-global-solution', 'track-1', 'clinical-ai', 'contract-risk', 't-coin'],
     payingCustomer: 'Clinical Trial Sponsors & CRO Research Labs',
     sampleInput: 'Analyze HIPAA risk for multi-site Phase III oncology trial dataset sharing protocol.'
   },
@@ -83,11 +89,13 @@ export const X402_ENDPOINTS_CATALOG: X402Endpoint[] = [
     trackLabel: 'Track 1 — AI App',
     type: 'Standard',
     path: '/api/x402/app/code-review-assistant',
+    priceTCoin: '0.02 T-Coins',
     priceUSDC: '$0.02',
+    amountMicroT: 20000,
     amountMicroUSDC: 20000,
     description: 'Track 1 AI App: Automated TypeScript/Python code scanner verifying security guardrails, memory efficiency, and x402 headers compliance.',
     payTo: DEFAULT_PAY_TO_ADDRESS,
-    tags: ['x402-global-solution', 'track-1', 'code-review', 'guardrails'],
+    tags: ['x402-global-solution', 'track-1', 'code-review', 'guardrails', 't-coin'],
     payingCustomer: 'Autonomous AI Agent Developers & CI/CD Pipelines',
     sampleInput: 'Review server-side x402 Express middleware for secret leak preventions and memory leaks.'
   },
@@ -98,11 +106,13 @@ export const X402_ENDPOINTS_CATALOG: X402Endpoint[] = [
     trackLabel: 'Track 1 — AI App',
     type: 'Standard',
     path: '/api/x402/standard/dr-t-query',
+    priceTCoin: '0.01 T-Coins',
     priceUSDC: '$0.01',
+    amountMicroT: 10000,
     amountMicroUSDC: 10000,
-    description: 'Track 1 AI App: Dr. T’s empathetic Socratic reasoning & multidisciplinary advisory engine monetized per request.',
+    description: 'Track 1 AI App: Dr. T’s empathetic Socratic reasoning & multidisciplinary advisory engine monetized per request in T-Coins.',
     payTo: DEFAULT_PAY_TO_ADDRESS,
-    tags: ['x402-global-solution', 'track-1', 'socratic-oracle', 'ai-reasoning'],
+    tags: ['x402-global-solution', 'track-1', 'socratic-oracle', 'ai-reasoning', 't-coin'],
     payingCustomer: 'Healthcare Practitioners & Senior Longevity Consultants',
     sampleInput: 'Provide Socratic guidance on balancing cognitive vitality with intergalactic hydroponic nutrition.'
   },
@@ -115,13 +125,15 @@ export const X402_ENDPOINTS_CATALOG: X402Endpoint[] = [
     trackLabel: 'Track 2 — Infra',
     type: 'Orchestrator',
     path: '/api/x402/infra/payment-router',
+    priceTCoin: '0.04 T-Coins',
     priceUSDC: '$0.04',
+    amountMicroT: 40000,
     amountMicroUSDC: 40000,
-    description: 'Track 2 Infra: Autonomous router that checks spending policy limits, verifies daily caps, and settles downstream agent micro-txs.',
+    description: 'Track 2 Infra: Autonomous router that checks spending policy limits, verifies daily caps, and settles downstream agent micro-txs in T-Coins.',
     payTo: DEFAULT_PAY_TO_ADDRESS,
-    tags: ['x402-global-solution', 'track-2', 'payment-router', 'spend-policy'],
+    tags: ['x402-global-solution', 'track-2', 'payment-router', 'spend-policy', 't-coin'],
     payingCustomer: 'Enterprise Agent Swarms & Autonomous DAO Treasuries',
-    sampleInput: 'Route micro-payment from Agent-09 to Biomarker Synthesis API under $10 daily cap policy.'
+    sampleInput: 'Route micro-payment from Agent-09 to Biomarker Synthesis API under 10 T-Coins daily cap policy.'
   },
   {
     id: 't2-receipt-verifier',
@@ -130,11 +142,13 @@ export const X402_ENDPOINTS_CATALOG: X402Endpoint[] = [
     trackLabel: 'Track 2 — Infra',
     type: 'Standard',
     path: '/api/x402/infra/receipt-verifier',
+    priceTCoin: '0.01 T-Coins',
     priceUSDC: '$0.01',
+    amountMicroT: 10000,
     amountMicroUSDC: 10000,
     description: 'Track 2 Infra: Verifies on-chain Algorand & Stellar settlement receipts against block headers and Merkle roots.',
     payTo: DEFAULT_PAY_TO_ADDRESS,
-    tags: ['x402-global-solution', 'track-2', 'receipt-verifier', 'on-chain-proof'],
+    tags: ['x402-global-solution', 'track-2', 'receipt-verifier', 'on-chain-proof', 't-coin'],
     payingCustomer: 'Financial Auditors & Third-Party Payment Gateway Integrators',
     sampleInput: 'Verify cryptographic receipt hash: 0x8f2a9910c42d991b0021a8'
   },
@@ -147,11 +161,13 @@ export const X402_ENDPOINTS_CATALOG: X402Endpoint[] = [
     trackLabel: 'Track 3 — DevTools',
     type: 'Standard',
     path: '/api/x402/devtools/sdk-manifest-generator',
+    priceTCoin: '0.02 T-Coins',
     priceUSDC: '$0.02',
+    amountMicroT: 20000,
     amountMicroUSDC: 20000,
     description: 'Track 3 DevTools: Automated SDK configuration, OpenAPI schema builder, and CLI command generator for x402 endpoints.',
     payTo: DEFAULT_PAY_TO_ADDRESS,
-    tags: ['x402-global-solution', 'track-3', 'sdk-generator', 'header-simulator'],
+    tags: ['x402-global-solution', 'track-3', 'sdk-generator', 'header-simulator', 't-coin'],
     payingCustomer: 'Web3 & Full-Stack Developers Building x402 Paid APIs',
     sampleInput: 'Generate TypeScript SDK client code for paid endpoint /api/v1/medical-ai-reasoner'
   },
@@ -164,11 +180,13 @@ export const X402_ENDPOINTS_CATALOG: X402Endpoint[] = [
     trackLabel: 'Track 4 — DeFi',
     type: 'Composite',
     path: '/api/x402/defi/escrow-stream-settler',
+    priceTCoin: '0.05 T-Coins',
     priceUSDC: '$0.05',
+    amountMicroT: 50000,
     amountMicroUSDC: 50000,
-    description: 'Track 4 DeFi: Time-locked smart contract escrow releasing microUSDC per second for continuous AI compute streams.',
+    description: 'Track 4 DeFi: Time-locked smart contract escrow releasing microT per second for continuous AI compute streams.',
     payTo: DEFAULT_PAY_TO_ADDRESS,
-    tags: ['x402-global-solution', 'track-4', 'streaming-payments', 'escrow'],
+    tags: ['x402-global-solution', 'track-4', 'streaming-payments', 'escrow', 't-coin'],
     payingCustomer: 'DeFi Liquidity Pools & Continuous AI Stream Subscribers',
     sampleInput: 'Initialize 60-second micro-streaming escrow for continuous Qwen-2.5 mathematical reasoning.'
   },
@@ -181,11 +199,13 @@ export const X402_ENDPOINTS_CATALOG: X402Endpoint[] = [
     trackLabel: 'Track 5 — Open',
     type: 'Composite',
     path: '/api/x402/open/cosmos-harvest-arbitrage',
+    priceTCoin: '0.03 T-Coins',
     priceUSDC: '$0.03',
+    amountMicroT: 30000,
     amountMicroUSDC: 30000,
-    description: 'Track 5 Open Innovation: Interstellar crop yield arbitrage & bio-market trading agent operating on x402 micropayment rails.',
+    description: 'Track 5 Open Innovation: Interstellar crop yield arbitrage & bio-market trading agent operating on x402 T-Coin micropayment rails.',
     payTo: DEFAULT_PAY_TO_ADDRESS,
-    tags: ['x402-global-solution', 'track-5', 'cosmos-green', 'harvest-arbitrage'],
+    tags: ['x402-global-solution', 'track-5', 'cosmos-green', 'harvest-arbitrage', 't-coin'],
     payingCustomer: 'Cosmos Bio-Farm Guilds & Interstellar Market Traders',
     sampleInput: 'Execute harvest yield arbitrage across Orion Bio-Domes and Perseus Hydroponic Enclaves.'
   },
@@ -198,11 +218,13 @@ export const X402_ENDPOINTS_CATALOG: X402Endpoint[] = [
     trackLabel: 'Track 1 — AI App',
     type: 'Composite',
     path: '/api/x402/composite/arc-solve',
+    priceTCoin: '0.05 T-Coins',
     priceUSDC: '$0.05',
+    amountMicroT: 50000,
     amountMicroUSDC: 50000,
     description: 'Composite endpoint: Evaluates ARC 2D spatial matrices using heuristic beam search & DSL rotation.',
     payTo: DEFAULT_PAY_TO_ADDRESS,
-    tags: ['x402-global-solution', 'arc-solver', 'fluid-core', 'spatial-dsl'],
+    tags: ['x402-global-solution', 'arc-solver', 'fluid-core', 'spatial-dsl', 't-coin'],
     payingCustomer: 'Spatial AI & Robotics Vision Engineering Teams',
     sampleInput: 'Solve 2D grid matrix transformation for 3x3 blue/teal rotation pattern.'
   },
@@ -213,11 +235,13 @@ export const X402_ENDPOINTS_CATALOG: X402Endpoint[] = [
     trackLabel: 'Track 2 — Infra',
     type: 'Orchestrator',
     path: '/api/x402/orchestrator/multi-agent-pipeline',
+    priceTCoin: '0.10 T-Coins',
     priceUSDC: '$0.10',
+    amountMicroT: 100000,
     amountMicroUSDC: 100000,
     description: 'Coordinates and pays downstream x402 endpoints in sequence, returning unified multi-step consensus.',
     payTo: DEFAULT_PAY_TO_ADDRESS,
-    tags: ['x402-global-solution', 'orchestrator', 'multi-agent-pay', 'agentic-commerce'],
+    tags: ['x402-global-solution', 'orchestrator', 'multi-agent-pay', 'agentic-commerce', 't-coin'],
     payingCustomer: 'Enterprise Multi-Agent Swarms & Autonomous Organizations',
     sampleInput: 'Run 3-agent pipeline: Socratic Query + ARC Grid Solver + Qwen Math Proof.'
   }
@@ -237,7 +261,7 @@ export function X402AlgorandConsole() {
   const [response200Result, setResponse200Result] = useState<any | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [copiedText, setCopiedText] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'execution' | 'bazaar' | 'sdk' | 'analytics' | 'docs'>('execution');
+  const [activeTab, setActiveTab] = useState<'execution' | 'bazaar' | 'sdk' | 'analytics'>('execution');
   const [selectedLang, setSelectedLang] = useState<'ts' | 'python' | 'curl'>('ts');
 
   // Bazaar discovery manifest state
@@ -419,7 +443,7 @@ export function X402AlgorandConsole() {
       setResponse200Result({
         status: res.status,
         headers: {
-          'x-402-receipt': res.headers.get('x-402-receipt') || `SETTLED_${network.toUpperCase()}_USDC_${txIdToUse}`,
+          'x-402-receipt': res.headers.get('x-402-receipt') || `SETTLED_${network.toUpperCase()}_TCOIN_${txIdToUse}`,
           'content-type': 'application/json'
         },
         body: data
@@ -430,20 +454,21 @@ export function X402AlgorandConsole() {
       setResponse200Result({
         status: 200,
         headers: {
-          'x-402-receipt': `SETTLED_${network.toUpperCase()}_USDC_${txIdToUse}`,
+          'x-402-receipt': `SETTLED_${network.toUpperCase()}_TCOIN_${txIdToUse}`,
           'content-type': 'application/json'
         },
         body: {
           success: true,
           status: 'Settled',
           network: network === 'testnet' ? 'algorand-testnet' : 'algorand-mainnet',
-          assetId: network === 'testnet' ? TESTNET_USDC_ASA : MAINNET_USDC_ASA,
-          settledAmount: `${selectedEndpoint.priceUSDC} (${selectedEndpoint.amountMicroUSDC.toLocaleString()} microUSDC)`,
+          assetId: network === 'testnet' ? TESTNET_TCOIN_ASA : MAINNET_TCOIN_ASA,
+          assetSymbol: 'T-COIN',
+          settledAmount: `${selectedEndpoint.priceTCoin} (${selectedEndpoint.amountMicroT.toLocaleString()} microT)`,
           payTo: payToAddress,
           transactionId: txIdToUse,
           service: selectedEndpoint.name,
           result: {
-            output: `[x402 Paid Response - ${selectedEndpoint.priceUSDC} Verified] Processed input "${userPrompt}" for endpoint ${selectedEndpoint.name}.`,
+            output: `[x402 Paid Response - ${selectedEndpoint.priceTCoin} Verified] Processed input "${userPrompt}" for endpoint ${selectedEndpoint.name}.`,
             timestamp: new Date().toISOString()
           }
         }
@@ -463,7 +488,7 @@ export function X402AlgorandConsole() {
   // Code generator templates
   const getCodeSnippet = () => {
     const isMainnet = network === 'mainnet';
-    const asaId = isMainnet ? MAINNET_USDC_ASA : TESTNET_USDC_ASA;
+    const asaId = isMainnet ? MAINNET_TCOIN_ASA : TESTNET_TCOIN_ASA;
     const netCaip = isMainnet ? ALGORAND_MAINNET_CAIP2 : 'algorand:SGO1GKSzyE7IEPItTxCByw9x8FmnrCD0';
 
     if (selectedLang === 'ts') {
@@ -483,10 +508,10 @@ async function executeX402PaidService() {
 
   if (initialRes.status === 402) {
     const challenge = await initialRes.json();
-    console.log("⚡ [x402 Challenge Received]:", challenge.priceUSDC, "to", challenge.payTo);
+    console.log("⚡ [x402 Challenge Received]:", challenge.priceTCoin || challenge.priceUSDC, "to", challenge.payTo);
 
-    // Step 2: Sign & broadcast USDC ASA ${asaId} transaction on Algorand
-    const signedTxId = "ALGO_X402_TX_" + Math.random().toString(36).substring(2, 10).toUpperCase();
+    // Step 2: Sign & broadcast T-Coin ASA ${asaId} transaction on Algorand
+    const signedTxId = "ALGO_X402_TCOIN_TX_" + Math.random().toString(36).substring(2, 10).toUpperCase();
 
     // Step 3: Retry request with signed X-402-Payment proof header
     const paidRes = await fetch(endpoint, {
@@ -525,10 +550,10 @@ response = requests.post(endpoint, json={"prompt": "${userPrompt}"}, headers={"X
 
 if response.status_code == 402:
     challenge = response.json()
-    print(f"⚡ [x402 Challenge]: Pay {challenge['priceUSDC']} ({challenge['amount']} microUSDC) to {challenge['payTo']}")
+    print(f"⚡ [x402 Challenge]: Pay {challenge.get('priceTCoin', challenge.get('priceUSDC'))} ({challenge['amount']} microT) to {challenge['payTo']}")
     
-    # Step 2: Sign microUSDC ASA ${asaId} on Algorand network
-    tx_id = f"ALGO_X402_TX_{network.upper()}_{int(time.time())}"
+    # Step 2: Sign microT ASA ${asaId} on Algorand network
+    tx_id = f"ALGO_X402_TCOIN_TX_{network.upper()}_{int(time.time())}"
 
     # Step 3 & 4: Retry with X-402-Payment header
     headers = {
@@ -586,10 +611,10 @@ curl -i -X POST "https://your-domain.com${selectedEndpoint.path}" \\
             </div>
 
             <h1 className="text-2xl sm:text-3xl font-black tracking-tight font-display text-white">
-              Agentic Commerce & x402 Micropayment Engine
+              Agentic Commerce & T-Coin Micropayment Engine
             </h1>
             <p className="text-xs sm:text-sm text-stone-300 leading-relaxed font-medium">
-              Autonomous pay-per-call infrastructure monetizing AI APIs, clinical solvers, code checkers, and agent swarms with native HTTP 402 Payment Required challenges and Algorand USDC (ASA ID {network === 'mainnet' ? MAINNET_USDC_ASA : TESTNET_USDC_ASA}).
+              Autonomous pay-per-call infrastructure monetizing AI APIs, clinical solvers, code checkers, and agent swarms with native HTTP 402 Payment Required challenges and T-Coin ASA ID {network === 'mainnet' ? MAINNET_TCOIN_ASA : TESTNET_TCOIN_ASA}.
             </p>
           </div>
 
@@ -680,18 +705,6 @@ curl -i -X POST "https://your-domain.com${selectedEndpoint.path}" \\
         >
           <TrendingUp className="w-4 h-4" />
           <span>Analytics & Agent Reputation</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('docs')}
-          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer whitespace-nowrap ${
-            activeTab === 'docs'
-              ? 'bg-emerald-600 text-white shadow-xs'
-              : 'text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800'
-          }`}
-        >
-          <BookOpen className="w-4 h-4" />
-          <span>Hackathon Specs & Setup Instructions</span>
         </button>
       </div>
 
@@ -805,7 +818,7 @@ curl -i -X POST "https://your-domain.com${selectedEndpoint.path}" \\
                         </div>
 
                         <span className="font-mono text-xs font-black text-emerald-600 dark:text-emerald-400 bg-emerald-100/60 dark:bg-emerald-900/40 px-2 py-0.5 rounded-md">
-                          {ep.priceUSDC}
+                          {ep.priceTCoin || ep.priceUSDC}
                         </span>
                       </div>
 
@@ -818,7 +831,7 @@ curl -i -X POST "https://your-domain.com${selectedEndpoint.path}" \\
 
                       <div className="flex items-center justify-between pt-2 border-t border-stone-200/60 dark:border-stone-800 text-[10px] text-stone-500 font-mono">
                         <span className="truncate max-w-[200px]">Customer: {ep.payingCustomer}</span>
-                        <span className="text-emerald-600 dark:text-emerald-400 font-bold">{ep.amountMicroUSDC.toLocaleString()} μUSDC</span>
+                        <span className="text-emerald-600 dark:text-emerald-400 font-bold">{(ep.amountMicroT || ep.amountMicroUSDC).toLocaleString()} μT</span>
                       </div>
                     </div>
                   );
@@ -839,7 +852,7 @@ curl -i -X POST "https://your-domain.com${selectedEndpoint.path}" \\
                 className="w-full px-3 py-2 bg-stone-50 dark:bg-stone-800 border border-stone-300 dark:border-stone-700 rounded-xl font-mono text-[11px] focus:outline-hidden focus:ring-2 focus:ring-emerald-500"
               />
               <p className="text-[11px] text-stone-500">
-                All 402 responses will instruct paying agents to transfer microUSDC ASA #{network === 'mainnet' ? MAINNET_USDC_ASA : TESTNET_USDC_ASA} to this exact address.
+                All 402 responses will instruct paying agents to transfer microT ASA #{network === 'mainnet' ? MAINNET_TCOIN_ASA : TESTNET_TCOIN_ASA} to this exact address.
               </p>
             </div>
           </div>
@@ -892,7 +905,7 @@ curl -i -X POST "https://your-domain.com${selectedEndpoint.path}" \\
                   <span>Payload Input for {selectedEndpoint.name}</span>
                 </h3>
                 <span className="text-xs font-mono font-bold text-emerald-600">
-                  Price: {selectedEndpoint.priceUSDC} ({selectedEndpoint.amountMicroUSDC.toLocaleString()} μUSDC)
+                  Price: {selectedEndpoint.priceTCoin || selectedEndpoint.priceUSDC} ({(selectedEndpoint.amountMicroT || selectedEndpoint.amountMicroUSDC).toLocaleString()} μT)
                 </span>
               </div>
 
@@ -945,8 +958,8 @@ curl -i -X POST "https://your-domain.com${selectedEndpoint.path}" \\
                 <div className="space-y-1.5 text-[11px] text-stone-300">
                   <div><span className="text-amber-400 font-bold">X-402-Version:</span> 1.0</div>
                   <div><span className="text-amber-400 font-bold">X-402-PayTo:</span> {raw402Response.headers['x-402-payto']}</div>
-                  <div><span className="text-amber-400 font-bold">X-402-Asset-ID:</span> {raw402Response.headers['x-402-asset-id']} (USDC)</div>
-                  <div><span className="text-amber-400 font-bold">X-402-Amount:</span> {raw402Response.headers['x-402-amount']} microUSDC (${(raw402Response.headers['x-402-amount'] / 1000000).toFixed(2)})</div>
+                  <div><span className="text-amber-400 font-bold">X-402-Asset-ID:</span> {raw402Response.headers['x-402-asset-id']} (T-COIN)</div>
+                  <div><span className="text-amber-400 font-bold">X-402-Amount:</span> {raw402Response.headers['x-402-amount']} microT ({selectedEndpoint.priceTCoin || selectedEndpoint.priceUSDC})</div>
                   <div><span className="text-amber-400 font-bold">X-402-Network:</span> {raw402Response.headers['x-402-network']}</div>
                   <div><span className="text-amber-400 font-bold">X-402-Facilitator:</span> {raw402Response.headers['x-402-facilitator']}</div>
                 </div>
@@ -1106,7 +1119,7 @@ curl -i -X POST "https://your-domain.com${selectedEndpoint.path}" \\
 
             <div className="p-5 bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-800 shadow-xs">
               <div className="text-xs text-stone-500 font-bold uppercase mb-1">Total Settled Volume</div>
-              <div className="text-2xl font-black text-amber-500 font-mono">$482.50 USDC</div>
+              <div className="text-2xl font-black text-amber-500 font-mono">482.50 T-Coins</div>
               <div className="text-[11px] text-stone-400 mt-1">Algorand ASA ID 31566704</div>
             </div>
 
@@ -1133,10 +1146,10 @@ curl -i -X POST "https://your-domain.com${selectedEndpoint.path}" \\
               <div className="py-3 flex items-center justify-between">
                 <div>
                   <div className="font-bold text-stone-800 dark:text-stone-200">Track 1 — Clinical Contract & Bio Risk Analyzer</div>
-                  <div className="text-[10px] text-stone-500">Tx: ALGO_X402_TX_MAINNET_99182310 • ASA 31566704</div>
+                  <div className="text-[10px] text-stone-500">Tx: ALGO_X402_TCOIN_TX_MAINNET_99182310 • ASA 31566704</div>
                 </div>
                 <div className="text-right">
-                  <div className="font-bold text-emerald-600">$0.05 USDC</div>
+                  <div className="font-bold text-emerald-600">0.05 T-Coins</div>
                   <div className="text-[10px] text-emerald-500 font-bold">Receipt Verified</div>
                 </div>
               </div>
@@ -1144,10 +1157,10 @@ curl -i -X POST "https://your-domain.com${selectedEndpoint.path}" \\
               <div className="py-3 flex items-center justify-between">
                 <div>
                   <div className="font-bold text-stone-800 dark:text-stone-200">Track 2 — Agent Payment Router & Spend Policy Engine</div>
-                  <div className="text-[10px] text-stone-500">Tx: ALGO_X402_TX_MAINNET_88712391 • ASA 31566704</div>
+                  <div className="text-[10px] text-stone-500">Tx: ALGO_X402_TCOIN_TX_MAINNET_88712391 • ASA 31566704</div>
                 </div>
                 <div className="text-right">
-                  <div className="font-bold text-emerald-600">$0.04 USDC</div>
+                  <div className="font-bold text-emerald-600">0.04 T-Coins</div>
                   <div className="text-[10px] text-emerald-500 font-bold">Receipt Verified</div>
                 </div>
               </div>
@@ -1155,93 +1168,12 @@ curl -i -X POST "https://your-domain.com${selectedEndpoint.path}" \\
               <div className="py-3 flex items-center justify-between">
                 <div>
                   <div className="font-bold text-stone-800 dark:text-stone-200">Track 4 — Streaming & Escrow Micropayment Settler</div>
-                  <div className="text-[10px] text-stone-500">Tx: ALGO_X402_TX_MAINNET_77182901 • ASA 31566704</div>
+                  <div className="text-[10px] text-stone-500">Tx: ALGO_X402_TCOIN_TX_MAINNET_77182901 • ASA 31566704</div>
                 </div>
                 <div className="text-right">
-                  <div className="font-bold text-emerald-600">$0.05 USDC</div>
+                  <div className="font-bold text-emerald-600">0.05 T-Coins</div>
                   <div className="text-[10px] text-emerald-500 font-bold">Receipt Verified</div>
                 </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* TAB 5: HACKATHON SPECS & SETUP INSTRUCTIONS */}
-      {activeTab === 'docs' && (
-        <div className="space-y-6 animate-fadeIn">
-          <div className="p-6 bg-white dark:bg-stone-900 rounded-3xl border border-stone-200 dark:border-stone-800 shadow-sm space-y-6">
-            <div className="flex items-center gap-3">
-              <Award className="w-6 h-6 text-amber-500" />
-              <div>
-                <h3 className="font-bold text-lg text-stone-900 dark:text-stone-100">
-                  Winning Hackathon Solution Architecture & Setup Instructions
-                </h3>
-                <p className="text-xs text-stone-500">
-                  Complete documentation for deploying and monetizing x402-powered AI agentic services.
-                </p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs text-stone-700 dark:text-stone-300 leading-relaxed">
-              <div className="p-5 bg-stone-50 dark:bg-stone-800/60 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
-                <h4 className="font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2 text-sm">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  <span>1. Clearly Identified Paying User & Customers</span>
-                </h4>
-                <p>
-                  Our architecture targets specific paying personas:
-                </p>
-                <ul className="list-disc pl-4 space-y-1">
-                  <li><strong>Clinical Research Organizations:</strong> Paying per risk analysis call ($0.05 USDC)</li>
-                  <li><strong>AI Agent Swarm Developers:</strong> Paying for code reviews & guardrails ($0.02 USDC)</li>
-                  <li><strong>Enterprise DAO Treasuries:</strong> Paying for payment routing & spend policy verification ($0.04 USDC)</li>
-                  <li><strong>Bio-Farm Guilds:</strong> Paying for harvest arbitrage algorithms ($0.03 USDC)</li>
-                </ul>
-              </div>
-
-              <div className="p-5 bg-stone-50 dark:bg-stone-800/60 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
-                <h4 className="font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2 text-sm">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  <span>2. Complete x402 Payment Lifecycle</span>
-                </h4>
-                <p>
-                  Every request follows the official x402 protocol specification:
-                </p>
-                <ol className="list-decimal pl-4 space-y-1">
-                  <li><strong>1. Challenge (402):</strong> Client sends initial request, server returns 402 Payment Required with <code>X-402-*</code> headers.</li>
-                  <li><strong>2. Sign:</strong> Client signs micro-transaction on Algorand Mainnet (ASA 31566704).</li>
-                  <li><strong>3. Retry:</strong> Client resends request with <code>X-402-Payment</code> transaction proof header.</li>
-                  <li><strong>4. Settle (200 OK):</strong> Server verifies proof, settles on-chain, executes payload, and appends cryptographic <code>X-402-Receipt</code> header.</li>
-                </ol>
-              </div>
-
-              <div className="p-5 bg-stone-50 dark:bg-stone-800/60 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
-                <h4 className="font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2 text-sm">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  <span>3. Production Setup & Installation</span>
-                </h4>
-                <div className="p-3 bg-stone-950 text-emerald-400 rounded-xl font-mono text-[11px]">
-                  # Clone project & install dependencies<br />
-                  npm install<br /><br />
-                  # Start development server on port 3000<br />
-                  npm run dev<br /><br />
-                  # Access Bazaar discovery manifest<br />
-                  curl http://localhost:3000/.well-known/x402-bazaar.json
-                </div>
-              </div>
-
-              <div className="p-5 bg-stone-50 dark:bg-stone-800/60 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
-                <h4 className="font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2 text-sm">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  <span>4. Mainnet-Ready Algorand Specs</span>
-                </h4>
-                <p>
-                  <strong>Chain:</strong> ALGORAND_Mainnet_CAIP2<br />
-                  <strong>USDC ASA ID:</strong> 31566704<br />
-                  <strong>Facilitator:</strong> {GOPLAUSIBLE_FACILITATOR}<br />
-                  <strong>Tag:</strong> x402-global-solution
-                </p>
               </div>
             </div>
           </div>

@@ -1976,8 +1976,8 @@ app.get("/.well-known/ai-plugin.json", (req: any, res: any) => {
     schema_version: "v1",
     name_for_human: "Dr. T Algorand x402 Suite",
     name_for_model: "dr_t_x402_plugin",
-    description_for_human: "Algorand Mainnet x402 micro-payment gateway for AI models and autonomous agents.",
-    description_for_model: "Enables micropayments in USDC ASA 31566704 on Algorand Mainnet.",
+    description_for_human: "Algorand Mainnet x402 T-Coin micro-payment gateway for AI models and autonomous agents.",
+    description_for_model: "Enables micropayments in T-Coins (T-COIN ASA 31566704) on Algorand Mainnet.",
     auth: { type: "none" },
     api: { type: "openapi", url: "/.well-known/x402-bazaar.json" },
     logo_url: "/icon.png",
@@ -2040,23 +2040,24 @@ app.post("/api/x402/standard/dr-t-query", async (req: any, res: any) => {
   const isTestnet = net === 'testnet';
 
   if (!paymentHeader) {
-    return handle402Response(res, net, 10000, "$0.01", "Standard", "Dr. T Socratic Oracle", payToAddress);
+    return handle402Response(res, net, 10000, "0.01 T-Coins", "Standard", "Dr. T Socratic Oracle", payToAddress);
   }
 
   const userPrompt = prompt || "Explain Algorand x402 micro-payments and Socratic reasoning.";
   const onChainProof = await verifyAlgorandTxOnChain(String(paymentHeader), isTestnet);
   const aiAnswer = await callGeminiForX402(
     userPrompt,
-    DrTPrompt + "\n\nProvide a warm, brilliant, and deeply insightful response to the user's paid query. Highlight that this service was unlocked via real x402 HTTP micropayment settlement on Algorand."
+    DrTPrompt + "\n\nProvide a warm, brilliant, and deeply insightful response to the user's paid query. Highlight that this service was unlocked via real x402 HTTP T-Coin micropayment settlement on Algorand."
   );
 
-  res.setHeader('X-402-Receipt', `SETTLED_${isTestnet ? 'TESTNET' : 'MAINNET'}_USDC_${paymentHeader}`);
+  res.setHeader('X-402-Receipt', `SETTLED_${isTestnet ? 'TESTNET' : 'MAINNET'}_TCOIN_${paymentHeader}`);
   res.json({
     success: true,
     status: 'Settled',
     network: isTestnet ? 'algorand-testnet' : 'algorand-mainnet',
     assetId: isTestnet ? TESTNET_USDC_ASA : MAINNET_USDC_ASA,
-    settledAmount: '0.01 USDC (10,000 microUSDC)',
+    assetSymbol: 'T-COIN',
+    settledAmount: '0.01 T-Coins (10,000 microT)',
     payTo: payToAddress,
     transactionId: paymentHeader,
     onChainVerification: onChainProof,
@@ -2077,7 +2078,7 @@ app.post("/api/x402/composite/arc-solve", async (req: any, res: any) => {
   const isTestnet = net === 'testnet';
 
   if (!paymentHeader) {
-    return handle402Response(res, net, 50000, "$0.05", "Composite", "ARC Fluid Intelligence Solver", payToAddress);
+    return handle402Response(res, net, 50000, "0.05 T-Coins", "Composite", "ARC Fluid Intelligence Solver", payToAddress);
   }
 
   const userPrompt = prompt || (taskGrid ? JSON.stringify(taskGrid) : "Solve 2D grid matrix pattern Teal-8 symmetry transformation.");
@@ -2093,7 +2094,8 @@ app.post("/api/x402/composite/arc-solve", async (req: any, res: any) => {
     status: 'Settled',
     network: isTestnet ? 'algorand-testnet' : 'algorand-mainnet',
     assetId: isTestnet ? TESTNET_USDC_ASA : MAINNET_USDC_ASA,
-    settledAmount: '0.05 USDC (50,000 microUSDC)',
+    assetSymbol: 'T-COIN',
+    settledAmount: '0.05 T-Coins (50,000 microT)',
     payTo: payToAddress,
     transactionId: paymentHeader,
     onChainVerification: onChainProof,
@@ -2117,7 +2119,7 @@ app.post("/api/x402/composite/qwen-reasoning", async (req: any, res: any) => {
   const isTestnet = net === 'testnet';
 
   if (!paymentHeader) {
-    return handle402Response(res, net, 30000, "$0.03", "Composite", "Qwen-2.5 Deep Math Engine", payToAddress);
+    return handle402Response(res, net, 30000, "0.03 T-Coins", "Composite", "Qwen-2.5 Deep Math Engine", payToAddress);
   }
 
   const userPrompt = prompt || "Prove mathematical safety of zero-knowledge range proofs on Algorand elliptic curves.";
@@ -2133,7 +2135,8 @@ app.post("/api/x402/composite/qwen-reasoning", async (req: any, res: any) => {
     status: 'Settled',
     network: isTestnet ? 'algorand-testnet' : 'algorand-mainnet',
     assetId: isTestnet ? TESTNET_USDC_ASA : MAINNET_USDC_ASA,
-    settledAmount: '0.03 USDC (30,000 microUSDC)',
+    assetSymbol: 'T-COIN',
+    settledAmount: '0.03 T-Coins (30,000 microT)',
     payTo: payToAddress,
     transactionId: paymentHeader,
     onChainVerification: onChainProof,
@@ -2155,7 +2158,7 @@ app.post("/api/x402/orchestrator/multi-agent-pipeline", async (req: any, res: an
   const isTestnet = net === 'testnet';
 
   if (!paymentHeader) {
-    return handle402Response(res, net, 100000, "$0.10", "Orchestrator", "Multi-Agent Autonomous Orchestrator", payToAddress);
+    return handle402Response(res, net, 100000, "0.10 T-Coins", "Orchestrator", "Multi-Agent Autonomous Orchestrator", payToAddress);
   }
 
   const userPrompt = prompt || "Multi-agent research query on longevity biomarkers and decentralized compute.";
@@ -2171,20 +2174,21 @@ app.post("/api/x402/orchestrator/multi-agent-pipeline", async (req: any, res: an
     status: 'Settled & Orchestrated',
     network: isTestnet ? 'algorand-testnet' : 'algorand-mainnet',
     assetId: isTestnet ? TESTNET_USDC_ASA : MAINNET_USDC_ASA,
-    settledAmount: '0.10 USDC (100,000 microUSDC)',
+    assetSymbol: 'T-COIN',
+    settledAmount: '0.10 T-Coins (100,000 microT)',
     payTo: payToAddress,
     transactionId: paymentHeader,
     onChainVerification: onChainProof,
     service: 'Multi-Agent Autonomous Orchestrator',
     downstreamSettlements: [
-      { endpoint: '/api/x402/standard/dr-t-query', fee: '10,000 microUSDC', status: 'Settled' },
-      { endpoint: '/api/x402/composite/arc-solve', fee: '50,000 microUSDC', status: 'Settled' },
-      { endpoint: '/api/x402/composite/qwen-reasoning', fee: '30,000 microUSDC', status: 'Settled' }
+      { endpoint: '/api/x402/standard/dr-t-query', fee: '10,000 microT (0.01 T-Coins)', status: 'Settled' },
+      { endpoint: '/api/x402/composite/arc-solve', fee: '50,000 microT (0.05 T-Coins)', status: 'Settled' },
+      { endpoint: '/api/x402/composite/qwen-reasoning', fee: '30,000 microT (0.03 T-Coins)', status: 'Settled' }
     ],
     consensusResult: {
       socraticAgentOutput: socraticRes,
       mathProofAgentOutput: mathRes,
-      consolidatedSummary: `Unified multi-agent consensus reached across Socratic, ARC, and Math agents for prompt: "${userPrompt}". All 3 downstream agent micro-fees settled autonomously.`,
+      consolidatedSummary: `Unified multi-agent consensus reached across Socratic, ARC, and Math agents for prompt: "${userPrompt}". All 3 downstream agent micro-fees settled autonomously in T-Coins.`,
       timestamp: new Date().toISOString()
     }
   });
@@ -2199,7 +2203,7 @@ app.post("/api/x402/app/clinical-risk-analyzer", async (req: any, res: any) => {
   const isTestnet = net === 'testnet';
 
   if (!paymentHeader) {
-    return handle402Response(res, net, 50000, "$0.05", "Standard", "Track 1 — Clinical Contract & Bio Risk Analyzer", payToAddress);
+    return handle402Response(res, net, 50000, "0.05 T-Coins", "Standard", "Track 1 — Clinical Contract & Bio Risk Analyzer", payToAddress);
   }
 
   const textToAnalyze = contractText || prompt || "Analyze HIPAA compliance and data sovereignty risk for Phase III multi-center trial data protocol.";
@@ -2215,7 +2219,8 @@ app.post("/api/x402/app/clinical-risk-analyzer", async (req: any, res: any) => {
     status: 'Settled',
     network: isTestnet ? 'algorand-testnet' : 'algorand-mainnet',
     assetId: isTestnet ? TESTNET_USDC_ASA : MAINNET_USDC_ASA,
-    settledAmount: '0.05 USDC (50,000 microUSDC)',
+    assetSymbol: 'T-COIN',
+    settledAmount: '0.05 T-Coins (50,000 microT)',
     payTo: payToAddress,
     transactionId: paymentHeader,
     onChainVerification: onChainProof,
@@ -2239,7 +2244,7 @@ app.post("/api/x402/app/code-review-assistant", async (req: any, res: any) => {
   const isTestnet = net === 'testnet';
 
   if (!paymentHeader) {
-    return handle402Response(res, net, 20000, "$0.02", "Standard", "Track 1 — AI Agent Code & Guardrail Checker", payToAddress);
+    return handle402Response(res, net, 20000, "0.02 T-Coins", "Standard", "Track 1 — AI Agent Code & Guardrail Checker", payToAddress);
   }
 
   const codeToScan = codeSnippet || prompt || "Review x402 Express payment middleware for secret key exposure and memory leaks.";
@@ -2255,7 +2260,8 @@ app.post("/api/x402/app/code-review-assistant", async (req: any, res: any) => {
     status: 'Settled',
     network: isTestnet ? 'algorand-testnet' : 'algorand-mainnet',
     assetId: isTestnet ? TESTNET_USDC_ASA : MAINNET_USDC_ASA,
-    settledAmount: '0.02 USDC (20,000 microUSDC)',
+    assetSymbol: 'T-COIN',
+    settledAmount: '0.02 T-Coins (20,000 microT)',
     payTo: payToAddress,
     transactionId: paymentHeader,
     onChainVerification: onChainProof,
@@ -2278,7 +2284,7 @@ app.post("/api/x402/infra/payment-router", async (req: any, res: any) => {
   const isTestnet = net === 'testnet';
 
   if (!paymentHeader) {
-    return handle402Response(res, net, 40000, "$0.04", "Orchestrator", "Track 2 — Agent Payment Router & Spend Policy Engine", payToAddress);
+    return handle402Response(res, net, 40000, "0.04 T-Coins", "Orchestrator", "Track 2 — Agent Payment Router & Spend Policy Engine", payToAddress);
   }
 
   const onChainProof = await verifyAlgorandTxOnChain(String(paymentHeader), isTestnet);
@@ -2293,7 +2299,8 @@ app.post("/api/x402/infra/payment-router", async (req: any, res: any) => {
     status: 'Routed & Settled',
     network: isTestnet ? 'algorand-testnet' : 'algorand-mainnet',
     assetId: isTestnet ? TESTNET_USDC_ASA : MAINNET_USDC_ASA,
-    settledAmount: '0.04 USDC (40,000 microUSDC)',
+    assetSymbol: 'T-COIN',
+    settledAmount: '0.04 T-Coins (40,000 microT)',
     payTo: payToAddress,
     transactionId: paymentHeader,
     onChainVerification: onChainProof,
@@ -2318,7 +2325,7 @@ app.post("/api/x402/infra/receipt-verifier", async (req: any, res: any) => {
   const isTestnet = net === 'testnet';
 
   if (!paymentHeader) {
-    return handle402Response(res, net, 10000, "$0.01", "Standard", "Track 2 — Cryptographic Receipt Verification Service", payToAddress);
+    return handle402Response(res, net, 10000, "0.01 T-Coins", "Standard", "Track 2 — Cryptographic Receipt Verification Service", payToAddress);
   }
 
   const hashToVerify = receiptHash || prompt || paymentHeader;
@@ -2330,7 +2337,8 @@ app.post("/api/x402/infra/receipt-verifier", async (req: any, res: any) => {
     status: 'Verified',
     network: isTestnet ? 'algorand-testnet' : 'algorand-mainnet',
     assetId: isTestnet ? TESTNET_USDC_ASA : MAINNET_USDC_ASA,
-    settledAmount: '0.01 USDC (10,000 microUSDC)',
+    assetSymbol: 'T-COIN',
+    settledAmount: '0.01 T-Coins (10,000 microT)',
     payTo: payToAddress,
     transactionId: paymentHeader,
     service: 'Track 2 — Cryptographic Receipt Verification Service',
@@ -2352,7 +2360,7 @@ app.post("/api/x402/devtools/sdk-manifest-generator", async (req: any, res: any)
   const isTestnet = net === 'testnet';
 
   if (!paymentHeader) {
-    return handle402Response(res, net, 20000, "$0.02", "Standard", "Track 3 — x402 Dev Toolkit & Header Simulator Generator", payToAddress);
+    return handle402Response(res, net, 20000, "0.02 T-Coins", "Standard", "Track 3 — x402 Dev Toolkit & Header Simulator Generator", payToAddress);
   }
 
   const target = apiPath || prompt || '/api/x402/medical-ai-reasoner';
@@ -2368,7 +2376,8 @@ app.post("/api/x402/devtools/sdk-manifest-generator", async (req: any, res: any)
     status: 'Settled',
     network: isTestnet ? 'algorand-testnet' : 'algorand-mainnet',
     assetId: isTestnet ? TESTNET_USDC_ASA : MAINNET_USDC_ASA,
-    settledAmount: '0.02 USDC (20,000 microUSDC)',
+    assetSymbol: 'T-COIN',
+    settledAmount: '0.02 T-Coins (20,000 microT)',
     payTo: payToAddress,
     transactionId: paymentHeader,
     onChainVerification: onChainProof,
@@ -2379,6 +2388,7 @@ app.post("/api/x402/devtools/sdk-manifest-generator", async (req: any, res: any)
         'X-402-Version': '1.0',
         'X-402-Network': isTestnet ? 'ALGORAND_Testnet_CAIP2' : 'ALGORAND_Mainnet_CAIP2',
         'X-402-Asset-ID': String(isTestnet ? TESTNET_USDC_ASA : MAINNET_USDC_ASA),
+        'X-402-Symbol': 'T-COIN',
         'X-402-Facilitator': GOPLAUSIBLE_FACILITATOR
       },
       sdkCodeSnippet: aiSdkGuide,
@@ -2397,7 +2407,7 @@ app.post("/api/x402/defi/escrow-stream-settler", async (req: any, res: any) => {
   const isTestnet = net === 'testnet';
 
   if (!paymentHeader) {
-    return handle402Response(res, net, 50000, "$0.05", "Composite", "Track 4 — Streaming & Escrow Micropayment Settler", payToAddress);
+    return handle402Response(res, net, 50000, "0.05 T-Coins", "Composite", "Track 4 — Streaming & Escrow Micropayment Settler", payToAddress);
   }
 
   const duration = Number(streamSeconds) || 60;
@@ -2409,14 +2419,15 @@ app.post("/api/x402/defi/escrow-stream-settler", async (req: any, res: any) => {
     status: 'Escrow Released & Streamed',
     network: isTestnet ? 'algorand-testnet' : 'algorand-mainnet',
     assetId: isTestnet ? TESTNET_USDC_ASA : MAINNET_USDC_ASA,
-    settledAmount: '0.05 USDC (50,000 microUSDC)',
+    assetSymbol: 'T-COIN',
+    settledAmount: '0.05 T-Coins (50,000 microT)',
     payTo: payToAddress,
     transactionId: paymentHeader,
     onChainVerification: onChainProof,
     service: 'Track 4 — Streaming & Escrow Micropayment Settler',
     streamDetails: {
       durationSeconds: duration,
-      microUsdcPerSec: Math.round(50000 / duration),
+      microTPerSec: Math.round(50000 / duration),
       escrowContractAddress: 'ALGO_ESCROW_SMART_CONTRACT_31566704',
       releasedToProvider: true,
       timestamp: new Date().toISOString()
@@ -2433,7 +2444,7 @@ app.post("/api/x402/open/cosmos-harvest-arbitrage", async (req: any, res: any) =
   const isTestnet = net === 'testnet';
 
   if (!paymentHeader) {
-    return handle402Response(res, net, 30000, "$0.03", "Composite", "Track 5 — Cosmos Green Harvest Arbitrage Agent", payToAddress);
+    return handle402Response(res, net, 30000, "0.03 T-Coins", "Composite", "Track 5 — Cosmos Green Harvest Arbitrage Agent", payToAddress);
   }
 
   const sector = sectorName || prompt || 'Orion Arm Bio-Domes';
@@ -2449,7 +2460,8 @@ app.post("/api/x402/open/cosmos-harvest-arbitrage", async (req: any, res: any) =
     status: 'Harvest Arbitrage Complete',
     network: isTestnet ? 'algorand-testnet' : 'algorand-mainnet',
     assetId: isTestnet ? TESTNET_USDC_ASA : MAINNET_USDC_ASA,
-    settledAmount: '0.03 USDC (30,000 microUSDC)',
+    assetSymbol: 'T-COIN',
+    settledAmount: '0.03 T-Coins (30,000 microT)',
     payTo: payToAddress,
     transactionId: paymentHeader,
     onChainVerification: onChainProof,
@@ -2744,12 +2756,13 @@ app.post("/api/gemini/json-schema", async (req: any, res: any) => {
         };
       } else if (schemaType === 'x402_receipt') {
         fallbackData = {
-          transactionHash: "ALGO_TX_USDC_SETTLED_98213",
+          transactionHash: "ALGO_TX_TCOIN_SETTLED_98213",
           network: "algorand-mainnet",
-          amountUsdc: 0.05,
+          amountTCoin: 0.05,
+          assetSymbol: "T-COIN",
           payToAddress: "DRT_ALGO_WALLET_9921",
           settlementStatus: "SETTLED_HTTP_200",
-          receiptToken: "x402_proof_receipt_valid"
+          receiptToken: "x402_tcoin_proof_receipt_valid"
         };
       } else if (schemaType === 'code_audit') {
         fallbackData = {
@@ -2813,13 +2826,13 @@ app.post("/api/gemini/function-calling", async (req: any, res: any) => {
       name: "executeAlgorandX402Payment",
       parameters: {
         type: Type.OBJECT,
-        description: "Settle an Algorand x402 USDC agentic micropayment for paid Dr. T API endpoints.",
+        description: "Settle an Algorand x402 T-Coin agentic micropayment for paid Dr. T API endpoints.",
         properties: {
-          amountUsdc: { type: Type.NUMBER, description: "Amount in USDC e.g. 0.05" },
+          amountTCoin: { type: Type.NUMBER, description: "Amount in T-Coins e.g. 0.05" },
           payToAddress: { type: Type.STRING, description: "Algorand recipient wallet address" },
           endpointPath: { type: Type.STRING, description: "Path of paid service e.g. '/api/x402/dr-t-clinical-llm'" }
         },
-        required: ["amountUsdc", "payToAddress", "endpointPath"]
+        required: ["amountTCoin", "payToAddress", "endpointPath"]
       }
     };
 

@@ -400,7 +400,9 @@ export const CosmosBioFarmAgent: React.FC = () => {
   const [selectedSector, setSelectedSector] = useState<GalacticSector>(GALACTIC_SECTORS[0]);
 
   // Game & Economy State
-  const [bioCoins, setBioCoins] = useState<number>(3800);
+  const [tCoins, setTCoins] = useState<number>(3800);
+  const bioCoins = tCoins; // alias for backwards compatibility
+  const setBioCoins = setTCoins;
   const [longevityPoints, setLongevityPoints] = useState<number>(2400);
   const [dailyStreak, setDailyStreak] = useState<number>(4);
   const [hasClaimedDailyStreak, setHasClaimedDailyStreak] = useState<boolean>(false);
@@ -451,7 +453,7 @@ export const CosmosBioFarmAgent: React.FC = () => {
   const [agentDecisionLogs, setAgentDecisionLogs] = useState<AgentDecisionLog[]>([
     { id: '1', time: '10:50:01', phase: 'Perception', message: 'Dr. T Galaxy Sensors detected Solar Astragalus telomere demand surging (+14.2%) in Sol-3 sector.', detail: 'Interstellar healthcare order volume increased across elder colonies.', impactScore: 88, galacticSector: 'Orion Arm Bio-Domes' },
     { id: '2', time: '10:50:05', phase: 'Planning', message: 'Re-routed Perseus Plasma light beams to boost Spirulina amino-acid yield per watt.', detail: 'Optimized micro-gravity photosynthesis cycle.', impactScore: 94, galacticSector: 'Perseus Plasma Hydroponics' },
-    { id: '3', time: '10:50:10', phase: 'Action', message: 'Harvested Plot #3 (Dr. T Galaxy Quantum Ginseng) -> Traded 30 units at peak price $235/kg.', detail: 'Earned +$7,050 Bio-Coins and +350 Interstellar Longevity Health Points.', impactScore: 99, galacticSector: 'Cygnus Senior Haven' },
+    { id: '3', time: '10:50:10', phase: 'Action', message: 'Harvested Plot #3 (Dr. T Galaxy Quantum Ginseng) -> Traded 30 units at peak price $235/kg.', detail: 'Earned +7,050 T-Coins and +350 Interstellar Longevity Health Points.', impactScore: 99, galacticSector: 'Cygnus Senior Haven' },
     { id: '4', time: '10:50:15', phase: 'Learning', message: 'Updated soil starlight radiation schedule. Growth time reduced by 18%.', detail: 'Neural policy updated for Zero-G root extension.', impactScore: 91, galacticSector: 'Sagittarius Quantum Ring' }
   ]);
 
@@ -564,14 +566,14 @@ export const CosmosBioFarmAgent: React.FC = () => {
           time: new Date().toLocaleTimeString(),
           phase: 'Action',
           message: `Autonomous Galactic Harvest: Claimed mature bio-crops & re-seeded sector plots.`,
-          detail: `Earned +$${totalEarned} Bio-Coins & +${pointsEarned} Interstellar Longevity Points.`,
+          detail: `Earned +${totalEarned} T-Coins & +${pointsEarned} Interstellar Longevity Points.`,
           impactScore: 96,
           galacticSector: selectedSector.name
         };
         setAgentDecisionLogs((prevLogs) => [newLog, ...prevLogs.slice(0, 9)]);
 
         if (voiceNarratorEnabled) {
-          speakMessage(`Autonomous agent harvested mature galactic bio-crops, generating ${totalEarned} Bio-Coins.`);
+          speakMessage(`Autonomous agent harvested mature galactic bio-crops, generating ${totalEarned} T-Coins.`);
         }
       }
 
@@ -588,17 +590,17 @@ export const CosmosBioFarmAgent: React.FC = () => {
     setLongevityPoints((pts) => pts + bonusPts);
     setDailyStreak((s) => s + 1);
     setHasClaimedDailyStreak(true);
-    triggerWinToast(`🎉 DAILY WIN! Claimed Day #${dailyStreak + 1} Streak Bonus: +${bonusCoins} Bio-Coins & +${bonusPts} Points!`);
+    triggerWinToast(`🎉 DAILY WIN! Claimed Day #${dailyStreak + 1} Streak Bonus: +${bonusCoins} T-Coins & +${bonusPts} Points!`);
     
     if (voiceNarratorEnabled) {
-      speakMessage(`Claimed daily streak bonus of ${bonusCoins} Bio-Coins.`);
+      speakMessage(`Claimed daily streak bonus of ${bonusCoins} T-Coins.`);
     }
   };
 
   // Winning Logic: Quantum Wheel Spin
   const handleSpinQuantumWheel = () => {
     if (bioCoins < 100) {
-      alert('Requires 100 Bio-Coins to power Quantum Wheel Spin!');
+      alert('Requires 100 T-Coins to power Quantum Wheel Spin!');
       return;
     }
     setBioCoins((c) => c - 100);
@@ -608,7 +610,7 @@ export const CosmosBioFarmAgent: React.FC = () => {
     setTimeout(() => {
       setIsSpinningWheel(false);
       const outcomes = [
-        { title: '💎 MEGA WIN: +1,200 Bio-Coins!', coins: 1200, pts: 300 },
+        { title: '💎 MEGA WIN: +1,200 T-Coins!', coins: 1200, pts: 300 },
         { title: '🌟 STARLIGHT BOOST: All Plots Instant Harvest!', instantHarvest: true, coins: 400, pts: 200 },
         { title: '🌿 TELOMERE ELIXIR: +800 Longevity Points!', coins: 300, pts: 800 },
         { title: '🔥 DR. T VOUCHER CREDIT: +$15 Ecosystem Bonus!', coins: 600, pts: 400 }
@@ -640,7 +642,7 @@ export const CosmosBioFarmAgent: React.FC = () => {
     }
     const totalCost = emptyPlots.length * costPerPlot;
     if (bioCoins < totalCost) {
-      alert(`Need ${totalCost} Bio-Coins to seed all empty plots!`);
+      alert(`Need ${totalCost} T-Coins to seed all empty plots!`);
       return;
     }
 
@@ -686,7 +688,7 @@ export const CosmosBioFarmAgent: React.FC = () => {
             [p.crop!.id]: (inv[p.crop!.id] || 0) + qty
           }));
 
-          triggerWinToast(`✨ HARVEST WIN! Claimed ${p.crop.name} -> +${revenue} Bio-Coins & +${pts} Longevity Pts!`);
+          triggerWinToast(`✨ HARVEST WIN! Claimed ${p.crop.name} -> +${revenue} T-Coins & +${pts} Longevity Pts!`);
 
           return { ...p, crop: null, stage: 'empty', growthProgress: 0 };
         }
@@ -697,7 +699,7 @@ export const CosmosBioFarmAgent: React.FC = () => {
 
   const handleManualPlant = (plotId: number) => {
     if (bioCoins < 50) {
-      alert('Not enough Bio-Coins! Need 50 Bio-Coins to buy galactic seed stock.');
+      alert('Not enough T-Coins! Need 50 T-Coins to buy galactic seed stock.');
       return;
     }
     setBioCoins((c) => c - 50);
@@ -729,17 +731,17 @@ export const CosmosBioFarmAgent: React.FC = () => {
     setLongevityPoints((points) => points + pts);
     setInventory((inv) => ({ ...inv, [cropId]: 0 }));
 
-    triggerWinToast(`💰 TRADE WIN! Sold ${qty} kg across Dr. T Galaxy routes for +${totalVal} Bio-Coins!`);
+    triggerWinToast(`💰 TRADE WIN! Sold ${qty} kg across Dr. T Galaxy routes for +${totalVal} T-Coins!`);
 
     if (voiceNarratorEnabled) {
-      speakMessage(`Traded ${qty} kg of intergalactic harvest for ${totalVal} Bio-Coins.`);
+      speakMessage(`Traded ${qty} kg of intergalactic harvest for ${totalVal} T-Coins.`);
     }
   };
 
   // Redeem Dr. T Platform Ecosystem Voucher
   const handleRedeemReward = (reward: EcosystemReward) => {
     if (bioCoins < reward.coinCost || longevityPoints < reward.pointCost) {
-      alert(`Insufficient funds! Requires ${reward.coinCost} Bio-Coins & ${reward.pointCost} Longevity Points.`);
+      alert(`Insufficient funds! Requires ${reward.coinCost} T-Coins & ${reward.pointCost} Longevity Points.`);
       return;
     }
 
@@ -846,7 +848,7 @@ export const CosmosBioFarmAgent: React.FC = () => {
               </span>
             </h1>
             <p className="text-emerald-100/90 text-sm md:text-base max-w-4xl leading-relaxed">
-              Play & cultivate longevity bio-crops across Dr. T Galaxy sectors. Convert your harvest wins & Bio-Coins directly into real payment vouchers for Dr. T Institute Courses, Clinical AI consultations, Caregiver Hub passes, and Comfort Food nutrient plans!
+              Play & cultivate longevity bio-crops across Dr. T Galaxy sectors. Convert your harvest wins & T-Coins directly into real payment vouchers for Dr. T Institute Courses, Clinical AI consultations, Caregiver Hub passes, and Comfort Food nutrient plans!
             </p>
           </div>
 
@@ -895,7 +897,7 @@ export const CosmosBioFarmAgent: React.FC = () => {
           {/* Live Metrics Dashboard Bar */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 border-t border-emerald-800/80 text-xs font-mono">
             <div className="p-3 bg-stone-950/70 rounded-2xl border border-emerald-800/60">
-              <div className="text-emerald-300/80 text-[10px] uppercase font-bold">Interstellar Bio-Coins</div>
+              <div className="text-emerald-300/80 text-[10px] uppercase font-bold">Interstellar T-Coins</div>
               <div className="text-xl font-black text-amber-300 mt-0.5 flex items-center gap-1">
                 <DollarSign className="w-4 h-4 text-amber-400" />
                 <span>{bioCoins.toLocaleString()}</span>
@@ -1229,7 +1231,7 @@ export const CosmosBioFarmAgent: React.FC = () => {
                   <span>Dr. T Platform Ecosystem Rewards & Payment Redemption Store</span>
                 </h3>
                 <p className="text-xs text-purple-200/90 mt-1">
-                  Use Bio-Coins & Longevity Points earned from your galactic bio-harvests to pay for services across the entire Dr. T platform!
+                  Use T-Coins & Longevity Points earned from your galactic bio-harvests to pay for services across the entire Dr. T platform!
                 </p>
               </div>
 
@@ -1304,8 +1306,8 @@ export const CosmosBioFarmAgent: React.FC = () => {
 
                     <div className="space-y-3 pt-3 border-t border-stone-100 font-mono text-xs">
                       <div className="flex items-center justify-between text-stone-500">
-                        <span>Cost in Bio-Coins:</span>
-                        <span className="font-bold text-amber-600">{item.coinCost} Coins</span>
+                        <span>Cost in T-Coins:</span>
+                        <span className="font-bold text-amber-600">{item.coinCost} T-Coins</span>
                       </div>
                       <div className="flex items-center justify-between text-stone-500">
                         <span>Cost in Longevity Pts:</span>
@@ -1322,7 +1324,7 @@ export const CosmosBioFarmAgent: React.FC = () => {
                         }`}
                       >
                         <Ticket className="w-4 h-4" />
-                        <span>{canAfford ? 'Redeem Voucher' : 'Need More Bio-Coins'}</span>
+                        <span>{canAfford ? 'Redeem Voucher' : 'Need More T-Coins'}</span>
                       </button>
                     </div>
                   </div>
@@ -1345,10 +1347,10 @@ export const CosmosBioFarmAgent: React.FC = () => {
               </span>
               <h3 className="text-2xl font-black text-amber-300 flex items-center justify-center gap-2">
                 <Dices className="w-6 h-6 text-amber-400" />
-                <span>Spin to Win Bio-Coins & Ecosystem Vouchers</span>
+                <span>Spin to Win T-Coins & Ecosystem Vouchers</span>
               </h3>
               <p className="text-xs text-amber-100/80">
-                Cost: 100 Bio-Coins per spin. Instant chance to win mega Bio-Coins, telomere boosts, or ecosystem voucher multipliers!
+                Cost: 100 T-Coins per spin. Instant chance to win mega T-Coins, telomere boosts, or ecosystem voucher multipliers!
               </p>
             </div>
 
@@ -1368,7 +1370,7 @@ export const CosmosBioFarmAgent: React.FC = () => {
                     : 'bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 text-stone-950 hover:scale-105 animate-pulse'
                 }`}
               >
-                {isSpinningWheel ? '🌀 SPINNING QUANTUM WHEEL...' : '🎰 SPIN QUANTUM WHEEL (100 Bio-Coins)'}
+                {isSpinningWheel ? '🌀 SPINNING QUANTUM WHEEL...' : '🎰 SPIN QUANTUM WHEEL (100 T-Coins)'}
               </button>
             </div>
           </div>
@@ -1408,7 +1410,7 @@ export const CosmosBioFarmAgent: React.FC = () => {
                   </div>
 
                   <div className="pt-2 border-t border-stone-100 flex items-center justify-between font-mono text-xs">
-                    <div className="text-amber-600 font-bold">+{quest.rewardCoins} Bio-Coins</div>
+                    <div className="text-amber-600 font-bold">+{quest.rewardCoins} T-Coins</div>
                     <div className="text-emerald-600 font-bold">+{quest.rewardPoints} Pts</div>
                   </div>
                 </div>
