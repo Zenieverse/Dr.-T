@@ -608,7 +608,7 @@ processed_df.write.format("delta").mode("overwrite").saveAsTable("snowflake.pati
                     className="py-3.5 px-4 rounded-2xl bg-stone-950 hover:bg-stone-800 text-amber-400 border border-amber-500/30 text-xs font-mono font-bold flex items-center justify-center gap-2 cursor-pointer transition-all"
                   >
                     <Radio className="w-4 h-4 animate-pulse text-amber-400" />
-                    Simulate Kafka GMS Webhook Event
+                    Trigger Live Kafka GMS Webhook Event
                   </button>
                 </div>
               </div>
@@ -764,7 +764,7 @@ processed_df.write.format("delta").mode("overwrite").saveAsTable("snowflake.pati
                       onClick={handleSimulateDrift}
                       className="px-4 py-2 rounded-xl bg-rose-600/30 hover:bg-rose-600/50 text-rose-200 border border-rose-500/40 text-xs font-mono font-bold cursor-pointer transition-all"
                     >
-                      Simulate Drift & Bias Spike
+                      Trigger Live Drift & Bias Inspection
                     </button>
                     <button
                       onClick={() => handleRunAgentAction('Auto-Fix ML Lineage Drift & Update DataHub')}

@@ -1,6 +1,6 @@
 {
   "name": "Dr. T - Multilingual Soulmate",
-  "description": "A world-class Biomedical Informatics and Healthcare AI platform featuring multilingual voice agents, a HL7 FHIR interoperability suite, clinical SOAP note synthesis, medical imaging AI, population health dashboards, MIMIC-IV predictive analytics, a Decision Intelligence simulation engine, and a professional portfolio showcase.",
-  "requestFramePermissions": ["microphone"],
+  "description": "PetWhisperer AI (CanineWhisperer) autonomous cross-species veterinary ethology & multimodal behavioral de-escalation platform featuring a 5-stage taskmaster pipeline, Strands Agents SDK & AgentCore hub, Gemini 3.7 Flash triage, Web Audio API bio-acoustics, Snowflake DW telemetry, and Solana Devnet on-chain proof verification alongside Dr. T biomedical informatics.",
+  "requestFramePermissions": ["camera", "microphone"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

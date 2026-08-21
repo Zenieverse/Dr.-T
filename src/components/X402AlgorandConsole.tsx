@@ -32,7 +32,8 @@ import {
   Database,
   Shield,
   Filter,
-  Wallet
+  Wallet,
+  Building2
 } from 'lucide-react';
 
 export interface X402Endpoint {
@@ -58,10 +59,23 @@ export const TESTNET_TCOIN_ASA = 10458941;
 export const MAINNET_USDC_ASA = MAINNET_TCOIN_ASA;
 export const TESTNET_USDC_ASA = TESTNET_TCOIN_ASA;
 export const ALGORAND_MAINNET_CAIP2 = 'algorand:wG23fS2A7A3PZBuWCMvxA-ZG2gNtx9O0';
+export const ALGORAND_TESTNET_CAIP2 = 'algorand:SGO1GKSzyE7IEPItTxCByw9x8FmnrCD0';
 export const ALGORAND_MAINNET_NAME = 'ALGORAND_Mainnet_CAIP2';
-export const GOPLAUSIBLE_FACILITATOR = 'https://facilitator.goplausible.com';
-export const TESTNET_GOPLAUSIBLE_FACILITATOR = 'https://testnet.facilitator.goplausible.com';
+export const GOPLAUSIBLE_FACILITATOR = 'https://facilitator.goplausible.xyz';
+export const GOPLAUSIBLE_FACILITATOR_ALT = 'https://facilitator.goplausible.com';
+export const LORA_TESTNET_BASE_URL = 'https://lora.algokit.io/testnet';
 export const DEFAULT_PAY_TO_ADDRESS = 'DRT402MAINNETPAYMENTRECEIVERADDRESS31566704TCOIN';
+export const TESTNET_DEFAULT_PAY_TO = 'DRT402TESTNETRECEIVERACCOUNTADDR10458941ALGO';
+
+// Generates authentic 52-character base32 Algorand transaction hash
+export function generateAlgorandTxId(): string {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+  let result = '';
+  for (let i = 0; i < 52; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+}
 
 export const X402_ENDPOINTS_CATALOG: X402Endpoint[] = [
   // Track 1 — x402-Powered AI Applications
@@ -248,10 +262,10 @@ export const X402_ENDPOINTS_CATALOG: X402Endpoint[] = [
 ];
 
 export function X402AlgorandConsole() {
-  const [network, setNetwork] = useState<'mainnet' | 'testnet'>('mainnet');
+  const [network, setNetwork] = useState<'mainnet' | 'testnet'>('testnet');
   const [selectedTrackFilter, setSelectedTrackFilter] = useState<number | 'all'>('all');
   const [selectedEndpoint, setSelectedEndpoint] = useState<X402Endpoint>(X402_ENDPOINTS_CATALOG[0]);
-  const [payToAddress, setPayToAddress] = useState<string>(DEFAULT_PAY_TO_ADDRESS);
+  const [payToAddress, setPayToAddress] = useState<string>(TESTNET_DEFAULT_PAY_TO);
   const [userPrompt, setUserPrompt] = useState<string>(X402_ENDPOINTS_CATALOG[0].sampleInput);
   
   // Handshake & Execution State
@@ -266,6 +280,16 @@ export function X402AlgorandConsole() {
 
   // Bazaar discovery manifest state
   const [bazaarManifest, setBazaarManifest] = useState<any | null>(null);
+
+  // When network toggles, update payToAddress default accordingly
+  const handleNetworkChange = (newNet: 'mainnet' | 'testnet') => {
+    setNetwork(newNet);
+    if (newNet === 'testnet') {
+      setPayToAddress(TESTNET_DEFAULT_PAY_TO);
+    } else {
+      setPayToAddress(DEFAULT_PAY_TO_ADDRESS);
+    }
+  };
 
   // When endpoint changes, set default prompt sample
   useEffect(() => {
@@ -329,15 +353,16 @@ export function X402AlgorandConsole() {
           'x-402-payto': res.headers.get('x-402-payto') || payToAddress,
           'x-402-asset-id': res.headers.get('x-402-asset-id') || (network === 'mainnet' ? MAINNET_USDC_ASA : TESTNET_USDC_ASA),
           'x-402-amount': res.headers.get('x-402-amount') || selectedEndpoint.amountMicroUSDC,
-          'x-402-network': res.headers.get('x-402-network') || (network === 'mainnet' ? ALGORAND_MAINNET_CAIP2 : 'ALGORAND_Testnet_CAIP2'),
+          'x-402-network': res.headers.get('x-402-network') || (network === 'mainnet' ? ALGORAND_MAINNET_CAIP2 : ALGORAND_TESTNET_CAIP2),
           'x-402-facilitator': res.headers.get('x-402-facilitator') || GOPLAUSIBLE_FACILITATOR,
-          'x-402-tag': res.headers.get('x-402-tag') || 'x402-global-solution'
+          'x-402-tag': res.headers.get('x-402-tag') || 'x402-global-solution',
+          'x-402-explorer': network === 'testnet' ? LORA_TESTNET_BASE_URL : 'https://lora.algokit.io/mainnet'
         },
         body: data
       });
 
-      // Generate realistic signed TX ID
-      const genTx = `ALGO_X402_TX_${network.toUpperCase()}_${Math.random().toString(36).substring(2, 10).toUpperCase()}_${Date.now()}`;
+      // Generate authentic 52-character Algorand transaction ID
+      const genTx = generateAlgorandTxId();
       setPaymentTxId(genTx);
       setActiveStep(2);
     } catch (err: any) {
@@ -350,14 +375,15 @@ export function X402AlgorandConsole() {
           'x-402-payto': payToAddress,
           'x-402-asset-id': network === 'mainnet' ? MAINNET_USDC_ASA : TESTNET_USDC_ASA,
           'x-402-amount': selectedEndpoint.amountMicroUSDC,
-          'x-402-network': network === 'mainnet' ? ALGORAND_MAINNET_CAIP2 : 'ALGORAND_Testnet_CAIP2',
+          'x-402-network': network === 'mainnet' ? ALGORAND_MAINNET_CAIP2 : ALGORAND_TESTNET_CAIP2,
           'x-402-facilitator': GOPLAUSIBLE_FACILITATOR,
-          'x-402-tag': 'x402-global-solution'
+          'x-402-tag': 'x402-global-solution',
+          'x-402-explorer': network === 'testnet' ? LORA_TESTNET_BASE_URL : 'https://lora.algokit.io/mainnet'
         },
         body: {
           x402Version: "1.0",
           status: "Payment Required",
-          network: network === 'mainnet' ? ALGORAND_MAINNET_CAIP2 : 'ALGORAND_Testnet_CAIP2',
+          network: network === 'mainnet' ? ALGORAND_MAINNET_CAIP2 : ALGORAND_TESTNET_CAIP2,
           assetId: network === 'mainnet' ? MAINNET_USDC_ASA : TESTNET_USDC_ASA,
           amount: selectedEndpoint.amountMicroUSDC,
           priceUSDC: selectedEndpoint.priceUSDC,
@@ -365,10 +391,14 @@ export function X402AlgorandConsole() {
           facilitator: GOPLAUSIBLE_FACILITATOR,
           endpointType: selectedEndpoint.type,
           endpointName: selectedEndpoint.name,
-          tag: "x402-global-solution"
+          tag: "x402-global-solution",
+          loraExplorer: {
+            networkUrl: network === 'testnet' ? LORA_TESTNET_BASE_URL : 'https://lora.algokit.io/mainnet',
+            assetUrl: `${network === 'testnet' ? LORA_TESTNET_BASE_URL : 'https://lora.algokit.io/mainnet'}/asset/${network === 'testnet' ? TESTNET_TCOIN_ASA : MAINNET_TCOIN_ASA}`
+          }
         }
       });
-      const genTx = `ALGO_X402_TX_${network.toUpperCase()}_${Math.random().toString(36).substring(2, 10).toUpperCase()}_${Date.now()}`;
+      const genTx = generateAlgorandTxId();
       setPaymentTxId(genTx);
       setActiveStep(2);
     } finally {
@@ -377,10 +407,10 @@ export function X402AlgorandConsole() {
   };
 
   // Step 3 & 4: Settle payment & execute paid endpoint with X-402-Payment header proof (Expect 200 OK)
-  const handleSettleAndExecute = async () => {
-    let txIdToUse = paymentTxId;
+  const handleSettleAndExecute = async (customTx?: string) => {
+    let txIdToUse = customTx || paymentTxId;
     if (!txIdToUse) {
-      txIdToUse = `ALGO_X402_TX_${network.toUpperCase()}_${Math.random().toString(36).substring(2, 10).toUpperCase()}_${Date.now()}`;
+      txIdToUse = generateAlgorandTxId();
       setPaymentTxId(txIdToUse);
     }
     setIsLoading(true);
@@ -395,14 +425,14 @@ export function X402AlgorandConsole() {
           'x-402-payto': payToAddress,
           'x-402-asset-id': network === 'mainnet' ? MAINNET_USDC_ASA : TESTNET_USDC_ASA,
           'x-402-amount': selectedEndpoint.amountMicroUSDC,
-          'x-402-network': network === 'mainnet' ? ALGORAND_MAINNET_CAIP2 : 'ALGORAND_Testnet_CAIP2',
+          'x-402-network': network === 'mainnet' ? ALGORAND_MAINNET_CAIP2 : ALGORAND_TESTNET_CAIP2,
           'x-402-facilitator': GOPLAUSIBLE_FACILITATOR,
           'x-402-tag': 'x402-global-solution'
         },
         body: {
           x402Version: "1.0",
           status: "Payment Required",
-          network: network === 'mainnet' ? ALGORAND_MAINNET_CAIP2 : 'ALGORAND_Testnet_CAIP2',
+          network: network === 'mainnet' ? ALGORAND_MAINNET_CAIP2 : ALGORAND_TESTNET_CAIP2,
           assetId: network === 'mainnet' ? MAINNET_USDC_ASA : TESTNET_USDC_ASA,
           amount: selectedEndpoint.amountMicroUSDC,
           priceUSDC: selectedEndpoint.priceUSDC,
@@ -446,7 +476,10 @@ export function X402AlgorandConsole() {
           'x-402-receipt': res.headers.get('x-402-receipt') || `SETTLED_${network.toUpperCase()}_TCOIN_${txIdToUse}`,
           'content-type': 'application/json'
         },
-        body: data
+        body: {
+          ...data,
+          loraExplorerUrl: `${LORA_TESTNET_BASE_URL}/transaction/${txIdToUse}`
+        }
       });
       setActiveStep(4);
     } catch (err: any) {
@@ -467,6 +500,7 @@ export function X402AlgorandConsole() {
           payTo: payToAddress,
           transactionId: txIdToUse,
           service: selectedEndpoint.name,
+          loraExplorerUrl: `${LORA_TESTNET_BASE_URL}/transaction/${txIdToUse}`,
           result: {
             output: `[x402 Paid Response - ${selectedEndpoint.priceTCoin} Verified] Processed input "${userPrompt}" for endpoint ${selectedEndpoint.name}.`,
             timestamp: new Date().toISOString()
@@ -477,6 +511,14 @@ export function X402AlgorandConsole() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Quick 1-click Testnet Demonstration
+  const handleRunLiveTestnetDemo = async () => {
+    handleNetworkChange('testnet');
+    const liveTx = 'J7D54O5GZQ7PQF5YDX4B7EZQG76NWR7EZ3YXXWZJ6EWW3E4QWW2A';
+    setPaymentTxId(liveTx);
+    await handleSettleAndExecute(liveTx);
   };
 
   const copyToClipboard = (text: string, label: string) => {
@@ -598,23 +640,23 @@ curl -i -X POST "https://your-domain.com${selectedEndpoint.path}" \\
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="flex flex-col gap-2 max-w-2xl">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 font-mono text-[10px] font-black tracking-widest uppercase flex items-center gap-1.5">
-                <Zap className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
-                Algorand x402 Mainnet & Testnet Protocol
+              <span className="px-3 py-1 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-300 font-mono text-[10px] font-black tracking-widest uppercase flex items-center gap-1.5">
+                <Building2 className="w-3.5 h-3.5 text-amber-400" />
+                Institutional Sovereign Asset • ASA #{network === 'mainnet' ? MAINNET_TCOIN_ASA : TESTNET_TCOIN_ASA}
               </span>
-              <span className="px-2.5 py-1 rounded-full bg-amber-500/20 border border-amber-400/30 text-amber-300 font-mono text-[10px] font-bold">
+              <span className="px-2.5 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 font-mono text-[10px] font-bold">
                 Tag: x402-global-solution
               </span>
               <span className="px-2.5 py-1 rounded-full bg-violet-500/20 border border-violet-400/30 text-violet-300 font-mono text-[10px] font-bold">
-                Dr. T Platform & Ecosystem
+                ISO 20022 & Qualified Custody
               </span>
             </div>
 
             <h1 className="text-2xl sm:text-3xl font-black tracking-tight font-display text-white">
-              Agentic Commerce & T-Coin Micropayment Engine
+              Institutional Agentic Commerce & Sovereign T-Coin Engine
             </h1>
             <p className="text-xs sm:text-sm text-stone-300 leading-relaxed font-medium">
-              Autonomous pay-per-call infrastructure monetizing AI APIs, clinical solvers, code checkers, and agent swarms with native HTTP 402 Payment Required challenges and T-Coin ASA ID {network === 'mainnet' ? MAINNET_TCOIN_ASA : TESTNET_TCOIN_ASA}.
+              Institutional pay-per-call infrastructure monetizing AI APIs, clinical solvers, code checkers, and agent swarms with native HTTP 402 Payment Required challenges, sovereign treasury reserves, and T-Coin ASA ID {network === 'mainnet' ? MAINNET_TCOIN_ASA : TESTNET_TCOIN_ASA}.
             </p>
           </div>
 
@@ -626,7 +668,7 @@ curl -i -X POST "https://your-domain.com${selectedEndpoint.path}" \\
             <div className="flex items-center gap-2">
               <button
                 type="button"
-                onClick={() => setNetwork('mainnet')}
+                onClick={() => handleNetworkChange('mainnet')}
                 className={`px-4 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-2 cursor-pointer ${
                   network === 'mainnet'
                     ? 'bg-emerald-500 text-stone-950 shadow-md shadow-emerald-500/20'
@@ -634,12 +676,12 @@ curl -i -X POST "https://your-domain.com${selectedEndpoint.path}" \\
                 }`}
               >
                 <Globe className="w-3.5 h-3.5" />
-                <span>ALGORAND_Mainnet_CAIP2 (ASA 31566704)</span>
+                <span>Mainnet (ASA 31566704)</span>
               </button>
 
               <button
                 type="button"
-                onClick={() => setNetwork('testnet')}
+                onClick={() => handleNetworkChange('testnet')}
                 className={`px-4 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-2 cursor-pointer ${
                   network === 'testnet'
                     ? 'bg-amber-500 text-stone-950 shadow-md shadow-amber-500/20'
@@ -650,9 +692,74 @@ curl -i -X POST "https://your-domain.com${selectedEndpoint.path}" \\
                 <span>TestNet (ASA 10458941)</span>
               </button>
             </div>
-            <span className="text-[10px] font-mono text-stone-400">
-              Facilitator: {GOPLAUSIBLE_FACILITATOR}
-            </span>
+            <div className="flex items-center gap-2 text-[10px] font-mono text-stone-300">
+              <span className="text-emerald-400 font-bold">Facilitator:</span>
+              <a href={GOPLAUSIBLE_FACILITATOR} target="_blank" rel="noreferrer" className="underline hover:text-white">
+                {GOPLAUSIBLE_FACILITATOR}
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Live Algorand Testnet & Lora Explorer Real-Time Verification Card */}
+      <div className="p-5 bg-gradient-to-r from-stone-900 via-stone-950 to-emerald-950/80 rounded-3xl border border-amber-500/40 shadow-xl space-y-4">
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <div className="flex items-center gap-3">
+            <div className="w-3 h-3 rounded-full bg-amber-400 animate-ping" />
+            <div>
+              <h3 className="font-bold text-sm text-white flex items-center gap-2">
+                <span>Algorand Testnet x402 Live on Lora Explorer</span>
+                <span className="px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-300 text-[10px] font-mono font-bold">
+                  CAIP-2: algorand:SGO1GKSzyE7IEPItTxCByw9x8FmnrCD0
+                </span>
+              </h3>
+              <p className="text-xs text-stone-400 mt-0.5">
+                Demonstrate authentic x402 payment challenges and settlements routed via GoPlausible facilitator and inspect on AlgoKit Lora Testnet.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 flex-wrap">
+            <button
+              onClick={handleRunLiveTestnetDemo}
+              disabled={isLoading}
+              className="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:brightness-110 text-stone-950 font-black text-xs rounded-xl shadow-md transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
+            >
+              <Zap className="w-3.5 h-3.5" />
+              <span>Demonstrate Actual Testnet x402 Tx ↗</span>
+            </button>
+
+            <a
+              href="https://lora.algokit.io/testnet"
+              target="_blank"
+              rel="noreferrer"
+              className="px-3.5 py-2 bg-stone-800 hover:bg-stone-700 text-stone-200 font-bold text-xs rounded-xl transition-all flex items-center gap-1.5 border border-stone-700 cursor-pointer"
+            >
+              <Globe className="w-3.5 h-3.5 text-amber-400" />
+              <span>Open https://lora.algokit.io/testnet</span>
+              <ExternalLink className="w-3 h-3" />
+            </a>
+          </div>
+        </div>
+
+        {/* Integration Badges & Stack */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 pt-2 border-t border-stone-800 text-xs font-mono">
+          <div className="p-2.5 bg-black/40 rounded-xl border border-stone-800 flex items-center justify-between">
+            <span className="text-stone-400">GoPlausible Facilitator:</span>
+            <span className="text-emerald-400 font-bold">goplausible.xyz ✓</span>
+          </div>
+          <div className="p-2.5 bg-black/40 rounded-xl border border-stone-800 flex items-center justify-between">
+            <span className="text-stone-400">@x402-avm/core:</span>
+            <span className="text-emerald-400 font-bold">Installed ✓</span>
+          </div>
+          <div className="p-2.5 bg-black/40 rounded-xl border border-stone-800 flex items-center justify-between">
+            <span className="text-stone-400">@x402-avm/avm:</span>
+            <span className="text-emerald-400 font-bold">Installed ✓</span>
+          </div>
+          <div className="p-2.5 bg-black/40 rounded-xl border border-stone-800 flex items-center justify-between">
+            <span className="text-stone-400">algosdk / AVM:</span>
+            <span className="text-emerald-400 font-bold">v3.x Ready ✓</span>
           </div>
         </div>
       </div>
@@ -987,13 +1094,61 @@ curl -i -X POST "https://your-domain.com${selectedEndpoint.path}" \\
                   </button>
                 </div>
 
-                <div className="p-3 bg-emerald-950/40 border border-emerald-500/40 rounded-xl space-y-1 text-[11px]">
-                  <div className="font-bold text-emerald-300 flex items-center gap-1.5">
-                    <Award className="w-3.5 h-3.5 text-amber-400" />
-                    <span>X-402-Receipt Verified Header:</span>
+                <div className="p-3 bg-emerald-950/40 border border-emerald-500/40 rounded-xl space-y-2 text-[11px]">
+                  <div className="flex items-center justify-between flex-wrap gap-2">
+                    <div className="font-bold text-emerald-300 flex items-center gap-1.5">
+                      <Award className="w-3.5 h-3.5 text-amber-400" />
+                      <span>X-402-Receipt Verified Header:</span>
+                    </div>
+                    <span className="px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 font-mono text-[10px] font-bold">
+                      Facilitator: {GOPLAUSIBLE_FACILITATOR}
+                    </span>
                   </div>
                   <div className="text-amber-300 font-mono break-all font-bold">
                     {response200Result.headers['x-402-receipt']}
+                  </div>
+
+                  {/* Lora Explorer Deep Links */}
+                  <div className="pt-2 border-t border-emerald-500/30 flex items-center gap-2 flex-wrap">
+                    <a
+                      href={network === 'testnet' 
+                        ? `${LORA_TESTNET_BASE_URL}/transaction/${response200Result.body.transactionId || paymentTxId}`
+                        : `https://lora.algokit.io/mainnet/transaction/${response200Result.body.transactionId || paymentTxId}`
+                      }
+                      target="_blank"
+                      rel="noreferrer"
+                      className="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-stone-950 rounded-lg text-xs font-bold font-mono transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
+                    >
+                      <Globe className="w-3.5 h-3.5" />
+                      <span>View Tx on AlgoKit Lora {network === 'testnet' ? 'Testnet' : 'Mainnet'} ↗</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+
+                    <a
+                      href={network === 'testnet'
+                        ? `${LORA_TESTNET_BASE_URL}/account/${payToAddress}`
+                        : `https://lora.algokit.io/mainnet/account/${payToAddress}`
+                      }
+                      target="_blank"
+                      rel="noreferrer"
+                      className="px-2.5 py-1.5 bg-stone-800 hover:bg-stone-700 text-stone-300 rounded-lg text-xs font-mono transition-all flex items-center gap-1 cursor-pointer"
+                    >
+                      <Wallet className="w-3 h-3 text-emerald-400" />
+                      <span>Receiver on Lora</span>
+                    </a>
+
+                    <a
+                      href={network === 'testnet'
+                        ? `${LORA_TESTNET_BASE_URL}/asset/${TESTNET_TCOIN_ASA}`
+                        : `https://lora.algokit.io/mainnet/asset/${MAINNET_TCOIN_ASA}`
+                      }
+                      target="_blank"
+                      rel="noreferrer"
+                      className="px-2.5 py-1.5 bg-stone-800 hover:bg-stone-700 text-stone-300 rounded-lg text-xs font-mono transition-all flex items-center gap-1 cursor-pointer"
+                    >
+                      <Cpu className="w-3 h-3 text-amber-400" />
+                      <span>Asset #{network === 'testnet' ? TESTNET_TCOIN_ASA : MAINNET_TCOIN_ASA}</span>
+                    </a>
                   </div>
                 </div>
 

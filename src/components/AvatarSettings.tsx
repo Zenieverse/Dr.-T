@@ -1,7 +1,8 @@
 import React from 'react';
-import { Sparkles, Check, ShieldCheck, User, Headphones, Award } from 'lucide-react';
+import { Sparkles, Check, ShieldCheck, User, Headphones, Award, Music, Radio, Volume2, Flame, Heart, Disc } from 'lucide-react';
 import { DrTAppearance, DrTVibe, VoiceChoice } from '../types';
 import drTCover from '../assets/images/dr_t_cover_1781255193776.jpg';
+import { ALL_SYMPHONIES } from '../data/symphonyTracks';
 
 interface AvatarSettingsProps {
   vibe: DrTVibe;
@@ -17,6 +18,10 @@ interface AvatarSettingsProps {
   setTAge: (a: 'young' | 'mature' | 'elder') => void;
   vibeConfig: any;
   vibes: any[];
+  isVoiceAvatarOptedIn?: boolean;
+  setIsVoiceAvatarOptedIn?: (optedIn: boolean) => void;
+  selectedSymphonyId?: string;
+  setSelectedSymphonyId?: (id: string) => void;
 }
 
 export const APPEARANCES = [
@@ -40,7 +45,11 @@ export const AvatarSettings: React.FC<AvatarSettingsProps> = ({
   tAge,
   setTAge,
   vibeConfig,
-  vibes
+  vibes,
+  isVoiceAvatarOptedIn = true,
+  setIsVoiceAvatarOptedIn,
+  selectedSymphonyId,
+  setSelectedSymphonyId
 }) => {
   return (
     <div className="bg-white/80 backdrop-blur-md border border-stone-200/65 rounded-3xl p-6 shadow-md flex flex-col gap-6 overflow-hidden" id="avatar-settings-container">
@@ -68,11 +77,103 @@ export const AvatarSettings: React.FC<AvatarSettingsProps> = ({
       <div>
         <h3 className="text-lg font-bold tracking-tight text-stone-800 flex items-center gap-2">
           <Sparkles className="w-5 h-5 text-rose-500" />
-          Neural Avatar Customization
+          Neural Avatar & Audio Mode Customization
         </h3>
         <p className="text-xs text-stone-500 mt-1">
-          Adjust Dr. T's core appearance, accent, age, and response vibe. Changes dynamically shift the neural voice synthesis.
+          Adjust Dr. T's core appearance, audio mode (Voice Avatar vs. Classical/Pop Symphonies), accent, age, and response vibe.
         </p>
+      </div>
+
+      {/* AUDIO MODE PREFERENCE: VOICE AVATAR OPT-IN vs CLASSICAL/POP SYMPHONIES */}
+      <div className="p-4 bg-gradient-to-br from-rose-50/70 to-amber-50/50 border border-rose-200/80 rounded-2xl flex flex-col gap-3">
+        <div className="flex items-center justify-between">
+          <label className="text-xs font-mono font-bold uppercase tracking-wider text-stone-800 flex items-center gap-2">
+            <Music className="w-4 h-4 text-rose-600" /> Audio Mode: Voice Avatar vs. Classical & Pop Symphonies
+          </label>
+          <span className="text-[9px] font-mono font-bold text-rose-600 bg-white px-2 py-0.5 rounded-full border border-rose-200">
+            {isVoiceAvatarOptedIn ? '🎙️ VOICE AVATAR ACTIVE' : '🎼 35+ SYMPHONIES MODE'}
+          </span>
+        </div>
+
+        <p className="text-xs text-stone-600 leading-relaxed">
+          If you opt out of the spoken voice avatar, Dr. T automatically switches to playing classical symphonies by <strong>Mozart</strong>, <strong>Beethoven</strong>, <strong>Bach</strong>, <strong>Vivaldi</strong>, <strong>Chopin</strong>, and top pop tracks from our 35+ track collection.
+        </p>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-1">
+          {/* Option 1: Voice Avatar Opt-in */}
+          <button
+            type="button"
+            onClick={() => setIsVoiceAvatarOptedIn && setIsVoiceAvatarOptedIn(true)}
+            className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer flex items-start gap-3 relative overflow-hidden ${
+              isVoiceAvatarOptedIn
+                ? 'bg-white border-rose-500 shadow-sm ring-1 ring-rose-300'
+                : 'bg-white/60 border-stone-200 text-stone-500 hover:bg-white'
+            }`}
+          >
+            <div className="text-2xl w-10 h-10 rounded-xl bg-rose-50 border border-rose-100 flex items-center justify-center shrink-0">
+              🎙️
+            </div>
+            <div>
+              <div className="flex items-center gap-1.5">
+                <p className="text-xs font-bold text-stone-900">Neural Voice Avatar Opt-In</p>
+                {isVoiceAvatarOptedIn && <span className="w-2 h-2 rounded-full bg-rose-500" />}
+              </div>
+              <p className="text-[10px] text-stone-500 leading-snug mt-0.5">
+                Spoken dialogue, real-time voice calls, and interactive maternal guidance enabled.
+              </p>
+            </div>
+          </button>
+
+          {/* Option 2: Classical Symphonies & Pop Playlist Mode */}
+          <button
+            type="button"
+            onClick={() => setIsVoiceAvatarOptedIn && setIsVoiceAvatarOptedIn(false)}
+            className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer flex items-start gap-3 relative overflow-hidden ${
+              !isVoiceAvatarOptedIn
+                ? 'bg-white border-rose-500 shadow-sm ring-1 ring-rose-300'
+                : 'bg-white/60 border-stone-200 text-stone-500 hover:bg-white'
+            }`}
+          >
+            <div className="text-2xl w-10 h-10 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center shrink-0">
+              🎼
+            </div>
+            <div>
+              <div className="flex items-center gap-1.5">
+                <p className="text-xs font-bold text-stone-900">Classical & Pop Symphonies Mode</p>
+                {!isVoiceAvatarOptedIn && <span className="w-2 h-2 rounded-full bg-amber-500" />}
+              </div>
+              <p className="text-[10px] text-stone-500 leading-snug mt-0.5">
+                Opt out of voice speech. Dr. T plays Mozart, Beethoven, Bach, Chopin & Pop hits.
+              </p>
+            </div>
+          </button>
+        </div>
+
+        {/* Quick Symphony Playlist selector if opted out of voice avatar */}
+        {!isVoiceAvatarOptedIn && (
+          <div className="mt-2 pt-3 border-t border-rose-200/60 flex flex-col gap-2">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-mono font-bold text-stone-600 uppercase">
+                Choose Default Background Symphony / Pop Track:
+              </span>
+              <span className="text-[9px] font-mono text-rose-600 font-bold">
+                {ALL_SYMPHONIES.length} Masterpieces Available
+              </span>
+            </div>
+            
+            <select
+              value={selectedSymphonyId || ALL_SYMPHONIES[0].id}
+              onChange={(e) => setSelectedSymphonyId && setSelectedSymphonyId(e.target.value)}
+              className="w-full bg-white border border-rose-200 rounded-xl p-2 text-xs font-bold text-stone-800 cursor-pointer shadow-3xs outline-none focus:border-rose-400"
+            >
+              {ALL_SYMPHONIES.map(sym => (
+                <option key={sym.id} value={sym.id}>
+                  {sym.emoji} {sym.name} — {sym.composer} ({sym.benefits})
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
       </div>
 
       {/* Outfit/Appearance Choice */}
@@ -100,8 +201,8 @@ export const AvatarSettings: React.FC<AvatarSettingsProps> = ({
                 <p className="text-[10px] text-stone-400 leading-snug line-clamp-1">{app.desc}</p>
               </div>
               {appearance === app.id && (
-                <div className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-rose-500 text-white flex items-center justify-center">
-                  <Check className="w-2.5 h-2.5 stroke-[3]" />
+                <div className="w-5 h-5 rounded-full bg-rose-500 flex items-center justify-center text-white shrink-0">
+                  <Check className="w-3 h-3" />
                 </div>
               )}
             </button>
@@ -109,35 +210,36 @@ export const AvatarSettings: React.FC<AvatarSettingsProps> = ({
         </div>
       </div>
 
-      {/* Voice & Gender */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Gender toggle */}
+      {/* Gender & Age Customization */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        
+        {/* Gender Identity */}
         <div className="flex flex-col gap-2">
           <label className="text-xs font-mono font-bold uppercase tracking-wider text-stone-500 flex items-center gap-1.5">
-            <User className="w-3.5 h-3.5" /> Core Gender
+            <User className="w-3.5 h-3.5" /> Gender Alignment
           </label>
-          <div className="grid grid-cols-2 gap-1.5 bg-stone-100/80 p-1 rounded-xl border border-stone-205">
+          <div className="grid grid-cols-2 gap-1 p-1 bg-stone-100/80 rounded-xl border border-stone-200">
             <button
-              onClick={() => { setTGender('female'); if (voiceName === 'Zephyr' || voiceName === 'Puck' || voiceName === 'Charon') setVoiceName('Kore'); }}
-              className={`py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${tGender === 'female' ? 'bg-white shadow-xs text-rose-600' : 'text-stone-500 hover:text-stone-800'}`}
+              onClick={() => setTGender('female')}
+              className={`py-1.5 text-[10px] font-bold rounded-lg transition-all cursor-pointer ${tGender === 'female' ? 'bg-white shadow-xs text-rose-600' : 'text-stone-500 hover:text-stone-850'}`}
             >
-              👩 Female
+              Female (Dr. T)
             </button>
             <button
-              onClick={() => { setTGender('male'); if (voiceName === 'Kore' || voiceName === 'Fenrir') setVoiceName('Zephyr'); }}
-              className={`py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${tGender === 'male' ? 'bg-white shadow-xs text-indigo-600' : 'text-stone-500 hover:text-stone-800'}`}
+              onClick={() => setTGender('male')}
+              className={`py-1.5 text-[10px] font-bold rounded-lg transition-all cursor-pointer ${tGender === 'male' ? 'bg-white shadow-xs text-rose-600' : 'text-stone-500 hover:text-stone-850'}`}
             >
-              👨 Male
+              Male (Dr. T)
             </button>
           </div>
         </div>
 
-        {/* Age Toggle */}
+        {/* Age Persona */}
         <div className="flex flex-col gap-2">
           <label className="text-xs font-mono font-bold uppercase tracking-wider text-stone-500 flex items-center gap-1.5">
-            <Award className="w-3.5 h-3.5" /> Age Bracket
+            <span>⏳</span> Maturation Stage
           </label>
-          <div className="grid grid-cols-3 gap-1 bg-stone-100/80 p-1 rounded-xl border border-stone-205">
+          <div className="grid grid-cols-3 gap-1 p-1 bg-stone-100/80 rounded-xl border border-stone-200">
             <button
               onClick={() => setTAge('young')}
               className={`py-1.5 text-[10px] font-bold rounded-lg transition-all cursor-pointer ${tAge === 'young' ? 'bg-white shadow-xs text-stone-800' : 'text-stone-500 hover:text-stone-850'}`}

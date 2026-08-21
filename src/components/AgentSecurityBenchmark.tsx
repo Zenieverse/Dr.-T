@@ -255,7 +255,7 @@ export const AgentSecurityBenchmark: React.FC = () => {
             }`}
           >
             <Zap className="w-4 h-4 text-amber-600" />
-            <span>Replay Sandbox Simulator</span>
+            <span>Replay Security Sandbox</span>
           </button>
 
           <button

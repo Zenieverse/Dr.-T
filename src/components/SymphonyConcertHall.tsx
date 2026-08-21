@@ -22,519 +22,168 @@ import {
   MicOff,
   Radio,
   Save,
-  Trash2
+  Trash2,
+  Search,
+  Shuffle,
+  Repeat,
+  SkipForward,
+  SkipBack,
+  SlidersHorizontal,
+  Layers,
+  Volume1,
+  Headphones
 } from 'lucide-react';
+import { 
+  ALL_SYMPHONIES, 
+  NOTE_FREQS, 
+  POP_CHORDS_MAP, 
+  POP_BASSLINES_MAP, 
+  SymphonyMasterpiece,
+  SymphonyNote 
+} from '../data/symphonyTracks';
 
-const NOTE_FREQS: { [key: string]: number } = {
-  'G3': 196.00, 'G#3': 207.65, 'A3': 220.00, 'A#3': 233.08, 'B3': 246.94,
-  'C4': 261.63, 'C#4': 277.18, 'D4': 293.66, 'D#4': 311.13, 'E4': 329.63, 'F4': 349.23, 'F#4': 369.99, 'G4': 392.00, 'G#4': 415.30, 'A4': 440.00, 'A#4': 466.16, 'B4': 493.88,
-  'C5': 523.25, 'C#5': 554.37, 'D5': 587.33, 'D#5': 622.25, 'E5': 659.25, 'F5': 698.46, 'F#5': 739.99, 'G5': 783.99, 'G#5': 830.61, 'A5': 880.00, 'A#5': 932.33, 'B5': 987.77,
-  'C6': 1046.50, 'REST': 0
-};
-
-interface SymphonyMasterpiece {
-  id: string;
-  composer: string;
-  name: string;
-  emoji: string;
-  year: string;
-  description: string;
-  benefits: string;
-  defaultInstrument: 'piano' | 'violin' | 'flute';
-  tempo: number;
-  bgGradient: string;
-  cardColor: string;
-  notes: { note: string; dur: number }[];
-  lyrics: string[];
-}
-
-const MASTERPIECES: SymphonyMasterpiece[] = [
-  {
-    id: "pop_blinding",
-    composer: "The Weeknd",
-    name: "Blinding Lights",
-    emoji: "⚡",
-    year: "2019",
-    description: "The ultimate modern synth-pop anthem. Bright, energetic, driving synth hook that is highly focusing and mood-boosting.",
-    benefits: "High energy & upbeat momentum",
-    defaultInstrument: "piano",
-    tempo: 120,
-    bgGradient: "from-amber-500 to-rose-600",
-    cardColor: "border-amber-100 bg-amber-50/40 text-amber-900",
-    notes: [
-      { note: 'F4', dur: 0.3 }, { note: 'F4', dur: 0.3 }, { note: 'G4', dur: 0.3 }, { note: 'C4', dur: 0.3 },
-      { note: 'D4', dur: 0.3 }, { note: 'F4', dur: 0.3 }, { note: 'G4', dur: 0.3 }, { note: 'F4', dur: 0.3 },
-      { note: 'D4', dur: 0.3 }, { note: 'C4', dur: 0.3 }, { note: 'D4', dur: 0.6 }, { note: 'REST', dur: 0.6 }
-    ],
-    lyrics: [
-      "I've been tryna call",
-      "I've been on my own for long enough",
-      "Maybe you can show me how to love, maybe",
-      "I'm going through withdrawals",
-      "You don't even have to do too much",
-      "I'm blinded by the lights!",
-      "No, I can't sleep until I feel your touch"
-    ]
-  },
-  {
-    id: "pop_shape",
-    composer: "Ed Sheeran",
-    name: "Shape of You",
-    emoji: "➗",
-    year: "2017",
-    description: "Infectious marimba rhythmic hook. Wonderfully balanced tempo for motor entrainment and rhythmic focus.",
-    benefits: "Rhythmic synchronization & motor clarity",
-    defaultInstrument: "piano",
-    tempo: 96,
-    bgGradient: "from-sky-400 to-indigo-600",
-    cardColor: "border-sky-100 bg-sky-50/40 text-sky-900",
-    notes: [
-      { note: 'C#4', dur: 0.25 }, { note: 'E4', dur: 0.25 }, { note: 'C#4', dur: 0.25 }, { note: 'C#4', dur: 0.25 },
-      { note: 'E4', dur: 0.25 }, { note: 'C#4', dur: 0.25 }, { note: 'C#4', dur: 0.25 }, { note: 'E4', dur: 0.25 },
-      { note: 'D#4', dur: 0.25 }, { note: 'C#4', dur: 0.25 }, { note: 'B3', dur: 0.5 }, { note: 'REST', dur: 0.4 }
-    ],
-    lyrics: [
-      "The club isn't the best place to find a lover",
-      "So the bar is where I go",
-      "Me and my friends at the table doing shots",
-      "Drinking fast and then we talk slow",
-      "I'm in love with the shape of you",
-      "We push and pull like a magnet do",
-      "Every day discovering something brand new",
-      "I'm in love with your body"
-    ]
-  },
-  {
-    id: "pop_badromance",
-    composer: "Lady Gaga",
-    name: "Bad Romance",
-    emoji: "👑",
-    year: "2009",
-    description: "The theatrical and powerful synth-dance pop hook. Highly empowering, energetic, and confidence-building.",
-    benefits: "Assertiveness & active stimulation",
-    defaultInstrument: "piano",
-    tempo: 119,
-    bgGradient: "from-rose-500 to-purple-800",
-    cardColor: "border-rose-100 bg-rose-50/40 text-rose-900",
-    notes: [
-      { note: 'G4', dur: 0.3 }, { note: 'G4', dur: 0.3 }, { note: 'A4', dur: 0.3 }, { note: 'G4', dur: 0.3 },
-      { note: 'F4', dur: 0.3 }, { note: 'G4', dur: 0.3 }, { note: 'A4', dur: 0.3 }, { note: 'G4', dur: 0.6 },
-      { note: 'C5', dur: 0.3 }, { note: 'REST', dur: 0.6 }
-    ],
-    lyrics: [
-      "Oh-oh-oh-oh-oh",
-      "I want your ugly, I want your disease",
-      "I want your everything as long as it's free",
-      "I want your love, love, love, love",
-      "I want your love",
-      "You and me could write a bad romance",
-      "Caught in a bad romance!"
-    ]
-  },
-  {
-    id: "pop_stayin",
-    composer: "Bee Gees",
-    name: "Stayin' Alive",
-    emoji: "🕺",
-    year: "1977",
-    description: "The legendary, high-groove disco masterpiece. Its rhythm is globally used for perfect tempo keeping and active pacing.",
-    benefits: "Heart-rate coherence & steady pace",
-    defaultInstrument: "flute",
-    tempo: 104,
-    bgGradient: "from-fuchsia-500 to-red-600",
-    cardColor: "border-fuchsia-100 bg-fuchsia-50/40 text-fuchsia-900",
-    notes: [
-      { note: 'F4', dur: 0.3 }, { note: 'F4', dur: 0.3 }, { note: 'F4', dur: 0.3 }, { note: 'D#4', dur: 0.3 },
-      { note: 'F4', dur: 0.3 }, { note: 'G#4', dur: 0.3 }, { note: 'G4', dur: 0.3 }, { note: 'F4', dur: 0.6 },
-      { note: 'REST', dur: 0.6 }
-    ],
-    lyrics: [
-      "Well, you can tell by the way I use my walk",
-      "I'm a woman's man, no time to talk",
-      "Music loud and women warm",
-      "I've been kicked around since I was born",
-      "And now it's all right, it's okay",
-      "And you may look the other way",
-      "Ah, ha, ha, ha, stayin' alive, stayin' alive!"
-    ]
-  },
-  {
-    id: "pop_rolling",
-    composer: "Adele",
-    name: "Rolling in the Deep",
-    emoji: "🌊",
-    year: "2010",
-    description: "Soulful, pounding pop-rock masterpiece. Highly cathartic for emotional release, vocal resonance, and deep grounding.",
-    benefits: "Catharsis & emotional release",
-    defaultInstrument: "violin",
-    tempo: 105,
-    bgGradient: "from-teal-400 to-emerald-700",
-    cardColor: "border-teal-100 bg-teal-50/40 text-teal-900",
-    notes: [
-      { note: 'C5', dur: 0.4 }, { note: 'C5', dur: 0.4 }, { note: 'C5', dur: 0.4 }, { note: 'B4', dur: 0.4 },
-      { note: 'B4', dur: 0.4 }, { note: 'A4', dur: 0.4 }, { note: 'A4', dur: 0.4 }, { note: 'G4', dur: 0.4 },
-      { note: 'G4', dur: 0.6 }, { note: 'REST', dur: 0.4 }
-    ],
-    lyrics: [
-      "There's a fire starting in my heart",
-      "Reaching a fever pitch and it's bringing me out the dark",
-      "Finally, I can see you crystal clear",
-      "Go ahead and sell me out and I'll lay your ship bare",
-      "We could have had it all",
-      "Rolling in the deep",
-      "You had my heart inside of your hand",
-      "And you played it to the beat"
-    ]
-  },
-  {
-    id: "pop_billiejean",
-    composer: "Michael Jackson",
-    name: "Billie Jean",
-    emoji: "👞",
-    year: "1982",
-    description: "The legendary bassline and synth-funk groove. Extremely tight, crisp, and mentally organizing.",
-    benefits: "Precision & rhythmic sharpness",
-    defaultInstrument: "piano",
-    tempo: 117,
-    bgGradient: "from-slate-700 to-stone-900",
-    cardColor: "border-stone-200 bg-stone-50/40 text-stone-900",
-    notes: [
-      { note: 'F#3', dur: 0.3 }, { note: 'C#4', dur: 0.3 }, { note: 'E4', dur: 0.3 }, { note: 'F#4', dur: 0.3 },
-      { note: 'E4', dur: 0.3 }, { note: 'C#4', dur: 0.3 }, { note: 'B3', dur: 0.3 }, { note: 'C#4', dur: 0.5 },
-      { note: 'REST', dur: 0.4 }
-    ],
-    lyrics: [
-      "She was more like a beauty queen from a movie scene",
-      "I said don't mind, but what do you mean, I am the one",
-      "Who will dance on the floor in the round",
-      "She said I am the one, who will dance on the floor in the round",
-      "Billie Jean is not my lover",
-      "She's just a girl who claims that I am the one",
-      "But the kid is not my son"
-    ]
-  },
-  {
-    id: "pop_dontstart",
-    composer: "Dua Lipa",
-    name: "Don't Start Now",
-    emoji: "💃",
-    year: "2019",
-    description: "The shimmering modern nu-disco hit. Upbeat, swift, and highly refreshing for mental processing speed.",
-    benefits: "Processing speed & mental agility",
-    defaultInstrument: "flute",
-    tempo: 124,
-    bgGradient: "from-emerald-400 to-cyan-600",
-    cardColor: "border-emerald-100 bg-emerald-50/40 text-emerald-900",
-    notes: [
-      { note: 'B4', dur: 0.25 }, { note: 'B4', dur: 0.25 }, { note: 'A4', dur: 0.25 }, { note: 'B4', dur: 0.25 },
-      { note: 'D5', dur: 0.25 }, { note: 'B4', dur: 0.25 }, { note: 'A4', dur: 0.25 }, { note: 'G4', dur: 0.25 },
-      { note: 'A4', dur: 0.25 }, { note: 'B4', dur: 0.5 }, { note: 'REST', dur: 0.4 }
-    ],
-    lyrics: [
-      "Did a full 180, crazy",
-      "Thinking 'bout the way I was",
-      "Did the heartbreak change me? Maybe",
-      "But look at where I ended up",
-      "Don't show up, don't start caring about me now",
-      "Walk away, you know how",
-      "Don't start now!"
-    ]
-  },
-  {
-    id: "pop_takeonme",
-    composer: "A-ha",
-    name: "Take On Me",
-    emoji: "✍️",
-    year: "1984",
-    description: "The soaring, nostalgic 80s synth-pop anthem. Optimistic, airy, and exceptionally joyful.",
-    benefits: "Cognitive elevation & positivity",
-    defaultInstrument: "flute",
-    tempo: 168,
-    bgGradient: "from-violet-400 to-indigo-700",
-    cardColor: "border-violet-100 bg-violet-50/40 text-violet-900",
-    notes: [
-      { note: 'B4', dur: 0.3 }, { note: 'B4', dur: 0.3 }, { note: 'G4', dur: 0.3 }, { note: 'E4', dur: 0.3 },
-      { note: 'REST', dur: 0.15 }, { note: 'E4', dur: 0.3 }, { note: 'REST', dur: 0.15 }, { note: 'A4', dur: 0.3 },
-      { note: 'REST', dur: 0.15 }, { note: 'A4', dur: 0.3 }, { note: 'REST', dur: 0.15 }, { note: 'A4', dur: 0.3 },
-      { note: 'B4', dur: 0.3 }, { note: 'C#5', dur: 0.3 }, { note: 'D5', dur: 0.3 }, { note: 'REST', dur: 0.4 }
-    ],
-    lyrics: [
-      "We're talking away",
-      "I don't know what I'm to say",
-      "I'll say it anyway",
-      "Today's another day to find you",
-      "Shying away",
-      "I'll be coming for your love, okay?",
-      "Take on me! (take on me)",
-      "Take me on! (take on me)",
-      "I'll be gone in a day or two!"
-    ]
-  }
+// AI Actor Vocal profiles who speak the lyrics/movements
+const ACTORS = [
+  { id: 'broadway_diva', name: 'Aria Sterling', role: 'Broadway Diva', emoji: '🎭', voiceTone: 'Dramatic, resonant theatrical delivery', description: 'Clear theatrical resonance with expressive vibrato' },
+  { id: 'shakespearean', name: 'Sir Alistair', role: 'Classical Orator', emoji: '📜', voiceTone: 'Noble, rhythmic Shakespearean cadence', description: 'Deep, stately eloquence with poetic phrasing' },
+  { id: 'cyberpunk', name: 'Kira-09', role: 'Cyber Synth Host', emoji: '🤖', voiceTone: 'Crisp, digitized melodic flow', description: 'Hyper-precise robotic tempo with subtle chorus' },
+  { id: 'soulful', name: 'Marcus Vance', role: 'Gospel & Soul Poet', emoji: '🎷', voiceTone: 'Warm, velvety emotional phrasing', description: 'Smooth, rich baritone with soulful inflections' },
+  { id: 'gentle_mentor', name: 'Dr. T Vocal', role: 'Maternal Socratic Guide', emoji: '🌸', voiceTone: 'Gentle, comforting motherly presence', description: 'Warm, nurturing acoustic presence that heals the soul' }
 ];
 
-// Interactive keyboard key layouts for visualization & user play
-const PIANO_KEYS = [
-  { note: 'C4', isBlack: false }, { note: 'C#4', isBlack: true },
-  { note: 'D4', isBlack: false }, { note: 'D#4', isBlack: true },
-  { note: 'E4', isBlack: false },
-  { note: 'F4', isBlack: false }, { note: 'F#4', isBlack: true },
-  { note: 'G4', isBlack: false }, { note: 'G#4', isBlack: true },
-  { note: 'A4', isBlack: false }, { note: 'A#4', isBlack: true },
-  { note: 'B4', isBlack: false },
-  { note: 'C5', isBlack: false }, { note: 'C#5', isBlack: true },
-  { note: 'D5', isBlack: false }, { note: 'D#5', isBlack: true },
-  { note: 'E5', isBlack: false },
-  { note: 'F5', isBlack: false }, { note: 'F#5', isBlack: true },
-  { note: 'G5', isBlack: false }, { note: 'G#5', isBlack: true },
-  { note: 'A5', isBlack: false }, { note: 'A#5', isBlack: true },
-  { note: 'B5', isBlack: false }, { note: 'C6', isBlack: false }
-];
-
-interface VocalIdol {
-  id: string;
-  name: string;
-  title: string;
-  avatar: string;
-  genre: string;
-  description: string;
-  licensedTrack: string;
-  trackKey: string;
-  trackBpm: number;
-  voiceTone: string;
-  notes: string[];
-  lyrics: string[];
-}
-
-const VOCAL_IDOLS: VocalIdol[] = [
+// Licensed Vocal Idols for CoSing Duet Mode
+const VOCAL_IDOLS = [
   {
     id: 'aria',
     name: 'Aria Star',
-    title: 'AI Pop Diva',
-    avatar: '✨',
-    genre: 'Synth-Pop / Future Bass',
-    description: 'High-octane energetic pop melodies with crisp, glass-like harmonies and pristine high notes.',
-    licensedTrack: 'Neon Echoes',
-    trackKey: 'C Major',
+    title: 'Electropop Virtuoso',
+    genre: 'Synth-Pop',
+    avatar: '🌟',
+    voiceTone: 'Bright, soaring crystal soprano',
+    licensedTrack: 'Neon Echoes (Symphonic)',
     trackBpm: 120,
-    voiceTone: 'Silky, Vibrant, High-Range',
-    notes: ['C4', 'E4', 'G4', 'C5', 'G4', 'E4', 'C4'],
+    trackKey: 'F Minor',
     lyrics: [
-      "★ NEON ECHOES ★",
-      "Standing under neon glows...",
-      "Waiting for your voice to show...",
-      "AI and human hearts align...",
-      "In this symphony of time!"
-    ]
+      "Lost in the city lights, electric in the air...",
+      "Heartbeats synchronizing everywhere!",
+      "Take my hand into the midnight blue...",
+      "Forever dancing under neon hues!"
+    ],
+    description: 'Specializes in high-energy euro-dance pop and soaring vocal hooks.'
   },
   {
     id: 'julian',
     name: 'Julian Woods',
-    title: 'AI Indie Folk Pioneer',
+    title: 'Indie Folk Master',
+    genre: 'Acoustic Folk',
     avatar: '🌲',
-    genre: 'Indie Acoustic / Folk',
-    description: 'Warm, earthy baritone tones featuring rich acoustic resonance and comforting vocal duets.',
-    licensedTrack: 'Amber Pines',
-    trackKey: 'G Major',
-    trackBpm: 90,
-    voiceTone: 'Warm, Melancholic, Resonant',
-    notes: ['G3', 'B3', 'D4', 'G4', 'D4', 'B3', 'G3'],
+    voiceTone: 'Warm, organic, earthy baritone',
+    licensedTrack: 'Amber Pines (Warm Duet)',
+    trackBpm: 96,
+    trackKey: 'C# Minor',
     lyrics: [
-      "★ AMBER PINES ★",
-      "Walking through the quiet trees...",
-      "Singing with the autumn breeze...",
-      "Warm acoustic strings entwine...",
-      "Your sweet harmony with mine!"
-    ]
+      "Walking down the autumn trail where rivers run slow...",
+      "Watching the sunset glow, golden and low...",
+      "Singing out our stories to the mountain crest...",
+      "In your arms my wanderlust finds rest."
+    ],
+    description: 'Rich acoustic harmonics, gentle fingerpicking resonance, and comforting folk melodies.'
   },
   {
     id: 'beatrix',
     name: 'Beatrix V',
-    title: 'AI Cyberpunk Vocalist',
-    avatar: '👾',
-    genre: 'Electronic / Industrial',
-    description: 'Edge-driven, robotic-tuned cyberpunk vocalists specializing in vocoded harmonies.',
-    licensedTrack: 'Silicon Heartbeat',
-    trackKey: 'A Minor',
-    trackBpm: 130,
-    voiceTone: 'Vocoded, Sharp, Hyper-Processed',
-    notes: ['A3', 'C4', 'E4', 'A4', 'E4', 'C4', 'A3'],
+    title: 'Cyberpunk Hyperpop Star',
+    genre: 'Glitch / Nu-Disco',
+    avatar: '⚡',
+    voiceTone: 'Punchy, autotuned hyper-modern edge',
+    licensedTrack: 'Cybernetic Love Circuit',
+    trackBpm: 124,
+    trackKey: 'E Minor',
     lyrics: [
-      "★ SILICON HEARTBEAT ★",
-      "Digital pulses in my head...",
-      "Words that we have never said...",
-      "Synthesized into the night...",
-      "We are glowing, we are light!"
-    ]
+      "Overclocked adrenaline surging in my veins!",
+      "Breaking all the physical restraints and chains!",
+      "Laser focus locked onto your digital smile...",
+      "Let's stay connected across the light-year mile!"
+    ],
+    description: 'High-octane futuristic dance tracks with crisp synthesizer arpeggios.'
   },
   {
     id: 'leo',
-    name: 'Leo Grand',
-    title: 'AI Soul & Opera Legend',
-    avatar: '🦁',
-    genre: 'Classical Crossover / Soul',
-    description: 'Deeply expressive, cinematic tenor style with powerful operatic resonance and vibrato.',
-    licensedTrack: 'Vesper Sky',
-    trackKey: 'E Minor',
-    trackBpm: 75,
-    voiceTone: 'Operatic, Deep, Rich Vibrato',
-    notes: ['E3', 'G3', 'B3', 'E4', 'B3', 'G3', 'E3'],
+    name: 'Leo Fontaine',
+    title: 'Neo-Soul & R&B Legend',
+    genre: 'Soul / R&B',
+    avatar: '🎷',
+    voiceTone: 'Silky, deep, emotive velvet soul',
+    licensedTrack: 'Midnight Velvet Groove',
+    trackBpm: 104,
+    trackKey: 'F# Minor',
     lyrics: [
-      "★ VESPER SKY ★",
-      "Shadows stretch across the bay...",
-      "As the gold light fades away...",
-      "Singing to the silent stars...",
-      "This eternal soul of ours!"
-    ]
+      "Underneath the velvet moon, sweet melodies start to bloom...",
+      "Feel the baseline vibrating in the room...",
+      "Every note we share is painted in gold...",
+      "The greatest love song that was ever told."
+    ],
+    description: 'Intimate slow jams with lush 9th chords and soulful vocal runs.'
   }
 ];
 
-const CO_SING_PROGRESSIONS: Record<string, string[][]> = {
-  aria: [
-    ['C3', 'E3', 'G3'], // C Major
-    ['G2', 'B2', 'D3'], // G Major
-    ['A2', 'C3', 'E3'], // A Minor
-    ['F2', 'A2', 'C3']  // F Major
-  ],
-  julian: [
-    ['G2', 'B2', 'D3'],  // G Major
-    ['D2', 'F#2', 'A2'], // D Major
-    ['E2', 'G2', 'B2'],  // E Minor
-    ['C2', 'E2', 'G2']   // C Major
-  ],
-  beatrix: [
-    ['A2', 'C3', 'E3'], // A Minor
-    ['G2', 'B2', 'D3'], // G Major
-    ['F2', 'A2', 'C3'], // F Major
-    ['E2', 'G#2', 'B2'] // E Major
-  ],
-  leo: [
-    ['E2', 'G2', 'B2'], // E Minor
-    ['C2', 'E2', 'G2'], // C Major
-    ['G2', 'B2', 'D3'], // G Major
-    ['D2', 'F#2', 'A2'] // D Major
-  ]
-};
-
-const CO_SING_BASSLINES: Record<string, string> = {
-  aria: 'C2',
-  julian: 'G1',
-  beatrix: 'A1',
-  leo: 'E1'
-};
-
-const POP_CHORDS: Record<string, string[][]> = {
-  pop_lights: [
-    ['F3', 'Ab3', 'C4'],  // Fm
-    ['C3', 'Eb3', 'G3'],  // Cm
-    ['Eb3', 'G3', 'Bb3'], // Eb
-    ['Bb2', 'D3', 'F3']   // Bb
-  ],
-  pop_shape: [
-    ['C#3', 'E3', 'G#3'], // C#m
-    ['F#2', 'A2', 'C#3'], // F#m
-    ['A2', 'C#3', 'E3'],  // A
-    ['B2', 'D#3', 'F#3']  // B
-  ],
-  pop_romance: [
-    ['F3', 'Ab3', 'C4'],  // Fm
-    ['Bb2', 'D3', 'F3'],  // Bb
-    ['Ab2', 'C3', 'Eb3'], // Ab
-    ['C3', 'E3', 'G3']    // C
-  ],
-  pop_stayin: [
-    ['F3', 'Ab3', 'C4'],  // Fm
-    ['Eb3', 'G3', 'Bb3'], // Eb
-    ['F3', 'Ab3', 'C4'],  // Fm
-    ['Bb2', 'D3', 'F3']   // Bb
-  ],
-  pop_rolling: [
-    ['C3', 'Eb3', 'G3'],  // Cm
-    ['G2', 'B2', 'D3'],   // G
-    ['Bb2', 'D3', 'F3'],  // Bb
-    ['Ab2', 'C3', 'Eb3']  // Ab
-  ],
-  pop_billiejean: [
-    ['F#2', 'A2', 'C#3'], // F#m
-    ['B2', 'D#3', 'F#3'], // Bm
-    ['A2', 'C#3', 'E3'],  // A
-    ['G#2', 'B2', 'D#3']  // G#m
-  ],
-  pop_dontstart: [
-    ['E3', 'G3', 'B3'],   // Em
-    ['B2', 'D3', 'F#3'],  // Bm
-    ['A2', 'C3', 'E3'],   // Am
-    ['D3', 'F#3', 'A3']   // D
-  ],
-  pop_takeonme: [
-    ['A2', 'C3', 'E3'],   // Am
-    ['D3', 'F#3', 'A3'],  // D
-    ['G2', 'B2', 'D3'],   // G
-    ['C3', 'E3', 'G3']    // C
-  ]
-};
-
-const POP_BASSLINES: Record<string, string[]> = {
-  pop_lights: ['F2', 'C2', 'Eb2', 'Bb1'],
-  pop_shape: ['C#2', 'F#2', 'A1', 'B1'],
-  pop_romance: ['F2', 'Bb1', 'Ab1', 'C2'],
-  pop_stayin: ['F2', 'Eb2', 'F2', 'Bb1'],
-  pop_rolling: ['C2', 'G1', 'Bb1', 'Ab1'],
-  pop_billiejean: ['F#2', 'C#2', 'E2', 'F#2'],
-  pop_dontstart: ['E2', 'B1', 'A1', 'D2'],
-  pop_takeonme: ['A1', 'D2', 'G1', 'C2']
-};
-
-interface Actor {
-  id: string;
-  name: string;
-  title: string;
-  emoji: string;
-  description: string;
-  gender: 'male' | 'female' | 'any';
-  langKeywords: string[];
-}
-
-const ACTORS: Actor[] = [
-  {
-    id: 'broadway_diva',
-    name: 'Eleanor Sterling',
-    title: 'The Broadway Diva',
-    emoji: '🎭',
-    description: 'Expressive, dramatic female voice with pristine theatrical diction and crystal clarity.',
-    gender: 'female',
-    langKeywords: ['Samantha', 'Zira', 'female', 'en-US', 'en-GB']
-  },
-  {
-    id: 'shakespearean',
-    name: 'Lord Barnaby',
-    title: 'The Shakespearean Dramatic',
-    emoji: '👑',
-    description: 'Resonant, poetic male baritone with classic British theater style and deliberate phrasing.',
-    gender: 'male',
-    langKeywords: ['Daniel', 'David', 'male', 'en-GB', 'en-US']
-  },
-  {
-    id: 'cyberpunk',
-    name: 'X-500 Vocal Unit',
-    title: 'The Cyberpunk Vocalist',
-    emoji: '🤖',
-    description: 'Cold, robotic cybernetic synthesizer voice with high tempo and clinical delivery.',
-    gender: 'any',
-    langKeywords: ['Hazel', 'Mark', 'en-US', 'en-IN']
-  },
-  {
-    id: 'soulful',
-    name: 'Marcus Soul',
-    title: 'The Soulful Narrator',
-    emoji: '🎙️',
-    description: 'Warm, intimate, mid-range male narrator with soothing presence and rhythmic timing.',
-    gender: 'male',
-    langKeywords: ['Google', 'en-US', 'en-AU']
-  }
+const CATEGORIES = [
+  { id: 'all', label: 'All 35+ Masterpieces', emoji: '🎼', count: ALL_SYMPHONIES.length },
+  { id: 'mozart', label: 'Mozart (7)', emoji: '🎻', count: ALL_SYMPHONIES.filter(s => s.subCategory === 'mozart').length },
+  { id: 'beethoven', label: 'Beethoven (6)', emoji: '⚡', count: ALL_SYMPHONIES.filter(s => s.subCategory === 'beethoven').length },
+  { id: 'baroque', label: 'Bach & Vivaldi (9)', emoji: '🌿', count: ALL_SYMPHONIES.filter(s => s.subCategory === 'baroque').length },
+  { id: 'romantic', label: 'Romantic & Ballet (10)', emoji: '🌙', count: ALL_SYMPHONIES.filter(s => s.subCategory === 'romantic' || s.subCategory === 'impressionist').length },
+  { id: 'pop_modern', label: 'Pop & Modern Hits (12)', emoji: '✨', count: ALL_SYMPHONIES.filter(s => s.subCategory === 'pop_modern').length }
 ];
 
-function getVoiceForActor(actor: Actor, voices: SpeechSynthesisVoice[]): SpeechSynthesisVoice | null {
-  for (const keyword of actor.langKeywords) {
+const INSTRUMENTS = [
+  { id: 'piano', label: 'Concert Grand', icon: '🎹', desc: 'Harmonic acoustic grand piano with natural soundboard decay' },
+  { id: 'violin', label: 'Solo Violin', icon: '🎻', desc: 'Expressive bowed string with subtle warm vibrato' },
+  { id: 'flute', label: 'Silver Flute', icon: '🕊️', desc: 'Breathy, lyrical woodwind with pure high-order overtones' },
+  { id: 'cello', label: 'Warm Cello', icon: '🎻', desc: 'Deep, resonant acoustic body vibrating in chest frequencies' },
+  { id: 'synth', label: 'Analog Synth', icon: '⚡', desc: 'Lush detuned polyphonic saw/square synth pad' }
+];
+
+// Interactive keyboard key definition (2 full octaves: C3 to B4 + C5)
+const KEYBOARD_KEYS = [
+  { note: 'C3', label: 'C3', isSharp: false },
+  { note: 'C#3', label: 'C#3', isSharp: true },
+  { note: 'D3', label: 'D3', isSharp: false },
+  { note: 'D#3', label: 'D#3', isSharp: true },
+  { note: 'E3', label: 'E3', isSharp: false },
+  { note: 'F3', label: 'F3', isSharp: false },
+  { note: 'F#3', label: 'F#3', isSharp: true },
+  { note: 'G3', label: 'G3', isSharp: false },
+  { note: 'G#3', label: 'G#3', isSharp: true },
+  { note: 'A3', label: 'A3', isSharp: false },
+  { note: 'A#3', label: 'A#3', isSharp: true },
+  { note: 'B3', label: 'B3', isSharp: false },
+  { note: 'C4', label: 'C4', isSharp: false },
+  { note: 'C#4', label: 'C#4', isSharp: true },
+  { note: 'D4', label: 'D4', isSharp: false },
+  { note: 'D#4', label: 'D#4', isSharp: true },
+  { note: 'E4', label: 'E4', isSharp: false },
+  { note: 'F4', label: 'F4', isSharp: false },
+  { note: 'F#4', label: 'F#4', isSharp: true },
+  { note: 'G4', label: 'G4', isSharp: false },
+  { note: 'G#4', label: 'G#4', isSharp: true },
+  { note: 'A4', label: 'A4', isSharp: false },
+  { note: 'A#4', label: 'A#4', isSharp: true },
+  { note: 'B4', label: 'B4', isSharp: false },
+  { note: 'C5', label: 'C5', isSharp: false }
+];
+
+function getVoiceForActor(actor: typeof ACTORS[0], voices: SpeechSynthesisVoice[]): SpeechSynthesisVoice | null {
+  if (!voices || voices.length === 0) return null;
+  const preferredKeywords: Record<string, string[]> = {
+    broadway_diva: ['victoria', 'samantha', 'karen', 'female', 'f'],
+    shakespearean: ['george', 'oliver', 'daniel', 'male', 'm', 'en-gb'],
+    cyberpunk: ['zira', 'hazel', 'robot', 'synthetic', 'en-us'],
+    soulful: ['david', 'alex', 'fred', 'male', 'm'],
+    gentle_mentor: ['katherine', 'serena', 'samantha', 'female']
+  };
+  const keywords = preferredKeywords[actor.id] || ['female', 'en'];
+  for (const keyword of keywords) {
     const match = voices.find(v => 
       v.name.toLowerCase().includes(keyword.toLowerCase()) || 
       v.lang.toLowerCase().includes(keyword.toLowerCase())
@@ -550,20 +199,28 @@ function getVoiceForActor(actor: Actor, voices: SpeechSynthesisVoice[]): SpeechS
 
 export function SymphonyConcertHall() {
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
-  const [currentSymphony, setCurrentSymphony] = useState<SymphonyMasterpiece>(MASTERPIECES[0]);
-  const [activeInstrument, setActiveInstrument] = useState<'piano' | 'violin' | 'flute'>('piano');
+  const [currentSymphony, setCurrentSymphony] = useState<SymphonyMasterpiece>(ALL_SYMPHONIES[0]);
+  const [activeInstrument, setActiveInstrument] = useState<'piano' | 'violin' | 'flute' | 'cello' | 'synth'>('violin');
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [searchQuery, setSearchQuery] = useState<string>('');
   
+  // Playback modes
+  const [isShuffle, setIsShuffle] = useState<boolean>(false);
+  const [isLoop, setIsLoop] = useState<boolean>(true);
+  const [autoAdvance, setAutoAdvance] = useState<boolean>(true);
+  const [spokenNarration, setSpokenNarration] = useState<boolean>(true);
+
   // Real Actor speech voices and lyric tracking
   const [selectedActorId, setSelectedActorId] = useState<string>('broadway_diva');
   const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
   const [activeLyricIndex, setActiveLyricIndex] = useState<number>(0);
 
   // High-visibility stand-out master volume UX
-  const [masterVolume, setMasterVolume] = useState<number>(70);
+  const [masterVolume, setMasterVolume] = useState<number>(75);
   const [tempoMultiplier, setTempoMultiplier] = useState<number>(1.0);
   const [activeNote, setActiveNote] = useState<string | null>(null);
   const [performanceLog, setPerformanceLog] = useState<{ time: string; note: string; hz: number; isManual: boolean }[]>([]);
-  const [visualBars, setVisualBars] = useState<number[]>(Array(16).fill(10));
+  const [visualBars, setVisualBars] = useState<number[]>(Array(24).fill(10));
 
   // Right Panel display toggles
   const [rightPanelTab, setRightPanelTab] = useState<'orchestra' | 'cosing'>('orchestra');
@@ -580,49 +237,77 @@ export function SymphonyConcertHall() {
     saturation: false
   });
   const [mixerTracks, setMixerTracks] = useState({
-    drums: true,
+    melody: true,
+    chords: true,
     bass: true,
-    synth: true,
-    arpeggios: true
+    drums: true
   });
   const [lyricsIndex, setLyricsIndex] = useState<number>(0);
   const [savedDuets, setSavedDuets] = useState<{ id: string; date: string; idolName: string; trackName: string; rating: number }[]>([
-    { id: '1', date: '2026-07-04 18:30', idolName: 'Aria Star', trackName: 'Neon Echoes (Symphonic)', rating: 5 },
-    { id: '2', date: '2026-07-05 00:15', idolName: 'Julian Woods', trackName: 'Amber Pines (Warm Duet)', rating: 4 }
+    { id: '1', date: '2026-07-04 18:30', idolName: 'Aria Star', trackName: 'Eine kleine Nachtmusik (Aria Vocal Duet)', rating: 5 },
+    { id: '2', date: '2026-07-05 00:15', idolName: 'Julian Woods', trackName: 'Moonlight Sonata (Acoustic Folk Fusion)', rating: 5 }
   ]);
 
-  const micStreamRef = useRef<MediaStream | null>(null);
-  const micAnalyserRef = useRef<AnalyserNode | null>(null);
-  const micIntervalRef = useRef<number | null>(null);
-  const lyricsIntervalRef = useRef<number | null>(null);
-
-  // Fetch system SpeechSynthesis voices dynamically
-  useEffect(() => {
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      const loadVoices = () => {
-        setAvailableVoices(window.speechSynthesis.getVoices());
-      };
-      loadVoices();
-      window.speechSynthesis.onvoiceschanged = loadVoices;
-      return () => {
-        window.speechSynthesis.onvoiceschanged = null;
-        if (window.speechSynthesis) {
-          window.speechSynthesis.cancel();
-        }
-      };
-    }
-  }, []);
-
-  // Audio nodes and refs
   const audioCtxRef = useRef<AudioContext | null>(null);
   const masterGainRef = useRef<GainNode | null>(null);
   const synthGainRef = useRef<GainNode | null>(null);
   const sequencerTimeoutRef = useRef<number | null>(null);
   const animationFrameRef = useRef<number | null>(null);
+  const lyricsIntervalRef = useRef<number | null>(null);
+  const micIntervalRef = useRef<number | null>(null);
+  const micStreamRef = useRef<MediaStream | null>(null);
+  const isPlayingRef = useRef<boolean>(false);
+
+  // Keep isPlayingRef in sync
+  useEffect(() => {
+    isPlayingRef.current = isPlaying;
+  }, [isPlaying]);
+
+  // Filtered tracks based on category and search query
+  const filteredTracks = ALL_SYMPHONIES.filter(track => {
+    const matchesCategory = 
+      selectedCategory === 'all' ? true :
+      selectedCategory === 'mozart' ? track.subCategory === 'mozart' :
+      selectedCategory === 'beethoven' ? track.subCategory === 'beethoven' :
+      selectedCategory === 'baroque' ? track.subCategory === 'baroque' :
+      selectedCategory === 'romantic' ? (track.subCategory === 'romantic' || track.subCategory === 'impressionist') :
+      selectedCategory === 'pop_modern' ? track.subCategory === 'pop_modern' : true;
+
+    const query = searchQuery.toLowerCase().trim();
+    const matchesSearch = !query || 
+      track.name.toLowerCase().includes(query) ||
+      track.composer.toLowerCase().includes(query) ||
+      track.description.toLowerCase().includes(query) ||
+      track.benefits.toLowerCase().includes(query) ||
+      (track.opus && track.opus.toLowerCase().includes(query));
+
+    return matchesCategory && matchesSearch;
+  });
+
+  // Fetch system SpeechSynthesis voices dynamically
+  useEffect(() => {
+    const loadVoices = () => {
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        const v = window.speechSynthesis.getVoices();
+        if (v && v.length > 0) {
+          setAvailableVoices(v);
+        }
+      }
+    };
+    loadVoices();
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.onvoiceschanged = loadVoices;
+    }
+  }, []);
 
   // Initialize Audio Context on demand
   const initAudio = () => {
-    if (audioCtxRef.current) return;
+    if (audioCtxRef.current && audioCtxRef.current.state !== 'closed') {
+      if (audioCtxRef.current.state === 'suspended') {
+        audioCtxRef.current.resume();
+      }
+      return audioCtxRef.current;
+    }
     try {
       const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
       const ctx = new AudioCtx();
@@ -634,11 +319,14 @@ export function SymphonyConcertHall() {
       masterGainRef.current = masterGain;
 
       const synthGain = ctx.createGain();
-      synthGain.gain.setValueAtTime(0.8, ctx.currentTime);
+      synthGain.gain.setValueAtTime(0.85, ctx.currentTime);
       synthGain.connect(masterGain);
       synthGainRef.current = synthGain;
+
+      return ctx;
     } catch (err) {
       console.error("Web Audio initialization failure in SymphonyConcertHall:", err);
+      return null;
     }
   };
 
@@ -652,7 +340,229 @@ export function SymphonyConcertHall() {
     }
   }, [masterVolume]);
 
-  // Helper functions - rich Web Audio synthesized pop instruments for background music tracks
+  // Set default instrument when symphony changes
+  useEffect(() => {
+    if (currentSymphony.defaultInstrument) {
+      setActiveInstrument(currentSymphony.defaultInstrument);
+    }
+  }, [currentSymphony]);
+
+  // Multi-instrument Physical Modeling Synthesis
+  const playInstrumentMelodyNote = (
+    ctx: AudioContext, 
+    time: number, 
+    freq: number, 
+    durationSec: number, 
+    instrument: 'piano' | 'violin' | 'flute' | 'cello' | 'synth'
+  ) => {
+    if (!mixerTracks.melody || freq <= 0) return;
+    try {
+      const mainGain = ctx.createGain();
+      mainGain.connect(synthGainRef.current || masterGainRef.current || ctx.destination);
+
+      if (instrument === 'piano') {
+        // Acoustic Piano: Dual triangle oscillators with fast percussive attack & exponential soundboard decay
+        const osc1 = ctx.createOscillator();
+        const osc2 = ctx.createOscillator();
+        osc1.type = 'triangle';
+        osc2.type = 'sine';
+        osc1.frequency.setValueAtTime(freq, time);
+        osc2.frequency.setValueAtTime(freq * 2, time); // 2nd harmonic overtone
+
+        const noteGain = ctx.createGain();
+        noteGain.gain.setValueAtTime(0.001, time);
+        noteGain.gain.linearRampToValueAtTime(0.35, time + 0.015);
+        noteGain.gain.exponentialRampToValueAtTime(0.18, time + 0.12);
+        noteGain.gain.exponentialRampToValueAtTime(0.001, time + durationSec);
+
+        osc1.connect(noteGain);
+        osc2.connect(noteGain);
+        noteGain.connect(mainGain);
+
+        osc1.start(time);
+        osc2.start(time);
+        osc1.stop(time + durationSec);
+        osc2.stop(time + durationSec);
+
+      } else if (instrument === 'violin') {
+        // Solo Violin: Sawtooth + subtle square with smooth bowed attack, vibrato LFO (5.5 Hz) and resonant filter
+        const osc = ctx.createOscillator();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(freq, time);
+
+        // Vibrato LFO
+        const lfo = ctx.createOscillator();
+        const lfoGain = ctx.createGain();
+        lfo.frequency.setValueAtTime(5.5, time); // 5.5 Hz classical vibrato
+        lfoGain.gain.setValueAtTime(freq * 0.018, time); // ±1.8% pitch wobble
+        lfo.connect(osc.frequency);
+        lfo.start(time + 0.08);
+        lfo.stop(time + durationSec);
+
+        // Warm violin body filter
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(2200, time);
+        filter.Q.setValueAtTime(3.0, time);
+
+        const noteGain = ctx.createGain();
+        noteGain.gain.setValueAtTime(0.001, time);
+        noteGain.gain.linearRampToValueAtTime(0.28, time + 0.06); // smooth bow onset
+        noteGain.gain.setValueAtTime(0.24, time + durationSec * 0.7);
+        noteGain.gain.exponentialRampToValueAtTime(0.001, time + durationSec);
+
+        osc.connect(filter);
+        filter.connect(noteGain);
+        noteGain.connect(mainGain);
+
+        osc.start(time);
+        osc.stop(time + durationSec);
+
+      } else if (instrument === 'flute') {
+        // Silver Flute: Pure sine + gentle triangle with soft breath envelope
+        const osc = ctx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, time);
+
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(3500, time);
+
+        const noteGain = ctx.createGain();
+        noteGain.gain.setValueAtTime(0.001, time);
+        noteGain.gain.linearRampToValueAtTime(0.32, time + 0.04);
+        noteGain.gain.setValueAtTime(0.28, time + durationSec * 0.8);
+        noteGain.gain.exponentialRampToValueAtTime(0.001, time + durationSec);
+
+        osc.connect(filter);
+        filter.connect(noteGain);
+        noteGain.connect(mainGain);
+
+        osc.start(time);
+        osc.stop(time + durationSec);
+
+      } else if (instrument === 'cello') {
+        // Warm Cello: Rich low-register sawtooth with deep resonance (450 Hz)
+        const osc = ctx.createOscillator();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(freq, time);
+
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(1200, time);
+        filter.Q.setValueAtTime(4.0, time);
+
+        const noteGain = ctx.createGain();
+        noteGain.gain.setValueAtTime(0.001, time);
+        noteGain.gain.linearRampToValueAtTime(0.30, time + 0.08);
+        noteGain.gain.exponentialRampToValueAtTime(0.001, time + durationSec * 1.1);
+
+        osc.connect(filter);
+        filter.connect(noteGain);
+        noteGain.connect(mainGain);
+
+        osc.start(time);
+        osc.stop(time + durationSec * 1.1);
+
+      } else {
+        // Analog Synth: Dual detuned sawtooth with cutoff filter sweep
+        const osc1 = ctx.createOscillator();
+        const osc2 = ctx.createOscillator();
+        osc1.type = 'sawtooth';
+        osc2.type = 'sawtooth';
+        osc1.frequency.setValueAtTime(freq, time);
+        osc2.frequency.setValueAtTime(freq * 1.004, time); // detune
+
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(2500, time);
+        filter.frequency.exponentialRampToValueAtTime(800, time + durationSec);
+
+        const noteGain = ctx.createGain();
+        noteGain.gain.setValueAtTime(0.001, time);
+        noteGain.gain.linearRampToValueAtTime(0.25, time + 0.02);
+        noteGain.gain.exponentialRampToValueAtTime(0.001, time + durationSec);
+
+        osc1.connect(filter);
+        osc2.connect(filter);
+        filter.connect(noteGain);
+        noteGain.connect(mainGain);
+
+        osc1.start(time);
+        osc2.start(time);
+        osc1.stop(time + durationSec);
+        osc2.stop(time + durationSec);
+      }
+    } catch (e) {
+      // Audio node cleanup safeguard
+    }
+  };
+
+  // Backing Harmony Pad Synthesis
+  const playChordPad = (ctx: AudioContext, time: number, chord: string[], durationSec: number) => {
+    if (!mixerTracks.chords || !chord || chord.length === 0) return;
+    try {
+      chord.forEach((noteName) => {
+        const freq = NOTE_FREQS[noteName];
+        if (!freq || freq <= 0) return;
+
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        const filter = ctx.createBiquadFilter();
+
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, time);
+
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(1400, time);
+
+        gain.gain.setValueAtTime(0.001, time);
+        gain.gain.linearRampToValueAtTime(0.08, time + 0.15); // gentle swell
+        gain.gain.setValueAtTime(0.07, time + durationSec * 0.8);
+        gain.gain.exponentialRampToValueAtTime(0.001, time + durationSec);
+
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(masterGainRef.current || ctx.destination);
+
+        osc.start(time);
+        osc.stop(time + durationSec);
+      });
+    } catch (e) {
+      // ignore
+    }
+  };
+
+  // Bassline Root Note Synthesis
+  const playBassNote = (ctx: AudioContext, time: number, freq: number, durationSec: number) => {
+    if (!mixerTracks.bass || freq <= 0) return;
+    try {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      const filter = ctx.createBiquadFilter();
+
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(freq, time);
+
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(320, time);
+
+      gain.gain.setValueAtTime(0.001, time);
+      gain.gain.linearRampToValueAtTime(0.18, time + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, time + durationSec);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(masterGainRef.current || ctx.destination);
+
+      osc.start(time);
+      osc.stop(time + durationSec);
+    } catch (e) {
+      // ignore
+    }
+  };
+
+  // Drum synthesis for pop tracks and lively classical allegros
   const playKick = (ctx: AudioContext, time: number) => {
     if (!mixerTracks.drums) return;
     try {
@@ -661,10 +571,10 @@ export function SymphonyConcertHall() {
       osc.connect(gain);
       gain.connect(masterGainRef.current || ctx.destination);
 
-      osc.frequency.setValueAtTime(150, time);
+      osc.frequency.setValueAtTime(140, time);
       osc.frequency.exponentialRampToValueAtTime(0.01, time + 0.18);
 
-      gain.gain.setValueAtTime(0.7, time);
+      gain.gain.setValueAtTime(0.5, time);
       gain.gain.exponentialRampToValueAtTime(0.001, time + 0.18);
 
       osc.start(time);
@@ -677,14 +587,13 @@ export function SymphonyConcertHall() {
   const playSnare = (ctx: AudioContext, time: number) => {
     if (!mixerTracks.drums) return;
     try {
-      // Snare drum skin oscillation
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = 'triangle';
-      osc.frequency.setValueAtTime(180, time);
-      osc.frequency.exponentialRampToValueAtTime(80, time + 0.1);
+      osc.frequency.setValueAtTime(160, time);
+      osc.frequency.exponentialRampToValueAtTime(60, time + 0.1);
 
-      gain.gain.setValueAtTime(0.2, time);
+      gain.gain.setValueAtTime(0.18, time);
       gain.gain.exponentialRampToValueAtTime(0.001, time + 0.1);
 
       osc.connect(gain);
@@ -692,405 +601,44 @@ export function SymphonyConcertHall() {
 
       osc.start(time);
       osc.stop(time + 0.1);
-
-      // White noise snap (creates a real "snare crunch"!)
-      const bufferSize = ctx.sampleRate * 0.1;
-      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-      const data = buffer.getChannelData(0);
-      for (let i = 0; i < bufferSize; i++) {
-        data[i] = Math.random() * 2 - 1;
-      }
-
-      const noise = ctx.createBufferSource();
-      noise.buffer = buffer;
-
-      const noiseFilter = ctx.createBiquadFilter();
-      noiseFilter.type = 'highpass';
-      noiseFilter.frequency.setValueAtTime(1000, time);
-
-      const noiseGain = ctx.createGain();
-      noiseGain.gain.setValueAtTime(0.15, time);
-      noiseGain.gain.exponentialRampToValueAtTime(0.001, time + 0.1);
-
-      noise.connect(noiseFilter);
-      noiseFilter.connect(noiseGain);
-      noiseGain.connect(masterGainRef.current || ctx.destination);
-
-      noise.start(time);
-      noise.stop(time + 0.1);
     } catch (e) {
       // ignore
     }
   };
 
-  const playHiHat = (ctx: AudioContext, time: number, isClosed = true) => {
+  const playHiHat = (ctx: AudioContext, time: number) => {
     if (!mixerTracks.drums) return;
     try {
-      const duration = isClosed ? 0.04 : 0.16;
-
-      // Noise source
-      const bufferSize = ctx.sampleRate * duration;
-      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-      const data = buffer.getChannelData(0);
-      for (let i = 0; i < bufferSize; i++) {
-        data[i] = Math.random() * 2 - 1;
-      }
-
-      const noise = ctx.createBufferSource();
-      noise.buffer = buffer;
-
-      const filter = ctx.createBiquadFilter();
-      filter.type = 'highpass';
-      filter.frequency.setValueAtTime(7000, time);
-
-      const gain = ctx.createGain();
-      gain.gain.setValueAtTime(0.07, time);
-      gain.gain.exponentialRampToValueAtTime(0.001, time + duration);
-
-      noise.connect(filter);
-      filter.connect(gain);
-      gain.connect(masterGainRef.current || ctx.destination);
-
-      noise.start(time);
-      noise.stop(time + duration);
-    } catch (e) {
-      // ignore
-    }
-  };
-
-  const playChordPad = (ctx: AudioContext, time: number, notes: string[], duration = 1.2, type: OscillatorType = 'triangle', gainValue = 0.08) => {
-    if (!mixerTracks.synth) return;
-    notes.forEach((noteName, idx) => {
-      const freq = NOTE_FREQS[noteName];
-      if (!freq) return;
-      try {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        const filter = ctx.createBiquadFilter();
-
-        // High quality warm poly-synth filtering
-        filter.type = 'lowpass';
-        filter.frequency.setValueAtTime(1200, time);
-        filter.frequency.exponentialRampToValueAtTime(400, time + duration);
-
-        osc.type = type;
-        // Introduce tiny detune for vintage analog chorus feel
-        osc.frequency.setValueAtTime(freq, time);
-        osc.detune.setValueAtTime((idx - 1) * 8, time);
-
-        gain.gain.setValueAtTime(0, time);
-        gain.gain.linearRampToValueAtTime(gainValue / notes.length, time + 0.1);
-        gain.gain.exponentialRampToValueAtTime(0.0001, time + duration);
-
-        osc.connect(filter);
-        filter.connect(gain);
-        gain.connect(masterGainRef.current || ctx.destination);
-
-        osc.start(time);
-        osc.stop(time + duration);
-      } catch (e) {
-        // ignore
-      }
-    });
-  };
-
-  const playBassNote = (ctx: AudioContext, time: number, freq: number, duration = 0.4, gainValue = 0.15) => {
-    if (!mixerTracks.bass) return;
-    try {
-      const osc = ctx.createOscillator();
-      const subOsc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      const filter = ctx.createBiquadFilter();
-
-      // Deep, juicy synth bass
-      osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(freq, time);
-
-      // Add a sub-bass oscillator (sine wave, one octave lower)
-      subOsc.type = 'sine';
-      subOsc.frequency.setValueAtTime(freq / 2, time);
-
-      filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(350, time);
-      filter.frequency.exponentialRampToValueAtTime(120, time + duration);
-
-      gain.gain.setValueAtTime(0, time);
-      gain.gain.linearRampToValueAtTime(gainValue, time + 0.03);
-      gain.gain.exponentialRampToValueAtTime(0.001, time + duration);
-
-      osc.connect(filter);
-      subOsc.connect(filter);
-      filter.connect(gain);
-      gain.connect(masterGainRef.current || ctx.destination);
-
-      osc.start(time);
-      subOsc.start(time);
-      osc.stop(time + duration);
-      subOsc.stop(time + duration);
-    } catch (e) {
-      // ignore
-    }
-  };
-
-  const playArpNote = (ctx: AudioContext, time: number, freq: number, duration = 0.15, gainValue = 0.04) => {
-    if (!mixerTracks.arpeggios) return;
-    try {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(freq, time);
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(6000, time);
 
-      gain.gain.setValueAtTime(0, time);
-      gain.gain.linearRampToValueAtTime(gainValue, time + 0.01);
-      gain.gain.exponentialRampToValueAtTime(0.001, time + duration);
+      gain.gain.setValueAtTime(0.04, time);
+      gain.gain.exponentialRampToValueAtTime(0.001, time + 0.05);
 
       osc.connect(gain);
       gain.connect(masterGainRef.current || ctx.destination);
 
       osc.start(time);
-      osc.stop(time + duration);
+      osc.stop(time + 0.05);
     } catch (e) {
       // ignore
     }
   };
 
-  // Synthesize CoSing duets & harmonies with rich vocal modelling (omitted)
-  const playCoSingNote = (note: string) => {};
-
-  // CoSing Mic Stream Audio Capture & Analyzer loop
-  useEffect(() => {
-    if (isMicActive) {
-      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        navigator.mediaDevices.getUserMedia({ audio: true })
-          .then(stream => {
-            micStreamRef.current = stream;
-            if (audioCtxRef.current) {
-              try {
-                const source = audioCtxRef.current.createMediaStreamSource(stream);
-                const analyser = audioCtxRef.current.createAnalyser();
-                analyser.fftSize = 256;
-                source.connect(analyser);
-                micAnalyserRef.current = analyser;
-
-                const dataArray = new Uint8Array(analyser.frequencyBinCount);
-                const checkLevel = () => {
-                  if (!micAnalyserRef.current) return;
-                  analyser.getByteFrequencyData(dataArray);
-                  let sum = 0;
-                  for (let i = 0; i < dataArray.length; i++) {
-                    sum += dataArray[i];
-                  }
-                  const avg = sum / dataArray.length;
-                  setMicLevel(Math.min(100, Math.round(avg * 1.5)));
-                  micIntervalRef.current = window.requestAnimationFrame(checkLevel);
-                };
-                micIntervalRef.current = window.requestAnimationFrame(checkLevel);
-              } catch (err) {
-                console.warn("Could not bind mic analyser, falling back to simulated:", err);
-                let simLevel = 0;
-                const interval = window.setInterval(() => {
-                  simLevel = Math.floor(Math.random() * 40 + 10);
-                  setMicLevel(simLevel);
-                }, 100);
-                return () => window.clearInterval(interval);
-              }
-            } else {
-              let simLevel = 0;
-              const interval = window.setInterval(() => {
-                simLevel = Math.floor(Math.random() * 30 + 15);
-                setMicLevel(simLevel);
-              }, 100);
-              return () => window.clearInterval(interval);
-            }
-          })
-          .catch(err => {
-            console.warn("Microphone access failed:", err);
-            setIsMicActive(false);
-          });
-      } else {
-        // Fallback for environments where getUserMedia is missing
-        let simLevel = 0;
-        const interval = window.setInterval(() => {
-          simLevel = Math.floor(Math.random() * 30 + 15);
-          setMicLevel(simLevel);
-        }, 100);
-        return () => window.clearInterval(interval);
-      }
-    } else {
-      if (micStreamRef.current) {
-        micStreamRef.current.getTracks().forEach(track => track.stop());
-        micStreamRef.current = null;
-      }
-      if (micIntervalRef.current) {
-        window.cancelAnimationFrame(micIntervalRef.current);
-        micIntervalRef.current = null;
-      }
-      setMicLevel(0);
-    }
-
-    return () => {
-      if (micStreamRef.current) {
-        micStreamRef.current.getTracks().forEach(track => track.stop());
-      }
-      if (micIntervalRef.current) {
-        window.cancelAnimationFrame(micIntervalRef.current);
-      }
-    };
-  }, [isMicActive]);
-
-  // CoSing Lyrics and Playback Sequence (All instrument oscillators omitted)
-  useEffect(() => {
-    if (isRecording) {
-      const idol = VOCAL_IDOLS.find(i => i.id === selectedIdolId) || VOCAL_IDOLS[0];
-      setLyricsIndex(0);
-      initAudio();
-
-      const bpm = idol.trackBpm || 100;
-      const stepDurationSec = 60 / bpm / 2; // eighth notes
-
-      let stepCounter = 0;
-
-      const runStep = () => {
-        const ctx = audioCtxRef.current;
-        if (!ctx) return;
-
-        const currentBpm = idol.trackBpm || 100;
-        const currentStepDurationSec = 60 / currentBpm / 2;
-
-        const stepInBar = stepCounter % 8;
-        const barIndex = Math.floor(stepCounter / 8) % 4;
-
-        // 1. Play backing chord pad, kick, snare, hi-hat and bass oscillator
-        const chordNotes = CO_SING_PROGRESSIONS[idol.id] 
-          ? CO_SING_PROGRESSIONS[idol.id][barIndex] 
-          : ['C3', 'E3', 'G3'];
-        const bassNoteName = CO_SING_BASSLINES[idol.id] || 'C2';
-        const bassFreq = NOTE_FREQS[bassNoteName] || 65.4;
-
-        if (stepInBar === 0) {
-          playChordPad(ctx, ctx.currentTime, chordNotes, currentStepDurationSec * 7.5, idol.id === 'julian' ? 'triangle' : 'sine', 0.12);
-        }
-
-        if (stepInBar === 0 || stepInBar === 3 || stepInBar === 4 || stepInBar === 6) {
-          playBassNote(ctx, ctx.currentTime, bassFreq, currentStepDurationSec * 1.5, 0.15);
-        }
-
-        if (stepInBar === 0 || stepInBar === 4) {
-          playKick(ctx, ctx.currentTime);
-        }
-        if (stepInBar === 2 || stepInBar === 6) {
-          playSnare(ctx, ctx.currentTime);
-        }
-        if (stepInBar % 2 === 1) {
-          playHiHat(ctx, ctx.currentTime, stepInBar !== 7);
-        }
-
-        // 2. Play Vocal Lyrics via Speech Synthesis
-        if (stepInBar === 0) {
-          const currentLyricIdx = Math.floor(stepCounter / 8) % 5;
-          setLyricsIndex(currentLyricIdx);
-
-          // Speak CoSing Idol lyrics with Speech Synthesis!
-          const lyricLine = idol.lyrics[currentLyricIdx];
-          if (lyricLine && typeof window !== 'undefined' && 'speechSynthesis' in window) {
-            window.speechSynthesis.cancel();
-            const utterance = new SpeechSynthesisUtterance(lyricLine);
-            
-            // Assign a high-quality voice according to the VocalIdol
-            const voices = window.speechSynthesis.getVoices();
-            let matchVoice = null;
-            if (idol.id === 'aria') {
-              matchVoice = voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('samantha')) || voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('female'));
-              utterance.pitch = 1.3;
-              utterance.rate = 1.0;
-            } else if (idol.id === 'julian') {
-              matchVoice = voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('daniel')) || voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('male'));
-              utterance.pitch = 0.9;
-              utterance.rate = 0.95;
-            } else if (idol.id === 'beatrix') {
-              matchVoice = voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('hazel')) || voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('zira'));
-              utterance.pitch = 0.6;
-              utterance.rate = 1.3;
-            } else if (idol.id === 'leo') {
-              matchVoice = voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('david')) || voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('male'));
-              utterance.pitch = 0.85;
-              utterance.rate = 0.85;
-            }
-            
-            if (!matchVoice) {
-              const englishVoices = voices.filter(v => v.lang.startsWith('en'));
-              matchVoice = englishVoices[0] || voices[0] || null;
-            }
-            if (matchVoice) {
-              utterance.voice = matchVoice;
-            }
-            window.speechSynthesis.speak(utterance);
-          }
-
-          // Trigger simulated pulse
-          setActiveNote(`C${currentLyricIdx}`);
-        }
-
-        stepCounter = (stepCounter + 1) % 40;
-        lyricsIntervalRef.current = window.setTimeout(runStep, currentStepDurationSec * 1000);
-      };
-
-      lyricsIntervalRef.current = window.setTimeout(runStep, 100);
-
-    } else {
-      if (lyricsIntervalRef.current) {
-        window.clearTimeout(lyricsIntervalRef.current);
-        lyricsIntervalRef.current = null;
-      }
-      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-      }
-      setLyricsIndex(0);
-    }
-
-    return () => {
-      if (lyricsIntervalRef.current) {
-        window.clearTimeout(lyricsIntervalRef.current);
-      }
-    };
-  }, [isRecording, selectedIdolId, effects.aiHarmony, effects.reverb, effects.saturation]);
-
-  // Set default instrument when symphony changes
-  useEffect(() => {
-    setActiveInstrument(currentSymphony.defaultInstrument || 'piano');
-  }, [currentSymphony]);
-
-  // Visualizer loop for simulated bouncing sound bars
-  useEffect(() => {
-    if (isPlaying) {
-      const updateVisualizer = () => {
-        setVisualBars(prev => prev.map(() => {
-          const factor = activeNote ? 0.8 : 0.2;
-          return Math.floor(Math.random() * 70 * factor + 10);
-        }));
-        animationFrameRef.current = requestAnimationFrame(updateVisualizer);
-      };
-      animationFrameRef.current = requestAnimationFrame(updateVisualizer);
-    } else {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-      setVisualBars(Array(16).fill(10));
-    }
-    return () => {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-    };
-  }, [isPlaying, activeNote]);
-
-  // Synthesize single note sound in Web Audio (Muted to omit instruments)
-  const playSynthesizedNote = (note: string, durationSec: number, isManual = false) => {
+  // Manual interactive key trigger
+  const playSynthesizedNote = (note: string, durationSec = 0.5, isManual = true) => {
+    const ctx = initAudio();
+    if (!ctx) return;
     if (isManual && typeof window !== 'undefined') {
       window.dispatchEvent(new CustomEvent('stop-ambient-player'));
     }
     const freq = NOTE_FREQS[note] || 0;
     
+    // Play on active instrument
+    playInstrumentMelodyNote(ctx, ctx.currentTime, freq, durationSec, activeInstrument);
+
     // Update interactive visual UI state
     setActiveNote(note);
     
@@ -1107,138 +655,156 @@ export function SymphonyConcertHall() {
     }, durationSec * 1000 - 30);
   };
 
-  // Core lyric speech & sequence runner (with Actor Voices and synthesized background music tracks)
-  const runSequence = (symphonyToPlay: SymphonyMasterpiece, startFromIndex = 0) => {
+  // Core sequence runner: Plays note-by-note melodic progression, chords, basslines & spoken lyrics
+  const runSequence = (symphonyToPlay: SymphonyMasterpiece) => {
     if (sequencerTimeoutRef.current) {
       window.clearTimeout(sequencerTimeoutRef.current);
+      sequencerTimeoutRef.current = null;
     }
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
       window.speechSynthesis.cancel();
     }
 
-    let lyricIdx = startFromIndex;
-    const lyricsArray = symphonyToPlay.lyrics;
+    let noteIdx = 0;
+    let lyricIdx = 0;
     let stepCounter = 0;
+    const notesArray = symphonyToPlay.notes;
+    const lyricsArray = symphonyToPlay.lyrics || [];
+
+    const bpm = symphonyToPlay.tempo || 120;
+    // Calculate base beat duration in seconds, scaled by user tempo multiplier
+    const beatDurationSec = (60 / bpm) / tempoMultiplier;
 
     const executeStep = () => {
-      if (!isPlaying && startFromIndex === 0) return;
+      if (!isPlayingRef.current) return;
 
       const ctx = audioCtxRef.current;
       if (!ctx) return;
 
-      const bpm = symphonyToPlay.tempo || 120;
-      const stepDurationSec = (60 / bpm / 2) / tempoMultiplier; // 8th notes adjusted by tempo multiplier
+      // 1. Play melodic note
+      const currentNoteObj = notesArray[noteIdx];
+      if (currentNoteObj) {
+        const noteDurSec = (currentNoteObj.dur * beatDurationSec);
+        const freq = NOTE_FREQS[currentNoteObj.note] || 0;
 
-      const stepInBar = stepCounter % 8;
-      const barIndex = Math.floor(stepCounter / 8) % 4;
+        if (freq > 0) {
+          playInstrumentMelodyNote(ctx, ctx.currentTime, freq, noteDurSec * 0.92, activeInstrument);
+          setActiveNote(currentNoteObj.note);
 
-      // Look up chord and bass mappings for current pop song
-      const chords = POP_CHORDS[symphonyToPlay.id] || [['C3', 'E3', 'G3'], ['F3', 'A3', 'C4'], ['G3', 'B3', 'D4'], ['C3', 'E3', 'G3']];
-      const currentChord = chords[barIndex];
-      const bassline = POP_BASSLINES[symphonyToPlay.id] || ['C2', 'F2', 'G2', 'C2'];
+          const nowStr = new Date().toLocaleTimeString('en-US', { hour12: false, minute: '2-digit', second: '2-digit' });
+          setPerformanceLog(prev => [
+            { time: nowStr, note: currentNoteObj.note, hz: Math.round(freq), isManual: false },
+            ...prev.slice(0, 19)
+          ]);
+        }
+      }
+
+      // 2. Play backing chords & bassline based on step count
+      const barIndex = Math.floor(stepCounter / 4) % 4;
+      const chords = symphonyToPlay.chords || [['C3', 'E3', 'G3'], ['G2', 'B2', 'D3'], ['A2', 'C3', 'E3'], ['F2', 'A2', 'C3']];
+      const currentChord = chords[barIndex] || chords[0];
+      const bassline = symphonyToPlay.bassline || ['C2', 'G1', 'A1', 'F1'];
       const bassNoteName = bassline[barIndex] || 'C2';
       const bassFreq = NOTE_FREQS[bassNoteName] || 65.4;
 
-      // 1. Play polyphonic chord pad on downbeats
-      if (stepInBar === 0) {
-        playChordPad(ctx, ctx.currentTime, currentChord, stepDurationSec * 7.6, 'sawtooth', 0.15);
+      // Downbeat chord pad & bass trigger (every 4 beats)
+      if (stepCounter % 4 === 0) {
+        playChordPad(ctx, ctx.currentTime, currentChord, beatDurationSec * 3.8);
+        playBassNote(ctx, ctx.currentTime, bassFreq, beatDurationSec * 1.8);
       }
 
-      // 2. Play bass notes on syncopated pop rhythm (steps 0, 3, 4, 6)
-      if (stepInBar === 0 || stepInBar === 3 || stepInBar === 4 || stepInBar === 6) {
-        playBassNote(ctx, ctx.currentTime, bassFreq, stepDurationSec * 1.5, 0.14);
-      }
-
-      // 3. Play drum backing beats
-      const fourOnFloor = ['pop_lights', 'pop_romance', 'pop_dontstart', 'pop_stayin'].includes(symphonyToPlay.id);
-      
-      // Kick: 4-on-the-floor vs standard pop breakbeat
-      if (fourOnFloor) {
-        if (stepInBar === 0 || stepInBar === 2 || stepInBar === 4 || stepInBar === 6) {
+      // Rhythm percussion (Kick & Hi-hat)
+      if (symphonyToPlay.category === 'pop' || symphonyToPlay.subCategory === 'mozart') {
+        if (stepCounter % 4 === 0 || stepCounter % 4 === 2) {
           playKick(ctx, ctx.currentTime);
         }
-      } else {
-        if (stepInBar === 0 || stepInBar === 3 || stepInBar === 4) {
-          playKick(ctx, ctx.currentTime);
+        if (stepCounter % 4 === 2) {
+          playSnare(ctx, ctx.currentTime);
         }
+        playHiHat(ctx, ctx.currentTime);
       }
 
-      // Snare: clap/snare on steps 2 and 6
-      if (stepInBar === 2 || stepInBar === 6) {
-        playSnare(ctx, ctx.currentTime);
-      }
-
-      // Hi-Hats: closed on odds, open with syncopation on step 7
-      if (stepInBar % 2 === 1) {
-        playHiHat(ctx, ctx.currentTime, stepInBar !== 7);
-      }
-
-      // 4. Play shining high-pitch arpeggiator on even beats
-      if (stepInBar % 2 === 0) {
-        const noteIndex = (stepInBar / 2) % currentChord.length;
-        const noteName = currentChord[noteIndex];
-        if (noteName) {
-          const noteBase = noteName.replace(/[0-9]/g, '');
-          const originalOctave = parseInt(noteName.replace(/[^0-9]/g, '')) || 3;
-          const arpFreq = NOTE_FREQS[`${noteBase}${originalOctave + 1}`] || 0;
-          if (arpFreq > 0) {
-            playArpNote(ctx, ctx.currentTime, arpFreq, stepDurationSec * 0.8, 0.04);
-          }
-        }
-      }
-
-      // 5. Speak lyric phrase every 16 steps (equivalent to 2 full bars)
-      if (stepCounter % 16 === 0) {
+      // 3. Spoken lyric phrase or orchestral movement title (every 8 steps)
+      if (spokenNarration && lyricsArray.length > 0 && stepCounter % 8 === 0) {
         setActiveLyricIndex(lyricIdx);
         const currentLine = lyricsArray[lyricIdx];
         if (currentLine && typeof window !== 'undefined' && 'speechSynthesis' in window) {
           window.speechSynthesis.cancel();
           const utterance = new SpeechSynthesisUtterance(currentLine);
           
-          // Match selected actor
           const actor = ACTORS.find(a => a.id === selectedActorId) || ACTORS[0];
           const matchVoice = getVoiceForActor(actor, availableVoices);
           if (matchVoice) {
             utterance.voice = matchVoice;
           }
 
-          // Apply personality pitch and rates
           if (actor.id === 'shakespearean') {
             utterance.pitch = 0.8;
             utterance.rate = 0.85;
           } else if (actor.id === 'broadway_diva') {
-            utterance.pitch = 1.25;
-            utterance.rate = 1.05;
+            utterance.pitch = 1.2;
+            utterance.rate = 1.0;
           } else if (actor.id === 'cyberpunk') {
             utterance.pitch = 0.5;
-            utterance.rate = 1.25;
+            utterance.rate = 1.2;
           } else if (actor.id === 'soulful') {
             utterance.pitch = 0.9;
             utterance.rate = 0.9;
           } else {
-            utterance.pitch = 1.0;
+            utterance.pitch = 1.05;
             utterance.rate = 1.0;
           }
 
           window.speechSynthesis.speak(utterance);
         }
-
-        // Set simulated active notes to animate the pulse
-        setActiveNote(`L${lyricIdx}`);
-
-        // Advance lyric pointer
         lyricIdx = (lyricIdx + 1) % lyricsArray.length;
       }
 
-      // Increment sequencer position
-      stepCounter = (stepCounter + 1) % 32;
-      sequencerTimeoutRef.current = window.setTimeout(executeStep, stepDurationSec * 1000);
+      // Advance note pointer
+      const currentNoteDur = (currentNoteObj?.dur || 0.5) * beatDurationSec;
+      noteIdx++;
+
+      // Check if end of notes array reached
+      if (noteIdx >= notesArray.length) {
+        if (isLoop) {
+          noteIdx = 0;
+        } else if (autoAdvance) {
+          handleNextTrack();
+          return;
+        } else {
+          setIsPlaying(false);
+          return;
+        }
+      }
+
+      stepCounter++;
+      sequencerTimeoutRef.current = window.setTimeout(executeStep, currentNoteDur * 1000);
     };
 
     executeStep();
   };
 
-  // Handle Play/Pause toggles and effect hooks
+  // Next / Previous Track navigation
+  const handleNextTrack = () => {
+    const list = filteredTracks.length > 0 ? filteredTracks : ALL_SYMPHONIES;
+    if (isShuffle) {
+      const randomIdx = Math.floor(Math.random() * list.length);
+      setCurrentSymphony(list[randomIdx]);
+    } else {
+      const currentIdx = list.findIndex(s => s.id === currentSymphony.id);
+      const nextIdx = (currentIdx + 1) % list.length;
+      setCurrentSymphony(list[nextIdx]);
+    }
+  };
+
+  const handlePrevTrack = () => {
+    const list = filteredTracks.length > 0 ? filteredTracks : ALL_SYMPHONIES;
+    const currentIdx = list.findIndex(s => s.id === currentSymphony.id);
+    const prevIdx = (currentIdx - 1 + list.length) % list.length;
+    setCurrentSymphony(list[prevIdx]);
+  };
+
+  // Handle Play/Pause toggles
   const handlePlayToggle = () => {
     initAudio();
     if (isPlaying) {
@@ -1269,13 +835,13 @@ export function SymphonyConcertHall() {
     setActiveLyricIndex(0);
   };
 
-  // Play sequence reactively when isPlaying, symphony, actor, or tempo changes
+  // Play sequence reactively when isPlaying, symphony, instrument, actor, or tempo changes
   useEffect(() => {
     if (isPlaying) {
       if (typeof window !== 'undefined') {
         window.dispatchEvent(new CustomEvent('stop-ambient-player'));
       }
-      runSequence(currentSymphony, 0);
+      runSequence(currentSymphony);
     } else {
       handleStop();
     }
@@ -1284,7 +850,31 @@ export function SymphonyConcertHall() {
         window.clearTimeout(sequencerTimeoutRef.current);
       }
     };
-  }, [isPlaying, currentSymphony, selectedActorId, tempoMultiplier]);
+  }, [isPlaying, currentSymphony, activeInstrument, selectedActorId, tempoMultiplier, spokenNarration, isLoop, autoAdvance]);
+
+  // Visualizer loop for bouncing sound bars
+  useEffect(() => {
+    if (isPlaying) {
+      const updateVisualizer = () => {
+        setVisualBars(prev => prev.map((_, idx) => {
+          const factor = activeNote ? 0.9 : 0.3;
+          return Math.floor(Math.sin(idx * 0.3 + Date.now() * 0.005) * 35 * factor + 45);
+        }));
+        animationFrameRef.current = requestAnimationFrame(updateVisualizer);
+      };
+      animationFrameRef.current = requestAnimationFrame(updateVisualizer);
+    } else {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+      setVisualBars(Array(24).fill(10));
+    }
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
+  }, [isPlaying, activeNote]);
 
   // Listen for external triggers to stop symphony music
   useEffect(() => {
@@ -1310,89 +900,161 @@ export function SymphonyConcertHall() {
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
       }
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
     };
   }, []);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 p-1 select-none" id="symphony-concert-hall-container">
       
-      {/* LEFT COLUMN: Chimes selector & Educational Insights */}
-      <div className="lg:col-span-4 flex flex-col gap-4">
+      {/* LEFT COLUMN: 35+ Playlist Library, Category Tabs, Search & Neuro Benefits */}
+      <div className="lg:col-span-5 flex flex-col gap-4">
         
-        {/* Composer Selection & Header */}
-        <div className="bg-white/90 border border-stone-200/80 rounded-2xl p-4 shadow-xs">
-          <div className="flex items-center gap-2 mb-3">
-            <div className="p-1.5 rounded-lg bg-rose-50 border border-rose-150">
-              <Music className="w-4 h-4 text-rose-600" />
+        {/* Playlist Card Header */}
+        <div className="bg-white/95 border border-stone-200/80 rounded-2xl p-4 shadow-xs">
+          
+          <div className="flex items-center justify-between gap-2 mb-3">
+            <div className="flex items-center gap-2">
+              <div className="p-2 rounded-xl bg-rose-50 border border-rose-150 text-rose-600">
+                <Music className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="font-display font-black text-sm text-stone-950 uppercase tracking-wide">
+                  Classical & Pop Symphonies
+                </h3>
+                <p className="text-[10px] text-stone-400 font-mono font-bold leading-none mt-0.5">
+                  35+ MASTERPIECES • MOZART, BEETHOVEN & POP
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 className="font-display font-black text-sm text-stone-950 uppercase tracking-wide">
-                Pop Hits Collection
-              </h3>
-              <p className="text-[10px] text-stone-400 font-mono font-bold leading-none mt-0.5">
-                POP MASTERPIECES
-              </p>
-            </div>
+            <span className="text-[10px] font-mono font-black text-rose-600 bg-rose-50 px-2 py-0.5 rounded-full border border-rose-100">
+              {filteredTracks.length} / {ALL_SYMPHONIES.length} Tracks
+            </span>
           </div>
 
-          <div className="space-y-1.5 max-h-[290px] overflow-y-auto pr-1 scrollbar-thin">
-            {MASTERPIECES.map((sym) => {
-              const isSelected = currentSymphony.id === sym.id;
+          {/* Search Box */}
+          <div className="relative mb-3">
+            <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" />
+            <input
+              type="text"
+              placeholder="Search Mozart, Beethoven, Bach, Chopin, Pop..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-8.5 pr-3 py-1.5 bg-stone-50 border border-stone-200 rounded-xl text-xs text-stone-800 placeholder-stone-400 focus:outline-none focus:border-rose-400 transition-colors font-medium"
+            />
+            {searchQuery && (
+              <button 
+                onClick={() => setSearchQuery('')}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] font-mono text-stone-400 hover:text-stone-700 cursor-pointer"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+
+          {/* Category Filter Chips */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1.5 mb-3 scrollbar-none">
+            {CATEGORIES.map(cat => {
+              const isCatActive = selectedCategory === cat.id;
               return (
                 <button
-                  key={sym.id}
-                  onClick={() => {
-                    setCurrentSymphony(sym);
-                    setIsPlaying(true);
-                  }}
-                  className={`w-full p-2.5 rounded-xl border text-left transition-all flex items-center gap-2.5 cursor-pointer relative overflow-hidden
-                    ${isSelected 
-                      ? 'border-rose-300 bg-rose-50/50 ring-1 ring-rose-200' 
-                      : 'border-stone-150 hover:border-stone-300 hover:bg-stone-50 bg-white/70'
-                    }
-                  `}
+                  key={cat.id}
+                  onClick={() => setSelectedCategory(cat.id)}
+                  className={`px-2.5 py-1 rounded-lg text-[10px] font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1 shrink-0 ${
+                    isCatActive
+                      ? 'bg-stone-900 text-white shadow-3xs'
+                      : 'bg-stone-100 text-stone-600 hover:bg-stone-200/80 hover:text-stone-900'
+                  }`}
                 >
-                  <div className={`w-8 h-8 rounded-lg text-sm flex items-center justify-center font-bold bg-gradient-to-br ${sym.bgGradient} text-white shadow-3xs shrink-0`}>
-                    {sym.emoji}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[8px] font-mono font-black text-rose-500 uppercase tracking-wider">
-                        {sym.composer}
-                      </span>
-                      <span className="text-[8px] font-mono text-stone-400 font-bold">
-                        {sym.year}
-                      </span>
-                    </div>
-                    <h4 className="font-display font-bold text-stone-850 text-[11px] truncate leading-tight">
-                      {sym.name}
-                    </h4>
-                  </div>
-
-                  {isSelected && (
-                    <div className="absolute top-1.5 right-1.5 flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping" />
-                      <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
-                    </div>
-                  )}
+                  <span>{cat.emoji}</span>
+                  <span>{cat.label}</span>
                 </button>
               );
             })}
           </div>
+
+          {/* Track List */}
+          <div className="space-y-1.5 max-h-[340px] overflow-y-auto pr-1 scrollbar-thin">
+            {filteredTracks.length === 0 ? (
+              <div className="text-center py-8 text-stone-400 text-xs">
+                No tracks match "{searchQuery}". Try searching for Mozart, Beethoven, or Bach.
+              </div>
+            ) : (
+              filteredTracks.map((sym) => {
+                const isSelected = currentSymphony.id === sym.id;
+                return (
+                  <button
+                    key={sym.id}
+                    onClick={() => {
+                      setCurrentSymphony(sym);
+                      setIsPlaying(true);
+                    }}
+                    className={`w-full p-2.5 rounded-xl border text-left transition-all flex items-center gap-3 cursor-pointer relative overflow-hidden ${
+                      isSelected 
+                        ? 'border-rose-400 bg-rose-50/60 ring-1 ring-rose-200 shadow-3xs' 
+                        : 'border-stone-150 hover:border-stone-300 hover:bg-stone-50/80 bg-white/80'
+                    }`}
+                  >
+                    <div className={`w-9 h-9 rounded-xl text-sm flex items-center justify-center font-bold bg-gradient-to-br ${sym.bgGradient} text-white shadow-3xs shrink-0`}>
+                      {sym.emoji}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-1">
+                        <span className="text-[8.5px] font-mono font-black text-rose-600 uppercase tracking-wider truncate">
+                          {sym.composer}
+                        </span>
+                        <span className="text-[8.5px] font-mono text-stone-400 font-bold shrink-0">
+                          {sym.year}
+                        </span>
+                      </div>
+                      <h4 className="font-display font-bold text-stone-900 text-xs truncate leading-tight mt-0.5">
+                        {sym.name}
+                      </h4>
+                      <p className="text-[9px] text-stone-400 font-mono truncate mt-0.5">
+                        {sym.opus || sym.era} • {sym.tempo} BPM • {sym.keySignature}
+                      </p>
+                    </div>
+
+                    {isSelected && (
+                      <div className="flex items-center gap-1 shrink-0">
+                        {isPlaying ? (
+                          <div className="flex items-end gap-0.5 h-4">
+                            <span className="w-1 bg-rose-500 rounded-full animate-bounce h-3" />
+                            <span className="w-1 bg-rose-500 rounded-full animate-bounce h-4 delay-75" />
+                            <span className="w-1 bg-rose-500 rounded-full animate-bounce h-2 delay-150" />
+                          </div>
+                        ) : (
+                          <span className="w-2 h-2 rounded-full bg-rose-500" />
+                        )}
+                      </div>
+                    )}
+                  </button>
+                );
+              })
+            )}
+          </div>
+
         </div>
 
-        {/* Selected Masterpiece Cognitive Benefits card */}
+        {/* Selected Masterpiece Cognitive Resonance & Brainwave Guide */}
         <div className="bg-gradient-to-br from-stone-900 via-stone-850 to-stone-950 text-stone-100 rounded-2xl p-4 border border-stone-800 shadow-sm relative overflow-hidden">
           <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
             <Sparkles className="w-24 h-24 text-rose-500" />
           </div>
 
-          <div className="flex items-center gap-1.5 text-[9px] font-mono text-rose-350 font-black uppercase tracking-wider mb-2">
-            <Sparkles className="w-3 h-3 text-rose-400" /> Cognitive resonance guide
+          <div className="flex items-center justify-between gap-2 mb-2">
+            <div className="flex items-center gap-1.5 text-[9px] font-mono text-rose-350 font-black uppercase tracking-wider">
+              <Sparkles className="w-3 h-3 text-rose-400" /> Neuro-Acoustic Resonance
+            </div>
+            <span className="text-[9px] font-mono font-black text-amber-300 bg-amber-950/60 px-2 py-0.5 rounded-md border border-amber-800/40">
+              {currentSymphony.brainwave}
+            </span>
           </div>
 
-          <div className="flex items-baseline gap-1.5 mb-2.5">
-            <h4 className="font-display font-black text-white text-base leading-none">
+          <div className="flex items-baseline gap-1.5 mb-2">
+            <h4 className="font-display font-black text-white text-base leading-tight">
               {currentSymphony.name}
             </h4>
             <span className="text-[10px] text-stone-400 font-mono font-medium">
@@ -1406,12 +1068,12 @@ export function SymphonyConcertHall() {
 
           <div className="bg-white/5 border border-white/10 p-2.5 rounded-xl">
             <div className="flex items-center gap-2">
-              <div className="p-1 rounded-md bg-rose-500/20 text-rose-300">
-                <Heart className="w-3.5 h-3.5" />
+              <div className="p-1.5 rounded-lg bg-rose-500/20 text-rose-300 shrink-0">
+                <Heart className="w-4 h-4" />
               </div>
               <div>
-                <span className="text-[8px] font-mono text-stone-400 font-bold block leading-none uppercase">Neuro-Aesthetic Benefit</span>
-                <p className="text-rose-200 font-bold text-[11px] font-display leading-tight mt-0.5">
+                <span className="text-[8px] font-mono text-stone-400 font-bold block leading-none uppercase">Cognitive Resonance</span>
+                <p className="text-rose-200 font-bold text-xs font-display leading-tight mt-0.5">
                   {currentSymphony.benefits}
                 </p>
               </div>
@@ -1421,10 +1083,10 @@ export function SymphonyConcertHall() {
 
       </div>
 
-      {/* RIGHT COLUMN: Player Engine, Standout Master Vol, Visualizer, Interactive Keyboard, Note logger */}
-      <div className="lg:col-span-8 flex flex-col gap-4">
+      {/* RIGHT COLUMN: Player Engine, Instrument Switcher, Backing Tracks, Visualizer, Interactive Keyboard */}
+      <div className="lg:col-span-7 flex flex-col gap-4">
         
-        {/* RIGHT COLUMN TABS */}
+        {/* RIGHT COLUMN TABS: Orchestra Concert Hall vs CoSing AI Studio */}
         <div className="flex gap-1.5 p-1 bg-stone-100 border border-stone-200/50 rounded-2xl self-start animate-fade-in mb-1" id="symphony-tab-header">
           <button
             type="button"
@@ -1438,8 +1100,8 @@ export function SymphonyConcertHall() {
                 : 'text-stone-500 hover:text-stone-850 bg-transparent'
             }`}
           >
-            <Music className="w-4.5 h-4.5 text-[#9f1239]" />
-            Pop Hits Player
+            <Music className="w-4 h-4 text-[#9f1239]" />
+            Symphony Concert Stage
           </button>
           <button
             type="button"
@@ -1453,7 +1115,7 @@ export function SymphonyConcertHall() {
                 : 'text-stone-500 hover:text-stone-850 bg-transparent'
             }`}
           >
-            <Sparkles className="w-4.5 h-4.5 text-amber-300 animate-pulse" />
+            <Sparkles className="w-4 h-4 text-amber-300 animate-pulse" />
             CoSing AI Duets
           </button>
         </div>
@@ -1462,310 +1124,344 @@ export function SymphonyConcertHall() {
           <>
             {/* Main Stage Panel */}
             <div className="bg-white/95 border border-stone-200/80 rounded-2xl p-5 shadow-xs flex flex-col justify-between min-h-[460px] relative overflow-hidden">
-          
-          {/* Top Bar: Live Waveform Visualizer & Instrument Selectors */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-5 border-b border-stone-100 pb-4">
-            
-            {/* Visualizer Animation */}
-            <div className="flex items-center gap-3 w-full sm:w-auto">
-              <div className="h-7 flex items-end gap-1 px-3 py-1 bg-stone-900 rounded-xl min-w-[130px] justify-center shadow-3xs border border-stone-800">
-                {visualBars.map((val, i) => (
+              
+              {/* Top Bar: Live Waveform Visualizer & Lead Instrument Selector */}
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-4 border-b border-stone-100 pb-4">
+                
+                {/* Visualizer Animation */}
+                <div className="flex items-center gap-3 w-full sm:w-auto">
+                  <div className="h-8 flex items-end gap-0.5 px-3 py-1.5 bg-stone-900 rounded-xl min-w-[140px] justify-center shadow-3xs border border-stone-800">
+                    {visualBars.map((val, i) => (
+                      <motion.div 
+                        key={i}
+                        animate={{ height: isPlaying ? `${val}%` : "15%" }}
+                        transition={{ type: "spring", stiffness: 350, damping: 25 }}
+                        className="w-1 bg-gradient-to-t from-rose-500 to-amber-400 rounded-full"
+                      />
+                    ))}
+                  </div>
+                  <div className="leading-none">
+                    <span className="text-[8.5px] font-mono font-bold text-stone-400 uppercase tracking-widest block">Acoustic Engine</span>
+                    <span className="text-[11px] font-sans font-black text-rose-600 flex items-center gap-1 mt-0.5">
+                      <Activity className="w-3 h-3 animate-pulse" /> {isPlaying ? 'POLYPHONIC BROADCAST' : 'STANDBY'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Lead Instrument Selector */}
+                <div className="flex items-center gap-1 bg-stone-100 p-1 rounded-xl w-full sm:w-auto overflow-x-auto">
+                  {INSTRUMENTS.map((inst) => (
+                    <button
+                      key={inst.id}
+                      onClick={() => setActiveInstrument(inst.id as any)}
+                      className={`p-1.5 px-2.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap flex items-center gap-1
+                        ${activeInstrument === inst.id 
+                          ? 'bg-white shadow-3xs border border-rose-200/55 text-rose-600 font-black' 
+                          : 'text-stone-500 hover:text-stone-800'
+                        }
+                      `}
+                      title={inst.desc}
+                    >
+                      <span>{inst.icon}</span>
+                      <span>{inst.label.split(' ')[0]}</span>
+                    </button>
+                  ))}
+                </div>
+
+              </div>
+
+              {/* Active Broadcast Center Display */}
+              <div className="flex-1 flex flex-col items-center justify-center py-4 select-none relative z-10">
+                
+                {/* Pulsing Visual Center Orb */}
+                <div className="relative mb-3">
                   <motion.div 
-                    key={i}
-                    animate={{ height: isPlaying ? `${val}%` : "15%" }}
-                    transition={{ type: "spring", stiffness: 350, damping: 25 }}
-                    className="w-1 bg-gradient-to-t from-rose-500 to-rose-400 rounded-full"
-                  />
-                ))}
-              </div>
-              <div className="leading-none">
-                <span className="text-[9px] font-mono font-bold text-stone-400 uppercase tracking-widest block">Soundwave Engine</span>
-                <span className="text-[11px] font-sans font-black text-rose-600 flex items-center gap-1 mt-0.5">
-                  <Activity className="w-3 h-3 animate-pulse" /> {isPlaying ? 'POLYPHONIC BROADCAST' : 'ENGINE COLD / STANDBY'}
-                </span>
-              </div>
-            </div>
+                    animate={{ scale: activeNote ? 1.18 : 1.0 }}
+                    transition={{ duration: 0.15 }}
+                    className={`w-24 h-24 rounded-full bg-gradient-to-tr ${currentSymphony.bgGradient} flex items-center justify-center text-white shadow-xl border-4 border-white`}
+                  >
+                    <span className="text-3xl animate-bounce-slow">{currentSymphony.emoji}</span>
+                  </motion.div>
+                  {isPlaying && (
+                    <>
+                      <span className="absolute -inset-2 rounded-full border border-rose-400/30 animate-ping pointer-events-none" />
+                      <span className="absolute -inset-5 rounded-full border border-rose-300/10 animate-ping-slow pointer-events-none" />
+                    </>
+                  )}
+                </div>
 
-            {/* Actor Voice Selectors (Real Actors who speak the lyrics) */}
-            <div className="flex items-center gap-1 bg-stone-100 p-1 rounded-xl w-full sm:w-auto overflow-x-auto">
-              {ACTORS.map((actor) => (
-                <button
-                  key={actor.id}
-                  onClick={() => {
-                    setSelectedActorId(actor.id);
-                    if (isPlaying && typeof window !== 'undefined' && 'speechSynthesis' in window) {
-                      window.speechSynthesis.cancel();
-                    }
-                  }}
-                  className={`p-1.5 px-3 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap flex items-center gap-1
-                    ${selectedActorId === actor.id 
-                      ? 'bg-white shadow-3xs border border-rose-200/55 text-rose-600 font-black' 
-                      : 'text-stone-500 hover:text-stone-800'
-                    }
-                  `}
-                  title={actor.description}
-                >
-                  <span>{actor.emoji}</span>
-                  <span>{actor.name.split(' ').pop()}</span>
-                </button>
-              ))}
-            </div>
+                <div className="text-center mb-3">
+                  <h3 className="font-display font-black text-stone-900 text-xl tracking-tight leading-none mb-1">
+                    {currentSymphony.name}
+                  </h3>
+                  <p className="text-xs text-stone-500 font-mono font-bold uppercase tracking-wider">
+                    {currentSymphony.composer} • {currentSymphony.keySignature}
+                  </p>
+                </div>
 
-          </div>
-
-          {/* Active Broadcast Center Display */}
-          <div className="flex-1 flex flex-col items-center justify-center py-6 select-none relative z-10">
-            
-            {/* Pulsing Visual Center Orb */}
-            <div className="relative mb-4">
-              <motion.div 
-                animate={{ scale: activeNote ? 1.22 : 1.0 }}
-                transition={{ duration: 0.15 }}
-                className={`w-28 h-28 rounded-full bg-gradient-to-tr ${currentSymphony.bgGradient} flex items-center justify-center text-white shadow-xl border-4 border-white`}
-              >
-                <span className="text-4xl animate-bounce-slow">{currentSymphony.emoji}</span>
-              </motion.div>
-              {isPlaying && (
-                <>
-                  <span className="absolute -inset-2 rounded-full border border-rose-400/30 animate-ping pointer-events-none" />
-                  <span className="absolute -inset-5 rounded-full border border-rose-300/10 animate-ping-slow pointer-events-none" />
-                </>
-              )}
-            </div>
-
-            <div className="text-center">
-              <h3 className="font-display font-black text-stone-900 text-xl tracking-tight leading-none mb-1">
-                {currentSymphony.name}
-              </h3>
-              <p className="text-xs text-stone-400 font-mono font-bold uppercase tracking-wider">
-                {currentSymphony.composer}
-              </p>
-            </div>
-
-            {/* STAGE TELEPROMPTER / LYRICS DISPLAY */}
-            <div className="w-full max-w-md bg-stone-50 border border-stone-200 rounded-2xl p-4 mt-5 shadow-3xs flex flex-col items-center select-none">
-              <span className="text-[8px] font-mono font-black text-rose-500 uppercase tracking-widest mb-2 block flex items-center gap-1">
-                <Music className="w-2.5 h-2.5 animate-spin-slow" /> STAGE TELEPROMPTER
-              </span>
-              
-              <div className="w-full space-y-1.5 py-1 max-h-36 overflow-y-auto scrollbar-none text-center transition-all duration-300">
-                {currentSymphony.lyrics.map((line, idx) => {
-                  const isActive = activeLyricIndex === idx && isPlaying;
-                  return (
-                    <motion.p
-                      key={idx}
-                      animate={{
-                        scale: isActive ? 1.05 : 0.95,
-                        opacity: isActive ? 1.0 : 0.35,
-                      }}
-                      transition={{ duration: 0.25 }}
-                      className={`text-xs font-black transition-all leading-relaxed ${
-                        isActive
-                          ? 'text-rose-600 bg-rose-50/70 border border-rose-100/60 p-1.5 py-1 rounded-xl shadow-3xs font-display flex items-center justify-center gap-1.5'
-                          : 'text-stone-600'
+                {/* STAGE TELEPROMPTER / LYRICS OR MOVEMENT POETRY */}
+                <div className="w-full max-w-md bg-stone-50 border border-stone-200/70 rounded-2xl p-3.5 shadow-3xs flex flex-col items-center select-none">
+                  <div className="flex items-center justify-between w-full mb-1.5">
+                    <span className="text-[8px] font-mono font-black text-rose-500 uppercase tracking-widest flex items-center gap-1">
+                      <Music className="w-2.5 h-2.5 animate-spin-slow" /> STAGE TELEPROMPTER & MOVEMENTS
+                    </span>
+                    <button
+                      onClick={() => setSpokenNarration(!spokenNarration)}
+                      className={`text-[8.5px] font-mono px-2 py-0.5 rounded cursor-pointer font-bold transition-all ${
+                        spokenNarration ? 'bg-rose-100 text-rose-700' : 'bg-stone-200 text-stone-500'
                       }`}
                     >
-                      {isActive && <Mic className="w-3 h-3 text-rose-500 animate-pulse" />}
-                      {line}
-                    </motion.p>
-                  );
-                })}
-              </div>
-            </div>
+                      {spokenNarration ? '🗣️ Actor Speech: ON' : '🔇 Speech: OFF'}
+                    </button>
+                  </div>
+                  
+                  <div className="text-center min-h-[44px] flex items-center justify-center px-2">
+                    {currentSymphony.lyrics && currentSymphony.lyrics.length > 0 ? (
+                      <p className="text-xs text-stone-700 font-display font-bold italic leading-relaxed animate-fade-in">
+                        "{currentSymphony.lyrics[activeLyricIndex] || currentSymphony.lyrics[0]}"
+                      </p>
+                    ) : (
+                      <p className="text-xs text-stone-400 font-mono italic">
+                        Polyphonic instrumental acoustic resonance
+                      </p>
+                    )}
+                  </div>
+                </div>
 
-            {/* LIVE MULTI-TRACK BACKING MIXER */}
-            <div className="w-full max-w-md bg-stone-50 border border-stone-200 rounded-2xl p-4 mt-4 shadow-3xs">
-              <div className="flex items-center justify-between mb-3 border-b border-stone-150 pb-2 select-none">
-                <span className="text-[9px] font-mono font-black text-rose-500 uppercase tracking-widest flex items-center gap-1">
-                  <Sliders className="w-3 h-3 text-rose-500 animate-pulse" /> BACKING TRACKS MIXER
-                </span>
-                <span className="text-[8px] font-mono font-black text-stone-400 uppercase tracking-wider">
-                  {isPlaying ? 'ACTIVE SYNC' : 'STANDBY'}
-                </span>
-              </div>
-              
-              <div className="grid grid-cols-4 gap-2">
-                {[
-                  { id: 'drums', label: 'Drums', icon: Activity, color: 'text-rose-500', bg: 'bg-rose-50/60' },
-                  { id: 'bass', label: 'Bass', icon: Flame, color: 'text-amber-500', bg: 'bg-amber-50/60' },
-                  { id: 'synth', label: 'Synth', icon: Music, color: 'text-emerald-500', bg: 'bg-emerald-50/60' },
-                  { id: 'arpeggios', label: 'Arp', icon: Sparkles, color: 'text-cyan-500', bg: 'bg-cyan-50/60' },
-                ].map((track) => {
-                  const isTrackActive = mixerTracks[track.id as keyof typeof mixerTracks];
-                  return (
-                    <div 
-                      key={track.id} 
-                      className={`flex flex-col items-center p-2 rounded-xl border transition-all select-none ${
-                        isTrackActive 
-                          ? 'bg-white border-stone-200 shadow-3xs' 
-                          : 'bg-stone-100/50 border-stone-150 opacity-60'
-                      }`}
-                    >
-                      {/* Equalizer Wavelet inside each track block */}
-                      <div className="h-6 flex items-end gap-0.5 justify-center mb-1.5 w-full">
-                        {Array(4).fill(0).map((_, barIdx) => {
-                          const heightVal = isPlaying && isTrackActive 
-                            ? Math.floor(Math.random() * 80 + 20) 
-                            : 10;
-                          return (
-                            <motion.div
-                              key={barIdx}
-                              animate={{ height: `${heightVal}%` }}
-                              transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                              className={`w-0.5 rounded-full ${isTrackActive ? track.color.replace('text', 'bg') : 'bg-stone-300'}`}
-                            />
-                          );
-                        })}
-                      </div>
+                {/* Backing Tracks Mixer */}
+                <div className="w-full max-w-md mt-3 bg-stone-50/70 border border-stone-200/50 rounded-xl p-2.5">
+                  <div className="flex items-center justify-between mb-1.5 px-1">
+                    <span className="text-[8.5px] font-mono font-black text-stone-500 uppercase tracking-wider flex items-center gap-1">
+                      <Sliders className="w-3 h-3 text-rose-500" /> MULTI-TRACK ACOUSTIC MIXER
+                    </span>
+                    <span className="text-[8px] font-mono text-stone-400 font-bold uppercase">
+                      {isPlaying ? 'ACTIVE' : 'STANDBY'}
+                    </span>
+                  </div>
+                  
+                  <div className="grid grid-cols-4 gap-1.5">
+                    {[
+                      { id: 'melody', label: 'Melody', icon: Music, color: 'text-rose-500', bg: 'bg-rose-50' },
+                      { id: 'chords', label: 'Chords', icon: Layers, color: 'text-indigo-500', bg: 'bg-indigo-50' },
+                      { id: 'bass', label: 'Bass', icon: Flame, color: 'text-amber-500', bg: 'bg-amber-50' },
+                      { id: 'drums', label: 'Rhythm', icon: Activity, color: 'text-emerald-500', bg: 'bg-emerald-50' },
+                    ].map((track) => {
+                      const isTrackActive = (mixerTracks as any)[track.id];
+                      return (
+                        <button
+                          key={track.id}
+                          onClick={() => setMixerTracks(prev => ({
+                            ...prev,
+                            [track.id]: !(prev as any)[track.id]
+                          }))}
+                          className={`py-1.5 px-2 rounded-lg text-[9px] font-black uppercase tracking-wider flex items-center justify-center gap-1 transition-all cursor-pointer border ${
+                            isTrackActive 
+                              ? `${track.bg} ${track.color} border-current/30 shadow-3xs` 
+                              : 'bg-stone-100 text-stone-400 border-stone-200 opacity-60'
+                          }`}
+                        >
+                          <track.icon className="w-3 h-3" />
+                          <span>{track.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
 
-                      {/* Button Toggle */}
-                      <button
-                        onClick={() => setMixerTracks(prev => ({
-                          ...prev,
-                          [track.id]: !prev[track.id as keyof typeof mixerTracks]
-                        }))}
-                        className={`w-full py-1.5 rounded-lg text-[9px] font-black uppercase tracking-wider flex flex-col items-center gap-1 transition-all cursor-pointer ${
-                          isTrackActive 
-                            ? `${track.bg} ${track.color} border border-current/25 shadow-3xs` 
-                            : 'bg-stone-150/40 text-stone-400 border border-stone-200'
-                        }`}
-                        title={`Toggle ${track.label} track`}
-                      >
-                        <track.icon className="w-3.5 h-3.5" />
-                        <span className="text-[7.5px] tracking-normal font-black">{track.label}</span>
-                      </button>
+              </div>
+
+              {/* STAND-OUT MASTER VOL UX & TEMPO CONTROLS */}
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center bg-rose-50/45 border border-rose-100/70 p-3.5 rounded-2xl mb-4 shadow-3xs relative">
+                
+                {/* Master Volume Controller */}
+                <div className="md:col-span-7 flex items-center gap-3 bg-white p-2.5 rounded-xl border border-rose-200/70 shadow-2xs w-full">
+                  <button 
+                    onClick={() => setMasterVolume(prev => prev > 0 ? 0 : 75)}
+                    className="p-2 rounded-xl bg-rose-50 border border-rose-150 text-rose-600 hover:bg-rose-100 transition-colors cursor-pointer"
+                    title="Mute Master Output"
+                  >
+                    {masterVolume === 0 ? <VolumeX className="w-4 h-4 text-rose-400" /> : <Volume2 className="w-4 h-4 text-rose-600 animate-pulse" />}
+                  </button>
+                  
+                  <div className="flex-1 flex flex-col">
+                    <div className="flex justify-between items-center leading-none">
+                      <span className="text-[9.5px] font-mono font-black text-rose-600 uppercase tracking-widest">MASTER VOLUME</span>
+                      <span className="text-[10px] font-mono font-black text-rose-700">{masterVolume}%</span>
                     </div>
-                  );
-                })}
+                    <input 
+                      type="range"
+                      min="0"
+                      max="100"
+                      value={masterVolume}
+                      onChange={(e) => setMasterVolume(Number(e.target.value))}
+                      className="w-full h-1.5 rounded-lg appearance-none cursor-pointer accent-rose-600 mt-1.5"
+                      style={{
+                        background: `linear-gradient(to right, #e11d48 0%, #e11d48 ${masterVolume}%, #f5f5f4 ${masterVolume}%, #f5f5f4 100%)`
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {/* Tempo Speed Multiplier Slider */}
+                <div className="md:col-span-5 flex items-center gap-2 bg-white p-2.5 rounded-xl border border-stone-200/50 shadow-3xs w-full">
+                  <div className="flex-1 flex flex-col">
+                    <div className="flex justify-between items-center leading-none">
+                      <span className="text-[9px] font-mono font-black text-stone-500 uppercase tracking-wider">TEMPO SPEED</span>
+                      <span className="text-[9.5px] font-mono font-black text-stone-700">{tempoMultiplier.toFixed(2)}x</span>
+                    </div>
+                    <input 
+                      type="range"
+                      min="0.5"
+                      max="2.0"
+                      step="0.05"
+                      value={tempoMultiplier}
+                      onChange={(e) => setTempoMultiplier(Number(e.target.value))}
+                      className="w-full h-1.5 bg-stone-100 rounded-lg appearance-none cursor-pointer accent-stone-700 mt-1.5"
+                    />
+                  </div>
+                </div>
+
               </div>
+
+              {/* Player Controls Row (Prev, Play/Pause, Next, Shuffle, Loop) */}
+              <div className="flex items-center justify-between gap-2 border-t border-stone-100 pt-3 mt-auto">
+                
+                <div className="flex items-center gap-1.5">
+                  <button
+                    onClick={() => setIsShuffle(!isShuffle)}
+                    className={`p-2 rounded-xl border transition-all cursor-pointer ${
+                      isShuffle 
+                        ? 'bg-rose-50 border-rose-300 text-rose-600 shadow-3xs' 
+                        : 'bg-white border-stone-200 text-stone-400 hover:text-stone-700'
+                    }`}
+                    title="Toggle Shuffle"
+                  >
+                    <Shuffle className="w-4 h-4" />
+                  </button>
+
+                  <button
+                    onClick={() => setIsLoop(!isLoop)}
+                    className={`p-2 rounded-xl border transition-all cursor-pointer ${
+                      isLoop 
+                        ? 'bg-rose-50 border-rose-300 text-rose-600 shadow-3xs' 
+                        : 'bg-white border-stone-200 text-stone-400 hover:text-stone-700'
+                    }`}
+                    title="Toggle Loop"
+                  >
+                    <Repeat className="w-4 h-4" />
+                  </button>
+
+                  <button
+                    onClick={handlePrevTrack}
+                    className="p-2 rounded-xl border border-stone-200 bg-white hover:bg-stone-50 text-stone-600 hover:text-stone-900 transition-all cursor-pointer"
+                    title="Previous Track"
+                  >
+                    <SkipBack className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <button
+                  onClick={handlePlayToggle}
+                  className={`flex-1 max-w-xs p-3 rounded-2xl font-display font-black text-xs uppercase tracking-widest transition-all cursor-pointer shadow-md flex items-center justify-center gap-2 text-white ${
+                    isPlaying 
+                      ? 'bg-stone-900 hover:bg-stone-850 shadow-inner' 
+                      : `bg-gradient-to-r ${currentSymphony.bgGradient} hover:brightness-105 shadow-rose-200`
+                  }`}
+                >
+                  {isPlaying ? (
+                    <>
+                      <Pause className="w-4 h-4 fill-white stroke-none" /> Pause
+                    </>
+                  ) : (
+                    <>
+                      <Play className="w-4 h-4 fill-white stroke-none" /> Play Masterpiece
+                    </>
+                  )}
+                </button>
+
+                <div className="flex items-center gap-1.5">
+                  <button
+                    onClick={handleNextTrack}
+                    className="p-2 rounded-xl border border-stone-200 bg-white hover:bg-stone-50 text-stone-600 hover:text-stone-900 transition-all cursor-pointer"
+                    title="Next Track"
+                  >
+                    <SkipForward className="w-4 h-4" />
+                  </button>
+
+                  <button
+                    onClick={handleStop}
+                    className="p-2 rounded-xl border border-stone-200 bg-white hover:bg-stone-50 text-stone-500 hover:text-stone-800 transition-all cursor-pointer"
+                    title="Reset Track"
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                  </button>
+                </div>
+
+              </div>
+
             </div>
 
-          </div>
-
-          {/* CRITICAL FEATURE: STAND-OUT MASTER VOL UX & TEMPO CONTROLS */}
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center bg-rose-50/45 border border-rose-100/70 p-4 rounded-2xl mb-5 shadow-3xs relative">
-            <div className="absolute top-1.5 left-2">
-              <span className="text-[7px] font-mono text-rose-450 font-black tracking-widest uppercase">AUDIOPHILE STAGE LEVEL</span>
-            </div>
-            
-            {/* Standing-out Master Volume Controller */}
-            <div className="md:col-span-7 flex items-center gap-3.5 bg-white p-3 rounded-xl border border-rose-200/70 shadow-2xs hover:shadow-xs transition-all w-full mt-1.5">
-              <button 
-                onClick={() => setMasterVolume(prev => prev > 0 ? 0 : 70)}
-                className="p-2 rounded-xl bg-rose-50 border border-rose-150 text-rose-600 hover:bg-rose-100 transition-colors cursor-pointer"
-                title="Mute Master Output"
-              >
-                {masterVolume === 0 ? <VolumeX className="w-5 h-5 text-rose-400" /> : <Volume2 className="w-5 h-5 text-rose-600 animate-pulse" />}
-              </button>
+            {/* INTERACTIVE 24-KEY PIANO ROLL / KEYBOARD */}
+            <div className="bg-stone-900 border border-stone-800 rounded-2xl p-4 shadow-sm text-stone-100 select-none">
               
-              <div className="flex-1 flex flex-col">
-                <div className="flex justify-between items-center leading-none">
-                  <span className="text-[10px] font-mono font-black text-rose-600 uppercase tracking-widest">MASTER VOLUME STAGE LEVEL</span>
-                  <span className="text-[11px] font-mono font-black text-rose-700">{masterVolume}%</span>
-                </div>
-                <input 
-                  type="range"
-                  min="0"
-                  max="100"
-                  value={masterVolume}
-                  onChange={(e) => setMasterVolume(Number(e.target.value))}
-                  className="w-full h-2 rounded-lg appearance-none cursor-pointer accent-rose-600 mt-2"
-                  style={{
-                    background: `linear-gradient(to right, #e11d48 0%, #e11d48 ${masterVolume}%, #f5f5f4 ${masterVolume}%, #f5f5f4 100%)`
-                  }}
-                />
-              </div>
-            </div>
-
-            {/* Tempo Speed Multiplier Slider */}
-            <div className="md:col-span-5 flex items-center gap-2 bg-white p-3 rounded-xl border border-stone-200/50 shadow-3xs w-full mt-1.5">
-              <div className="flex-1 flex flex-col">
-                <div className="flex justify-between items-center leading-none">
-                  <span className="text-[9px] font-mono font-black text-stone-500 uppercase tracking-wider">TEMPO BIAS</span>
-                  <span className="text-[10px] font-mono font-black text-stone-700">{tempoMultiplier.toFixed(2)}x</span>
-                </div>
-                <input 
-                  type="range"
-                  min="0.5"
-                  max="2.0"
-                  step="0.05"
-                  value={tempoMultiplier}
-                  onChange={(e) => setTempoMultiplier(Number(e.target.value))}
-                  className="w-full h-1.5 bg-stone-100 rounded-lg appearance-none cursor-pointer accent-stone-700 mt-2"
-                />
-              </div>
-            </div>
-
-          </div>
-
-          {/* Player controls row */}
-          <div className="flex items-center justify-between gap-3 border-t border-stone-100 pt-4 mt-auto">
-            <button
-              onClick={handleStop}
-              className="p-2.5 px-4 rounded-xl border border-stone-200 hover:border-stone-300 bg-white hover:bg-stone-50 text-stone-600 hover:text-stone-900 transition-all font-mono font-black text-xs uppercase tracking-wider cursor-pointer flex items-center gap-1.5"
-            >
-              <RotateCcw className="w-4 h-4" /> Reset
-            </button>
-
-            <button
-              onClick={handlePlayToggle}
-              className={`flex-1 p-3.5 rounded-2xl font-display font-black text-sm uppercase tracking-widest transition-all cursor-pointer shadow-md flex items-center justify-center gap-2 text-white
-                ${isPlaying 
-                  ? 'bg-stone-900 hover:bg-stone-850 shadow-inner' 
-                  : `bg-gradient-to-r ${currentSymphony.bgGradient} hover:brightness-105 shadow-rose-200`
-                }
-              `}
-            >
-              {isPlaying ? (
-                <>
-                  <Pause className="w-5 h-5 fill-white stroke-none" /> Pause Broadcast
-                </>
-              ) : (
-                <>
-                  <Play className="w-5 h-5 fill-white stroke-none" /> Play Masterpiece
-                </>
-              )}
-            </button>
-          </div>
-
-        </div>
-
-        {/* LOG OF RECENT MELODIC SEQUENCE VECTORS */}
-        <div className="bg-stone-50 border border-stone-200/60 rounded-2xl p-4 shadow-3xs">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-[10px] font-mono font-black text-stone-500 uppercase tracking-widest">
-                Real-Time Acoustic Telemetry
-              </span>
-            </div>
-            <span className="text-[9px] font-mono text-stone-400">
-              Showing last 20 carriers
-            </span>
-          </div>
-
-          <div className="bg-stone-900 border border-stone-800 rounded-xl p-3 max-h-[110px] overflow-y-auto font-mono text-[10px] text-stone-300 space-y-1 scrollbar-thin">
-            {performanceLog.length === 0 ? (
-              <div className="text-center text-stone-500 py-4 italic">
-                Awaiting sequence carrier triggers. Play a masterpiece or click keyboard keys to begin stream.
-              </div>
-            ) : (
-              performanceLog.map((log, i) => (
-                <div key={i} className="flex items-center justify-between hover:bg-white/5 p-1 rounded transition-colors">
-                  <span className="text-stone-500">[{log.time}]</span>
-                  <span className={log.isManual ? "text-amber-400 font-bold" : "text-rose-400"}>
-                    {log.isManual ? "👆 Manual Play" : "🤖 Sequencer"}
-                  </span>
-                  <span className="text-white font-black">{log.note}</span>
-                  <span className="text-stone-400">{log.hz} Hz</span>
-                  <span className="text-[9px] px-1 bg-white/10 rounded font-sans text-stone-400">
-                    vector active
+              <div className="flex items-center justify-between mb-3 border-b border-stone-800 pb-2.5">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
+                  <span className="text-[10px] font-mono font-black text-stone-300 uppercase tracking-widest">
+                    Interactive Concert Keyboard ({activeInstrument.toUpperCase()})
                   </span>
                 </div>
-              ))
-            )}
-          </div>
-        </div>
+                <span className="text-[9px] font-mono text-stone-400">
+                  Touch or click keys to play along in real-time
+                </span>
+              </div>
+
+              {/* Keyboard keys container */}
+              <div className="flex justify-center overflow-x-auto py-2 px-1 relative min-h-[110px] scrollbar-none">
+                <div className="flex relative">
+                  {KEYBOARD_KEYS.map((k) => {
+                    const isActive = activeNote === k.note;
+                    if (k.isSharp) {
+                      return (
+                        <button
+                          key={k.note}
+                          onClick={() => playSynthesizedNote(k.note, 0.4, true)}
+                          className={`w-6 h-18 -mx-3 z-20 rounded-b-md transition-all cursor-pointer flex flex-col justify-end items-center pb-1 text-[7.5px] font-mono font-bold select-none ${
+                            isActive
+                              ? 'bg-rose-500 text-white shadow-lg scale-95 ring-2 ring-white'
+                              : 'bg-stone-950 text-stone-400 hover:bg-stone-800 border-x border-b border-stone-700 shadow-md'
+                          }`}
+                        >
+                          <span>{k.label.replace('3', '').replace('4', '').replace('5', '')}</span>
+                        </button>
+                      );
+                    } else {
+                      return (
+                        <button
+                          key={k.note}
+                          onClick={() => playSynthesizedNote(k.note, 0.4, true)}
+                          className={`w-8 h-28 z-10 rounded-b-lg transition-all cursor-pointer flex flex-col justify-end items-center pb-2 text-[8px] font-mono font-bold select-none border-x border-b ${
+                            isActive
+                              ? 'bg-rose-100 border-rose-400 text-rose-950 shadow-inner scale-98 ring-2 ring-rose-400'
+                              : 'bg-white border-stone-300 text-stone-700 hover:bg-stone-100 shadow-xs'
+                          }`}
+                        >
+                          <span className="opacity-75">{k.label}</span>
+                        </button>
+                      );
+                    }
+                  })}
+                </div>
+              </div>
+
+              {/* Real-time telemetry feed */}
+              <div className="mt-3 pt-2.5 border-t border-stone-800 flex items-center justify-between text-[9px] font-mono text-stone-400">
+                <span>Active Carrier: <strong className="text-rose-400">{activeNote || 'IDLE'}</strong></span>
+                <span>Active Instrument: <strong className="text-white">{activeInstrument.toUpperCase()}</strong></span>
+                <span>Tempo: <strong className="text-white">{Math.round((currentSymphony.tempo || 120) * tempoMultiplier)} BPM</strong></span>
+              </div>
+
+            </div>
           </>
         ) : (
           <div className="flex flex-col gap-4 animate-fade-in">
@@ -1899,7 +1595,7 @@ export function SymphonyConcertHall() {
                         style={{ width: `${micLevel}%` }}
                       />
                     </div>
-                    {/* Simulated Voice Graph Waveform */}
+                    {/* Live Voice Graph Waveform */}
                     <div className="h-6 flex items-center justify-center gap-0.5 mt-2 overflow-hidden opacity-80">
                       {Array(24).fill(0).map((_, i) => {
                         const randomHeight = isMicActive ? Math.max(10, Math.floor((Math.sin(i * 0.4) + 1.2) * micLevel * 0.4)) : 4;
@@ -1921,7 +1617,6 @@ export function SymphonyConcertHall() {
                       onClick={() => {
                         initAudio();
                         if (isRecording) {
-                          // Stop recording and auto-save
                           setIsRecording(false);
                           const idol = VOCAL_IDOLS.find(i => i.id === selectedIdolId) || VOCAL_IDOLS[0];
                           const newDuet = {
@@ -2016,7 +1711,7 @@ export function SymphonyConcertHall() {
               {/* Interactive FX Rack */}
               <div>
                 <h4 className="text-[10px] font-mono font-black text-stone-500 uppercase tracking-wider mb-2 flex items-center gap-1">
-                  <Sliders className="w-3.5 h-3.5 text-stone-600" /> 2. Immersive AI Sound Effects Rack:
+                  <SlidersHorizontal className="w-3.5 h-3.5 text-stone-600" /> 2. Immersive AI Sound Effects Rack:
                 </h4>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                   {[

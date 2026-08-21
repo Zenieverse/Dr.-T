@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { db, handleFirestoreError, OperationType } from '../firebase';
 import { VisitorHeadcountTracker } from './VisitorHeadcountTracker';
+import { GlobalGeographyAtlas } from './GlobalGeographyAtlas';
 import { 
   collection, doc, onSnapshot, setDoc, addDoc, 
   serverTimestamp, query, orderBy, limit 
@@ -574,6 +575,86 @@ export const SCHOOLS_DATA: School[] = [
         ]
       }
     ]
+  },
+  {
+    id: 'school-11',
+    number: 11,
+    title: 'School 11: Global Health Geography & Planetary Biogeography',
+    subtitle: 'Spatial Epidemiology, Blue Zones, Environmental Topography, Microclimates & Geo-Health Mapping',
+    iconName: 'Globe',
+    color: 'text-teal-600 dark:text-teal-400',
+    borderColor: 'border-teal-500',
+    bgLight: 'bg-teal-50 dark:bg-teal-950/40',
+    modules: [
+      {
+        id: 's11-m1',
+        title: 'Spatial Epidemiology & Geographic Determinants of Health',
+        description: 'How geographic location, particulate air indices (AQI), urban heat islands, and healthcare transit corridors shape population healthspan.',
+        durationMinutes: 20,
+        learningLevels: ['Beginner', 'Intermediate', 'Advanced'],
+        keyTakeaways: [
+          'Geographic determinants account for over 60% of variance in chronic disease and life expectancy',
+          'Airborne particulate matter (PM2.5) accelerates microvascular aging and neurovascular decline',
+          'Walkable spatial environments with tree canopy coverage increase spontaneous physical activity by 40%'
+        ],
+        fiveQuestions: {
+          whatIsHappening: 'Your physical geographic habitat directly influences the air you breathe, water you drink, and daily physical movement patterns.',
+          whyDoesItMatter: 'Zip code and neighborhood spatial infrastructure often predict cardiovascular health and longevity more accurately than genetic code alone.',
+          whatCanIDo: 'Audit your local neighborhood walkability, seek access to green/blue spaces (forests and water), and monitor local air quality indices (AQI).',
+          whenToSeekHelp: 'Advocate with local civic boards or public health agencies if your area experiences severe environmental contamination or lack of clean water.',
+          redFlags: ['Persistent exposure to high PM2.5 particulate smog causing respiratory distress', 'Unfiltered drinking water with heavy metal contamination']
+        },
+        quizQuestions: [
+          {
+            id: 's11-m1-q1',
+            question: 'What is the primary focus of Spatial Epidemiology in public health?',
+            options: [
+              'Designing hospital floor plans',
+              'Analyzing the spatial distribution and geographic patterns of disease, environmental exposures, and health determinants',
+              'Calculating pharmaceutical dosages',
+              'Training commercial airline pilots'
+            ],
+            correctIndex: 1,
+            explanation: 'Spatial epidemiology studies how geographic location, environmental factors, and spatial access impact disease patterns.'
+          }
+        ],
+        practicalExercise: 'Use an air quality index (AQI) tool to map your regional air and identify 3 walkable green spaces within a 2-mile radius.'
+      },
+      {
+        id: 's11-m2',
+        title: 'The World’s Blue Zones & Biogeography of Exceptional Longevity',
+        description: 'Comparative planetary analysis of Okinawa, Ogliastra (Sardinia), Nicoya, Ikaria, and Loma Linda — hydrology, soil minerals, and microclimates.',
+        durationMinutes: 25,
+        learningLevels: ['Beginner', 'Intermediate', 'Advanced'],
+        keyTakeaways: [
+          'All 5 Blue Zones share common geographic attributes: mineral-dense alkaline water, daily incline movement, and high-polyphenol geobotanicals',
+          'Mountainous terrain in Sardinia and Ikaria mandates 8–12 km of natural daily incline walking',
+          'Coastal marine negative-ion breezes in Okinawa and Ikaria reduce systemic respiratory inflammation'
+        ],
+        fiveQuestions: {
+          whatIsHappening: 'Specific geographic microclimates and soil compositions foster ecosystems where living past 90 with low chronic disease is normal.',
+          whyDoesItMatter: 'Understanding Blue Zone environmental factors allows us to engineer regenerative longevity habits anywhere in the world.',
+          whatCanIDo: 'Incorporate mineral-rich hydration (magnesium/calcium), daily natural incline walking, and antioxidant-rich plant foods into your routine.',
+          whenToSeekHelp: 'Consult a longevity physician or nutritionist to personalize your mineral hydration and dietary antioxidant intake.',
+          redFlags: ['Complete lack of physical movement and isolation in car-dependent food deserts']
+        },
+        quizQuestions: [
+          {
+            id: 's11-m2-q1',
+            question: 'Which common environmental characteristic is shared by multiple global Blue Zones such as Nicoya and Okinawa?',
+            options: [
+              'High-altitude frozen glaciers',
+              'Hard, alkaline drinking water rich in calcium and magnesium minerals',
+              'Continuous sub-zero temperatures',
+              'Complete reliance on processed canned goods'
+            ],
+            correctIndex: 1,
+            explanation: 'Hard, mineral-dense alkaline water rich in ionic calcium and magnesium supports cardiovascular health and skeletal bone density.'
+          }
+        ],
+        practicalExercise: 'Audit your drinking water mineral profile and design a daily routine incorporating natural incline walking and botanical herbal teas.'
+      }
+    ]
   }
 ];
 
@@ -677,6 +758,16 @@ export const AI_AGENT_SPECS: AiAgentSpec[] = [
     specialty: 'Community Services & Social Programs',
     samplePrompt: 'What free or low-cost community transport options exist for non-driving seniors?',
     systemDirective: 'Direct users to Area Agencies on Aging (AAA), local dial-a-ride programs, and community volunteer networks.'
+  },
+  {
+    id: 'agent-11',
+    name: 'Prof. Alistair Vance, DPhil (Oxon)',
+    role: 'Global Health Geographer & Spatial Epidemiologist',
+    description: 'Specializes in Blue Zone biogeography, environmental topography, mineral hydrology, microclimates, and GIS spatial health disparities.',
+    avatarIcon: 'Globe',
+    specialty: 'Spatial Epidemiology & Blue Zone Geography',
+    samplePrompt: 'How do the mineral composition of water and mountain topography in Sardinia and Nicoya support centenarian vitality?',
+    systemDirective: 'Explain health geography, microclimates, GIS spatial disease distribution, soil mineralogy, and planetary longevity corridors.'
   }
 ];
 
@@ -720,11 +811,20 @@ export const CERTIFICATION_TRACKS: CertificationTrack[] = [
   {
     id: 'cert-5',
     title: 'Geriatric Care Professional & Digital Health Navigator',
-    subtitle: 'Full-spectrum mastery across all 10 Institute schools including telemedicine and medical AI literacy.',
-    requiredSchools: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+    subtitle: 'Full-spectrum mastery across all 11 Institute schools including telemedicine and medical AI literacy.',
+    requiredSchools: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
     minQuizScore: 90,
     badgeColor: 'bg-rose-600 text-white',
     description: 'The highest academic honor bestowed by the Dr. T Institute.'
+  },
+  {
+    id: 'cert-6',
+    title: 'Global Health Geography & Planetary Longevity Specialist Certificate',
+    subtitle: 'Mastery in spatial epidemiology, Blue Zone environmental biomes, geo-health mapping, and climatic adaptation.',
+    requiredSchools: [3, 6, 10, 11],
+    minQuizScore: 85,
+    badgeColor: 'bg-teal-600 text-white',
+    description: 'Validates expertise in environmental determinants of health, Blue Zone hydrology, and planetary longevity corridors.'
   }
 ];
 
@@ -788,6 +888,16 @@ export const OPEN_RESOURCES: OpenResource[] = [
     language: 'English / Spanish / Vietnamese',
     urlSnippet: 'https://www.alz.org/help-support/caregiving',
     summary: 'Actionable strategies for managing behavioral changes, legal planning, safety modifications, and support groups.'
+  },
+  {
+    id: 'res-7',
+    title: 'Lancet Planetary Health: Spatial Geography & Environmental Determinants of Longevity',
+    source: 'WHO',
+    topic: 'Global Health Geography',
+    difficulty: 'Advanced',
+    language: 'English',
+    urlSnippet: 'https://www.thelancet.com/journals/lanplh',
+    summary: 'Comprehensive spatial studies analyzing air quality corridors, urban walkability indices, and Blue Zone environmental geography.'
   }
 ];
 
@@ -867,7 +977,7 @@ export function getModuleFlashcards(module: SchoolModule, school: School): Flash
 export function LongevityAcademy() {
   // Navigation tabs inside Academy
   const [activeTab, setActiveTab] = useState<
-    'schools' | 'tutors' | 'escalation' | 'certifications' | 'resources' | 'community' | 'companion'
+    'schools' | 'tutors' | 'escalation' | 'certifications' | 'resources' | 'community' | 'companion' | 'geography'
   >('schools');
 
   // Accessibility & UX controls
@@ -1050,6 +1160,9 @@ export function LongevityAcademy() {
       } else if (lower.includes('dementia') || lower.includes('forget') || lower.includes('memory') || lower.includes('alzheimer')) {
         responseText = `When supporting neurocognitive health or a family member with memory changes, we distinguish transient processing slowing from functional daily impairment. When behavioral agitation occurs, practice Validation Therapy: honor the emotional feeling rather than confronting factual misremembering. Always ensure sudden acute confusion (Delirium) is evaluated immediately by a physician to rule out underlying UTI or infection.`;
         sources.push('Alzheimer’s Association Caregiver Guide', 'Merck Manual Geriatric Psychiatry');
+      } else if (lower.includes('geography') || lower.includes('blue zone') || lower.includes('climate') || lower.includes('altitude') || lower.includes('okinawa') || lower.includes('sardinia') || lower.includes('nicoya') || lower.includes('ikaria') || lower.includes('environment')) {
+        responseText = `Global health geography demonstrates that environmental topography, microclimates, and soil hydrology account for major healthspan differences across the globe. In Blue Zones like Sardinia, Okinawa, Nicoya, and Ikaria, alkaline mineral groundwater (rich in ionic Ca/Mg), daily natural incline walking (up to 12 km), and high-polyphenol endemic botanicals create an environment where living past 90 is natural. What specific geographic region or environmental factor would you like to explore?`;
+        sources.push('WHO Health Geography & Spatial Epidemiology Observatory', 'Lancet Planetary Health');
       } else {
         responseText = `Thank you for asking. In ${selectedAgent.role} research, we emphasize that healthspan precedes lifespan. Every intervention—whether cellular energy optimization, strength building, or cognitive exercise—should answer 5 key questions: What is happening? Why does it matter? What can you do? When to seek help? And what are the red flags? How would you like to apply this to your daily routine?`;
       }
@@ -1344,7 +1457,7 @@ export function LongevityAcademy() {
           }`}
         >
           <Brain className="w-4 h-4" />
-          <span>2. Specialized AI Tutors (10)</span>
+          <span>2. Specialized AI Tutors (11)</span>
         </button>
 
         <button
@@ -1368,7 +1481,7 @@ export function LongevityAcademy() {
           }`}
         >
           <Award className="w-4 h-4" />
-          <span>4. Certifications (5 Tracks)</span>
+          <span>4. Certifications (6 Tracks)</span>
         </button>
 
         <button
@@ -1406,16 +1519,28 @@ export function LongevityAcademy() {
           <HeartPulse className="w-4 h-4" />
           <span>7. Dr. T Companion Journal</span>
         </button>
+
+        <button
+          onClick={() => setActiveTab('geography')}
+          className={`px-4 py-2 rounded-2xl text-xs font-mono font-extrabold transition-all flex items-center gap-2 cursor-pointer ${
+            activeTab === 'geography'
+              ? 'bg-cyan-600 text-white shadow-md'
+              : 'bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-200'
+          }`}
+        >
+          <Globe className="w-4 h-4" />
+          <span>8. Global Geography & Atlas</span>
+        </button>
       </div>
 
       {/* TAB 1: SCHOOLS & PATHWAYS */}
       {activeTab === 'schools' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Left Column: 10 Schools Selector */}
+          {/* Left Column: 11 Schools Selector */}
           <div className="lg:col-span-5 space-y-3">
             <h3 className="text-base font-black font-display text-stone-900 dark:text-white flex items-center gap-2">
               <BookOpen className="w-4 h-4 text-rose-600" />
-              10 Academic Schools
+              11 Academic Schools
             </h3>
 
             <div className="space-y-2.5 max-h-[700px] overflow-y-auto pr-1">
@@ -1549,7 +1674,7 @@ export function LongevityAcademy() {
                 </button>
               </div>
 
-              {/* MODE 1: LECTURE OVERVIEW & SIMULATED AUDIO STREAM */}
+              {/* MODE 1: LECTURE OVERVIEW & LIVE AUDIO STREAM */}
               {learningTabMode === 'lecture' && (
                 <div className="space-y-4">
                   <div className="flex items-center justify-between p-3.5 bg-stone-50 dark:bg-stone-950 rounded-2xl border border-stone-200 dark:border-stone-800 text-xs">
@@ -2338,6 +2463,11 @@ export function LongevityAcademy() {
             ))}
           </div>
         </div>
+      )}
+
+      {/* TAB 8: GLOBAL HEALTH GEOGRAPHY & PLANETARY ATLAS */}
+      {activeTab === 'geography' && (
+        <GlobalGeographyAtlas />
       )}
 
       {/* DR. T ACADEMY OFFICIAL DIPLOMA & TRANSCRIPT MODAL */}

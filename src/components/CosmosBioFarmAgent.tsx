@@ -4,7 +4,8 @@ import {
   Heart, Volume2, VolumeX, Play, Pause, ArrowUpRight, ArrowDownRight, 
   Activity, Brain, DollarSign, Radio, Compass, Globe, Rocket, Orbit,
   Gift, Ticket, Flame, RotateCcw, CheckCircle2, ShoppingBag, Dices,
-  Trophy, ExternalLink, ShieldCheck, Copy, Star
+  Trophy, ExternalLink, ShieldCheck, Copy, Star, FileCode, Download,
+  PlayCircle, Terminal, Check, Layers, Code, RefreshCw
 } from 'lucide-react';
 
 // Types for Intergalactic Crops & Bio-Products

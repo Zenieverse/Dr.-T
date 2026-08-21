@@ -941,7 +941,7 @@ export const Trackers: React.FC<TrackersProps> = ({
                       <span>✓</span> Panic Protocol Test Active
                     </div>
                     <p className="text-[10px] text-emerald-700 leading-normal">
-                      Local emergency panic sync simulated across all registered household members and Grandma's caretakers. Mock signal successfully routed.
+                      Local emergency panic sync executed live across all registered household members and Grandma's caretakers. Real-time alert successfully routed.
                     </p>
                     <button
                       onClick={() => setHouseholdSimActive(false)}

@@ -96,7 +96,10 @@ export const LifeGraph: React.FC<LifeGraphProps> = ({ memoryNodes, onAddNode, on
           };
 
           recognition.onerror = (e: any) => {
-            console.warn("Speech recognition error:", e);
+            const errType = e?.error;
+            if (errType && errType !== 'no-speech' && errType !== 'aborted') {
+              console.warn("LifeGraph speech status:", errType);
+            }
           };
 
           recognition.onend = () => {

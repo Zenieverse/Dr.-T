@@ -1,2 +1,0 @@
-# Zero-dependency symbolic solver engine
-# Works entirely with standard python standard library.

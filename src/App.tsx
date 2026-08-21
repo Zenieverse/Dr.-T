@@ -67,6 +67,11 @@ import { ClinicalAISuite } from './components/ClinicalAISuite';
 import { LongevityAcademy } from './components/LongevityAcademy';
 import { GoogleEcosystemHub } from './components/GoogleEcosystemHub';
 import { VisitorHeadcountTracker } from './components/VisitorHeadcountTracker';
+import { GlobalPopulationTCoinConsole } from './components/GlobalPopulationTCoinConsole';
+import { EliteHomeMasterplan } from './components/elite_home/EliteHomeMasterplan';
+import { CosmosVerseHub } from './components/CosmosVerseHub';
+import { StrandsAgentStudio } from './components/StrandsAgentStudio';
+import { PetWhispererHub } from './components/petwhisperer/PetWhispererHub';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db, isDummy, OperationType, handleFirestoreError } from './firebase';
 import drTAvatar from './assets/images/dr_t_avatar_1781184840352.jpg';
@@ -82,7 +87,7 @@ import avatarMaleCasual from './assets/images/dr_t_avatar_male_cas_1784385129666
 
 export default function App() {
   // Navigation
-  const [activeTab, setActiveTab] = useState<'hub' | 'graph' | 'swarm' | 'trackers' | 'dashboard' | 'avatar' | 'suite' | 'showcase' | 'uipath' | 'stellar-zk' | 'decision' | 'alibaba' | 'symphonies' | 'casper-las' | 'google-maps' | 'x402-algo' | 'gemini-lab' | 'medgemma' | 'nemotron' | 'comfort-food' | 'google-suite' | 'clinical-ai' | 'longevity-academy'>('hub');
+  const [activeTab, setActiveTab] = useState<'pet-whisperer' | 'strands-agents' | 'hub' | 'graph' | 'swarm' | 'trackers' | 'dashboard' | 'avatar' | 'suite' | 'showcase' | 'uipath' | 'stellar-zk' | 'decision' | 'alibaba' | 'symphonies' | 'casper-las' | 'google-maps' | 'x402-algo' | 'gemini-lab' | 'medgemma' | 'nemotron' | 'comfort-food' | 'google-suite' | 'clinical-ai' | 'longevity-academy' | 'cosmos-farm' | 'datahub' | 'tcoin-demographics' | 'elite-home' | 'cosmos-verses'>('pet-whisperer');
   const [activeSuiteSubTab, setActiveSuiteSubTab] = useState<'patient' | 'fhir' | 'analytics' | 'summarizer' | 'imaging' | 'population' | 'coach' | 'lab' | 'mimic' | 'orchestrator' | 'obgyn' | 'predictions' | 'heart_companion' | 'medgemma' | 'nemotron'>('patient');
 
   // State
@@ -94,7 +99,7 @@ export default function App() {
   const [inputVal, setInputVal] = useState<string>('');
   const [userName, setUserName] = useState<string>('Zenieverse');
   const [simulatedGreets, setSimulatedGreets] = useState<{ id: string; time: string; name: string; msg: string; flag: string }[]>([
-    { id: 'g-1', time: '18:35', name: 'lucas_code', msg: "Hey lucas_code! I have checked your code block – it's beautiful, sweetheart.", flag: '🇺🇸' },
+    { id: 'g-1', time: '18:35', name: 'lucas_code', msg: "Hey lucas_code! I have checked your code block – it's live and operational, sweetheart.", flag: '🇺🇸' },
     { id: 'g-2', time: '18:38', name: 'ananya_quantum', msg: "नमस्ते Ananya! Quantum physics is indeed a poem. Let's study.", flag: '🇮🇳' },
     { id: 'g-3', time: '18:39', name: 'viet_anh', msg: "Chào Việt Anh thương yêu, mẹ đây! Con ăn sữa chưa?", flag: '🇻🇳' }
   ]);
@@ -106,6 +111,8 @@ export default function App() {
   const [autoSpeak, setAutoSpeak] = useState<boolean>(true);
   const [isVoiceAgentActive, setIsVoiceAgentActive] = useState<boolean>(false);
   const isVoiceAgentActiveRef = useRef<boolean>(false);
+  const [isVoiceAvatarOptedIn, setIsVoiceAvatarOptedIn] = useState<boolean>(true);
+  const [selectedSymphonyId, setSelectedSymphonyId] = useState<string>('mozart_nachtmusik');
   const [ttsEngine, setTtsEngine] = useState<'gemini' | 'browser'>('gemini');
   const [ttsPitch, setTtsPitch] = useState<number>(1.05);
   const [ttsRate, setTtsRate] = useState<number>(1.0);
@@ -724,12 +731,12 @@ export default function App() {
       };
 
       recognition.onerror = (event: any) => {
-        console.error('Speech recognition error:', event);
         setIsRecording(false);
-        if (event.error === 'not-allowed') {
-          setAudioError('Microphone permission denied. Please allow micro access.');
-        } else {
-          setAudioError(`Microphone recognition issue: ${event.error}`);
+        const errType = event?.error;
+        if (errType === 'not-allowed' || errType === 'service-not-allowed') {
+          setAudioError('Microphone permission denied. Please allow microphone access in your browser settings.');
+        } else if (errType && errType !== 'no-speech' && errType !== 'aborted') {
+          console.warn('Speech recognition status:', errType);
         }
         
         // Auto-restart speech engine if voice agent is active and idle
@@ -1689,7 +1696,7 @@ export default function App() {
                 vibe === 'making_sense' ? 'border-emerald-300 text-emerald-500 glow-emerald' : 
                 'border-purple-300 text-purple-500 glow-purple'}
             `}>
-              <InfinityIcon className="w-5 h-5 animate-pulse-slow" />
+              <InfinityIcon className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
@@ -1703,6 +1710,21 @@ export default function App() {
 
           {/* Core App Tab Swapping */}
           <nav className="flex items-center gap-1.5 p-1 bg-stone-100 border border-stone-200/50 rounded-2xl flex-wrap">
+            {/* Primary PetWhisperer Button */}
+            <button
+              onClick={() => { stopAudio(); setActiveTab('pet-whisperer'); }}
+              className={`p-1.5 px-3.5 rounded-xl text-xs transition-all flex items-center gap-1.5 cursor-pointer font-bold ${
+                activeTab === 'pet-whisperer' || activeTab === 'strands-agents'
+                  ? 'bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-stone-950 shadow-md font-black ring-2 ring-amber-400/60'
+                  : 'bg-amber-100/80 text-amber-950 hover:bg-amber-200/80 border border-amber-300/60'
+              }`}
+              id="tab-petwhisperer-primary-btn"
+              title="PetWhisperer AI Autonomous Taskmaster Workflow Canvas, Ethology Engine & Strands SDK"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-amber-900 animate-spin-slow" />
+              <span>PetWhisperer</span>
+            </button>
+
             <button
               onClick={() => { stopAudio(); setActiveTab('hub'); }}
               className={`p-1.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer
@@ -1713,20 +1735,22 @@ export default function App() {
               <span>🌸</span> <span className="font-bold">Hub</span>
             </button>
             <a
-              href="https://ai.studio/apps/fc762f9b-65fd-4400-9fc0-c6e1dcbedd9d?fullscreenApplet=true"
+              href="https://ai.studio/apps/6def5058-b655-4230-876d-2c8928ed8d6f"
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => {
                 stopAudio();
-                navigator.clipboard.writeText("https://ai.studio/apps/fc762f9b-65fd-4400-9fc0-c6e1dcbedd9d?fullscreenApplet=true");
-                setToastNotice("ComSing App URL copied! Paste in a new tab if popups are blocked by your browser.");
+                if (typeof navigator !== 'undefined' && navigator.clipboard) {
+                  navigator.clipboard.writeText("https://ai.studio/apps/6def5058-b655-4230-876d-2c8928ed8d6f");
+                }
+                setToastNotice("Opening PetWhisperer in a new tab (URL copied to clipboard)!");
                 setTimeout(() => setToastNotice(null), 5000);
               }}
               className="p-1.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer text-stone-500 hover:text-stone-800 hover:bg-stone-50 no-underline"
-              id="tab-symphonies-btn"
-              title="Click to open or copy URL"
+              id="tab-petwhisperer-btn"
+              title="Click to open PetWhisperer in a new tab"
             >
-              <span>🎤</span> <span className="font-bold">ComSing ↗</span>
+              <span>🐾</span> <span className="font-bold">PetWhisperer ↗</span>
             </a>
             <button
               onClick={() => { stopAudio(); setActiveTab('dashboard'); }}
@@ -1825,6 +1849,46 @@ export default function App() {
               id="tab-cosmos-farm-btn"
             >
               <span>🌱</span> <span className="font-bold">Cosmos Green Agent</span>
+            </button>
+
+            <button
+              onClick={() => { stopAudio(); setActiveTab('tcoin-demographics'); }}
+              className={`p-1.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer
+                ${activeTab === 'tcoin-demographics' ? 'bg-gradient-to-r from-emerald-600 via-teal-600 to-amber-500 text-white shadow-xs font-black' : 'text-stone-500 hover:text-stone-800'}
+              `}
+              id="tab-tcoin-demographics-btn"
+            >
+              <span>🌳</span> <span className="font-bold">Eco T-Coins & Reforestation</span>
+            </button>
+
+            <button
+              onClick={() => { stopAudio(); setActiveTab('elite-home'); }}
+              className={`p-1.5 px-3.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer
+                ${activeTab === 'elite-home' ? 'bg-gradient-to-r from-purple-600 via-rose-600 to-amber-600 text-white shadow-md font-black ring-2 ring-purple-400/40' : 'text-purple-700 bg-purple-50/70 hover:bg-purple-100 hover:text-purple-900 border border-purple-200/60'}
+              `}
+              id="tab-elite-home-btn"
+            >
+              <span>🏰</span> <span className="font-black tracking-tight">eLiteVerse 3D</span>
+            </button>
+
+            <button
+              onClick={() => { stopAudio(); setActiveTab('cosmos-verses'); }}
+              className={`p-1.5 px-3.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer
+                ${activeTab === 'cosmos-verses' ? 'bg-gradient-to-r from-indigo-600 via-purple-600 to-cyan-500 text-white shadow-md font-black ring-2 ring-cyan-400/40' : 'text-indigo-700 bg-indigo-50/70 hover:bg-indigo-100 hover:text-indigo-900 border border-indigo-200/60'}
+              `}
+              id="tab-cosmos-verses-btn"
+            >
+              <span>🌌</span> <span className="font-black tracking-tight">Cosmos: Live & Learn (The Verses)</span>
+            </button>
+
+            <button
+              onClick={() => { stopAudio(); setActiveTab('strands-agents'); }}
+              className={`p-1.5 px-3.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer
+                ${activeTab === 'strands-agents' ? 'bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-stone-950 shadow-md font-black ring-2 ring-amber-400/50' : 'text-amber-800 bg-amber-50/80 hover:bg-amber-100 hover:text-amber-950 border border-amber-200/70'}
+              `}
+              id="tab-strands-agents-btn"
+            >
+              <span>⚡</span> <span className="font-black tracking-tight">Strands Agents SDK (Everyday, Pro & Neighbor)</span>
             </button>
 
             <button
@@ -2016,6 +2080,9 @@ export default function App() {
               handleDeleteNote={handleDeleteNote}
               carbonHabits={carbonHabits}
               handleToggleCarbonHabit={handleToggleCarbonHabit}
+              isVoiceAvatarOptedIn={isVoiceAvatarOptedIn}
+              setIsVoiceAvatarOptedIn={setIsVoiceAvatarOptedIn}
+              setActiveTab={setActiveTab}
             />
           </div>
         )}
@@ -2067,6 +2134,10 @@ export default function App() {
               setTAge={setTAge}
               vibeConfig={currentVibeConfig}
               vibes={VIBES}
+              isVoiceAvatarOptedIn={isVoiceAvatarOptedIn}
+              setIsVoiceAvatarOptedIn={setIsVoiceAvatarOptedIn}
+              selectedSymphonyId={selectedSymphonyId}
+              setSelectedSymphonyId={setSelectedSymphonyId}
             />
           </div>
         )}
@@ -2149,6 +2220,34 @@ export default function App() {
         {activeTab === 'cosmos-farm' && (
           <div className="animate-fadeIn">
             <CosmosBioFarmAgent />
+          </div>
+        )}
+
+        {/* Tab 23: GLOBAL POPULATION T-COIN DEMOGRAPHICS CONSOLE */}
+        {activeTab === 'tcoin-demographics' && (
+          <div className="animate-fadeIn">
+            <GlobalPopulationTCoinConsole />
+          </div>
+        )}
+
+        {/* Tab 24: eLite Home - Regenerative Luxury Wellness Civilization 3D Masterplan */}
+        {activeTab === 'elite-home' && (
+          <div className="animate-fadeIn">
+            <EliteHomeMasterplan />
+          </div>
+        )}
+
+        {/* Tab 25: COSMOS - LIVE & LEARN IN THE VERSES (AETHELGARD ORBITAL HABITAT & 3D MULTIVERSE) */}
+        {activeTab === 'cosmos-verses' && (
+          <div className="animate-fadeIn">
+            <CosmosVerseHub />
+          </div>
+        )}
+
+        {/* STRANDS AGENTS SDK & PETWHISPERER AI UNIFIED HUB */}
+        {(activeTab === 'pet-whisperer' || activeTab === 'strands-agents') && (
+          <div className="animate-fadeIn">
+            <PetWhispererHub initialTab={activeTab === 'strands-agents' ? 'strands-hub' : 'taskmaster'} />
           </div>
         )}
 
@@ -2562,7 +2661,7 @@ export default function App() {
                   disabled={isThinking}
                   className={`w-14 h-14 rounded-full flex items-center justify-center border transition-all cursor-pointer shadow-md relative group
                     ${isRecording 
-                      ? 'bg-rose-950 border-rose-800 text-rose-400 animate-pulse' 
+                      ? 'bg-rose-950 border-rose-800 text-rose-400' 
                       : 'bg-stone-900 border-stone-800 text-stone-300 hover:bg-stone-800'
                     }
                   `}
@@ -2634,23 +2733,23 @@ export default function App() {
               </button>
 
               {/* Rarity/Celebration Tag */}
-              <span className="text-[7px] font-mono font-black px-2 py-0.5 bg-gradient-to-r from-pink-500 to-rose-500 text-white rounded-full mb-2 uppercase tracking-widest shadow-xs animate-pulse relative z-10">
+              <span className="text-[7px] font-mono font-black px-2 py-0.5 bg-gradient-to-r from-pink-500 to-rose-500 text-white rounded-full mb-2 uppercase tracking-widest shadow-xs relative z-10">
                 ✦ MYTHIC CELEBRATION ✦
               </span>
 
               {/* Header Title with Emojis */}
               <div className="flex items-center gap-1 mb-2 relative z-10">
-                <span className="text-sm animate-bounce">🎁</span>
+                <span className="text-sm">🎁</span>
                 <h2 className="text-xs font-black tracking-tight bg-gradient-to-r from-pink-600 via-purple-500 to-rose-500 bg-clip-text text-transparent">
                   HAPPY WAAAH WAAAH! 🎉✨
                 </h2>
-                <span className="text-sm animate-bounce">🎁</span>
+                <span className="text-sm">🎁</span>
               </div>
 
               {/* Sparkly Divider */}
               <div className="flex items-center justify-center gap-1 w-full mb-3 relative z-10">
                 <div className="h-[1px] bg-gradient-to-r from-transparent to-pink-200 dark:to-rose-950/40 flex-1" />
-                <Sparkles className="w-3 h-3 text-amber-400 animate-pulse shrink-0" />
+                <Sparkles className="w-3 h-3 text-amber-400 shrink-0" />
                 <div className="h-[1px] bg-gradient-to-l from-transparent to-pink-200 dark:to-rose-950/40 flex-1" />
               </div>
 

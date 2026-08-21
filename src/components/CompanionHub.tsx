@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Activity, 
@@ -15,12 +15,19 @@ import {
   Wind,
   Sparkles,
   Copy,
-  ExternalLink
+  ExternalLink,
+  Video,
+  Music,
+  Play,
+  Pause,
+  Disc,
+  SkipForward
 } from 'lucide-react';
 import { VOICES, VIBES } from '../constants';
 import { APPEARANCES } from './AvatarSettings';
 import { Message, DrTVibe, DrTAppearance } from '../types';
 import { BirthdayCelebrator } from './BirthdayCelebrator';
+import { ALL_SYMPHONIES, SymphonyMasterpiece } from '../data/symphonyTracks';
 
 interface CompanionHubProps {
   messages: Message[];
@@ -73,6 +80,11 @@ interface CompanionHubProps {
   getIcebreakerText: (lang: string) => string;
   showAmbientPlayer: boolean;
   setShowAmbientPlayer: (show: boolean) => void;
+  isVoiceAvatarOptedIn?: boolean;
+  setIsVoiceAvatarOptedIn?: (opted: boolean) => void;
+  setActiveTab?: (tab: string) => void;
+  // Extended props supported by App.tsx
+  [key: string]: any;
 }
 
 export function CompanionHub({
@@ -126,10 +138,118 @@ export function CompanionHub({
   handleCustomFileChange,
   getSpeechBubbleText,
   getIcebreakerText,
+  isVoiceAvatarOptedIn = true,
+  setIsVoiceAvatarOptedIn,
+  setActiveTab,
 }: CompanionHubProps) {
   
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const isInitialMount = useRef(true);
+  
+  // Local mini-player state for symphonies
+  const [activeMiniSymphonyIndex, setActiveMiniSymphonyIndex] = useState(0);
+  const [isMiniSymphonyPlaying, setIsMiniSymphonyPlaying] = useState(false);
+  const miniAudioCtxRef = useRef<AudioContext | null>(null);
+  const miniTimerRef = useRef<any>(null);
+
+  const NOTE_FREQS: Record<string, number> = {
+    'C3': 130.81, 'D3': 146.83, 'E3': 164.81, 'F3': 174.61, 'G3': 196.00, 'A3': 220.00, 'B3': 246.94,
+    'C4': 261.63, 'C#4': 277.18, 'Db4': 277.18, 'D4': 293.66, 'Eb4': 311.13, 'E4': 329.63, 'F4': 349.23,
+    'F#4': 369.99, 'G4': 392.00, 'Ab4': 415.30, 'A4': 440.00, 'Bb4': 466.16, 'B4': 493.88,
+    'C5': 523.25, 'C#5': 554.37, 'D5': 587.33, 'Eb5': 622.25, 'E5': 659.25, 'F5': 698.46,
+    'F#5': 739.99, 'G5': 783.99, 'Ab5': 830.61, 'A5': 880.00, 'Bb5': 932.33, 'B5': 987.77,
+    'C6': 1046.50
+  };
+
+  const playMiniTone = (freq: number, duration: number) => {
+    try {
+      if (!miniAudioCtxRef.current) {
+        const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+        miniAudioCtxRef.current = new AudioCtx();
+      }
+      if (miniAudioCtxRef.current.state === 'suspended') {
+        miniAudioCtxRef.current.resume();
+      }
+      const ctx = miniAudioCtxRef.current;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, ctx.currentTime);
+      gain.gain.setValueAtTime(0.001, ctx.currentTime);
+      gain.gain.linearRampToValueAtTime(0.12, ctx.currentTime + 0.05);
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + duration);
+    } catch {
+      // Audio fallback
+    }
+  };
+
+  const toggleMiniSymphonyPlay = () => {
+    if (isMiniSymphonyPlaying) {
+      if (miniTimerRef.current) clearTimeout(miniTimerRef.current);
+      setIsMiniSymphonyPlaying(false);
+    } else {
+      setIsMiniSymphonyPlaying(true);
+      const currentTrack = ALL_SYMPHONIES[activeMiniSymphonyIndex] || ALL_SYMPHONIES[0];
+      let stepIdx = 0;
+      const loopNotes = () => {
+        if (!currentTrack.notes || currentTrack.notes.length === 0) return;
+        const noteName = currentTrack.notes[stepIdx % currentTrack.notes.length];
+        const freq = NOTE_FREQS[noteName] || 440;
+        playMiniTone(freq, 0.45);
+        stepIdx++;
+        miniTimerRef.current = setTimeout(loopNotes, 480);
+      };
+      loopNotes();
+    }
+  };
+
+  const handleNextMiniTrack = () => {
+    if (miniTimerRef.current) clearTimeout(miniTimerRef.current);
+    const nextIdx = (activeMiniSymphonyIndex + 1) % ALL_SYMPHONIES.length;
+    setActiveMiniSymphonyIndex(nextIdx);
+    if (isMiniSymphonyPlaying) {
+      setTimeout(() => {
+        let stepIdx = 0;
+        const track = ALL_SYMPHONIES[nextIdx];
+        const loopNotes = () => {
+          if (!track.notes || track.notes.length === 0) return;
+          const noteName = track.notes[stepIdx % track.notes.length];
+          const freq = NOTE_FREQS[noteName] || 440;
+          playMiniTone(freq, 0.45);
+          stepIdx++;
+          miniTimerRef.current = setTimeout(loopNotes, 480);
+        };
+        loopNotes();
+      }, 100);
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (miniTimerRef.current) clearTimeout(miniTimerRef.current);
+      if (miniAudioCtxRef.current) {
+        try { miniAudioCtxRef.current.close(); } catch {}
+      }
+    };
+  }, []);
+  
+  const [tavusUrl, setTavusUrl] = useState<string>(() => {
+    return 'https://maker.tavus.io/deployments/c28965db-cea7-4d77-883f-5a499b97b916';
+  });
+
+  const handleStartTavusConversation = (overrideUrl?: string) => {
+    const targetUrl = overrideUrl || tavusUrl.trim() || 'https://maker.tavus.io/deployments/c28965db-cea7-4d77-883f-5a499b97b916';
+    window.open(targetUrl, '_blank', 'noopener,noreferrer');
+  };
+
+  const handleTavusUrlChange = (newUrl: string) => {
+    setTavusUrl(newUrl);
+    localStorage.setItem('tavus_deployment_url', newUrl);
+  };
 
   // Auto scroll to bottom when messages list updates
   useEffect(() => {
@@ -233,15 +353,15 @@ export function CompanionHub({
             {/* Active verbal response description indicator */}
             <div className="h-5 flex justify-center items-center mt-1.5">
               {isThinking ? (
-                <span className="text-xs text-amber-600 font-mono font-bold animate-pulse flex items-center gap-1">
+                <span className="text-xs text-amber-600 font-mono font-bold flex items-center gap-1">
                   <RefreshCw className="w-3.5 h-3.5 animate-spin text-amber-500" /> Synthesizing deep research...
                 </span>
               ) : isSpeaking ? (
-                <span className="text-xs text-emerald-600 font-mono font-bold animate-pulse flex items-center gap-1.5">
-                  <Activity className="w-3.5 h-3.5 text-emerald-500 animate-pulse" /> Vocalizing Socratic comfort ({VOICES.find(v => v.id === voiceName)?.name})...
+                <span className="text-xs text-emerald-600 font-mono font-bold flex items-center gap-1.5">
+                  <Activity className="w-3.5 h-3.5 text-emerald-500" /> Speaking...
                 </span>
               ) : isRecording ? (
-                <span className="text-xs text-rose-600 font-mono font-bold animate-pulse-fast flex items-center gap-1">
+                <span className="text-xs text-rose-600 font-mono font-bold flex items-center gap-1">
                   🎤 Listening to speech inputs...
                 </span>
               ) : !hasGreeted ? (
@@ -250,7 +370,7 @@ export function CompanionHub({
                     e.stopPropagation();
                     triggerGreeting();
                   }}
-                  className="text-xs text-rose-600 font-mono font-extrabold animate-pulse flex items-center gap-1 hover:text-rose-700 underline decoration-dashed cursor-pointer"
+                  className="text-xs text-rose-600 font-mono font-extrabold flex items-center gap-1 hover:text-rose-700 underline decoration-dashed cursor-pointer"
                 >
                   👋 Click to break the ice!
                 </button>
@@ -281,7 +401,7 @@ export function CompanionHub({
 
             {/* Outer glowing backdrops */}
             <div 
-              className={`absolute inset-0 rounded-full blur-3xl transition-all duration-1000 opacity-60 scale-125 animate-pulse
+              className={`absolute inset-0 rounded-full blur-3xl transition-all duration-1000 opacity-60 scale-125
                 ${isThinking ? 'scale-135' : ''}
               `}
               style={{ 
@@ -431,16 +551,13 @@ export function CompanionHub({
               disabled={isThinking}
               className={`w-16 h-16 rounded-full flex items-center justify-center transition-all duration-300 relative border cursor-pointer shadow-md group
                 ${isRecording 
-                  ? 'bg-rose-600 border-rose-500 text-white animate-pulse shadow-rose-600/30' 
+                  ? 'bg-rose-600 border-rose-500 text-white shadow-rose-600/30' 
                   : 'bg-white border-stone-200 text-rose-500 hover:text-rose-600 hover:scale-105 active:scale-95 disabled:opacity-50'
                 }
               `}
               title="Speak out loud"
             >
               {isRecording ? <MicOff className="w-7 h-7" /> : <Mic className="w-7 h-7" />}
-              {isRecording && (
-                <span className="absolute inset-0 rounded-full border-4 border-rose-400 animate-ping opacity-60"></span>
-              )}
             </button>
 
             <div className="text-center">
@@ -452,11 +569,84 @@ export function CompanionHub({
               </p>
             </div>
 
+            {/* Tavus Conversational AI Video Agent launcher */}
+            <div className="w-full bg-gradient-to-br from-stone-900 via-stone-950 to-indigo-950 text-white rounded-2xl p-4 border border-indigo-500/30 shadow-md space-y-3 mt-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="p-1.5 rounded-lg bg-indigo-500/20 border border-indigo-400/30">
+                    <Sparkles className="w-4 h-4 text-amber-400" />
+                  </div>
+                  <div>
+                    <span className="text-xs font-bold font-display text-white block">Jack - Conversational AI Avatar</span>
+                    <span className="text-[9px] text-stone-400 font-mono">Real-Time Video Agent Launcher</span>
+                  </div>
+                </div>
+                <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 font-mono text-[9px] font-bold uppercase tracking-wider flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                  Live Agent
+                </span>
+              </div>
+
+              <p className="text-[10px] text-stone-300 leading-relaxed">
+                Paste or enter your Tavus video deployment URL below to launch in a full-screen session:
+              </p>
+
+              {/* Editable Deployment URL Input Box */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="url"
+                    value={tavusUrl}
+                    onChange={(e) => handleTavusUrlChange(e.target.value)}
+                    placeholder="https://maker.tavus.io/deployments/..."
+                    className="w-full px-3 py-2 text-xs font-mono bg-stone-900/90 border border-indigo-500/40 rounded-xl text-indigo-200 placeholder-stone-500 focus:outline-none focus:border-indigo-400 transition-all shadow-inner"
+                  />
+                </div>
+
+                {/* Preset Chips */}
+                <div className="flex flex-wrap items-center gap-1.5 text-[9px] font-mono">
+                  <span className="text-stone-400 font-bold">Presets:</span>
+                  <button
+                    type="button"
+                    onClick={() => handleTavusUrlChange('https://maker.tavus.io/deployments/c28965db-cea7-4d77-883f-5a499b97b916')}
+                    className="px-2 py-0.5 rounded bg-emerald-950/80 hover:bg-emerald-900 text-emerald-300 border border-emerald-500/40 font-bold cursor-pointer transition-colors"
+                  >
+                    #c28965db (Active)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleTavusUrlChange('https://maker.tavus.io/deployments/f07a6f49-b2a9-457f-bb2f-796be7416816')}
+                    className="px-2 py-0.5 rounded bg-indigo-950/80 hover:bg-indigo-900 text-indigo-300 border border-indigo-500/30 cursor-pointer transition-colors"
+                  >
+                    #f07a6f49
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleTavusUrlChange('https://maker.tavus.io/deployments/8b891163-ac8a-46bd-ac5e-4258b9faf9e6')}
+                    className="px-2 py-0.5 rounded bg-indigo-950/80 hover:bg-indigo-900 text-indigo-300 border border-indigo-500/30 cursor-pointer transition-colors"
+                  >
+                    #8b891163
+                  </button>
+                </div>
+
+                {/* Launch Button */}
+                <button
+                  type="button"
+                  onClick={() => handleStartTavusConversation()}
+                  className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-600 hover:from-indigo-600 hover:via-purple-700 hover:to-pink-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg hover:shadow-indigo-500/25 transition-all cursor-pointer active:scale-98 mt-1"
+                >
+                  <Video className="w-4 h-4 text-emerald-300" />
+                  <span>Launch Video Session (New Window)</span>
+                  <ExternalLink className="w-3.5 h-3.5 text-indigo-200 ml-1" />
+                </button>
+              </div>
+            </div>
+
             {/* Premium Therapy & Communication Suite */}
             <div className="w-full bg-stone-50/50 border border-stone-200/40 rounded-2xl p-4 flex flex-col gap-3 shadow-xs mt-3.5">
               <div className="flex items-center justify-between">
                 <span className="text-[9px] font-mono font-black tracking-widest text-stone-400 uppercase flex items-center gap-1">
-                  <Sparkles className="w-3 h-3 text-rose-400 animate-pulse" /> THERAPY & SUITE HUB
+                  <Sparkles className="w-3 h-3 text-rose-400" /> THERAPY & SUITE HUB
                 </span>
                 <span className="text-[8px] font-mono font-bold text-stone-500 px-2 py-0.5 rounded-full bg-white border border-stone-100 uppercase">
                   Motherly Care
@@ -475,7 +665,7 @@ export function CompanionHub({
                   id="trigger-voice-agent-call-btn"
                 >
                   <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center mb-1.5 group-hover:scale-105 transition-transform duration-300">
-                    <PhoneCall className="w-4 h-4 animate-pulse" />
+                    <PhoneCall className="w-4 h-4" />
                   </div>
                   <div className="flex-1 flex flex-col justify-center">
                     <span className="text-[11px] font-extrabold tracking-tight text-stone-850 uppercase font-sans">
@@ -550,7 +740,7 @@ export function CompanionHub({
                   className="flex flex-col items-center justify-between p-3.5 bg-white border border-stone-200/40 hover:border-amber-300 hover:shadow-xs hover:shadow-amber-500/5 hover:-translate-y-0.5 rounded-xl transition-all duration-300 cursor-pointer text-center group active:scale-97"
                 >
                   <div className="w-10 h-10 rounded-full bg-amber-50 text-amber-500 flex items-center justify-center mb-1.5 group-hover:scale-105 transition-transform duration-300">
-                    <Headphones className="w-4 h-4 text-amber-600 animate-pulse" />
+                    <Headphones className="w-4 h-4 text-amber-600" />
                   </div>
                   <div className="flex-1 flex flex-col justify-center">
                     <span className="text-[11px] font-extrabold tracking-tight text-stone-850 uppercase font-sans">
@@ -562,6 +752,128 @@ export function CompanionHub({
                   </div>
                 </button>
               </div>
+            </div>
+
+            {/* Classical Symphonies & Pop Playlist Jukebox (30+ Masterpiece Collection) */}
+            <div className="w-full bg-gradient-to-br from-amber-50/90 via-rose-50/70 to-stone-50 border border-amber-200/70 rounded-2xl p-4 flex flex-col gap-3 shadow-xs mt-3.5" id="companion-symphony-jukebox">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-mono font-black tracking-widest text-amber-800 uppercase flex items-center gap-1.5">
+                  <Music className="w-3.5 h-3.5 text-amber-600 animate-spin" style={{ animationDuration: '8s' }} /> 
+                  CLASSICAL & POP JUKEBOX
+                </span>
+                <span className="text-[8.5px] font-mono font-bold text-amber-700 bg-amber-100/80 px-2 py-0.5 rounded-full border border-amber-200">
+                  {ALL_SYMPHONIES.length} TRACKS
+                </span>
+              </div>
+
+              {/* Mode indicator & quick toggle */}
+              <div className="flex items-center justify-between text-[10px] bg-white/70 p-2 rounded-xl border border-amber-100">
+                <span className="text-stone-600 font-medium">
+                  {isVoiceAvatarOptedIn ? '🎙️ Voice Avatar Mode' : '🎼 Symphony Background Mode'}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setIsVoiceAvatarOptedIn && setIsVoiceAvatarOptedIn(!isVoiceAvatarOptedIn)}
+                  className="text-rose-600 font-bold hover:underline cursor-pointer"
+                >
+                  {isVoiceAvatarOptedIn ? 'Switch to Symphonies' : 'Switch to Voice Avatar'}
+                </button>
+              </div>
+
+              {/* Currently Selected Track Info */}
+              {ALL_SYMPHONIES[activeMiniSymphonyIndex] && (
+                <div className="p-3 bg-white/90 rounded-xl border border-amber-200/80 flex items-center justify-between gap-3 shadow-3xs">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="w-9 h-9 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center text-lg shrink-0 shadow-inner">
+                      {ALL_SYMPHONIES[activeMiniSymphonyIndex].emoji}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs font-bold text-stone-900 truncate">
+                        {ALL_SYMPHONIES[activeMiniSymphonyIndex].name}
+                      </p>
+                      <p className="text-[10px] text-stone-500 truncate">
+                        {ALL_SYMPHONIES[activeMiniSymphonyIndex].composer} • {ALL_SYMPHONIES[activeMiniSymphonyIndex].benefits}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Play/Pause & Next Controls */}
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <button
+                      type="button"
+                      onClick={toggleMiniSymphonyPlay}
+                      className="p-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white shadow-xs cursor-pointer active:scale-95 transition-all"
+                      title={isMiniSymphonyPlaying ? 'Pause Melody' : 'Play Classical/Pop Symphony'}
+                    >
+                      {isMiniSymphonyPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 fill-current" />}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleNextMiniTrack}
+                      className="p-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 cursor-pointer active:scale-95 transition-all"
+                      title="Next Masterpiece"
+                    >
+                      <SkipForward className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Quick Select Masterpieces (Mozart, Beethoven, Bach, Chopin, Pop) */}
+              <div className="grid grid-cols-3 gap-1.5">
+                {[
+                  { id: 'mozart_nachtmusik', label: '🎻 Mozart', idx: 0 },
+                  { id: 'beethoven_5th', label: '⚡ Beethoven', idx: 1 },
+                  { id: 'beethoven_moonlight', label: '🌙 Moonlight', idx: 2 },
+                  { id: 'bach_air_g_string', label: '⛪ Bach', idx: 4 },
+                  { id: 'vivaldi_spring', label: '🌸 Vivaldi', idx: 3 },
+                  { id: 'pop_bohemian_rhapsody', label: '👑 Queen Pop', idx: 24 }
+                ].map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => {
+                      if (miniTimerRef.current) clearTimeout(miniTimerRef.current);
+                      setActiveMiniSymphonyIndex(item.idx);
+                      if (isMiniSymphonyPlaying) {
+                        setTimeout(() => {
+                          let stepIdx = 0;
+                          const track = ALL_SYMPHONIES[item.idx];
+                          const loopNotes = () => {
+                            if (!track.notes || track.notes.length === 0) return;
+                            const noteName = track.notes[stepIdx % track.notes.length];
+                            const freq = NOTE_FREQS[noteName] || 440;
+                            playMiniTone(freq, 0.45);
+                            stepIdx++;
+                            miniTimerRef.current = setTimeout(loopNotes, 480);
+                          };
+                          loopNotes();
+                        }, 80);
+                      }
+                    }}
+                    className={`py-1.5 px-2 text-[9.5px] font-bold rounded-lg border transition-all cursor-pointer truncate ${
+                      activeMiniSymphonyIndex === item.idx
+                        ? 'bg-amber-500 border-amber-600 text-white shadow-xs'
+                        : 'bg-white/80 border-stone-200 text-stone-700 hover:bg-white'
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Full Symphony Concert Hall Link */}
+              {setActiveTab && (
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('symphonies')}
+                  className="w-full py-2 bg-white hover:bg-amber-50/80 border border-amber-200 text-amber-900 rounded-xl text-[10px] font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-3xs"
+                >
+                  <Disc className="w-3.5 h-3.5 text-amber-600" />
+                  <span>Open Full 35+ Track Symphony Concert Hall</span>
+                  <ExternalLink className="w-2.5 h-2.5 opacity-60 ml-0.5" />
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -576,7 +888,7 @@ export function CompanionHub({
           {/* Active Neural Voice Console Card */}
           <div className="bg-white/80 border border-rose-100/70 rounded-3xl p-5 shadow-xs flex flex-col gap-3.5" id="vocal-voice-synthesizer-card">
           <span className="text-[10px] font-mono font-bold tracking-widest text-rose-550 uppercase flex items-center gap-1.5">
-            <Headphones className="w-3.5 h-3.5 text-rose-500 animate-pulse" /> ACTIVE NEURAL VOICE CONSOLE
+            <Headphones className="w-3.5 h-3.5 text-rose-500" /> ACTIVE NEURAL VOICE CONSOLE
           </span>
 
           {/* Voice Character Select */}
@@ -697,7 +1009,6 @@ export function CompanionHub({
         <div className="bg-white/80 border border-stone-200/65 rounded-3xl p-5 shadow-xs flex flex-col gap-3.5" id="socratic-peer-greeting-service-card">
           <span className="text-[10px] font-mono font-bold tracking-widest text-[#cf586e] uppercase flex items-center gap-1.5">
             <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
             </span>
             SOCRATIC PLATFORM INTERACTIVE GREET SERVICE
@@ -773,7 +1084,7 @@ export function CompanionHub({
         {/* Chat header */}
         <div className="flex items-center justify-between border-b border-stone-150 pb-3 mb-3">
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
             <p className="text-xs font-mono font-bold tracking-wider text-stone-600 uppercase">Interactive Dialogue Console</p>
           </div>
           <span className="text-[10px] font-mono text-stone-400">Total conversation sync: {messages.length}</span>
@@ -783,7 +1094,7 @@ export function CompanionHub({
         <div className="flex-1 overflow-y-auto pr-1 flex flex-col gap-3.5 max-h-[380px] scroll-smooth">
           {messages.length === 0 ? (
             <div className="flex-1 flex flex-col items-center justify-center text-center p-6 text-stone-400">
-              <InfinityIcon className="w-9 h-9 text-rose-300 animate-pulse mb-2" />
+              <InfinityIcon className="w-9 h-9 text-rose-300 mb-2" />
               <p className="text-xs font-extrabold text-stone-600">Comforting Multilingual Counselor Hub</p>
               <p className="text-[11px] leading-relaxed text-stone-400 max-w-[340px] mt-1">
                 Select a language option, then share any secret, vent relationship worries, ask life questions, or debug complex code. Dr. T Infinity knows everything and advises with maternal warmth!
@@ -847,7 +1158,7 @@ export function CompanionHub({
                         onClick={() => speakMessage(m.id, m.content)}
                         className={`text-[9px] px-2 py-0.5 rounded-md font-mono font-bold tracking-wider cursor-pointer border transition-all flex items-center gap-1
                           ${m.isVoicePlaying 
-                            ? 'bg-rose-50 border-rose-200 text-rose-600 font-extrabold animate-pulse' 
+                            ? 'bg-rose-50 border-rose-200 text-rose-600 font-extrabold' 
                             : 'bg-white hover:bg-stone-50 border-stone-150 text-stone-500'
                           }
                         `}
@@ -878,10 +1189,10 @@ export function CompanionHub({
                 transition={{ duration: 0.22 }}
                 className="self-start flex flex-col items-start max-w-[80%]"
               >
-                <span className="text-[9px] text-stone-400 font-mono font-extrabold mb-1 uppercase tracking-wider animate-pulse">
+                <span className="text-[9px] text-stone-400 font-mono font-extrabold mb-1 uppercase tracking-wider">
                   DR. T IS PONDERING...
                 </span>
-                <div className={`p-3.5 border rounded-2xl rounded-tl-none flex items-center gap-3 text-xs shadow-md transition-all duration-300 animate-pulse
+                <div className={`p-3.5 border rounded-2xl rounded-tl-none flex items-center gap-3 text-xs shadow-md transition-all duration-300
                   ${vibe === 'empathetic' ? 'bg-rose-50/95 border-rose-200/70 shadow-rose-100/40 text-rose-950' :
                     vibe === 'witty' ? 'bg-amber-50/95 border-amber-200/70 shadow-amber-100/40 text-amber-950' :
                     vibe === 'philosophical' ? 'bg-indigo-50/95 border-indigo-200/70 shadow-indigo-100/40 text-indigo-950' :
@@ -931,7 +1242,7 @@ export function CompanionHub({
         </div>
 
         {/* Proactive alert scrolling advisory banner */}
-        <div className="my-2.5 p-2 bg-gradient-to-r from-rose-50/50 via-amber-50/50 to-emerald-50/50 border border-stone-150 rounded-xl text-[10px] text-stone-500 flex items-center justify-between shadow-xs z-10 animate-pulse">
+        <div className="my-2.5 p-2 bg-gradient-to-r from-rose-50/50 via-amber-50/50 to-emerald-50/50 border border-stone-150 rounded-xl text-[10px] text-stone-500 flex items-center justify-between shadow-xs z-10">
           <span className="flex items-center gap-1.5 truncate">
             <span className="w-1.5 h-1.5 rounded-full bg-rose-550"></span>
             <span className="font-extrabold text-stone-700 uppercase">PROACTIVE INTELLIGENCE:</span>

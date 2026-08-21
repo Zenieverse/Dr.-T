@@ -436,8 +436,11 @@ export function VocalBridgeTrainer() {
     };
 
     recognition.onerror = (e: any) => {
-      console.error(e);
       setMicActive(false);
+      const errType = e?.error;
+      if (errType && errType !== 'no-speech' && errType !== 'aborted') {
+        console.warn('Vocal bridge speech recognition event:', errType);
+      }
     };
 
     recognition.onend = () => {

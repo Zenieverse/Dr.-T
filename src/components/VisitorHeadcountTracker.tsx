@@ -37,9 +37,10 @@ export interface FeatureUsageMetric {
 }
 
 const DEFAULT_PAGE_STATS: PageVisitorStat[] = [
+  { pageId: 'tcoin-demographics', pageName: 'Biology Quiz & Tree-Nation Reforestation', icon: '🌱', currentlyViewing: 34, totalViews: 58920, avgTimeSeconds: 520 },
   { pageId: 'hub', pageName: 'Caregiver Hub', icon: '🩺', currentlyViewing: 14, totalViews: 42180, avgTimeSeconds: 245 },
   { pageId: 'longevity-academy', pageName: 'Dr. T Institute', icon: '🎓', currentlyViewing: 18, totalViews: 38940, avgTimeSeconds: 410 },
-  {pageId: 'cosmos-farm', pageName: 'Cosmos Green Agent', icon: '🌱', currentlyViewing: 22, totalViews: 48920, avgTimeSeconds: 520 },
+  { pageId: 'cosmos-farm', pageName: 'Cosmos Green Agent', icon: '🌱', currentlyViewing: 22, totalViews: 48920, avgTimeSeconds: 520 },
   { pageId: 'clinical-ai', pageName: 'Clinical AI & Comfort Food', icon: '🏥', currentlyViewing: 12, totalViews: 29510, avgTimeSeconds: 312 },
   { pageId: 'google-suite', pageName: 'Google Ecosystem Suite', icon: '🔵', currentlyViewing: 8, totalViews: 18420, avgTimeSeconds: 180 },
   { pageId: 'graph', pageName: '3D Memory Knowledge Graph', icon: '🧠', currentlyViewing: 5, totalViews: 14890, avgTimeSeconds: 195 },
@@ -50,6 +51,7 @@ const DEFAULT_PAGE_STATS: PageVisitorStat[] = [
 ];
 
 const INITIAL_FEATURE_METRICS: FeatureUsageMetric[] = [
+  { featureName: 'Global Population T-Coin Minting (VN 100M+)', category: 'Economy', usageCount: 18900, avgEngagementSec: 420, satisfactionRate: 99.2 },
   { featureName: 'AI Voice Consultations', category: 'Clinical AI', usageCount: 12400, avgEngagementSec: 320, satisfactionRate: 98.4 },
   { featureName: 'Institute Certification Quiz', category: 'Academy', usageCount: 9850, avgEngagementSec: 540, satisfactionRate: 96.2 },
   { featureName: 'Comfort Food Meal Planner', category: 'Nutrition', usageCount: 8900, avgEngagementSec: 210, satisfactionRate: 97.8 },

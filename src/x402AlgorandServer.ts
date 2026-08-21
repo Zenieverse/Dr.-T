@@ -3,8 +3,24 @@ import { Request, Response } from 'express';
 export const MAINNET_TCOIN_ASA = 31566704;
 export const TESTNET_TCOIN_ASA = 10458941;
 export const ALGORAND_MAINNET_CAIP2 = 'algorand:wG23fS2A7A3PZBuWCMvxA-ZG2gNtx9O0';
-export const GOPLAUSIBLE_FACILITATOR = 'https://facilitator.goplausible.com';
+export const ALGORAND_TESTNET_CAIP2 = 'algorand:SGO1GKSzyE7IEPItTxCByw9x8FmnrCD0';
+export const GOPLAUSIBLE_FACILITATOR = 'https://facilitator.goplausible.xyz';
+export const GOPLAUSIBLE_FACILITATOR_ALT = 'https://facilitator.goplausible.com';
+export const LORA_TESTNET_BASE_URL = 'https://lora.algokit.io/testnet';
 export const DEFAULT_PAY_TO = 'DRT402MAINNETPAYMENTRECEIVERADDRESS31566704TCOIN';
+export const TESTNET_DEFAULT_PAY_TO = 'DRT402TESTNETRECEIVERACCOUNTADDR10458941ALGO';
+
+export function getLoraTestnetTxUrl(txId: string): string {
+  return `${LORA_TESTNET_BASE_URL}/transaction/${encodeURIComponent(txId)}`;
+}
+
+export function getLoraTestnetAssetUrl(assetId: number | string): string {
+  return `${LORA_TESTNET_BASE_URL}/asset/${encodeURIComponent(assetId)}`;
+}
+
+export function getLoraTestnetAccountUrl(account: string): string {
+  return `${LORA_TESTNET_BASE_URL}/account/${encodeURIComponent(account)}`;
+}
 
 // Backward compatibility exports
 export const MAINNET_USDC_ASA = MAINNET_TCOIN_ASA;
@@ -209,8 +225,9 @@ export function handle402Response(
   const isMainnet = network !== 'testnet';
   const assetId = isMainnet ? MAINNET_TCOIN_ASA : TESTNET_TCOIN_ASA;
   const netName = isMainnet ? 'ALGORAND_Mainnet_CAIP2' : 'ALGORAND_Testnet_CAIP2';
-  const caip2 = isMainnet ? ALGORAND_MAINNET_CAIP2 : 'algorand:SGO1GKSzyE7IEPItTxCByw9x8FmnrCD0';
-  const payTo = payToAddress || DEFAULT_PAY_TO;
+  const caip2 = isMainnet ? ALGORAND_MAINNET_CAIP2 : ALGORAND_TESTNET_CAIP2;
+  const payTo = payToAddress || (isMainnet ? DEFAULT_PAY_TO : TESTNET_DEFAULT_PAY_TO);
+  const loraBase = isMainnet ? 'https://lora.algokit.io/mainnet' : LORA_TESTNET_BASE_URL;
 
   res.status(402)
     .set({
@@ -222,6 +239,7 @@ export function handle402Response(
       'X-402-Amount': String(amountMicroT),
       'X-402-Symbol': 'T-COIN',
       'X-402-Facilitator': GOPLAUSIBLE_FACILITATOR,
+      'X-402-Explorer': loraBase,
       'X-402-Tag': 'x402-global-solution',
       'X-402-Challenge': 'Algorand-x402-T-Coin-Challenge-3',
       'X-402-Tags': 'x402-global-solution,dr-t,t-coin,agentic-commerce'
@@ -247,10 +265,16 @@ export function handle402Response(
       },
       tags: ['x402-global-solution', 'dr-t', 't-coin', 'fluid-intelligence', netName],
       bazaarDiscovery: '/.well-known/x402-bazaar.json',
+      loraExplorer: {
+        networkUrl: loraBase,
+        assetUrl: `${loraBase}/asset/${assetId}`,
+        accountUrl: `${loraBase}/account/${payTo}`
+      },
       paymentInstructions: {
         header: 'X-402-Payment: <algorand_tx_id_or_goplausible_receipt>',
         description: `Transfer ${priceTCoin} (${amountMicroT.toLocaleString()} microT) on ${isMainnet ? 'Algorand Mainnet (T-COIN ASA 31566704 - ALGORAND_Mainnet_CAIP2)' : 'Algorand Testnet (ASA 10458941)'} to ${payTo}`,
-        facilitatorUrl: GOPLAUSIBLE_FACILITATOR
+        facilitatorUrl: GOPLAUSIBLE_FACILITATOR,
+        loraExplorerUrl: loraBase
       }
     });
 }

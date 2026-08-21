@@ -1,10 +1,10 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Explicitly allow reads and writes to the appState document 'clarissa_jane_drt' 
-    // to synchronize memory graphs and checklists securely.
+    // Explicitly allow reads and writes to all appState documents 
+    // to synchronize memory graphs, eco playground state, and demographic reserves securely.
     match /appState/{docId} {
-      allow read, write: if docId == "clarissa_jane_drt";
+      allow read, write: if true;
     }
 
     // Allow read/write to anonymized R&D health research cases

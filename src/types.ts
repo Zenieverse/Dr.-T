@@ -151,3 +151,13 @@ export interface LifetimeStreak {
   productivityStreak: number;
   carbonSavedKg: number;
 }
+
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      'tavus-widget': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement> & { 'deployment-id'?: string; 'custom-greeting'?: string; 'conversational-context'?: string }, HTMLElement>;
+      'tavus-embed': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement> & { 'deployment-id'?: string; 'custom-greeting'?: string; 'conversational-context'?: string }, HTMLElement>;
+    }
+  }
+}
+
