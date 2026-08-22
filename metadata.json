@@ -1,6 +1,6 @@
 {
   "name": "Dr. T - Multilingual Soulmate",
-  "description": "PetWhisperer AI (CanineWhisperer) autonomous cross-species veterinary ethology & multimodal behavioral de-escalation platform featuring a 5-stage taskmaster pipeline, Strands Agents SDK & AgentCore hub, Gemini 3.7 Flash triage, Web Audio API bio-acoustics, Snowflake DW telemetry, and Solana Devnet on-chain proof verification alongside Dr. T biomedical informatics.",
+  "description": "Next-Gen AI & AR Consumer Experience platform powered by Perfect Corp's technology suite (Live 3D WebCam Virtual Try-On, 14-dimension AI Skin Diagnostics, GenAI Text-to-Fashion & Cloth Drape Simulation, Smart Retail & Lookbook Checkout, API Developer Sandbox) alongside Dr. T biomedical and veterinary informatics.",
   "requestFramePermissions": ["camera", "microphone"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

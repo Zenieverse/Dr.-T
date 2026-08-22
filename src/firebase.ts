@@ -1,10 +1,27 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
+import { 
+  initializeFirestore, 
+  memoryLocalCache, 
+  getFirestore 
+} from 'firebase/firestore';
 import firebaseConfig from '../firebase-applet-config.json';
 
 const app = initializeApp(firebaseConfig);
-export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
+
+// In sandboxed/iframe preview environments, IndexedDB persistence can drop or fail ("Connection to Indexed Database server lost").
+// Using memoryLocalCache guarantees clean, crash-free client-side Firestore operations.
+export const db = (() => {
+  try {
+    return initializeFirestore(app, {
+      localCache: memoryLocalCache()
+    }, firebaseConfig.firestoreDatabaseId);
+  } catch (err) {
+    // If already initialized or fallback needed
+    return getFirestore(app, firebaseConfig.firestoreDatabaseId);
+  }
+})();
+
 export const auth = getAuth(app);
 export const isDummy = firebaseConfig.apiKey === "dummy-api-key" || !firebaseConfig.apiKey;
 

@@ -72,6 +72,7 @@ import { EliteHomeMasterplan } from './components/elite_home/EliteHomeMasterplan
 import { CosmosVerseHub } from './components/CosmosVerseHub';
 import { StrandsAgentStudio } from './components/StrandsAgentStudio';
 import { PetWhispererHub } from './components/petwhisperer/PetWhispererHub';
+import { PerfectCorpStudio } from './components/perfect_corp/PerfectCorpStudio';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db, isDummy, OperationType, handleFirestoreError } from './firebase';
 import drTAvatar from './assets/images/dr_t_avatar_1781184840352.jpg';
@@ -1710,21 +1711,6 @@ export default function App() {
 
           {/* Core App Tab Swapping */}
           <nav className="flex items-center gap-1.5 p-1 bg-stone-100 border border-stone-200/50 rounded-2xl flex-wrap">
-            {/* Primary PetWhisperer Button */}
-            <button
-              onClick={() => { stopAudio(); setActiveTab('pet-whisperer'); }}
-              className={`p-1.5 px-3.5 rounded-xl text-xs transition-all flex items-center gap-1.5 cursor-pointer font-bold ${
-                activeTab === 'pet-whisperer' || activeTab === 'strands-agents'
-                  ? 'bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-stone-950 shadow-md font-black ring-2 ring-amber-400/60'
-                  : 'bg-amber-100/80 text-amber-950 hover:bg-amber-200/80 border border-amber-300/60'
-              }`}
-              id="tab-petwhisperer-primary-btn"
-              title="PetWhisperer AI Autonomous Taskmaster Workflow Canvas, Ethology Engine & Strands SDK"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-amber-900 animate-spin-slow" />
-              <span>PetWhisperer</span>
-            </button>
-
             <button
               onClick={() => { stopAudio(); setActiveTab('hub'); }}
               className={`p-1.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer
@@ -1734,24 +1720,6 @@ export default function App() {
             >
               <span>🌸</span> <span className="font-bold">Hub</span>
             </button>
-            <a
-              href="https://ai.studio/apps/6def5058-b655-4230-876d-2c8928ed8d6f"
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => {
-                stopAudio();
-                if (typeof navigator !== 'undefined' && navigator.clipboard) {
-                  navigator.clipboard.writeText("https://ai.studio/apps/6def5058-b655-4230-876d-2c8928ed8d6f");
-                }
-                setToastNotice("Opening PetWhisperer in a new tab (URL copied to clipboard)!");
-                setTimeout(() => setToastNotice(null), 5000);
-              }}
-              className="p-1.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer text-stone-500 hover:text-stone-800 hover:bg-stone-50 no-underline"
-              id="tab-petwhisperer-btn"
-              title="Click to open PetWhisperer in a new tab"
-            >
-              <span>🐾</span> <span className="font-bold">PetWhisperer ↗</span>
-            </a>
             <button
               onClick={() => { stopAudio(); setActiveTab('dashboard'); }}
               className={`p-1.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer
@@ -1882,13 +1850,23 @@ export default function App() {
             </button>
 
             <button
-              onClick={() => { stopAudio(); setActiveTab('strands-agents'); }}
+              onClick={() => { stopAudio(); setActiveTab('pet-whisperer'); }}
               className={`p-1.5 px-3.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer
-                ${activeTab === 'strands-agents' ? 'bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-stone-950 shadow-md font-black ring-2 ring-amber-400/50' : 'text-amber-800 bg-amber-50/80 hover:bg-amber-100 hover:text-amber-950 border border-amber-200/70'}
+                ${(activeTab === 'strands-agents' || activeTab === 'pet-whisperer') ? 'bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-stone-950 shadow-md font-black ring-2 ring-amber-400/50' : 'text-amber-800 bg-amber-50/80 hover:bg-amber-100 hover:text-amber-950 border border-amber-200/70'}
               `}
-              id="tab-strands-agents-btn"
+              id="tab-pet-whisperer-btn"
             >
-              <span>⚡</span> <span className="font-black tracking-tight">Strands Agents SDK (Everyday, Pro & Neighbor)</span>
+              <span>🐾</span> <span className="font-black tracking-tight">PetWhisperer</span>
+            </button>
+
+            <button
+              onClick={() => { stopAudio(); setActiveTab('perfect-corp'); }}
+              className={`p-1.5 px-3.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer
+                ${activeTab === 'perfect-corp' ? 'bg-gradient-to-r from-rose-600 via-pink-600 to-amber-500 text-white shadow-md font-black ring-2 ring-rose-400/50' : 'text-rose-700 bg-rose-50/80 hover:bg-rose-100 hover:text-rose-950 border border-rose-200/70'}
+              `}
+              id="tab-smartist-btn"
+            >
+              <span>✨</span> <span className="font-black tracking-tight">SmArist</span>
             </button>
 
             <button
@@ -2248,6 +2226,13 @@ export default function App() {
         {(activeTab === 'pet-whisperer' || activeTab === 'strands-agents') && (
           <div className="animate-fadeIn">
             <PetWhispererHub initialTab={activeTab === 'strands-agents' ? 'strands-hub' : 'taskmaster'} />
+          </div>
+        )}
+
+        {/* Tab: PERFECT CORP AI & AR CONSUMER EXPERIENCE SUITE */}
+        {activeTab === 'perfect-corp' && (
+          <div className="animate-fadeIn">
+            <PerfectCorpStudio />
           </div>
         )}
 

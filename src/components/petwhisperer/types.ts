@@ -141,3 +141,135 @@ export interface ModelArmorAuditResult {
   explanation: string;
   blockedDosageDetected?: boolean;
 }
+
+// 1. Wearable IoT Biosensor Types
+export interface SmartCollarDevice {
+  id: string;
+  name: string;
+  brand: 'Fi Series 3' | 'Whistle Health' | 'Invoxia Biometric' | 'Halo Collar 3' | 'PetPace Medical Pro';
+  patientId: string;
+  patientName: string;
+  batteryPct: number;
+  connectionStatus: 'Connected (BLE 5.3)' | 'LTE-M Connected' | 'Syncing' | 'Offline';
+  firmwareVersion: string;
+  lastSyncTimestamp: string;
+}
+
+export interface CollarTelemetrySample {
+  timestamp: string;
+  heartRateBpm: number;
+  hrvRmssdMs: number;
+  hrvSdnnMs: number;
+  respiratoryRateBrpm: number;
+  surfaceTempCelsius: number;
+  accelerometer: {
+    x: number;
+    y: number;
+    z: number;
+    gForce: number;
+  };
+  activityState: 'Deep Sleep' | 'Resting' | 'Active Walking' | 'Intense Pacing' | 'Pruritic Scratching' | 'Head Shaking' | 'Arousal Surge';
+  dailyRestPercentage: number;
+  dailyScratchCount: number;
+  stressIndexScore: number; // 0 - 100
+}
+
+// 2. Cross-Species Ethology Types
+export type TargetSpecies = 'canine' | 'feline' | 'equine' | 'avian';
+
+export interface SpeciesEthogramSpec {
+  id: TargetSpecies;
+  name: string;
+  scientificName: string;
+  facsStandard: string;
+  keyActionUnits: string[];
+  acousticVocalizationRange: string;
+  restFrequencyTargetHz: 432 | 528 | 639 | 741;
+  commonStressIndicators: string[];
+}
+
+export interface CrossSpeciesAnalysisResult {
+  species: TargetSpecies;
+  subjectName: string;
+  facsFramework: string;
+  valenceClassification: string;
+  confidenceScore: number;
+  actionUnitsDetected: {
+    code: string;
+    name: string;
+    intensity: number; // 0 - 5
+    description: string;
+  }[];
+  acousticProfile?: {
+    primaryVocalization: string;
+    f0FundamentalHz: number;
+    harmonicEnergy: string;
+    distressProbability: number;
+  };
+  ethologicalConclusion: string;
+  recommendedCarePlan: string;
+}
+
+// 3. Direct EHR Veterinary Clinic Connector Types
+export type EHRPlatformId = 'idexx-cornerstone' | 'idexx-neo' | 'covetrus-pulse' | 'ezyvet' | 'provet-cloud' | 'shepherd-ehr';
+
+export interface EHRClinicConfig {
+  id: EHRPlatformId;
+  name: string;
+  vendor: string;
+  protocol: 'HL7 FHIR v4.0.1' | 'HL7 FHIR R5' | 'Vet-XML Direct API' | 'Covetrus OpenConnect';
+  endpointUrl: string;
+  status: 'Active Two-Way Sync' | 'Standby' | 'Auth Required';
+  activePatientsCount: number;
+  lastWebhookSync: string;
+}
+
+export interface LongitudinalEHRRecord {
+  patientId: string;
+  patientName: string;
+  species: string;
+  breed: string;
+  ageYears: number;
+  microchipId: string;
+  weightHistory: { date: string; weightKg: number }[];
+  allergies: string[];
+  chronicConditions: string[];
+  activeMedications: {
+    drugName: string;
+    dosage: string;
+    frequency: string;
+    prescribingDvm: string;
+  }[];
+  recentEncounters: {
+    date: string;
+    clinicName: string;
+    type: string;
+    primaryDiagnosis: string;
+    soapNoteId: string;
+  }[];
+  pendingLabOrders: {
+    orderId: string;
+    testName: string;
+    status: 'Collected' | 'In Processing' | 'Completed' | 'Pending Draw';
+    orderingVet: string;
+  }[];
+}
+
+// 4. Edge Deployment & Compilation Engine Types
+export type EdgeHardwareTarget = 'raspberry-pi-5' | 'nvidia-jetson-orin' | 'apple-homepod' | 'coral-edge-tpu' | 'smart-pet-cam';
+export type EdgeRuntimeFormat = 'wasm-simd' | 'onnx-runtime-int8' | 'tensorrt-fp16' | 'tflite-micro';
+
+export interface EdgeCompiledModelArtifact {
+  modelId: string;
+  name: string;
+  targetHardware: EdgeHardwareTarget;
+  runtimeFormat: EdgeRuntimeFormat;
+  binarySizeBytes: number;
+  inferenceLatencyMs: number;
+  powerConsumptionWatts: number;
+  ramUsageMb: number;
+  quantization: 'INT8' | 'FP16' | 'WASM SIMD';
+  sha256Checksum: string;
+  compilationTimestamp: string;
+}
+

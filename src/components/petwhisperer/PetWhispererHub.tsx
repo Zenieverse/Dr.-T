@@ -1,17 +1,28 @@
 import React, { useState } from 'react';
 import { 
   Sparkles, Activity, Layers, Eye, Volume2, Brain, 
-  Shield, Award, ExternalLink, RefreshCw, Cpu
+  Shield, Award, ExternalLink, RefreshCw, Cpu, Radio,
+  ArrowRightLeft, HardDrive
 } from 'lucide-react';
 import { TaskmasterCanvas } from './TaskmasterCanvas';
 import { VisionDecoder } from './VisionDecoder';
 import { BarkAcousticDecoder } from './BarkAcousticDecoder';
 import { CollaborativePartnerMemory } from './CollaborativePartnerMemory';
 import { EnterpriseFleetModelArmor } from './EnterpriseFleetModelArmor';
+import { WearableIoTBiosensor } from './WearableIoTBiosensor';
+import { CrossSpeciesEthology } from './CrossSpeciesEthology';
+import { DirectEHRClinicConnector } from './DirectEHRClinicConnector';
+import { EdgeDeploymentEngine } from './EdgeDeploymentEngine';
+import { SystemArchitectureViewer } from './SystemArchitectureViewer';
 import { StrandsAgentStudio } from '../StrandsAgentStudio';
 
 export type PetWhispererTab = 
   | 'taskmaster' 
+  | 'architecture-diagram'
+  | 'wearable-iot'
+  | 'cross-species'
+  | 'ehr-connectors'
+  | 'edge-deployment'
   | 'strands-hub' 
   | 'vision-decoder' 
   | 'bark-decoder' 
@@ -41,13 +52,43 @@ export const PetWhispererHub: React.FC<PetWhispererHubProps> = ({ initialTab = '
     {
       id: 'strands-hub' as PetWhispererTab,
       label: 'Strands Agents SDK',
-      tag: 'Everyday • Pro • Neighbor Tracks',
+      tag: 'Everyday • Pro • Neighbor',
       icon: <Cpu className="w-4 h-4 text-amber-600" />
+    },
+    {
+      id: 'architecture-diagram' as PetWhispererTab,
+      label: 'Architecture Blueprint',
+      tag: '5-Layer Topology Diagram',
+      icon: <Layers className="w-4 h-4 text-amber-600" />
+    },
+    {
+      id: 'wearable-iot' as PetWhispererTab,
+      label: 'Wearable IoT Biosensor',
+      tag: 'PPG HR & Smart Collars',
+      icon: <Radio className="w-4 h-4 text-emerald-600" />
+    },
+    {
+      id: 'cross-species' as PetWhispererTab,
+      label: 'Cross-Species Ethology',
+      tag: 'CatFACS • EquiFACS • Avian',
+      icon: <Eye className="w-4 h-4 text-purple-600" />
+    },
+    {
+      id: 'ehr-connectors' as PetWhispererTab,
+      label: 'Direct EHR Connectors',
+      tag: 'HL7 FHIR & Clinic PMS',
+      icon: <ArrowRightLeft className="w-4 h-4 text-sky-600" />
+    },
+    {
+      id: 'edge-deployment' as PetWhispererTab,
+      label: 'Edge Deployment',
+      tag: 'WASM & ONNX Compilers',
+      icon: <HardDrive className="w-4 h-4 text-indigo-600" />
     },
     {
       id: 'vision-decoder' as PetWhispererTab,
       label: 'Vision Decoder',
-      tag: 'Gemini 3.7 Vision',
+      tag: 'DogFACS & Gemini 3.7',
       icon: <Eye className="w-4 h-4 text-stone-700" />
     },
     {
@@ -83,15 +124,15 @@ export const PetWhispererHub: React.FC<PetWhispererHubProps> = ({ initialTab = '
           <div>
             <div className="flex items-center gap-2">
               <span className="font-serif italic font-black text-xl sm:text-2xl text-stone-900 tracking-tight">
-                PetWhisperer AI
+                PetWhisperer
               </span>
               <span className="px-2.5 py-0.5 bg-amber-500/20 text-amber-950 border border-amber-500/40 rounded-full font-mono text-[10px] font-black uppercase tracking-wider flex items-center gap-1">
                 <Sparkles className="w-3 h-3 text-amber-600" />
-                CanineWhisperer Platform
+                Cross-Species Ethology Platform
               </span>
             </div>
             <p className="text-xs font-mono text-stone-600">
-              Autonomous Cross-Species Veterinary Ethology & Bio-Acoustic De-Escalation Architecture
+              Autonomous Veterinary Ethology, Smart Collar Biosensors, HL7 FHIR EHR Connectors & Edge Compilers
             </p>
           </div>
         </div>
@@ -151,12 +192,32 @@ export const PetWhispererHub: React.FC<PetWhispererHubProps> = ({ initialTab = '
           />
         )}
 
+        {activeSubTab === 'architecture-diagram' && (
+          <SystemArchitectureViewer />
+        )}
+
+        {activeSubTab === 'wearable-iot' && (
+          <WearableIoTBiosensor />
+        )}
+
+        {activeSubTab === 'cross-species' && (
+          <CrossSpeciesEthology />
+        )}
+
+        {activeSubTab === 'ehr-connectors' && (
+          <DirectEHRClinicConnector />
+        )}
+
+        {activeSubTab === 'edge-deployment' && (
+          <EdgeDeploymentEngine />
+        )}
+
         {activeSubTab === 'strands-hub' && (
           <div className="space-y-4">
             <div className="bg-white border border-stone-800 p-4 rounded-2xl flex items-center justify-between">
               <div>
                 <h3 className="font-serif font-black text-base text-stone-900">
-                  02 Strands Agents SDK & AgentCore Multi-Track Execution Hub
+                  Strands Agents SDK & AgentCore Multi-Track Execution Hub
                 </h3>
                 <p className="text-xs font-mono text-stone-500">
                   Track A (Everyday Home Guardian), Track B (Clinical Veterinary SOAP Scribe), Track C (Community Animal Mesh).
@@ -190,3 +251,4 @@ export const PetWhispererHub: React.FC<PetWhispererHubProps> = ({ initialTab = '
     </div>
   );
 };
+
