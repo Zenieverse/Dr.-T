@@ -9,6 +9,7 @@ import { SkinDiagnosticAnalyzer } from './SkinDiagnosticAnalyzer';
 import { GenAIFashionStylist } from './GenAIFashionStylist';
 import { LookbookRetailCart } from './LookbookRetailCart';
 import { PerfectCorpApiPlayground } from './PerfectCorpApiPlayground';
+import { RetailConsumerValueHub } from './RetailConsumerValueHub';
 import { RETAIL_PRODUCTS } from './data';
 
 export const PerfectCorpStudio: React.FC = () => {
@@ -181,6 +182,19 @@ export const PerfectCorpStudio: React.FC = () => {
         </button>
 
         <button
+          onClick={() => setActiveTab('value-hub')}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
+            activeTab === 'value-hub' 
+              ? 'bg-gradient-to-r from-rose-600 to-amber-600 text-white shadow-md font-black' 
+              : 'text-stone-600 hover:text-stone-900 hover:bg-white/60'
+          }`}
+          id="btn-tab-value-hub"
+        >
+          <Sparkles className="w-4 h-4 text-emerald-400" />
+          <span>Consumer & Retail Value Hub</span>
+        </button>
+
+        <button
           onClick={() => setActiveTab('api-playground')}
           className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
             activeTab === 'api-playground' 
@@ -218,6 +232,13 @@ export const PerfectCorpStudio: React.FC = () => {
             onRemoveItem={handleRemoveItem}
             onClearCart={handleClearCart}
             onAddToCart={handleAddToCart}
+          />
+        )}
+
+        {activeTab === 'value-hub' && (
+          <RetailConsumerValueHub 
+            onAddToCart={handleAddToCart}
+            onNavigateTab={(tab) => setActiveTab(tab)}
           />
         )}
 

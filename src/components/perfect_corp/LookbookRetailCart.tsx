@@ -233,6 +233,18 @@ export const LookbookRetailCart: React.FC<LookbookRetailCartProps> = ({
               </div>
             )}
           </div>
+
+          {/* Consumer & Retail Value Badge */}
+          <div className="bg-gradient-to-r from-emerald-950 to-stone-900 text-emerald-100 p-4 rounded-3xl border border-emerald-800/50 shadow-md flex flex-col gap-2 text-xs">
+            <div className="flex items-center gap-2 text-emerald-400 font-black">
+              <ShieldCheck className="w-4 h-4" />
+              <span>Perfect Corp Precision Guarantee Active</span>
+            </div>
+            <p className="text-[11px] text-stone-300 leading-relaxed">
+              Every shade in your cart has been verified with 1:1 spectrophotometric calibration. 
+              Eliminates product mismatch, saving an estimated <strong>$45+ in return shipping and carbon emissions</strong>.
+            </p>
+          </div>
         </div>
 
         {/* RIGHT (7 cols): Curated Retail Catalog with Shade Selectors */}

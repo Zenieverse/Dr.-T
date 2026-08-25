@@ -3,6 +3,7 @@ export type PerfectStudioTab =
   | 'skin-diagnostic'
   | 'genai-fashion'
   | 'smart-retail'
+  | 'value-hub'
   | 'api-playground';
 
 export type TryOnCategory = 'makeup' | 'hair' | 'eyewear' | 'jewelry' | 'accessories';
