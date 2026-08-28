@@ -1,165 +1,292 @@
-import type React from 'react';
+// ==========================================
+// DR. T HEALTHCARE PLATFORM TYPES
+// ==========================================
 
-export interface Message {
+export type NavTab = 
+  | 'drt'
+  | 'intelligence'
+  | 'informatics'
+  | 'swarm'
+  | 'research'
+  | 'smarist'
+  | 'automation'
+  | 'privacy'
+  | 'economy'
+  | 'settings';
+
+export type LanguageCode = 'en' | 'vi' | 'de' | 'fr' | 'es' | 'zh' | 'ja';
+
+export type PersonalityMode = 
+  | 'Empathetic'
+  | 'Clinical'
+  | 'Socratic'
+  | 'Maternal'
+  | 'Researcher'
+  | 'Concise';
+
+export type SafetyLevel = 'GREEN' | 'YELLOW' | 'ORANGE' | 'RED';
+
+export interface SafetyAssessment {
+  level: SafetyLevel;
+  explanation: string;
+  actionRecommendation: string;
+}
+
+// Conversational Health Companion
+export interface ChatMessage {
   id: string;
-  role: 'user' | 'model';
+  role: 'user' | 'model' | 'system';
   content: string;
   timestamp: string;
-  isVoicePlaying?: boolean;
-  audioBase64?: string; // Cache generated speech
-  attachment?: {
-    name: string;
-    type: 'image' | 'document';
-    url: string;
-  }
+  safety?: SafetyAssessment;
+  suggestedQuestions?: string[];
+  citations?: Array<{ title: string; source: string; url?: string }>;
+  isVoiceInput?: boolean;
 }
 
-export type DrTVibe = 'empathetic' | 'witty' | 'philosophical' | 'playful' | 'making_sense' | 'fluid_intelligence';
-
-export interface VibeConfig {
-  id: DrTVibe;
-  name: string;
-  description: string;
-  colorClass: string;
-  bgGradient: string;
-  tagline: string;
-}
-
-export interface VoiceChoice {
+// User Profile & Demographics
+export interface PatientProfile {
   id: string;
   name: string;
-  gender: 'female' | 'male';
-  description: string;
-  accent: string;
+  age: number;
+  gender: string;
+  bloodType: string;
+  allergies: string[];
+  chronicConditions: string[];
+  primaryCareProvider: string;
+  emergencyContact: { name: string; relation: string; phone: string };
+  metrics: {
+    sleepAvgHours: number;
+    restingHeartRate: number;
+    stepsAvg: number;
+    hydrationLiters: number;
+    stressLevel: 'Low' | 'Moderate' | 'Elevated';
+    bloodPressure: string;
+  };
 }
 
-export interface ChatRequest {
-  messages: { role: 'user' | 'model'; content: string }[];
-  vibe: DrTVibe;
-  language: string;
+// Longitudinal Health Timeline
+export type HealthEventCategory = 
+  | 'ALL'
+  | 'SYMPTOMS'
+  | 'LABS'
+  | 'MEDICATIONS'
+  | 'VISITS'
+  | 'LIFESTYLE'
+  | 'AI_INSIGHTS';
+
+export interface HealthEvent {
+  id: string;
+  timestamp: string;
+  category: HealthEventCategory;
+  title: string;
+  source: string;
+  confidence: number;
+  summary: string;
+  details?: Record<string, any>;
+  tags: string[];
+  severity?: 'normal' | 'attention' | 'critical';
 }
 
-export interface ChatResponse {
-  reply: string;
+// Health Intelligence & Biometrics
+export interface HealthInsight {
+  id: string;
+  title: string;
+  category: 'sleep' | 'metabolic' | 'cardiovascular' | 'stress' | 'nutrition';
+  correlation: string;
+  confidence: number;
+  evidenceBasis: string;
+  suggestedAction: string;
+  questionsForClinician: string[];
+  isAIGenerated: boolean;
 }
 
-export interface TTSRequest {
-  text: string;
-  voiceName: string;
+// Clinical Laboratory Results
+export interface LabResult {
+  id: string;
+  testName: string;
+  category: string;
+  value: number;
+  unit: string;
+  referenceRange: string;
+  minNormal: number;
+  maxNormal: number;
+  date: string;
+  status: 'NORMAL' | 'HIGH' | 'LOW' | 'CRITICAL';
+  trend: 'improving' | 'stable' | 'worsening';
+  whatItMeasures: string;
+  clinicalContext: string;
+  questionsForClinician: string[];
 }
 
-export interface TTSResponse {
-  audioBase64: string;
+// FHIR Interoperability
+export interface FHIRResourceNode {
+  resourceType: string;
+  id: string;
+  title: string;
+  status: string;
+  code?: string;
+  display?: string;
+  date?: string;
+  rawJson: Record<string, any>;
+  relationships: string[]; // target IDs
 }
 
-// Dr. T Custom Appearance Modes
-export type DrTAppearance = 'professional' | 'ao_dai' | 'scrubs' | 'cyber_suit' | 'casual';
+// SOAP Clinical Documentation
+export interface SOAPNote {
+  id: string;
+  patientName: string;
+  encounterDate: string;
+  clinician: string;
+  subjective: string;
+  objective: string;
+  assessment: string;
+  plan: string;
+  status: 'draft' | 'reviewed' | 'exported';
+  fhirDocumentReference?: Record<string, any>;
+}
 
-export interface DrTAppearanceConfig {
-  id: DrTAppearance;
+// AI Multi-Agent Swarm
+export interface SwarmAgent {
+  id: string;
   name: string;
+  role: string;
+  avatar: string;
+  specialty: string;
+  status: 'idle' | 'analyzing' | 'completed' | 'disagreeing';
+  currentTask: string;
+  output: string;
+  confidence: number;
+  disagreementPoints: string[];
+}
+
+export interface SwarmResult {
+  orchestrationPlan: string;
+  agents: SwarmAgent[];
+  disagreementReview: {
+    detected: boolean;
+    summary: string;
+    tensionPoints: string[];
+  };
+  synthesis: string;
+}
+
+// Research Lab & Evidence
+export interface ResearchSynthesis {
+  query: string;
+  aiSynthesis: string;
+  keyFindings: string[];
+  evidenceStrength: 'HIGH CONFIDENCE' | 'MODERATE' | 'LIMITED' | 'UNCERTAIN';
+  uncertaintyNotes: string;
+  sources: Array<{
+    title: string;
+    journal: string;
+    year: number;
+    doi: string;
+    studyType: string;
+    sampleSize: string;
+  }>;
+}
+
+export interface ICUAnalyticsPatient {
+  id: string;
+  bed: string;
+  age: number;
+  diagnosis: string;
+  sofaScore: number;
+  apsiiiScore: number;
+  losHours: number;
+  mortalityRiskSignal: number;
+  deteriorationRisk: 'Low' | 'Moderate' | 'High' | 'Critical';
+  vitalTrends: Array<{ time: string; map: number; hr: number; lactate: number; spo2: number }>;
+  featureImportance: Array<{ feature: string; weight: number }>;
+}
+
+// SmArist AR & Wellness
+export interface SkinMetric {
+  id: string;
+  name: string;
+  score: number; // 0 - 100 (higher = better health or lower severity)
+  benchmark: number;
+  status: 'optimal' | 'good' | 'moderate' | 'needs_attention';
+  zone: 'Forehead' | 'Periorbital' | 'Malar Cheeks' | 'Nose / T-Zone' | 'Jawline';
   description: string;
+  clinicalConsideration: string;
+}
+
+export interface FashionOutfit {
+  id: string;
+  title: string;
+  prompt: string;
+  occasion: string;
+  pieces: Array<{ name: string; category: string; material: string; color: string; price: number }>;
+  sustainabilityScore: number;
+  colorHarmony: string[];
+  stylingAdvice: string;
   imageUrl: string;
 }
 
-// Life Graph Memory definitions
-export interface MemoryNode {
-  id: string;
-  label: string;
-  category: 'family' | 'preference' | 'health' | 'learning' | 'career' | 'landmark';
-  description: string;
-  connections: string[]; // Connected node IDs
-  x?: number; // Spatial position for visual graph
-  y?: number;
+export interface RetailROIScenario {
+  visitorsMonthly: number;
+  conversionRatePct: number;
+  avgOrderValue: number;
+  returnRatePct: number;
+  returnProcessingCost: number;
 }
 
-// Specialist Agents
-export interface SpecialistAgent {
-  id: string;
-  name: string;
-  title: string;
-  avatarIcon: string;
-  description: string;
-  longDescription: string;
-  status: 'idle' | 'thinking' | 'active' | 'collaborating';
-  capabilities: string[];
-}
-
-// Healthcare Tracker Logs
-export interface MedLog {
-  id: string;
-  name: string;
-  dosage: string;
-  time: string;
-  taken: boolean;
-}
-
-export interface HealthMetric {
-  id: string;
-  type: 'Blood Pressure' | 'Heart Rate' | 'Sleep' | 'Steps' | 'Blood Sugar';
-  value: string;
-  date: string;
-  status: 'optimal' | 'warning' | 'needs_attention';
-}
-
-// Education Skill Progression Tree
-export interface SkillNode {
-  id: string;
-  label: string;
-  category: string;
-  description: string;
-  level: number; // 0 for locked, 1 for in_progress, 2 for mastered
-  quizPoints: number;
-}
-
-// Productivity Workspace Tasks & Calendar
-export interface TaskItem {
+// RPA Workflow Automation
+export interface ClinicalWorkflowItem {
   id: string;
   title: string;
-  description?: string;
-  status: 'todo' | 'in_progress' | 'done';
-  priority: 'low' | 'medium' | 'high';
+  type: 'Patient Intake' | 'Chart Update' | 'Lab Processing' | 'Appointment Dispatch' | 'Alert Routing';
+  status: 'QUEUED' | 'RUNNING' | 'WAITING FOR HUMAN' | 'COMPLETED' | 'FAILED';
+  startedAt: string;
+  payload: Record<string, any>;
+  proposedAction: string;
+  riskRating: 'Low' | 'Medium' | 'High';
 }
 
-export interface CalendarEvent {
+// Sovereign Privacy & Identity
+export interface ConsentRecord {
   id: string;
-  title: string;
-  time: string;
-  location?: string;
-  type: 'medical' | 'workspace' | 'learning' | 'personal';
+  purpose: string;
+  category: 'AI Diagnostic Reasoning' | 'Research Aggregation' | 'Wearable Streaming' | 'EHR Interoperability';
+  status: 'ACTIVE' | 'REVOKED' | 'EXPIRED';
+  grantedAt: string;
+  expiresAt: string;
+  zkpProofHash: string;
+  recipient: string;
 }
 
-export interface SmartNote {
+export interface UserMemoryItem {
   id: string;
-  title: string;
+  category: 'Preferences' | 'Health Goals' | 'Important Events' | 'Medications' | 'Allergies' | 'Lifestyle';
   content: string;
-  updatedAt: string;
-  tag: string;
+  source: string;
+  date: string;
+  confidence: number;
 }
 
-// Sustainability & Carbon Footprint Logs
-export interface CarbonHabit {
+// Agent Economy & x402
+export interface EconomyAgentService {
   id: string;
+  agentName: string;
+  capability: string;
+  pricePerCallUSD: number;
+  avgLatencyMs: number;
+  reputationScore: number;
+  totalCalls: number;
+  endpoint: string;
+  sampleInput: string;
+}
+
+// Notifications
+export interface PlatformNotification {
+  id: string;
+  type: 'URGENT' | 'IMPORTANT' | 'INFO';
   title: string;
-  active: boolean;
-  points: number;
-  category: 'energy' | 'waste' | 'food' | 'transport';
+  message: string;
+  timestamp: string;
+  actionTab?: NavTab;
+  read: boolean;
 }
-
-// Gamification stats
-export interface LifetimeStreak {
-  healthStreak: number;
-  learningStreak: number;
-  productivityStreak: number;
-  carbonSavedKg: number;
-}
-
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      'tavus-widget': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement> & { 'deployment-id'?: string; 'custom-greeting'?: string; 'conversational-context'?: string }, HTMLElement>;
-      'tavus-embed': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement> & { 'deployment-id'?: string; 'custom-greeting'?: string; 'conversational-context'?: string }, HTMLElement>;
-    }
-  }
-}
-

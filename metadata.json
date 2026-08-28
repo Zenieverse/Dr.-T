@@ -1,6 +1,6 @@
 {
-  "name": "Dr. T - Multilingual Soulmate",
-  "description": "Next-Gen AI & AR Consumer Experience platform powered by Perfect Corp's technology suite (Live 3D WebCam Virtual Try-On, 14-dimension AI Skin Diagnostics, GenAI Text-to-Fashion & Cloth Drape Simulation, Smart Retail & Lookbook Checkout, API Developer Sandbox) alongside Dr. T biomedical and veterinary informatics.",
+  "name": "Dr. T",
+  "description": "World-Class AI Biomedical Informatics, Wellness & Healthcare Experience Platform combining empathetic health companion, clinical decision-support, FHIR interoperability, AI Swarms, and SmArist AR wellness intelligence.",
   "requestFramePermissions": ["camera", "microphone"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

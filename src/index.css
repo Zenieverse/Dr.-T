@@ -1,116 +1,51 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
 @import "tailwindcss";
 
-@theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Outfit", sans-serif;
-  --font-mono: "JetBrains Mono", monospace;
-  
-  --color-lounge-rose: #fda4af;
-  --color-lounge-amber: #fde047;
-  --color-lounge-indigo: #818cf8;
-  --color-lounge-purple: #c084fc;
-  
-  --animate-pulse-slow: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  --animate-pulse-fast: pulse 1s infinite;
-}
-
-@layer utilities {
-  .glow-rose {
-    box-shadow: 0 0 50px rgba(244, 63, 94, 0.35);
+@layer base {
+  * {
+    border-color: rgba(255, 255, 255, 0.1);
   }
-  .glow-amber {
-    box-shadow: 0 0 50px rgba(245, 158, 11, 0.35);
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
   }
-  .glow-indigo {
-    box-shadow: 0 0 50px rgba(99, 102, 241, 0.35);
+  h1, h2, h3, .font-serif-heading {
+    font-family: 'Playfair Display', serif;
   }
-  .glow-purple {
-    box-shadow: 0 0 50px rgba(168, 85, 247, 0.35);
-  }
-  .animate-spin-slow {
-    animation: spin 16s linear infinite;
-  }
-  .animate-spin-reverse {
-    animation: spin-back 12s linear infinite;
+  code, pre, .font-mono {
+    font-family: 'JetBrains Mono', monospace;
   }
 }
 
-@keyframes spin-back {
-  from {
-    transform: rotate(360deg);
-  }
-  to {
-    transform: rotate(0deg);
-  }
-}
-
-/* Custom keyframes for buoyant, charming floating hearts/emojis */
-@keyframes floatUp {
-  0% {
-    transform: translateY(105vh) translateX(0) scale(0.3) rotate(0deg);
-    opacity: 0;
-  }
-  10% {
-    opacity: 0.95;
-  }
-  50% {
-    transform: translateY(50vh) translateX(25px) scale(1) rotate(100deg);
-  }
-  100% {
-    transform: translateY(-20vh) translateX(-25px) scale(1.4) rotate(360deg);
-    opacity: 0;
-  }
-}
-
-@keyframes text-gradient {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-@keyframes happy-pulse {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.03);
-  }
-}
-
-.animate-floating {
-  animation: floatUp 3s cubic-bezier(0.1, 0.6, 0.3, 1) forwards;
-}
-
-.animate-text-gradient {
-  background-size: 200% auto;
-  animation: text-gradient 3s linear infinite;
-}
-
-.animate-happy-pulse {
-  animation: happy-pulse 2s ease-in-out infinite;
-}
-
-/* Custom global scrollbar behaviors */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(244, 63, 94, 0.3) transparent;
-}
+/* Custom scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: rgba(15, 23, 42, 0.6);
 }
 ::-webkit-scrollbar-thumb {
-  background-color: rgba(244, 63, 94, 0.3);
-  border-radius: 4px;
+  background: rgba(100, 116, 139, 0.4);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(244, 63, 94, 0.6);
 }
 
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.04); }
+}
 
+.animate-pulse-glow {
+  animation: pulse-glow 3s infinite ease-in-out;
+}
+
+@keyframes scan-line {
+  0% { top: 0%; opacity: 0.8; }
+  50% { opacity: 1; }
+  100% { top: 100%; opacity: 0.8; }
+}
+
+.animate-scan {
+  animation: scan-line 2.5s infinite linear;
+}
