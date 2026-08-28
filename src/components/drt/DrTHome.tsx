@@ -6,6 +6,7 @@ import {
   PatientProfile, 
   NavTab 
 } from '../../types';
+import { DR_T_AVATAR } from '../../assets/drTAvatar';
 import { 
   HeartPulse, 
   Send, 
@@ -28,7 +29,8 @@ import {
   Check, 
   ArrowRight,
   RefreshCw,
-  Cpu
+  Cpu,
+  BadgeCheck
 } from 'lucide-react';
 
 interface DrTHomeProps {
@@ -119,55 +121,78 @@ export const DrTHome: React.FC<DrTHomeProps> = ({
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       
-      {/* 1. Hero Experience */}
-      <div className="relative rounded-3xl bg-gradient-to-r from-slate-900 via-teal-950/60 to-slate-900 border border-slate-800 p-8 sm:p-10 text-white shadow-xl overflow-hidden">
-        <div className="relative z-10 max-w-3xl space-y-3">
-          <div className="flex items-center space-x-2.5">
-            <span className="p-1.5 rounded-xl bg-teal-500/20 text-teal-400 border border-teal-500/30 flex items-center justify-center">
-              <HeartPulse className="w-4 h-4 animate-pulse" />
-            </span>
-            <span className="text-xs uppercase font-bold tracking-widest text-teal-300">
-              Dr. T — Empathetic Intelligence
-            </span>
+      {/* 1. Hero Experience with Dr. T Portrait Avatar */}
+      <div className="relative rounded-3xl bg-gradient-to-r from-slate-900 via-teal-950/70 to-slate-900 border border-slate-800 p-6 sm:p-10 text-white shadow-xl overflow-hidden">
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+          
+          <div className="max-w-2xl space-y-3">
+            <div className="flex items-center space-x-2.5">
+              <span className="p-1.5 rounded-xl bg-teal-500/20 text-teal-400 border border-teal-500/30 flex items-center justify-center">
+                <HeartPulse className="w-4 h-4 animate-pulse" />
+              </span>
+              <span className="text-xs uppercase font-bold tracking-widest text-teal-300">
+                Dr. T — Empathetic Intelligence
+              </span>
+              <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-mono font-semibold">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>Active On Duty</span>
+              </span>
+            </div>
+
+            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight leading-tight">
+              Healthcare intelligence, <br className="hidden sm:inline" />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-300 via-cyan-200 to-rose-300">
+                with humanity.
+              </span>
+            </h1>
+
+            <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
+              Dr. T connects conversation, clinical knowledge, health data, AI agents and human oversight into one compassionate intelligence layer.
+            </p>
+
+            {/* Quick CTA row */}
+            <div className="flex flex-wrap items-center gap-3 pt-3">
+              <button
+                onClick={openVoiceMode}
+                className="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white text-xs font-bold shadow-lg shadow-rose-500/25 flex items-center space-x-2 transition transform active:scale-98"
+              >
+                <Mic className="w-4 h-4" />
+                <span>Talk with Dr. T Live</span>
+              </button>
+
+              <button
+                onClick={() => setActiveTab('intelligence')}
+                className="px-4 py-2.5 rounded-2xl bg-slate-800/90 hover:bg-slate-700/90 border border-slate-700 text-slate-200 text-xs font-semibold flex items-center space-x-2 transition"
+              >
+                <Activity className="w-4 h-4 text-emerald-400" />
+                <span>Explore Intelligence</span>
+              </button>
+
+              <button
+                onClick={() => setActiveTab('swarm')}
+                className="px-4 py-2.5 rounded-2xl bg-purple-950/60 hover:bg-purple-900/60 border border-purple-800/60 text-purple-200 text-xs font-semibold flex items-center space-x-2 transition"
+              >
+                <Cpu className="w-4 h-4 text-purple-400" />
+                <span>Open AI Swarm</span>
+              </button>
+            </div>
           </div>
 
-          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight leading-tight">
-            Healthcare intelligence, <br className="hidden sm:inline" />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-300 via-cyan-200 to-rose-300">
-              with humanity.
-            </span>
-          </h1>
-
-          <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
-            Dr. T connects conversation, clinical knowledge, health data, AI agents and human oversight into one compassionate intelligence layer.
-          </p>
-
-          {/* Quick CTA row */}
-          <div className="flex flex-wrap items-center gap-3 pt-3">
-            <button
-              onClick={openVoiceMode}
-              className="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white text-xs font-bold shadow-lg shadow-rose-500/25 flex items-center space-x-2 transition transform active:scale-98"
-            >
-              <Mic className="w-4 h-4" />
-              <span>Talk with Live Voice</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab('intelligence')}
-              className="px-4 py-2.5 rounded-2xl bg-slate-800/90 hover:bg-slate-700/90 border border-slate-700 text-slate-200 text-xs font-semibold flex items-center space-x-2 transition"
-            >
-              <Activity className="w-4 h-4 text-emerald-400" />
-              <span>Explore Intelligence</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab('swarm')}
-              className="px-4 py-2.5 rounded-2xl bg-purple-950/60 hover:bg-purple-900/60 border border-purple-800/60 text-purple-200 text-xs font-semibold flex items-center space-x-2 transition"
-            >
-              <Cpu className="w-4 h-4 text-purple-400" />
-              <span>Open AI Swarm</span>
-            </button>
+          {/* Dr. T Avatar Hero Profile */}
+          <div className="relative shrink-0 flex items-center justify-center">
+            <div className="w-28 h-28 sm:w-36 sm:h-36 rounded-3xl overflow-hidden ring-4 ring-teal-400/40 shadow-2xl bg-slate-800/80 backdrop-blur-md">
+              <img 
+                src={DR_T_AVATAR} 
+                alt="Dr. T - Asian Lady Doctor with Glasses"
+                referrerPolicy="no-referrer"
+                className="w-full h-full object-cover object-center"
+              />
+            </div>
+            <div className="absolute -bottom-2 -right-2 p-1.5 bg-teal-500 rounded-full text-slate-950 shadow-lg ring-4 ring-slate-900" title="Board Certified Physician">
+              <BadgeCheck className="w-5 h-5 text-white" />
+            </div>
           </div>
+
         </div>
 
         {/* Subtle Decorative SVG / Glow */}
@@ -250,15 +275,26 @@ export const DrTHome: React.FC<DrTHomeProps> = ({
           {/* Socratic Conversation Stream */}
           <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden flex flex-col min-h-[460px]">
             
-            {/* Chat header */}
+            {/* Chat header with Dr. T Avatar */}
             <div className="p-4 bg-slate-50/80 border-b border-slate-100 flex items-center justify-between">
-              <div className="flex items-center space-x-2.5">
-                <div className="w-8 h-8 rounded-xl bg-teal-100 text-teal-800 flex items-center justify-center font-black text-sm">
-                  🩺
+              <div className="flex items-center space-x-3">
+                <div className="relative">
+                  <div className="w-10 h-10 rounded-2xl overflow-hidden ring-2 ring-teal-500/40 shadow-xs">
+                    <img 
+                      src={DR_T_AVATAR} 
+                      alt="Dr. T" 
+                      referrerPolicy="no-referrer"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full"></span>
                 </div>
                 <div>
-                  <h3 className="text-xs font-bold text-slate-900">Socratic Health Dialogue</h3>
-                  <p className="text-[10px] text-slate-500">Separating symptoms from assumptions with clinical clarity</p>
+                  <div className="flex items-center space-x-1.5">
+                    <h3 className="text-xs font-bold text-slate-900">Dr. T</h3>
+                    <span className="text-[10px] text-teal-700 bg-teal-50 px-1.5 py-0.2 rounded font-mono font-bold">MD</span>
+                  </div>
+                  <p className="text-[10px] text-slate-500">Empathetic Socratic Health Consultation</p>
                 </div>
               </div>
 
@@ -283,8 +319,18 @@ export const DrTHome: React.FC<DrTHomeProps> = ({
                   }`}
                 >
                   <div className="flex items-center space-x-2">
+                    {msg.role === 'model' && (
+                      <div className="w-5 h-5 rounded-full overflow-hidden ring-1 ring-teal-400/50 shrink-0">
+                        <img 
+                          src={DR_T_AVATAR} 
+                          alt="Dr. T" 
+                          referrerPolicy="no-referrer"
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    )}
                     <span className="text-[11px] font-bold text-slate-500">
-                      {msg.role === 'user' ? 'You' : 'Dr. T'}
+                      {msg.role === 'user' ? 'You' : 'Dr. T, MD'}
                     </span>
                     <span className="text-[10px] text-slate-400 font-mono">
                       {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}

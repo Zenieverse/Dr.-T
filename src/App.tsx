@@ -33,6 +33,7 @@ import { CommandPalette } from './components/layout/CommandPalette';
 import { NotificationDrawer } from './components/layout/NotificationDrawer';
 import { VoiceModeOverlay } from './components/drt/VoiceModeOverlay';
 import { DemoJourneyModal } from './components/demo/DemoJourneyModal';
+import { BirthdayModal } from './components/celebration/BirthdayModal';
 
 // 10 Platform Modules
 import { DrTHome } from './components/drt/DrTHome';
@@ -44,6 +45,8 @@ import { SmAristStudio } from './components/smarist/SmAristStudio';
 import { ClinicalAutomation } from './components/automation/ClinicalAutomation';
 import { PrivacyCenter } from './components/privacy/PrivacyCenter';
 import { AgentEconomy } from './components/economy/AgentEconomy';
+import { GoogleCloudHub } from './components/cloud/GoogleCloudHub';
+import { PetWhispererApp } from './components/petwhisperer/PetWhispererApp';
 import { SettingsPage } from './components/settings/SettingsPage';
 
 export function App() {
@@ -58,6 +61,7 @@ export function App() {
   const [isNotificationDrawerOpen, setIsNotificationDrawerOpen] = useState<boolean>(false);
   const [isVoiceModeOpen, setIsVoiceModeOpen] = useState<boolean>(false);
   const [isDemoJourneyOpen, setIsDemoJourneyOpen] = useState<boolean>(false);
+  const [isBirthdayModalOpen, setIsBirthdayModalOpen] = useState<boolean>(true);
   const [isLoadingChat, setIsLoadingChat] = useState<boolean>(false);
 
   // Initial Socratic Chat History
@@ -295,6 +299,7 @@ export function App() {
         openCommandPalette={() => setIsCommandPaletteOpen(true)}
         openVoiceMode={() => setIsVoiceModeOpen(true)}
         openDemoJourney={() => setIsDemoJourneyOpen(true)}
+        openBirthdayModal={() => setIsBirthdayModalOpen(true)}
       />
 
       {/* Main Content Area */}
@@ -306,10 +311,15 @@ export function App() {
             personality={personality}
             setPersonality={setPersonality}
             openVoiceMode={() => setIsVoiceModeOpen(true)}
+            openBirthdayModal={() => setIsBirthdayModalOpen(true)}
             patient={patient}
             setActiveTab={setActiveTab}
             isLoading={isLoadingChat}
           />
+        )}
+
+        {activeTab === 'petwhisperer' && (
+          <PetWhispererApp />
         )}
 
         {activeTab === 'intelligence' && (
@@ -374,6 +384,10 @@ export function App() {
             services={MOCK_ECONOMY_AGENTS}
             setActiveTab={setActiveTab}
           />
+        )}
+
+        {activeTab === 'gcp' && (
+          <GoogleCloudHub />
         )}
 
         {activeTab === 'settings' && (

@@ -1,0 +1,64 @@
+{
+  "entities": {
+    "UserProfile": {
+      "collection": "users",
+      "fields": {
+        "userId": { "type": "string", "description": "Unique user ID" },
+        "displayName": { "type": "string", "description": "User display name" },
+        "email": { "type": "string", "description": "User email address" },
+        "language": { "type": "string", "description": "Preferred interface language" },
+        "persona": { "type": "string", "description": "Selected Dr. T persona" },
+        "createdAt": { "type": "timestamp", "description": "Account creation timestamp" },
+        "updatedAt": { "type": "timestamp", "description": "Last update timestamp" }
+      }
+    },
+    "HealthRecord": {
+      "collection": "healthRecords",
+      "fields": {
+        "userId": { "type": "string", "description": "User ID who owns this record" },
+        "type": { "type": "string", "description": "Type of record: symptom, lab, medication, wearable, encounter" },
+        "title": { "type": "string", "description": "Record title or test name" },
+        "value": { "type": "string", "description": "Quantitative value or qualitative summary" },
+        "unit": { "type": "string", "description": "Unit of measurement if applicable" },
+        "category": { "type": "string", "description": "Biomedical category" },
+        "severity": { "type": "string", "description": "Severity rating: normal, mild, moderate, severe" },
+        "timestamp": { "type": "timestamp", "description": "Date/time of event or measurement" },
+        "notes": { "type": "string", "description": "Additional clinical observations or context" }
+      }
+    },
+    "ConsultationSession": {
+      "collection": "consultations",
+      "fields": {
+        "userId": { "type": "string", "description": "User ID" },
+        "title": { "type": "string", "description": "Consultation topic / chief complaint" },
+        "triageTier": { "type": "string", "description": "GREEN, YELLOW, ORANGE, or RED" },
+        "messagesCount": { "type": "number", "description": "Number of exchanged messages" },
+        "soapSummary": { "type": "object", "description": "Structured SOAP note object" },
+        "createdAt": { "type": "timestamp", "description": "Session start timestamp" },
+        "updatedAt": { "type": "timestamp", "description": "Last updated timestamp" }
+      }
+    },
+    "SkinAnalysisRecord": {
+      "collection": "skinAnalyses",
+      "fields": {
+        "userId": { "type": "string", "description": "User ID" },
+        "overallScore": { "type": "number", "description": "Composite skin score (0-100)" },
+        "hydrationLevel": { "type": "number", "description": "Hydration percentage" },
+        "barrierIntegrity": { "type": "number", "description": "Dermal barrier score" },
+        "concerns": { "type": "array", "description": "Detected clinical/cosmetic concerns" },
+        "recommendations": { "type": "array", "description": "Personalized active regimens" },
+        "timestamp": { "type": "timestamp", "description": "Analysis timestamp" }
+      }
+    },
+    "CloudAuditLog": {
+      "collection": "cloudAuditLogs",
+      "fields": {
+        "service": { "type": "string", "description": "Google Cloud service (Firestore, Cloud Run, PubSub)" },
+        "event": { "type": "string", "description": "Event description" },
+        "status": { "type": "string", "description": "SUCCESS, INFO, WARNING, ERROR" },
+        "latencyMs": { "type": "number", "description": "Request latency in ms" },
+        "timestamp": { "type": "timestamp", "description": "Log timestamp" }
+      }
+    }
+  }
+}

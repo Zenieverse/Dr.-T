@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { PersonalityMode } from '../../types';
+import { DR_T_AVATAR } from '../../assets/drTAvatar';
 import { Mic, MicOff, Volume2, VolumeX, X, Sparkles, HeartPulse, StopCircle, RefreshCw } from 'lucide-react';
 
 interface VoiceModeOverlayProps {
@@ -135,18 +136,26 @@ export const VoiceModeOverlay: React.FC<VoiceModeOverlayProps> = ({
       
       {/* Top Header */}
       <div className="w-full max-w-4xl flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-2xl bg-rose-500/20 border border-rose-500/40 text-rose-400 flex items-center justify-center shadow-lg shadow-rose-500/20">
-            <HeartPulse className="w-5 h-5 animate-pulse" />
+        <div className="flex items-center space-x-3.5">
+          <div className="relative">
+            <div className="w-12 h-12 rounded-2xl overflow-hidden ring-2 ring-rose-500/50 shadow-lg shadow-rose-500/20">
+              <img 
+                src={DR_T_AVATAR} 
+                alt="Dr. Teresa Tan" 
+                referrerPolicy="no-referrer"
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 border-2 border-slate-950 rounded-full"></span>
           </div>
           <div>
             <div className="flex items-center space-x-2">
-              <h2 className="text-lg font-black tracking-tight">Dr. T Live Voice</h2>
+              <h2 className="text-lg font-black tracking-tight">Dr. T</h2>
               <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/30 text-rose-300 border border-rose-500/40">
-                {personality} Mode
+                {personality} Voice Mode
               </span>
             </div>
-            <p className="text-xs text-slate-400">Natural biomedical conversation & empathetic listening</p>
+            <p className="text-xs text-slate-400">Live Voice Consultation</p>
           </div>
         </div>
 
@@ -167,13 +176,13 @@ export const VoiceModeOverlay: React.FC<VoiceModeOverlayProps> = ({
         </div>
       </div>
 
-      {/* Central Visualizer Waveform */}
+      {/* Central Visualizer Waveform & Avatar */}
       <div className="w-full max-w-2xl flex flex-col items-center justify-center text-center space-y-8 my-auto">
         
-        {/* Dynamic Orb / Waveform Visualizer */}
+        {/* Dynamic Orb / Avatar Visualizer */}
         <div className="relative flex items-center justify-center">
           {/* Animated Pulsing Ring Layers */}
-          <div className={`absolute w-64 h-64 rounded-full transition-all duration-700 ${
+          <div className={`absolute w-72 h-72 rounded-full transition-all duration-700 ${
             isSpeaking 
               ? 'bg-rose-500/20 scale-125 animate-ping' 
               : isListening 
@@ -181,33 +190,47 @@ export const VoiceModeOverlay: React.FC<VoiceModeOverlayProps> = ({
                 : 'bg-slate-800/40'
           }`} />
 
-          <div className={`absolute w-48 h-48 rounded-full blur-xl transition-all duration-500 ${
+          <div className={`absolute w-56 h-56 rounded-full blur-xl transition-all duration-500 ${
             isSpeaking ? 'bg-rose-500/30' : isListening ? 'bg-teal-500/30' : 'bg-slate-800/30'
           }`} />
 
-          {/* Center Orb */}
-          <div className={`relative z-10 w-36 h-36 rounded-full flex flex-col items-center justify-center shadow-2xl border transition-all duration-300 ${
+          {/* Center Avatar with Live State Indicator */}
+          <div className={`relative z-10 w-40 h-40 rounded-3xl p-1.5 shadow-2xl border transition-all duration-300 ${
             isSpeaking
-              ? 'bg-gradient-to-tr from-rose-600 to-pink-500 border-rose-300 shadow-rose-500/50 scale-105'
+              ? 'bg-gradient-to-tr from-rose-600 to-pink-500 border-rose-300 shadow-rose-500/50 scale-105 ring-4 ring-rose-400/40'
               : isListening
-                ? 'bg-gradient-to-tr from-cyan-600 to-teal-500 border-cyan-300 shadow-cyan-500/50 scale-105'
+                ? 'bg-gradient-to-tr from-cyan-600 to-teal-500 border-cyan-300 shadow-cyan-500/50 scale-105 ring-4 ring-teal-400/40'
                 : 'bg-gradient-to-tr from-slate-900 to-slate-800 border-slate-700'
           }`}>
-            {isSpeaking ? (
-              <div className="flex items-center space-x-1">
-                <span className="w-1.5 h-6 bg-white rounded-full animate-bounce [animation-delay:-0.3s]" />
-                <span className="w-1.5 h-10 bg-white rounded-full animate-bounce [animation-delay:-0.15s]" />
-                <span className="w-1.5 h-8 bg-white rounded-full animate-bounce [animation-delay:-0.4s]" />
-                <span className="w-1.5 h-5 bg-white rounded-full animate-bounce" />
+            <div className="w-full h-full rounded-2xl overflow-hidden relative">
+              <img 
+                src={DR_T_AVATAR} 
+                alt="Dr. T" 
+                referrerPolicy="no-referrer"
+                className="w-full h-full object-cover"
+              />
+              {/* Overlay status badge */}
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950/90 via-slate-950/60 to-transparent py-1.5 px-2 flex items-center justify-center space-x-1.5">
+                {isSpeaking ? (
+                  <div className="flex items-center space-x-1">
+                    <span className="w-1 h-3 bg-rose-400 rounded-full animate-bounce [animation-delay:-0.3s]" />
+                    <span className="w-1 h-4 bg-rose-300 rounded-full animate-bounce [animation-delay:-0.15s]" />
+                    <span className="w-1 h-2 bg-rose-400 rounded-full animate-bounce" />
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-rose-300 ml-1">Dr. T Speaking</span>
+                  </div>
+                ) : isListening ? (
+                  <div className="flex items-center space-x-1 text-teal-300">
+                    <Mic className="w-3.5 h-3.5 animate-pulse" />
+                    <span className="text-[10px] font-bold uppercase tracking-wider">Listening...</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center space-x-1 text-slate-300">
+                    <Sparkles className="w-3 h-3 text-teal-400" />
+                    <span className="text-[10px] font-bold uppercase tracking-wider">Ready to Talk</span>
+                  </div>
+                )}
               </div>
-            ) : isListening ? (
-              <Mic className="w-10 h-10 text-white animate-pulse" />
-            ) : (
-              <Sparkles className="w-8 h-8 text-slate-400" />
-            )}
-            <span className="text-[11px] font-bold mt-2 uppercase tracking-widest text-white/90">
-              {isSpeaking ? 'Speaking' : isListening ? 'Listening...' : 'Ready'}
-            </span>
+            </div>
           </div>
         </div>
 

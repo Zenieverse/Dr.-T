@@ -4,6 +4,7 @@
 
 export type NavTab = 
   | 'drt'
+  | 'petwhisperer'
   | 'intelligence'
   | 'informatics'
   | 'swarm'
@@ -12,6 +13,7 @@ export type NavTab =
   | 'automation'
   | 'privacy'
   | 'economy'
+  | 'gcp'
   | 'settings';
 
 export type LanguageCode = 'en' | 'vi' | 'de' | 'fr' | 'es' | 'zh' | 'ja';

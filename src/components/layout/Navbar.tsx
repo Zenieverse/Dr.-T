@@ -1,5 +1,6 @@
 import React from 'react';
 import { NavTab, LanguageCode, PlatformNotification } from '../../types';
+import { DR_T_AVATAR } from '../../assets/drTAvatar';
 import { 
   HeartPulse, 
   Activity, 
@@ -15,7 +16,8 @@ import {
   Bell, 
   Command, 
   Compass,
-  Globe
+  Globe,
+  Cloud
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -54,7 +56,16 @@ export const Navbar: React.FC<NavbarProps> = ({
   const unreadCount = notifications.filter(n => !n.read).length;
 
   const navItems: Array<{ id: NavTab; label: string; icon: React.ReactNode; badge?: string }> = [
-    { id: 'drt', label: 'Dr. T', icon: <HeartPulse className="w-4 h-4 text-rose-500" /> },
+    { 
+      id: 'drt', 
+      label: 'Dr. T', 
+      icon: (
+        <div className="w-5 h-5 rounded-full overflow-hidden ring-1 ring-rose-400/50 shrink-0">
+          <img src={DR_T_AVATAR} alt="Dr. T" referrerPolicy="no-referrer" className="w-full h-full object-cover" />
+        </div>
+      ) 
+    },
+    { id: 'petwhisperer', label: 'PetWhisperer', icon: <span className="text-sm">🐾</span> },
     { id: 'intelligence', label: 'Health Intelligence', icon: <Activity className="w-4 h-4 text-emerald-500" /> },
     { id: 'informatics', label: 'Clinical Informatics', icon: <FileText className="w-4 h-4 text-blue-500" /> },
     { id: 'swarm', label: 'AI Swarm', icon: <Cpu className="w-4 h-4 text-purple-500" />, badge: '7 Agents' },
@@ -63,6 +74,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: 'automation', label: 'Automation', icon: <Bot className="w-4 h-4 text-teal-500" /> },
     { id: 'privacy', label: 'Privacy', icon: <ShieldCheck className="w-4 h-4 text-indigo-500" /> },
     { id: 'economy', label: 'Agent Economy', icon: <Zap className="w-4 h-4 text-amber-500" />, badge: 'x402' },
+    { id: 'gcp', label: 'Google Cloud & Firestore', icon: <Cloud className="w-4 h-4 text-sky-500" />, badge: 'GCP' },
     { id: 'settings', label: 'Settings', icon: <Settings className="w-4 h-4 text-slate-400" /> },
   ];
 
@@ -77,10 +89,15 @@ export const Navbar: React.FC<NavbarProps> = ({
             onClick={() => setActiveTab('drt')}
             className="flex items-center space-x-3 cursor-pointer group select-none"
           >
-            <div className="relative flex items-center justify-center w-10 h-10 rounded-2xl bg-gradient-to-tr from-cyan-600 via-teal-500 to-emerald-400 text-white shadow-md shadow-cyan-500/20 group-hover:scale-105 transition transform">
-              <span className="font-serif font-black text-xl tracking-tighter">🩺</span>
-              <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-rose-500 border-2 border-white flex items-center justify-center text-[9px] font-bold text-white">
-                T
+            <div className="relative flex items-center justify-center w-11 h-11 rounded-2xl overflow-hidden ring-2 ring-teal-500/50 shadow-md shadow-cyan-500/20 group-hover:scale-105 transition transform">
+              <img 
+                src={DR_T_AVATAR} 
+                alt="Dr. T" 
+                referrerPolicy="no-referrer" 
+                className="w-full h-full object-cover" 
+              />
+              <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-emerald-500 border-2 border-white flex items-center justify-center">
+                <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
               </div>
             </div>
             <div>
@@ -88,13 +105,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <span className="text-lg font-black text-slate-900 tracking-tight font-display">
                   Dr. T
                 </span>
-                <span className="px-1.5 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase bg-cyan-100 text-cyan-800 border border-cyan-200">
+                <span className="px-1.5 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase bg-teal-100 text-teal-800 border border-teal-200">
                   Biomedical AI
                 </span>
               </div>
-              <p className="text-[11px] text-slate-500 hidden sm:block">
-                Intelligence with a human heartbeat
-              </p>
             </div>
           </div>
 

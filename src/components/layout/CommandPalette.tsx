@@ -15,6 +15,7 @@ import {
   Mic, 
   Upload, 
   FileSpreadsheet,
+  Cloud,
   X
 } from 'lucide-react';
 
@@ -77,6 +78,17 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       ],
     },
     {
+      category: 'PetWhisperer',
+      items: [
+        { label: '01 Autonomous Taskmaster & 5-Stage Pipeline', icon: <Sparkles className="w-4 h-4 text-amber-500" />, action: () => { setActiveTab('petwhisperer'); onClose(); } },
+        { label: '02 Strands & AgentCore Hub (Everyday & Clinical SOAP)', icon: <Cpu className="w-4 h-4 text-indigo-500" />, action: () => { setActiveTab('petwhisperer'); onClose(); } },
+        { label: '03 Vision Decoder (Micro-Expression & Whale Eye)', icon: <Activity className="w-4 h-4 text-emerald-500" />, action: () => { setActiveTab('petwhisperer'); onClose(); } },
+        { label: '04 Bark Acoustic & Spectrogram (FFT & HNR)', icon: <Mic className="w-4 h-4 text-rose-500" />, action: () => { setActiveTab('petwhisperer'); onClose(); } },
+        { label: '07 Web Audio 432 Hz Resonator & Ultrasonic Whistle', icon: <Zap className="w-4 h-4 text-teal-500" />, action: () => { setActiveTab('petwhisperer'); onClose(); } },
+        { label: '09 Solana Devnet On-Chain Passport & TREATS Mint', icon: <Zap className="w-4 h-4 text-purple-500" />, action: () => { setActiveTab('petwhisperer'); onClose(); } },
+      ],
+    },
+    {
       category: 'AI Multi-Agent Swarm',
       items: [
         { label: 'Launch AI Swarm Orchestrator (7 Agents)', icon: <Cpu className="w-4 h-4 text-purple-500" />, action: () => { setActiveTab('swarm'); onClose(); } },
@@ -105,6 +117,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         { label: 'Clinical Workflow & RPA Control Center', icon: <Bot className="w-4 h-4 text-teal-500" />, action: () => { setActiveTab('automation'); onClose(); } },
         { label: 'Sovereign Privacy & Zero-Knowledge Proof Center', icon: <ShieldCheck className="w-4 h-4 text-indigo-500" />, action: () => { setActiveTab('privacy'); onClose(); } },
         { label: 'Agent Economy & x402 Micro-Transaction Marketplace', icon: <Zap className="w-4 h-4 text-amber-500" />, action: () => { setActiveTab('economy'); onClose(); } },
+        { label: 'Google Cloud Infrastructure & Firestore Hub', icon: <Cloud className="w-4 h-4 text-sky-500" />, action: () => { setActiveTab('gcp'); onClose(); } },
         { label: 'Platform & AI Model Configuration Settings', icon: <Settings className="w-4 h-4 text-slate-500" />, action: () => { setActiveTab('settings'); onClose(); } },
       ],
     },
