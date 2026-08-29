@@ -39,6 +39,7 @@ interface DrTHomeProps {
   personality: PersonalityMode;
   setPersonality: (p: PersonalityMode) => void;
   openVoiceMode: () => void;
+  openBirthdayModal?: () => void;
   patient: PatientProfile;
   setActiveTab: (tab: NavTab) => void;
   isLoading: boolean;
@@ -66,6 +67,7 @@ export const DrTHome: React.FC<DrTHomeProps> = ({
   personality,
   setPersonality,
   openVoiceMode,
+  openBirthdayModal,
   patient,
   setActiveTab,
   isLoading,
@@ -175,17 +177,30 @@ export const DrTHome: React.FC<DrTHomeProps> = ({
                 <Cpu className="w-4 h-4 text-purple-400" />
                 <span>Open AI Swarm</span>
               </button>
+              {openBirthdayModal && (
+                <button
+                  onClick={openBirthdayModal}
+                  className="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-amber-500 via-rose-500 to-pink-500 hover:from-amber-600 hover:to-pink-600 text-slate-950 text-xs font-black flex items-center space-x-2 transition shadow-lg shadow-amber-500/20 transform hover:scale-105"
+                >
+                  <Sparkles className="w-4 h-4 text-slate-950" />
+                  <span>🎉 Birthday Dedication</span>
+                </button>
+              )}
             </div>
           </div>
 
           {/* Dr. T Avatar Hero Profile */}
-          <div className="relative shrink-0 flex items-center justify-center">
-            <div className="w-28 h-28 sm:w-36 sm:h-36 rounded-3xl overflow-hidden ring-4 ring-teal-400/40 shadow-2xl bg-slate-800/80 backdrop-blur-md">
+          <div 
+            onClick={openBirthdayModal}
+            className="relative shrink-0 flex items-center justify-center cursor-pointer group"
+            title="Dr. T - Click for Birthday Celebration"
+          >
+            <div className="w-28 h-28 sm:w-36 sm:h-36 rounded-3xl overflow-hidden ring-4 ring-teal-400/40 group-hover:ring-amber-400/80 transition-all duration-300 shadow-2xl bg-slate-800/80 backdrop-blur-md">
               <img 
                 src={DR_T_AVATAR} 
                 alt="Dr. T - Asian Lady Doctor with Glasses"
                 referrerPolicy="no-referrer"
-                className="w-full h-full object-cover object-center"
+                className="w-full h-full object-cover object-center group-hover:scale-105 transition transform duration-300"
               />
             </div>
             <div className="absolute -bottom-2 -right-2 p-1.5 bg-teal-500 rounded-full text-slate-950 shadow-lg ring-4 ring-slate-900" title="Board Certified Physician">

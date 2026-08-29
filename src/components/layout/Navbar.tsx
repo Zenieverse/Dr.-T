@@ -17,7 +17,8 @@ import {
   Command, 
   Compass,
   Globe,
-  Cloud
+  Cloud,
+  Cake
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -30,6 +31,7 @@ interface NavbarProps {
   openCommandPalette: () => void;
   openVoiceMode: () => void;
   openDemoJourney: () => void;
+  openBirthdayModal?: () => void;
 }
 
 const LANGUAGES: Array<{ code: LanguageCode; label: string; flag: string }> = [
@@ -52,6 +54,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   openCommandPalette,
   openVoiceMode,
   openDemoJourney,
+  openBirthdayModal,
 }) => {
   const unreadCount = notifications.filter(n => !n.read).length;
 
@@ -126,6 +129,18 @@ export const Navbar: React.FC<NavbarProps> = ({
                 ⌘K
               </kbd>
             </button>
+
+            {/* Birthday Celebration Window Trigger */}
+            {openBirthdayModal && (
+              <button
+                onClick={openBirthdayModal}
+                className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-400 via-rose-400 to-pink-500 hover:from-amber-500 hover:to-pink-600 text-slate-950 text-xs font-black shadow-sm shadow-amber-500/20 transition transform hover:scale-105"
+                title="Open Birthday Dedication & Poem"
+              >
+                <Cake className="w-3.5 h-3.5 text-slate-950" />
+                <span className="hidden sm:inline">🎂 Birthday</span>
+              </button>
+            )}
 
             {/* Voice Mode Quick Launch */}
             <button

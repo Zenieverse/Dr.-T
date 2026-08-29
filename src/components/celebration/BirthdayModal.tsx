@@ -119,7 +119,7 @@ Wishing you Best running your ways
 Till time finds it 'assez'
 Toujours, J'attends, Bonjour! Ça va?
 
-happy Waaah Waaah! 
+HAPPY Waah Waah!
 by ZEN
 
 Dr. T V2.9.3.7.0`;
@@ -314,8 +314,8 @@ Dr. T V2.9.3.7.0`;
             {/* Poem Footer & Signatures */}
             <div className="pt-4 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
               <div className="text-center sm:text-left space-y-0.5">
-                <p className="font-extrabold text-sm text-transparent bg-clip-text bg-gradient-to-r from-rose-400 via-pink-400 to-amber-300">
-                  happy Waaah Waaah!
+                <p className="font-extrabold text-sm sm:text-base text-transparent bg-clip-text bg-gradient-to-r from-rose-400 via-pink-400 to-amber-300">
+                  HAPPY Waah Waah!
                 </p>
                 <p className="font-mono text-amber-300/80 font-bold">
                   by <span className="text-white uppercase tracking-wider font-black">ZEN</span>
@@ -379,7 +379,7 @@ Dr. T V2.9.3.7.0`;
         <div className="bg-slate-950 px-4 py-2.5 border-t border-slate-800 text-center text-[10px] text-slate-400 flex items-center justify-center space-x-2">
           <span>🎂 Celebrate life, health, and mind</span>
           <span>•</span>
-          <span className="text-amber-300 font-bold">Happy Birthday from Dr. T &amp; Team</span>
+          <span className="text-amber-300 font-bold">Happy Birthday to Dr. T &amp; Team</span>
         </div>
 
       </div>
