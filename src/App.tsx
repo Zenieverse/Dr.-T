@@ -47,6 +47,7 @@ import { PrivacyCenter } from './components/privacy/PrivacyCenter';
 import { AgentEconomy } from './components/economy/AgentEconomy';
 import { GoogleCloudHub } from './components/cloud/GoogleCloudHub';
 import { PetWhispererApp } from './components/petwhisperer/PetWhispererApp';
+import { OpenWebOSApp } from './components/openwebos/OpenWebOSApp';
 import { SettingsPage } from './components/settings/SettingsPage';
 
 export function App() {
@@ -320,6 +321,10 @@ export function App() {
 
         {activeTab === 'petwhisperer' && (
           <PetWhispererApp />
+        )}
+
+        {activeTab === 'openwebos' && (
+          <OpenWebOSApp />
         )}
 
         {activeTab === 'intelligence' && (

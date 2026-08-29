@@ -78,7 +78,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       ],
     },
     {
-      category: 'PetWhisperer',
+      category: 'K9Whisperer',
       items: [
         { label: '01 Autonomous Taskmaster & 5-Stage Pipeline', icon: <Sparkles className="w-4 h-4 text-amber-500" />, action: () => { setActiveTab('petwhisperer'); onClose(); } },
         { label: '02 Strands & AgentCore Hub (Everyday & Clinical SOAP)', icon: <Cpu className="w-4 h-4 text-indigo-500" />, action: () => { setActiveTab('petwhisperer'); onClose(); } },
@@ -86,6 +86,15 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         { label: '04 Bark Acoustic & Spectrogram (FFT & HNR)', icon: <Mic className="w-4 h-4 text-rose-500" />, action: () => { setActiveTab('petwhisperer'); onClose(); } },
         { label: '07 Web Audio 432 Hz Resonator & Ultrasonic Whistle', icon: <Zap className="w-4 h-4 text-teal-500" />, action: () => { setActiveTab('petwhisperer'); onClose(); } },
         { label: '09 Solana Devnet On-Chain Passport & TREATS Mint', icon: <Zap className="w-4 h-4 text-purple-500" />, action: () => { setActiveTab('petwhisperer'); onClose(); } },
+      ],
+    },
+    {
+      category: 'OpenWebOS (WebMCP Workspace)',
+      items: [
+        { label: 'Open OpenWebOS Agentic Web Canvas', icon: <Bot className="w-4 h-4 text-cyan-400" />, action: () => { setActiveTab('openwebos'); onClose(); } },
+        { label: 'Run 2-Minute WebMCP Demo Scenario', icon: <Sparkles className="w-4 h-4 text-teal-400" />, action: () => { setActiveTab('openwebos'); onClose(); } },
+        { label: 'Inspect 12 WebMCP Tool Schemas & Sandbox', icon: <FileText className="w-4 h-4 text-indigo-400" />, action: () => { setActiveTab('openwebos'); onClose(); } },
+        { label: 'View Zero-Trust Safety & Cryptographic Audit', icon: <ShieldCheck className="w-4 h-4 text-emerald-400" />, action: () => { setActiveTab('openwebos'); onClose(); } },
       ],
     },
     {

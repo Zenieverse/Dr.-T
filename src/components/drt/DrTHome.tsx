@@ -345,7 +345,7 @@ export const DrTHome: React.FC<DrTHomeProps> = ({
                       </div>
                     )}
                     <span className="text-[11px] font-bold text-slate-500">
-                      {msg.role === 'user' ? 'You' : 'Dr. T, MD'}
+                      {msg.role === 'user' ? 'You' : 'Dr. T'}
                     </span>
                     <span className="text-[10px] text-slate-400 font-mono">
                       {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}

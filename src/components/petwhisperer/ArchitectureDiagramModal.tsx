@@ -31,7 +31,7 @@ export const ArchitectureDiagramModal: React.FC<ArchitectureDiagramModalProps> =
         context.drawImage(image, 0, 0);
         const png = canvas.toDataURL('image/png');
         const downloadLink = document.createElement('a');
-        downloadLink.download = 'PetWhisperer_System_Architecture.png';
+        downloadLink.download = 'K9Whisperer_System_Architecture.png';
         downloadLink.href = png;
         document.body.appendChild(downloadLink);
         downloadLink.click();
@@ -55,7 +55,7 @@ export const ArchitectureDiagramModal: React.FC<ArchitectureDiagramModalProps> =
               <span className="text-[11px] font-mono text-stone-500">VER 2.4.0-AWS-GCP-SOL</span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-serif italic font-light text-[#1A1A1A]">
-              PetWhisperer AI Technical Architecture
+              K9Whisperer AI Technical Architecture
             </h2>
             <p className="text-xs font-mono text-stone-600">
               Autonomous Cross-Species Ethology, Multimodal Model Armor & Web3 Verification Grid

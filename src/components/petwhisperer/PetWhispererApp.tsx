@@ -187,7 +187,7 @@ export const PetWhispererApp: React.FC = () => {
                 <span className="text-[10px] font-mono text-stone-400">CORE v2.4</span>
               </div>
               <h1 className="text-lg sm:text-xl font-serif italic font-light tracking-tight text-[#1A1A1A]">
-                PetWhisperer <span className="text-xs font-mono font-normal not-italic text-stone-500">(CanineWhisperer)</span>
+                K9Whisperer <span className="text-xs font-mono font-normal not-italic text-stone-500">(CanineWhisperer)</span>
               </h1>
             </div>
           </div>

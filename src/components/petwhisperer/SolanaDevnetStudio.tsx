@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 
 export const SolanaDevnetStudio: React.FC = () => {
-  const [walletAddress] = useState('7XpZ8...PetWhispererDevnet...9aL2');
+  const [walletAddress] = useState('7XpZ8...K9WhispererDevnet...9aL2');
   const [treatsBalance, setTreatsBalance] = useState(250);
   const [copiedTx, setCopiedTx] = useState<string | null>(null);
   const [isMinting, setIsMinting] = useState(false);

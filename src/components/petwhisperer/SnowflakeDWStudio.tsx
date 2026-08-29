@@ -121,7 +121,7 @@ GROUP BY subject_id;`
 
         <div className="flex items-center space-x-2 bg-white px-3 py-2 rounded-xl border border-[#1A1A1A] shadow-xs font-mono text-xs text-stone-700">
           <Database className="w-4 h-4 text-indigo-600" />
-          <span>Warehouse: PETWHISPERER_DW (XS Active)</span>
+          <span>Warehouse: K9WHISPERER_DW (XS Active)</span>
         </div>
       </div>
 

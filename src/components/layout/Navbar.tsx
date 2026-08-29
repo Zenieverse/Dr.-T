@@ -68,7 +68,8 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
       ) 
     },
-    { id: 'petwhisperer', label: 'PetWhisperer', icon: <span className="text-sm">🐾</span> },
+    { id: 'petwhisperer', label: 'K9Whisperer', icon: <span className="text-sm">🐾</span> },
+    { id: 'openwebos', label: 'OpenWebOS', icon: <Globe className="w-4 h-4 text-cyan-500" />, badge: 'WebMCP' },
     { id: 'intelligence', label: 'Health Intelligence', icon: <Activity className="w-4 h-4 text-emerald-500" /> },
     { id: 'informatics', label: 'Clinical Informatics', icon: <FileText className="w-4 h-4 text-blue-500" /> },
     { id: 'swarm', label: 'AI Swarm', icon: <Cpu className="w-4 h-4 text-purple-500" />, badge: '7 Agents' },
