@@ -98,6 +98,16 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       ],
     },
     {
+      category: 'GreenieVerse (Galactic Agriculture AI)',
+      items: [
+        { label: 'Launch GreenieVerse Command Center (10x10 Grid)', icon: <span className="text-sm">🌌</span>, action: () => { setActiveTab('greenieverse'); onClose(); } },
+        { label: 'Market Arbitrage Terminal & Price Forecasts', icon: <Activity className="w-4 h-4 text-emerald-400" />, action: () => { setActiveTab('greenieverse'); onClose(); } },
+        { label: 'GreenieCulture Strategy & Performance Benchmark', icon: <Zap className="w-4 h-4 text-amber-400" />, action: () => { setActiveTab('greenieverse'); onClose(); } },
+        { label: 'Evolutionary Strategy Lab & Self-Play', icon: <Cpu className="w-4 h-4 text-purple-400" />, action: () => { setActiveTab('greenieverse'); onClose(); } },
+        { label: 'Export Kaggle submission/main.py Agent', icon: <FileText className="w-4 h-4 text-cyan-400" />, action: () => { setActiveTab('greenieverse'); onClose(); } },
+      ],
+    },
+    {
       category: 'AI Multi-Agent Swarm',
       items: [
         { label: 'Launch AI Swarm Orchestrator (7 Agents)', icon: <Cpu className="w-4 h-4 text-purple-500" />, action: () => { setActiveTab('swarm'); onClose(); } },

@@ -48,6 +48,7 @@ import { AgentEconomy } from './components/economy/AgentEconomy';
 import { GoogleCloudHub } from './components/cloud/GoogleCloudHub';
 import { PetWhispererApp } from './components/petwhisperer/PetWhispererApp';
 import { OpenWebOSApp } from './components/openwebos/OpenWebOSApp';
+import { GreenieVerseApp } from './components/greenieverse/GreenieVerseApp';
 import { SettingsPage } from './components/settings/SettingsPage';
 
 export function App() {
@@ -325,6 +326,10 @@ export function App() {
 
         {activeTab === 'openwebos' && (
           <OpenWebOSApp />
+        )}
+
+        {activeTab === 'greenieverse' && (
+          <GreenieVerseApp />
         )}
 
         {activeTab === 'intelligence' && (

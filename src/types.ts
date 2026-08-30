@@ -5,6 +5,7 @@
 export type NavTab = 
   | 'drt'
   | 'openwebos'
+  | 'greenieverse'
   | 'petwhisperer'
   | 'intelligence'
   | 'informatics'

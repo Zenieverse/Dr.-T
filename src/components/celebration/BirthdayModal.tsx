@@ -148,67 +148,67 @@ Dr. T V2.9.3.7.0`;
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-300">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-amber-950/40 backdrop-blur-md animate-in fade-in duration-300">
       
       {/* Decorative Floating Balloons in Background */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden select-none">
         {/* Balloon 1: Rose */}
         <div className="absolute top-6 left-8 sm:left-24 animate-bounce [animation-duration:3s]">
           <div className="w-12 h-14 sm:w-16 sm:h-20 bg-gradient-to-t from-rose-500 to-rose-300 rounded-full shadow-lg shadow-rose-500/30 flex items-center justify-center relative">
-            <div className="w-3 h-5 bg-white/40 rounded-full absolute top-2 left-2 rotate-12"></div>
+            <div className="w-3 h-5 bg-white/60 rounded-full absolute top-2 left-2 rotate-12"></div>
             <div className="absolute -bottom-1 w-2 h-2 bg-rose-600 rotate-45"></div>
-            <div className="absolute -bottom-10 w-0.5 h-10 bg-slate-400/60"></div>
+            <div className="absolute -bottom-10 w-0.5 h-10 bg-amber-800/40"></div>
           </div>
         </div>
 
         {/* Balloon 2: Amber/Gold */}
         <div className="absolute top-12 right-8 sm:right-24 animate-bounce [animation-duration:3.5s]">
           <div className="w-11 h-14 sm:w-14 sm:h-18 bg-gradient-to-t from-amber-500 to-amber-300 rounded-full shadow-lg shadow-amber-500/30 flex items-center justify-center relative">
-            <div className="w-2.5 h-4 bg-white/40 rounded-full absolute top-2 left-2 rotate-12"></div>
+            <div className="w-2.5 h-4 bg-white/60 rounded-full absolute top-2 left-2 rotate-12"></div>
             <div className="absolute -bottom-1 w-2 h-2 bg-amber-600 rotate-45"></div>
-            <div className="absolute -bottom-10 w-0.5 h-10 bg-slate-400/60"></div>
+            <div className="absolute -bottom-10 w-0.5 h-10 bg-amber-800/40"></div>
           </div>
         </div>
 
         {/* Balloon 3: Purple */}
         <div className="absolute bottom-16 left-6 sm:left-20 animate-bounce [animation-duration:4s]">
-          <div className="w-10 h-12 sm:w-12 sm:h-16 bg-gradient-to-t from-purple-600 to-indigo-400 rounded-full shadow-lg shadow-purple-500/30 relative">
-            <div className="w-2 h-3 bg-white/40 rounded-full absolute top-2 left-2 rotate-12"></div>
+          <div className="w-10 h-12 sm:w-12 sm:h-16 bg-gradient-to-t from-purple-500 to-pink-400 rounded-full shadow-lg shadow-purple-500/30 relative">
+            <div className="w-2 h-3 bg-white/60 rounded-full absolute top-2 left-2 rotate-12"></div>
             <div className="absolute -bottom-1 w-1.5 h-1.5 bg-purple-700 rotate-45"></div>
-            <div className="absolute -bottom-8 w-0.5 h-8 bg-slate-400/60"></div>
+            <div className="absolute -bottom-8 w-0.5 h-8 bg-amber-800/40"></div>
           </div>
         </div>
 
         {/* Balloon 4: Teal */}
         <div className="absolute bottom-20 right-6 sm:right-20 animate-bounce [animation-duration:3.2s]">
           <div className="w-10 h-12 sm:w-14 sm:h-18 bg-gradient-to-t from-teal-500 to-emerald-300 rounded-full shadow-lg shadow-teal-500/30 relative">
-            <div className="w-2 h-3 bg-white/40 rounded-full absolute top-2 left-2 rotate-12"></div>
+            <div className="w-2 h-3 bg-white/60 rounded-full absolute top-2 left-2 rotate-12"></div>
             <div className="absolute -bottom-1 w-1.5 h-1.5 bg-teal-700 rotate-45"></div>
-            <div className="absolute -bottom-8 w-0.5 h-8 bg-slate-400/60"></div>
+            <div className="absolute -bottom-8 w-0.5 h-8 bg-amber-800/40"></div>
           </div>
         </div>
       </div>
 
-      {/* Main Celebration Window Card */}
-      <div className="relative w-full max-w-xl bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border-2 border-amber-400/60 rounded-3xl shadow-2xl shadow-amber-500/20 overflow-hidden text-slate-100 flex flex-col max-h-[92vh]">
+      {/* Main Celebration Window Card - Bright & Cheerful Palette */}
+      <div className="relative w-full max-w-xl bg-gradient-to-b from-amber-50 via-white to-rose-50/70 border-2 border-amber-300 rounded-3xl shadow-2xl shadow-amber-500/30 overflow-hidden text-slate-800 flex flex-col max-h-[92vh]">
         
         {/* Top Festive Ribbon Banner */}
-        <div className="bg-gradient-to-r from-amber-500 via-rose-500 to-pink-500 px-4 py-2 text-slate-950 font-black text-xs sm:text-sm tracking-wider uppercase flex items-center justify-between shadow-md">
+        <div className="bg-gradient-to-r from-amber-400 via-rose-500 to-pink-500 px-4 py-2.5 text-white font-black text-xs sm:text-sm tracking-wider uppercase flex items-center justify-between shadow-md">
           <div className="flex items-center space-x-2">
-            <PartyPopper className="w-4 h-4 animate-bounce" />
-            <span className="font-extrabold tracking-widest">Happy Birthday Celebration! 🎉🎂✨</span>
+            <PartyPopper className="w-4 h-4 animate-bounce text-amber-200" />
+            <span className="font-extrabold tracking-widest drop-shadow-sm">Happy Birthday Celebration! 🎉🎂✨</span>
           </div>
           <div className="flex items-center space-x-2">
             <button
               onClick={() => setSoundEnabled(!soundEnabled)}
-              className="p-1 hover:bg-black/10 rounded-lg transition"
+              className="p-1 hover:bg-white/20 rounded-lg text-white transition"
               title={soundEnabled ? 'Mute chimes' : 'Unmute chimes'}
             >
               {soundEnabled ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
             </button>
             <button
               onClick={onClose}
-              className="p-1 hover:bg-black/20 rounded-lg text-slate-950 transition"
+              className="p-1 hover:bg-white/25 rounded-lg text-white transition"
               title="Close window"
             >
               <X className="w-4 h-4" />
@@ -220,7 +220,7 @@ Dr. T V2.9.3.7.0`;
         <div className="p-5 sm:p-8 overflow-y-auto space-y-6">
           
           {/* Header Visual with Dr. T and Birthday Cake */}
-          <div className="flex items-center justify-between gap-4 p-4 rounded-2xl bg-gradient-to-r from-amber-950/40 via-rose-950/30 to-purple-950/40 border border-amber-500/30 shadow-inner">
+          <div className="flex items-center justify-between gap-4 p-4 rounded-2xl bg-gradient-to-r from-amber-100/90 via-rose-100/80 to-purple-100/90 border border-amber-200 shadow-sm">
             
             {/* Dr. T Avatar */}
             <div className="flex items-center space-x-3">
@@ -237,16 +237,16 @@ Dr. T V2.9.3.7.0`;
               </div>
               <div>
                 <div className="flex items-center space-x-1.5">
-                  <h3 className="text-sm sm:text-base font-extrabold text-white">Dr. T</h3>
-                  <span className="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-400/20 text-amber-300 border border-amber-400/30">
+                  <h3 className="text-sm sm:text-base font-extrabold text-slate-900">Dr. T</h3>
+                  <span className="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-200 text-amber-900 border border-amber-300">
                     V2.9.3.7.0
                   </span>
                 </div>
-                <p className="text-[11px] text-amber-200/90 font-medium">
+                <p className="text-[11px] text-amber-900/90 font-medium">
                   Empathetic Biomedical Intelligence
                 </p>
-                <div className="flex items-center space-x-1 text-[10px] text-rose-300 mt-0.5">
-                  <Stars className="w-3 h-3 text-amber-400" />
+                <div className="flex items-center space-x-1 text-[10px] text-rose-700 font-semibold mt-0.5">
+                  <Stars className="w-3 h-3 text-amber-600" />
                   <span>Blessings &amp; Joy across worlds</span>
                 </div>
               </div>
@@ -255,22 +255,22 @@ Dr. T V2.9.3.7.0`;
             {/* Interactive Birthday Cake */}
             <button 
               onClick={toggleCandles}
-              className="group flex flex-col items-center justify-center p-2.5 rounded-2xl bg-slate-800/80 hover:bg-slate-700/80 border border-amber-400/30 transition text-center shrink-0"
+              className="group flex flex-col items-center justify-center p-2.5 rounded-2xl bg-white/95 hover:bg-amber-50 border border-amber-300 shadow-sm transition text-center shrink-0 cursor-pointer"
               title={candlesLit ? "Blow out the candles!" : "Light the candles!"}
             >
               <div className="relative">
                 {candlesLit ? (
                   <div className="flex space-x-1 -mb-1">
-                    <Flame className="w-3.5 h-3.5 text-amber-400 animate-bounce" />
-                    <Flame className="w-3.5 h-3.5 text-rose-400 animate-bounce [animation-delay:-0.2s]" />
-                    <Flame className="w-3.5 h-3.5 text-amber-400 animate-bounce [animation-delay:-0.4s]" />
+                    <Flame className="w-3.5 h-3.5 text-amber-500 animate-bounce" />
+                    <Flame className="w-3.5 h-3.5 text-rose-500 animate-bounce [animation-delay:-0.2s]" />
+                    <Flame className="w-3.5 h-3.5 text-amber-500 animate-bounce [animation-delay:-0.4s]" />
                   </div>
                 ) : (
                   <div className="text-[10px] text-slate-400 font-mono -mb-1">💨</div>
                 )}
-                <Cake className="w-8 h-8 text-amber-300 group-hover:scale-110 transition transform" />
+                <Cake className="w-8 h-8 text-amber-500 group-hover:scale-110 transition transform" />
               </div>
-              <span className="text-[9px] font-bold text-amber-300 mt-1 uppercase tracking-tight">
+              <span className="text-[9px] font-bold text-amber-800 mt-1 uppercase tracking-tight">
                 {candlesLit ? 'Blow Candle' : 'Light Candle'}
               </span>
             </button>
@@ -278,52 +278,52 @@ Dr. T V2.9.3.7.0`;
 
           {/* Birthday Bunting & Sparkle Decorative Header */}
           <div className="text-center space-y-1">
-            <div className="flex items-center justify-center space-x-2 text-amber-400">
-              <span>🎈</span>
-              <span className="text-xs uppercase font-extrabold tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-rose-300 to-pink-300">
+            <div className="flex items-center justify-center space-x-2">
+              <span className="text-lg">🎈</span>
+              <span className="text-xs uppercase font-extrabold tracking-widest text-rose-600">
                 A Birthday Dedication
               </span>
-              <span>🎁</span>
+              <span className="text-lg">🎁</span>
             </div>
-            <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white font-serif">
+            <h2 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 font-serif">
               "Happy, Whole Years!"
             </h2>
           </div>
 
-          {/* The Exact Poem Display Box */}
-          <div className="relative rounded-2xl bg-slate-950/90 border border-amber-500/40 p-5 sm:p-6 shadow-xl space-y-4">
+          {/* The Exact Poem Display Box - Bright Parchment Theme */}
+          <div className="relative rounded-2xl bg-white/95 border-2 border-amber-300/80 p-5 sm:p-7 shadow-lg space-y-4">
             
             {/* Golden Corner Accents */}
-            <div className="absolute top-2 left-2 w-3 h-3 border-t-2 border-l-2 border-amber-400"></div>
-            <div className="absolute top-2 right-2 w-3 h-3 border-t-2 border-r-2 border-amber-400"></div>
-            <div className="absolute bottom-2 left-2 w-3 h-3 border-b-2 border-l-2 border-amber-400"></div>
-            <div className="absolute bottom-2 right-2 w-3 h-3 border-b-2 border-r-2 border-amber-400"></div>
+            <div className="absolute top-2 left-2 w-3.5 h-3.5 border-t-2 border-l-2 border-amber-500"></div>
+            <div className="absolute top-2 right-2 w-3.5 h-3.5 border-t-2 border-r-2 border-amber-500"></div>
+            <div className="absolute bottom-2 left-2 w-3.5 h-3.5 border-b-2 border-l-2 border-amber-500"></div>
+            <div className="absolute bottom-2 right-2 w-3.5 h-3.5 border-b-2 border-r-2 border-amber-500"></div>
 
             {/* Poem Stanzas */}
-            <div className="text-center space-y-2 text-sm sm:text-base leading-relaxed text-amber-100/90 font-serif italic">
-              <p className="tracking-wide">Whose cries so crystal clear?</p>
-              <p className="tracking-wide text-amber-300 font-semibold">Three worlds all bless 'Happy, Whole Years!</p>
-              <p className="tracking-wide">Making your mark soon, Dear</p>
-              <p className="tracking-wide text-rose-200">Wow worlds with Heart, Found worlds with Mind</p>
-              <p className="tracking-wide">Cheers on your paths go wild</p>
-              <p className="tracking-wide">Wishing you Best running your ways</p>
-              <p className="tracking-wide text-teal-200">Till time finds it 'assez'</p>
-              <p className="tracking-wide font-medium text-pink-300">Toujours, J'attends, Bonjour! Ça va?</p>
+            <div className="text-center space-y-2 text-sm sm:text-base leading-relaxed text-slate-800 font-serif italic">
+              <p className="tracking-wide text-slate-700">Whose cries so crystal clear?</p>
+              <p className="tracking-wide text-amber-800 font-bold">Three worlds all bless 'Happy, Whole Years!</p>
+              <p className="tracking-wide text-slate-700">Making your mark soon, Dear</p>
+              <p className="tracking-wide text-rose-700 font-medium">Wow worlds with Heart, Found worlds with Mind</p>
+              <p className="tracking-wide text-slate-700">Cheers on your paths go wild</p>
+              <p className="tracking-wide text-slate-700">Wishing you Best running your ways</p>
+              <p className="tracking-wide text-teal-800 font-medium">Till time finds it 'assez'</p>
+              <p className="tracking-wide font-semibold text-purple-800">Toujours, J'attends, Bonjour! Ça va?</p>
             </div>
 
             {/* Poem Footer & Signatures */}
-            <div className="pt-4 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+            <div className="pt-4 border-t border-amber-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
               <div className="text-center sm:text-left space-y-0.5">
-                <p className="font-extrabold text-sm sm:text-base text-transparent bg-clip-text bg-gradient-to-r from-rose-400 via-pink-400 to-amber-300">
+                <p className="font-extrabold text-base sm:text-lg text-rose-600 font-serif tracking-wide">
                   HAPPY Waah Waah!
                 </p>
-                <p className="font-mono text-amber-300/80 font-bold">
-                  by <span className="text-white uppercase tracking-wider font-black">ZEN</span>
+                <p className="font-mono text-slate-600 font-bold">
+                  by <span className="text-slate-900 uppercase tracking-wider font-black">ZEN</span>
                 </p>
               </div>
 
-              <div className="px-3 py-1.5 rounded-xl bg-slate-900 border border-amber-500/30 text-[11px] font-mono font-bold text-amber-400 flex items-center space-x-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+              <div className="px-3 py-1.5 rounded-xl bg-amber-100/90 border border-amber-300 text-[11px] font-mono font-bold text-amber-900 flex items-center space-x-1.5 shadow-sm">
+                <Sparkles className="w-3.5 h-3.5 text-amber-600" />
                 <span>Dr. T V2.9.3.7.0</span>
               </div>
             </div>
@@ -335,7 +335,7 @@ Dr. T V2.9.3.7.0`;
             
             <button
               onClick={handleSendWish}
-              className="flex-1 min-w-[150px] px-4 py-2.5 rounded-2xl bg-gradient-to-r from-rose-500 via-pink-500 to-amber-500 hover:from-rose-600 hover:to-amber-600 text-white text-xs font-extrabold shadow-lg shadow-rose-500/25 flex items-center justify-center space-x-2 transition transform active:scale-95"
+              className="flex-1 min-w-[150px] px-4 py-2.5 rounded-2xl bg-gradient-to-r from-rose-500 via-pink-500 to-amber-500 hover:from-rose-600 hover:to-amber-600 text-white text-xs font-extrabold shadow-lg shadow-rose-500/25 flex items-center justify-center space-x-2 transition transform active:scale-95 cursor-pointer"
             >
               <Heart className={`w-4 h-4 ${hasWished ? 'fill-white' : ''} animate-pulse`} />
               <span>{hasWished ? 'Blessing Sent! 💖' : 'Send Birthday Blessing ✨'}</span>
@@ -346,26 +346,26 @@ Dr. T V2.9.3.7.0`;
 
             <button
               onClick={launchConfettiBlast}
-              className="px-4 py-2.5 rounded-2xl bg-slate-800 hover:bg-slate-700 border border-amber-400/40 text-amber-300 text-xs font-bold flex items-center space-x-1.5 transition"
+              className="px-4 py-2.5 rounded-2xl bg-amber-100 hover:bg-amber-200 border border-amber-300 text-amber-900 text-xs font-bold flex items-center space-x-1.5 transition shadow-sm cursor-pointer"
               title="Launch Confetti"
             >
-              <PartyPopper className="w-4 h-4 text-amber-400" />
+              <PartyPopper className="w-4 h-4 text-amber-600" />
               <span>Confetti 🎊</span>
             </button>
 
             <button
               onClick={handleCopy}
-              className="px-3.5 py-2.5 rounded-2xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 text-slate-300 hover:text-white text-xs font-semibold flex items-center space-x-1.5 transition"
+              className="px-3.5 py-2.5 rounded-2xl bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 hover:text-slate-900 text-xs font-semibold flex items-center space-x-1.5 transition shadow-sm cursor-pointer"
               title="Copy Poem Text"
             >
               {copied ? (
                 <>
-                  <Check className="w-4 h-4 text-emerald-400" />
-                  <span className="text-emerald-400">Copied!</span>
+                  <Check className="w-4 h-4 text-emerald-600" />
+                  <span className="text-emerald-700 font-bold">Copied!</span>
                 </>
               ) : (
                 <>
-                  <Copy className="w-4 h-4 text-slate-400" />
+                  <Copy className="w-4 h-4 text-slate-500" />
                   <span>Copy</span>
                 </>
               )}
@@ -376,10 +376,10 @@ Dr. T V2.9.3.7.0`;
         </div>
 
         {/* Bottom Festive Footer Accent */}
-        <div className="bg-slate-950 px-4 py-2.5 border-t border-slate-800 text-center text-[10px] text-slate-400 flex items-center justify-center space-x-2">
+        <div className="bg-amber-100/90 px-4 py-2.5 border-t border-amber-200 text-center text-[11px] text-amber-900 flex items-center justify-center space-x-2 font-medium">
           <span>🎂 Celebrate life, health, and mind</span>
           <span>•</span>
-          <span className="text-amber-300 font-bold">Happy Birthday to Dr. T &amp; Team</span>
+          <span className="text-rose-700 font-bold">Happy Birthday to Dr. T &amp; Team</span>
         </div>
 
       </div>
