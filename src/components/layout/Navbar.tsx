@@ -18,7 +18,10 @@ import {
   Compass,
   Globe,
   Cloud,
-  Cake
+  Cake,
+  Trees,
+  Infinity,
+  Heart
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -63,11 +66,12 @@ export const Navbar: React.FC<NavbarProps> = ({
       id: 'drt', 
       label: 'Dr. T', 
       icon: (
-        <div className="w-5 h-5 rounded-full overflow-hidden ring-1 ring-rose-400/50 shrink-0">
-          <img src={DR_T_AVATAR} alt="Dr. T" referrerPolicy="no-referrer" className="w-full h-full object-cover" />
+        <div className="w-5 h-5 rounded-md bg-gradient-to-tr from-rose-500 via-purple-500 to-teal-400 flex items-center justify-center shrink-0 text-white shadow-2xs">
+          <Infinity className="w-3.5 h-3.5" />
         </div>
       ) 
     },
+    { id: 'tribhouse', label: '🌳 Trib-House', icon: <Trees className="w-4 h-4 text-emerald-600" />, badge: 'Living Library' },
     { id: 'petwhisperer', label: 'K9Whisperer', icon: <span className="text-sm">🐾</span> },
     { id: 'openwebos', label: 'OpenWebOS', icon: <Globe className="w-4 h-4 text-cyan-500" />, badge: 'WebMCP' },
     { id: 'greenieverse', label: 'GreenieVerse', icon: <span className="text-sm">🌌</span>, badge: 'Galactic' },
@@ -94,24 +98,22 @@ export const Navbar: React.FC<NavbarProps> = ({
             onClick={() => setActiveTab('drt')}
             className="flex items-center space-x-3 cursor-pointer group select-none"
           >
-            <div className="relative flex items-center justify-center w-11 h-11 rounded-2xl overflow-hidden ring-2 ring-teal-500/50 shadow-md shadow-cyan-500/20 group-hover:scale-105 transition transform">
-              <img 
-                src={DR_T_AVATAR} 
-                alt="Dr. T" 
-                referrerPolicy="no-referrer" 
-                className="w-full h-full object-cover" 
-              />
-              <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-emerald-500 border-2 border-white flex items-center justify-center">
-                <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
+            <div className="relative flex items-center justify-center w-11 h-11 rounded-2xl bg-gradient-to-tr from-rose-500 via-purple-500 to-teal-400 p-0.5 shadow-md shadow-rose-500/15 group-hover:scale-105 transition transform">
+              <div className="w-full h-full bg-gradient-to-br from-white via-rose-50/50 to-teal-50/50 rounded-[14px] flex items-center justify-center shadow-inner">
+                <Infinity className="w-6 h-6 text-rose-500 group-hover:text-teal-600 transition-colors" />
+              </div>
+              <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-gradient-to-tr from-rose-500 to-pink-500 border-2 border-white flex items-center justify-center shadow-xs">
+                <Heart className="w-2 h-2 text-white fill-white" />
               </div>
             </div>
             <div>
               <div className="flex items-center space-x-2">
-                <span className="text-lg font-black text-slate-900 tracking-tight font-display">
+                <span className="text-lg font-black bg-gradient-to-r from-rose-600 via-pink-600 to-teal-600 bg-clip-text text-transparent tracking-tight font-display">
                   Dr. T
                 </span>
-                <span className="px-1.5 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase bg-teal-100 text-teal-800 border border-teal-200">
-                  Biomedical AI
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-gradient-to-r from-rose-50 to-teal-50 text-rose-800 border border-rose-200/80 shadow-2xs">
+                  <Heart className="w-2.5 h-2.5 text-rose-500 fill-rose-500 shrink-0" />
+                  <span>Polymath with Heart</span>
                 </span>
               </div>
             </div>
@@ -204,24 +206,63 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
 
         {/* Primary Tab Navigation Ribbon */}
-        <nav className="flex space-x-1 overflow-x-auto scrollbar-none py-1 border-t border-slate-100">
+        <nav className="flex space-x-1.5 overflow-x-auto scrollbar-none py-1.5 border-t border-slate-100">
           {navItems.map((item) => {
             const isActive = activeTab === item.id;
+            
+            // Dynamic bright active styles
+            const getActiveStyle = (id: NavTab) => {
+              switch (id) {
+                case 'drt':
+                  return 'bg-gradient-to-r from-rose-500 via-purple-500 to-pink-500 text-white shadow-md shadow-rose-500/25 ring-1 ring-rose-300/40';
+                case 'tribhouse':
+                  return 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-600/25 ring-1 ring-emerald-400/40';
+                case 'petwhisperer':
+                  return 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md shadow-amber-500/25 ring-1 ring-amber-300/40';
+                case 'openwebos':
+                  return 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-md shadow-cyan-500/25 ring-1 ring-cyan-300/40';
+                case 'greenieverse':
+                  return 'bg-gradient-to-r from-teal-600 to-emerald-600 text-white shadow-md shadow-teal-500/25 ring-1 ring-teal-300/40';
+                case 'intelligence':
+                  return 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-500/25 ring-1 ring-emerald-300/40';
+                case 'informatics':
+                  return 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/25 ring-1 ring-blue-300/40';
+                case 'swarm':
+                  return 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md shadow-purple-500/25 ring-1 ring-purple-300/40';
+                case 'research':
+                  return 'bg-gradient-to-r from-amber-600 to-yellow-600 text-white shadow-md shadow-amber-500/25 ring-1 ring-amber-300/40';
+                case 'smarist':
+                  return 'bg-gradient-to-r from-pink-600 to-rose-600 text-white shadow-md shadow-pink-500/25 ring-1 ring-pink-300/40';
+                case 'automation':
+                  return 'bg-gradient-to-r from-teal-600 to-cyan-600 text-white shadow-md shadow-teal-500/25 ring-1 ring-teal-300/40';
+                case 'privacy':
+                  return 'bg-gradient-to-r from-indigo-600 to-blue-600 text-white shadow-md shadow-indigo-500/25 ring-1 ring-indigo-300/40';
+                case 'economy':
+                  return 'bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 shadow-md shadow-amber-500/25 font-black ring-1 ring-amber-300/50';
+                case 'gcp':
+                  return 'bg-gradient-to-r from-sky-500 to-blue-600 text-white shadow-md shadow-sky-500/25 ring-1 ring-sky-300/40';
+                case 'settings':
+                  return 'bg-gradient-to-r from-slate-600 to-slate-700 text-white shadow-md shadow-slate-500/20';
+                default:
+                  return 'bg-gradient-to-r from-teal-600 to-emerald-600 text-white shadow-md shadow-teal-500/25';
+              }
+            };
+
             return (
               <button
                 key={item.id}
                 onClick={() => setActiveTab(item.id)}
                 className={`flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
                   isActive
-                    ? 'bg-slate-900 text-white shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                    ? getActiveStyle(item.id)
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/90 border border-transparent hover:border-slate-200/60'
                 }`}
               >
                 <span>{item.icon}</span>
                 <span>{item.label}</span>
                 {item.badge && (
-                  <span className={`px-1.5 py-0.2 rounded text-[9px] font-mono font-bold uppercase ${
-                    isActive ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
+                  <span className={`px-1.5 py-0.5 rounded text-[9px] font-mono font-bold uppercase transition-colors ${
+                    isActive ? 'bg-white/25 text-white shadow-2xs' : 'bg-slate-100 text-slate-700 border border-slate-200/80'
                   }`}>
                     {item.badge}
                   </span>

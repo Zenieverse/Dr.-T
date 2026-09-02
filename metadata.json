@@ -1,6 +1,6 @@
 {
   "name": "Dr. T",
-  "description": "World-Class AI Biomedical Informatics, Wellness & Healthcare Experience Platform combining empathetic health companion, clinical decision-support, FHIR interoperability, AI Swarms, and SmArist AR wellness intelligence.",
+  "description": "World-Class AI Biomedical Informatics, Wellness & Healthcare Platform with Trib-House: The Living Library Treehouse Commons for intergenerational knowledge, slow reading, knowledge graphs, and ecological stewardship.",
   "requestFramePermissions": ["camera", "microphone"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

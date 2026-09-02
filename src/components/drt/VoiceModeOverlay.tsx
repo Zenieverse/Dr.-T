@@ -132,44 +132,46 @@ export const VoiceModeOverlay: React.FC<VoiceModeOverlayProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-between p-6 sm:p-12 text-white animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 bg-gradient-to-b from-rose-950/70 via-slate-900/85 to-teal-950/80 backdrop-blur-lg flex flex-col items-center justify-between p-6 sm:p-12 text-white animate-in fade-in duration-200">
       
       {/* Top Header */}
       <div className="w-full max-w-4xl flex items-center justify-between">
         <div className="flex items-center space-x-3.5">
           <div className="relative">
-            <div className="w-12 h-12 rounded-2xl overflow-hidden ring-2 ring-rose-500/50 shadow-lg shadow-rose-500/20">
+            <div className="w-12 h-12 rounded-2xl overflow-hidden ring-2 ring-rose-400 shadow-lg shadow-rose-500/30">
               <img 
                 src={DR_T_AVATAR} 
-                alt="Dr. Teresa Tan" 
+                alt="Dr. T" 
                 referrerPolicy="no-referrer"
                 className="w-full h-full object-cover"
               />
             </div>
-            <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 border-2 border-slate-950 rounded-full"></span>
+            <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-400 border-2 border-slate-900 rounded-full"></span>
           </div>
           <div>
             <div className="flex items-center space-x-2">
-              <h2 className="text-lg font-black tracking-tight">Dr. T</h2>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/30 text-rose-300 border border-rose-500/40">
+              <h2 className="text-lg font-black tracking-tight bg-gradient-to-r from-rose-300 via-pink-200 to-teal-200 bg-clip-text text-transparent">
+                Dr. T
+              </h2>
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/30 text-rose-200 border border-rose-400/40">
                 {personality} Voice Mode
               </span>
             </div>
-            <p className="text-xs text-slate-400">Live Voice Consultation</p>
+            <p className="text-xs text-rose-200/80">Live Voice Consultation</p>
           </div>
         </div>
 
         <div className="flex items-center space-x-3">
           <button
             onClick={() => setIsMuted(!isMuted)}
-            className="p-3 rounded-2xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-white transition"
+            className="p-3 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 text-rose-100 hover:text-white transition backdrop-blur-xs"
             title={isMuted ? 'Unmute Audio' : 'Mute Audio'}
           >
             {isMuted ? <VolumeX className="w-5 h-5 text-rose-400" /> : <Volume2 className="w-5 h-5" />}
           </button>
           <button
             onClick={onClose}
-            className="p-3 rounded-2xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-white transition"
+            className="p-3 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 text-rose-100 hover:text-white transition backdrop-blur-xs"
           >
             <X className="w-5 h-5" />
           </button>
@@ -184,23 +186,23 @@ export const VoiceModeOverlay: React.FC<VoiceModeOverlayProps> = ({
           {/* Animated Pulsing Ring Layers */}
           <div className={`absolute w-72 h-72 rounded-full transition-all duration-700 ${
             isSpeaking 
-              ? 'bg-rose-500/20 scale-125 animate-ping' 
+              ? 'bg-rose-500/30 scale-125 animate-ping' 
               : isListening 
-                ? 'bg-cyan-500/20 scale-110 animate-pulse' 
-                : 'bg-slate-800/40'
+                ? 'bg-cyan-400/30 scale-110 animate-pulse' 
+                : 'bg-white/10'
           }`} />
 
           <div className={`absolute w-56 h-56 rounded-full blur-xl transition-all duration-500 ${
-            isSpeaking ? 'bg-rose-500/30' : isListening ? 'bg-teal-500/30' : 'bg-slate-800/30'
+            isSpeaking ? 'bg-rose-500/40' : isListening ? 'bg-teal-400/40' : 'bg-white/15'
           }`} />
 
           {/* Center Avatar with Live State Indicator */}
           <div className={`relative z-10 w-40 h-40 rounded-3xl p-1.5 shadow-2xl border transition-all duration-300 ${
             isSpeaking
-              ? 'bg-gradient-to-tr from-rose-600 to-pink-500 border-rose-300 shadow-rose-500/50 scale-105 ring-4 ring-rose-400/40'
+              ? 'bg-gradient-to-tr from-rose-500 via-pink-500 to-rose-400 border-rose-200 shadow-rose-500/60 scale-105 ring-4 ring-rose-300/60'
               : isListening
-                ? 'bg-gradient-to-tr from-cyan-600 to-teal-500 border-cyan-300 shadow-cyan-500/50 scale-105 ring-4 ring-teal-400/40'
-                : 'bg-gradient-to-tr from-slate-900 to-slate-800 border-slate-700'
+                ? 'bg-gradient-to-tr from-cyan-500 to-teal-400 border-cyan-200 shadow-cyan-500/60 scale-105 ring-4 ring-teal-300/60'
+                : 'bg-gradient-to-tr from-rose-400/30 to-teal-400/30 border-white/40 backdrop-blur-md'
           }`}>
             <div className="w-full h-full rounded-2xl overflow-hidden relative">
               <img 
@@ -216,7 +218,7 @@ export const VoiceModeOverlay: React.FC<VoiceModeOverlayProps> = ({
                     <span className="w-1 h-3 bg-rose-400 rounded-full animate-bounce [animation-delay:-0.3s]" />
                     <span className="w-1 h-4 bg-rose-300 rounded-full animate-bounce [animation-delay:-0.15s]" />
                     <span className="w-1 h-2 bg-rose-400 rounded-full animate-bounce" />
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-rose-300 ml-1">Dr. T Speaking</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-rose-200 ml-1">Dr. T Speaking</span>
                   </div>
                 ) : isListening ? (
                   <div className="flex items-center space-x-1 text-teal-300">
@@ -224,8 +226,8 @@ export const VoiceModeOverlay: React.FC<VoiceModeOverlayProps> = ({
                     <span className="text-[10px] font-bold uppercase tracking-wider">Listening...</span>
                   </div>
                 ) : (
-                  <div className="flex items-center space-x-1 text-slate-300">
-                    <Sparkles className="w-3 h-3 text-teal-400" />
+                  <div className="flex items-center space-x-1 text-rose-100">
+                    <Sparkles className="w-3 h-3 text-teal-300" />
                     <span className="text-[10px] font-bold uppercase tracking-wider">Ready to Talk</span>
                   </div>
                 )}
@@ -235,14 +237,14 @@ export const VoiceModeOverlay: React.FC<VoiceModeOverlayProps> = ({
         </div>
 
         {/* Live Subtitle Transcript & Response Box */}
-        <div className="w-full p-6 rounded-3xl bg-slate-900/80 border border-slate-800 backdrop-blur-md shadow-xl text-left space-y-3">
+        <div className="w-full p-6 rounded-3xl bg-white/10 border border-white/20 backdrop-blur-md shadow-2xl text-left space-y-3">
           {transcript && (
-            <div className="text-xs text-cyan-300 font-mono flex items-center space-x-2">
-              <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
+            <div className="text-xs text-teal-200 font-mono flex items-center space-x-2">
+              <span className="w-2 h-2 rounded-full bg-teal-400 animate-ping" />
               <span>You: "{transcript}"</span>
             </div>
           )}
-          <p className="text-sm sm:text-base text-slate-200 leading-relaxed max-h-48 overflow-y-auto">
+          <p className="text-sm sm:text-base text-rose-50 leading-relaxed max-h-48 overflow-y-auto font-medium">
             {lastResponse}
           </p>
         </div>
@@ -254,7 +256,7 @@ export const VoiceModeOverlay: React.FC<VoiceModeOverlayProps> = ({
         {isSpeaking && (
           <button
             onClick={handleInterrupt}
-            className="px-4 py-3 rounded-2xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 text-xs font-bold flex items-center space-x-2 transition"
+            className="px-4 py-3 rounded-2xl bg-white/15 hover:bg-white/25 border border-white/20 text-white text-xs font-bold flex items-center space-x-2 transition backdrop-blur-xs"
           >
             <StopCircle className="w-4 h-4 text-rose-400" />
             <span>Interrupt</span>
@@ -265,8 +267,8 @@ export const VoiceModeOverlay: React.FC<VoiceModeOverlayProps> = ({
           onClick={handleToggleListening}
           className={`flex-1 py-4 rounded-2xl font-black text-sm flex items-center justify-center space-x-3 shadow-xl transition transform active:scale-98 ${
             isListening
-              ? 'bg-rose-500 hover:bg-rose-600 text-white shadow-rose-500/30'
-              : 'bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white shadow-teal-500/30'
+              ? 'bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white shadow-rose-500/40 border border-rose-300/50'
+              : 'bg-gradient-to-r from-teal-400 to-cyan-500 hover:from-teal-500 hover:to-cyan-600 text-slate-950 shadow-teal-400/40 border border-teal-200/50 font-black'
           }`}
         >
           {isListening ? (
@@ -284,7 +286,7 @@ export const VoiceModeOverlay: React.FC<VoiceModeOverlayProps> = ({
 
         <button
           onClick={() => speakText(lastResponse)}
-          className="p-4 rounded-2xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-white transition"
+          className="p-4 rounded-2xl bg-white/15 hover:bg-white/25 border border-white/20 text-white transition backdrop-blur-xs"
           title="Replay Response Audio"
         >
           <RefreshCw className="w-4 h-4" />

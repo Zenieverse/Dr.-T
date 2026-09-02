@@ -254,9 +254,9 @@ export const PetWhispererApp: React.FC = () => {
 
             <button
               onClick={() => setActiveTab('09_solana')}
-              className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-[#1A1A1A] text-white hover:bg-stone-800 transition shadow-xs font-bold text-xs"
+              className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-400 to-yellow-400 text-amber-950 hover:from-amber-500 hover:to-yellow-500 border border-amber-300 transition shadow-xs font-bold text-xs"
             >
-              <Coins className="w-3.5 h-3.5 text-amber-400" />
+              <Coins className="w-3.5 h-3.5 text-amber-800" />
               <span>+250 TREATS</span>
             </button>
 
@@ -265,7 +265,7 @@ export const PetWhispererApp: React.FC = () => {
         </div>
 
         {/* Numbered Command Strip */}
-        <div className="border-t border-[#1A1A1A]/10 bg-white/80 backdrop-blur-sm overflow-x-auto scrollbar-none">
+        <div className="border-t border-amber-200/50 bg-white/80 backdrop-blur-sm overflow-x-auto scrollbar-none">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex space-x-1 py-1.5 min-w-max">
             {TABS_CONFIG.map((tab) => {
               const isActive = activeTab === tab.id;
@@ -275,7 +275,7 @@ export const PetWhispererApp: React.FC = () => {
                   onClick={() => setActiveTab(tab.id)}
                   className={`px-3 py-2 rounded-xl text-left transition flex flex-col justify-between space-y-0.5 border ${
                     isActive
-                      ? 'bg-[#FAF9F6] border-[#1A1A1A] text-[#1A1A1A] shadow-xs'
+                      ? 'bg-gradient-to-r from-amber-50 to-orange-50/60 border-amber-400 text-amber-950 shadow-xs font-bold'
                       : 'border-transparent text-stone-600 hover:text-stone-900 hover:bg-stone-100/70'
                   }`}
                 >

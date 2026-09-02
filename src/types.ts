@@ -4,6 +4,8 @@
 
 export type NavTab = 
   | 'drt'
+  | 'tribhouse'
+  | 'readit'
   | 'openwebos'
   | 'greenieverse'
   | 'petwhisperer'

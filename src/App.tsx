@@ -37,6 +37,7 @@ import { BirthdayModal } from './components/celebration/BirthdayModal';
 
 // 10 Platform Modules
 import { DrTHome } from './components/drt/DrTHome';
+import { DrTReadItApp } from './components/readit/DrTReadItApp';
 import { HealthIntelligence } from './components/health/HealthIntelligence';
 import { ClinicalInformatics } from './components/informatics/ClinicalInformatics';
 import { AISwarm } from './components/swarm/AISwarm';
@@ -49,6 +50,7 @@ import { GoogleCloudHub } from './components/cloud/GoogleCloudHub';
 import { PetWhispererApp } from './components/petwhisperer/PetWhispererApp';
 import { OpenWebOSApp } from './components/openwebos/OpenWebOSApp';
 import { GreenieVerseApp } from './components/greenieverse/GreenieVerseApp';
+import { TribHouseContainer } from './tribhouse/TribHouseContainer';
 import { SettingsPage } from './components/settings/SettingsPage';
 
 export function App() {
@@ -320,6 +322,10 @@ export function App() {
           />
         )}
 
+        {activeTab === 'readit' && (
+          <DrTReadItApp />
+        )}
+
         {activeTab === 'petwhisperer' && (
           <PetWhispererApp />
         )}
@@ -330,6 +336,10 @@ export function App() {
 
         {activeTab === 'greenieverse' && (
           <GreenieVerseApp />
+        )}
+
+        {activeTab === 'tribhouse' && (
+          <TribHouseContainer />
         )}
 
         {activeTab === 'intelligence' && (

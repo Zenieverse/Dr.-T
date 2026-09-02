@@ -1,9 +1,11 @@
-# 🩺 Dr. T — Universal Biomedical Informatics, Wellness & Autonomous Agent Platform
+# ♾️ Dr. T — Polymath with Heart & Universal Biomedical Platform
 
 <div align="center">
 
 ![Platform Status](https://img.shields.io/badge/Platform-Production%20Ready-emerald?style=for-the-badge)
 ![AI Engine](https://img.shields.io/badge/AI-Google%20Gemini%202.5-blue?style=for-the-badge)
+![Identity](https://img.shields.io/badge/Identity-Polymath%20with%20Heart-rose?style=for-the-badge)
+![Living Campus](https://img.shields.io/badge/Campus-Trib--House%20100--Yr%20Commons-2e7d32?style=for-the-badge)
 ![FHIR](https://img.shields.io/badge/Standard-HL7%20FHIR%20R4-purple?style=for-the-badge)
 ![Autonomous Agents](https://img.shields.io/badge/Engine-GreenieVerse%20Autonomous-teal?style=for-the-badge)
 ![OS Environment](https://img.shields.io/badge/Workspace-OpenWebOS%20v2.0-indigo?style=for-the-badge)
@@ -14,118 +16,110 @@
 
 ## 🌟 Executive Overview
 
-**Dr. T** is an enterprise-grade, full-stack biomedical informatics, clinical decision-support, and multi-agent intelligence ecosystem. Built with TypeScript, React 18, Vite, Express, and Tailwind CSS, the platform bridges empathetic patient-facing conversational AI, evidence-grounded clinical informatics, autonomous agent simulations, veterinary diagnostics, and web-native operating environments.
+**Dr. T** is an enterprise-grade, full-stack intelligence ecosystem embodying **"Polymath with Heart"** (♾️) — bridging empathetic patient-facing conversational AI, evidence-grounded biomedical informatics, clinical decision-support, multi-agent medical swarms, autonomous agriculture simulations, veterinary diagnostics, and **Trib-House: The Living Library & Treehouse Campus Commons**.
+
+Built with TypeScript, React 18, Vite, Express, and Tailwind CSS, the platform delivers holistic health intelligence, intergenerational slow reading, interactive knowledge graph navigation, and web-native operating environments.
 
 ---
 
 ## 🏛️ Integrated Platform Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                            DR. T COMMAND CONSOLE                            │
-│                 (Global Navigation & Command Palette ⌘K)                    │
-└───────┬──────────────┬──────────────┬──────────────┬──────────────┬─────────┘
-        │              │              │              │              │
-        ▼              ▼              ▼              ▼              ▼
-┌──────────────┐┌──────────────┐┌──────────────┐┌──────────────┐┌──────────────┐
-│  Dr. T Home  ││ Health Intel ││ Clinical Inf ││   AI Swarm   ││ Research Lab │
-│  & Socratic  ││  & Biometric ││   & HL7 FHIR ││ Orchestrator ││  & Evidence  │
-│  Voice Agent ││   Timeline   ││  Integration ││  (5 Agents)  ││   Synthesis  │
-└──────────────┘└──────────────┘└──────────────┘└──────────────┘└──────────────┘
-        │              │              │              │              │
-        ▼              ▼              ▼              ▼              ▼
-┌──────────────┐┌──────────────┐┌──────────────┐┌──────────────┐┌──────────────┐
-│ SmArist AR   ││   Clinical   ││   Privacy    ││    Agent     ││ GreenieVerse │
-│  & Dermal    ││  Automation  ││   Center &   ││  Economy &   ││  Autonomous  │
-│  Diagnostics ││   (WebMCP)   ││   Sovereign  ││ Micro-tokens ││ Agriculture  │
-└──────────────┘└──────────────┘└──────────────┘└──────────────┘└──────────────┘
-        │                                                           │
-        ▼                                                           ▼
-┌──────────────┐                                            ┌──────────────┐
-│ PetWhisperer │                                            │  OpenWebOS   │
-│  Veterinary  │                                            │  Desktop &   │
-│  Diagnostics │                                            │   Terminal   │
-└──────────────┘                                            └──────────────┘
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│                    DR. T COMMAND CONSOLE & UNIFIED APPLICATION SUITE                    │
+│                        (Global Navigation & Command Palette ⌘K)                         │
+└────────┬──────────────┬──────────────┬──────────────┬──────────────┬──────────────┬─────┘
+         │              │              │              │              │              │
+         ▼              ▼              ▼              ▼              ▼              ▼
+ ┌──────────────┐┌──────────────┐┌──────────────┐┌──────────────┐┌──────────────┐┌──────────────┐
+ │  Dr. T Home  ││ 🌳 TribHouse ││ K9Whisperer  ││  OpenWebOS   ││ GreenieVerse ││ Health Intel │
+ │ Polymath with││Living Library││  Veterinary  ││  Desktop &   ││  Galactic    ││  & Biometric │
+ │  Heart (STT) ││  & 3D Campus ││  Companion   ││  WebMCP Hub  ││ Farm Economy ││   Timeline   │
+ └──────────────┘└──────────────┘└──────────────┘└──────────────┘└──────────────┘└──────────────┘
+         │              │              │              │              │              │
+         ▼              ▼              ▼              ▼              ▼              ▼
+ ┌──────────────┐┌──────────────┐┌──────────────┐┌──────────────┐┌──────────────┐┌──────────────┐
+ │ Clinical Inf ││   AI Swarm   ││ Research Lab ││ SmArist AR   ││   Clinical   ││   Privacy    │
+ │  & HL7 FHIR  ││ Orchestrator ││  & Evidence  ││  & Dermal    ││  Automation  ││   Center &   │
+ │ Integration  ││  (7 Agents)  ││  Synthesis   ││ Diagnostics  ││   (WebMCP)   ││  Sovereignty │
+ └──────────────┘└──────────────┘└──────────────┘└──────────────┘└──────────────┘└──────────────┘
 ```
 
 ---
 
 ## 🚀 Core Integrated Modules
 
-### 1. 🩺 Dr. T Empathetic Socratic Health Companion
-- **Socratic Clinical Dialogue**: Non-judgmental, evidence-grounded health inquiry analyzing symptoms, lab values, and sleep logs.
-- **Multilingual Support**: Real-time communication across 10+ languages (English, Spanish, Mandarin, French, German, Arabic, Japanese, Hindi, Portuguese, Vietnamese).
-- **Voice Mode**: Real-time Speech-to-Text (STT) and Web Audio API Text-to-Speech (TTS) with adaptive pitch, speech rate, and conversational pacing.
+### 1. ♾️ Dr. T — Polymath with Heart (Socratic Clinical Companion)
+- **Empathetic Socratic Dialogue**: Non-judgmental, evidence-grounded health inquiry analyzing symptoms, lab values, and sleep logs with warmth and scientific rigor.
+- **Multilingual Fluency**: Real-time communication across 10+ languages (English, Vietnamese, German, French, Spanish, Mandarin, Japanese, Arabic, Hindi, Portuguese).
+- **Voice Mode (Live STT/TTS)**: Real-time Speech-to-Text and Web Audio API Text-to-Speech with natural pitch, pacing, and emotional warmth.
 - **Clinical Safety Triage**: Automated green/yellow/red risk classification with action recommendations and physician consultation guidelines.
-- **SOAP Note Generator**: Instantly transforms clinical conversations into structured Subjective, Objective, Assessment, and Plan documentation.
+- **Structured SOAP Documentation**: Transforms patient dialogues into structured Subjective, Objective, Assessment, and Plan notes.
 
-### 2. 📊 Health Intelligence & Biometric Timeline
-- **Comprehensive Lab Panel Viewer**: In-depth analysis of Quest/LabCorp diagnostic markers (e.g., Ferritin, Lipid Panels, HbA1c, hs-CRP, Vitamin D).
-- **Wearable Biometric Telemetry**: Continuous sleep stage tracking (REM, Light, Deep N3), HRV, resting heart rate, and circadian alignment metrics.
-- **Preventative Health Action Plans**: Actionable lifestyle and nutritional guidance tailored to individual biomarker trends.
+### 2. 🌳 Trib-House: The Living Library & Treehouse Campus Commons
+- **12 Biophilic Treehouse Pavilions**: Interactive 1:500 masterplan architecture connected by canopy skywalks (Reading Houses, Research Commons, Silent Future Archive, Elder Story House, Children's Canopy, Acoustic Sanctuaries).
+- **20 Master Architectural Perspectives**: High-definition architectural viewpoints covering bird's-eye masterplans, interior cross-sections, structural timber joinery, and atmospheric conditions.
+- **Diurnal Climate & Light Simulator**: Interactive transitions across 8 lighting/weather states (Dawn Mist, Midday Shade, Monsoon Deluge, Golden Sunset, Dark Sky Night, and 100-Year Horizon 2126 CE).
+- **18 Living Knowledge Branches**: 1,480+ curated volumes across Earth Sciences, Systems Biology, Indigenous Wisdom, Philosophy, AI & Cybernetics, Biophilic Design, and Intergenerational Stewardship.
+- **Interactive Knowledge Topological Graph**: D3-driven dynamic force-directed citation network mapping interdisciplinary conceptual connections.
+- **Distraction-Free Reading Nest**: Slow reading environment with customizable typography, margins, reading speeds, and ambient forest soundscapes (rain, birdsong, breeze, flowing stream).
+- **100-Year Century Branch**: Long-term preservation archive and time vault for future generations (2026–2126).
 
-### 3. 🏥 Clinical Informatics & HL7 FHIR Interoperability
-- **FHIR R4 Native Support**: Direct parsing and structured inspection for `Patient`, `Observation`, `Condition`, `Encounter`, and `DiagnosticReport` resources.
-- **EHR Integration Bridge**: SMART-on-FHIR standard compliant data payloads with JSON resource inspection and export.
-- **Clinical Decision Support (CDS Hooks)**: Real-time alerts for drug-biomarker interactions and preventative screening reminders.
+### 3. 🐾 K9Whisperer / Pet Whisperer AI (Veterinary Diagnostics)
+- **Multi-Species Health Intelligence**: Tailored diagnostics and wellness tracking for canines, felines, birds, and companion animals.
+- **Symptom & Behavioral Decoder**: Correlates vocalizations, activity changes, and dietary patterns with potential health conditions.
+- **Toxicity & Nutrition Index**: Real-time safety verification for human foods, household plants, and ambient toxins.
 
-### 4. 🐝 Multi-Agent AI Clinical Swarm
-- **5-Specialist Consensus Panel**: Collaborative multi-agent deliberations uniting Cardiology, Endocrinology, Sleep Medicine, Clinical Nutrition, and Lifestyle Medicine.
-- **ICU Real-Time Acuity Monitor**: Vital signs stream tracking, Apache/SOFA risk scores, and rapid decompensation alerts.
-- **Dynamic Reasoning Inspector**: Step-by-step visibility into agent debates, confidence scores, and synthesis matrices.
+### 4. 💻 OpenWebOS Desktop Environment & WebMCP Hub
+- **Web-Native Desktop OS**: Multi-window desktop with drag-and-drop windows, taskbar, dock, file manager, system monitor, and embedded terminal.
+- **WebMCP Automation Pipelines**: Multi-step automated task orchestration for healthcare workflows and administrative execution.
 
-### 5. 🔬 Research Lab & Evidence Synthesis
-- **PubMed & Clinical Literature Grounding**: Instant PubMed citation retrieval, DOI linking, and clinical trial matching.
-- **Biomarker Correlation Engine**: Visual interactive graphing of multi-factorial relationships (e.g., ferritin vs. slow-wave sleep vs. cognitive stamina).
+### 5. 🌌 GreenieVerse Galactic Farm Simulation
+- **10x10 Galactic Grid**: 100 planetary tiles across 4 quadrants with moisture sensors, soil biology, and automated crop cycles.
+- **Deterministic Autonomous Agent (`main.py`)**: Multi-phase policy engine executing bootstrap, expansion, and commodity scarcity arbitrage.
+- **Market Arbitrage Terminal & Cosmic Meteor Physics**: Real-time supply-demand pricing predictions and dynamic particle-canvas meteor shower effects.
 
-### 6. ✨ SmArist Studio & AR Wellness Intelligence
-- **Computer Vision Dermatological Analysis**: Quantitative assessment of skin hydration, UV photic damage, erythema, and barrier integrity.
-- **Circadian Chrono-Wardrobe**: AI-curated clothing and environmental recommendations optimized for UV index, temperature, and biometric chronotype.
+### 6. 📊 Health Intelligence & Biometric Timeline
+- **Diagnostic Marker Tracking**: Deep analytics for Quest/LabCorp lab panels (Ferritin, Lipid Panels, HbA1c, hs-CRP, Vitamin D, Thyroid).
+- **Continuous Wearable Telemetry**: Tracking sleep architecture (REM, Light, Deep N3), HRV, resting heart rate, and circadian alignment.
 
-### 7. ⚡ Clinical Automation & WebMCP Workflows
-- **Prior Authorization Engine**: Automated compilation of clinical justification letters and payer protocol verification.
-- **Intelligent Referral & Lab Routing**: Algorithmic specialist matching based on insurance networks, proximity, and urgency.
-- **WebMCP Task Pipelines**: Multi-step automated task orchestration for clinical admin efficiency.
+### 7. 🏥 Clinical Informatics & HL7 FHIR R4
+- **Native FHIR Resources**: Full parsing and validation for `Patient`, `Observation`, `Condition`, `Encounter`, and `DiagnosticReport`.
+- **SMART-on-FHIR Export**: Interoperable medical payloads with JSON resource inspection and clinical decision support (CDS Hooks).
 
-### 8. 🛡️ Privacy Center & Sovereign Memory
-- **Local Differential Privacy**: Client-side data masking before server ingestion.
-- **Granular Consent Management**: Per-resource access permissions (Research, EMR Sync, Commercialization).
-- **Zero-Knowledge Sovereign Memory**: Patient-controlled biometric key vault with audit logging and one-click data purge.
+### 8. 🐝 AI Clinical Swarm (7 Specialized Agents)
+- **Multi-Disciplinary Consensus**: Deliberations uniting Cardiology, Endocrinology, Sleep Medicine, Clinical Nutrition, Lifestyle Medicine, Veterinary Health, and Ecological Biology.
+- **Real-Time ICU Acuity Monitor**: Vital signs stream analysis, Apache/SOFA risk scores, and rapid decompensation alerts.
 
-### 9. 🌐 Agent Economy & Micro-Compute Marketplace
-- **Decentralized Agent Tokens**: Autonomous compute economy model for specialist agent tasks.
-- **Service Protocol Exchange**: Dynamic pricing for high-throughput model inferencing and consensus generation.
+### 9. 🔬 Research Lab & GRADE Evidence Synthesis
+- **PubMed & DOI Grounding**: Automated literature synthesis, clinical trial matching, and GRADE quality ratings.
+- **Biomarker Correlation Engine**: Multi-factorial relationship graphing (e.g., ferritin vs. slow-wave sleep vs. cognitive focus).
 
-### 10. 🐾 Pet Whisperer AI (Veterinary Companion)
-- **Multi-Species Health Diagnostics**: Tailored analysis for canines, felines, birds, and exotic animals.
-- **Behavioral & Symptom Decoder**: Correlates appetite, vocalization, and activity changes with potential clinical conditions.
-- **Nutritional Safety Index**: Real-time toxicity check for human foods, plants, and household items.
+### 10. ✨ SmArist AR & Dermal Intelligence
+- **Computer Vision Dermatology**: Hydration analysis, UV photic damage grading, erythema detection, and barrier integrity metrics.
+- **Circadian Chrono-Wardrobe**: Biometric and UV-optimized clothing recommendations.
 
-### 11. 💻 OpenWebOS Desktop Environment
-- **Web-Native Operating System**: Complete desktop interface with movable/resizable windows, dock, system tray, and notifications.
-- **System Utilities**: Embedded Terminal, File Explorer, System Monitor, Text Editor, and Calculator.
+### 11. 🛡️ Privacy Center & Sovereign Memory
+- **Local Differential Privacy**: Client-side data masking prior to ingestion.
+- **Zero-Knowledge Sovereign Vault**: User-controlled encryption keys, audit trails, and one-click data purge.
 
-### 12. 🌌 GreenieVerse & GreenieCulture Simulation Engine
-- **10x10 Galactic Farm Grid**: 100 tiles spanning 4 planetary quadrants (NW, NE, SW, SE) with soil moisture, hydration indexes, and automation.
-- **Closed-Loop Autonomous Agent (`main.py`)**: Multi-phase policy engine executing Bootstrap, Expansion, Scarcity Arbitrage, and Phase 4 Terminal Liquidation.
-- **Market Arbitrage Terminal**: Dynamic pricing, commodity scarcity prediction (Wheat, Carrot, Tomato, Strawberry, Melon), and competitor pipeline tracking.
-- **Evolutionary Greenie Lab**: Mutation rates, crossover algorithms, and self-play benchmark evaluations.
-- **Galactic Meteor Shower Canvas**: Dynamic cosmic particle physics with radiant chromatic tails, burnout spark bursts, and cosmic storm controls.
-- **Multi-Format Agent Export**: One-click download of `.py`, `.zip`, `.tar.gz`, and `.tar.xz` packages for automated evaluation.
+### 12. ⚡ Agent Economy & Micro-Token Marketplace
+- **Decentralized Compute Tokens**: Autonomous compute economy model with dynamic service protocol pricing.
 
 ---
 
 ## 🛠️ Technology Stack
 
-| Layer | Technologies |
+| Domain | Technologies |
 | :--- | :--- |
-| **Frontend** | React 18, TypeScript, Tailwind CSS, Lucide Icons, Canvas API |
-| **Animation & Motion** | CSS3 Transitions, HTML5 Canvas Particle Engine |
-| **Backend / API** | Express 4/5, Node.js (ESM/CJS), Vite Development Server |
-| **AI & LLM Services** | Google Gemini API (`@google/genai`), Server-Side Proxying |
-| **Data Interoperability** | HL7 FHIR R4 JSON Specifications |
-| **Persistence** | Firestore / Local Sovereign State Stores |
-| **Autonomous Policies** | Pure Python 3 Deterministic Agent (`main.py`) |
+| **Frontend Framework** | React 18, TypeScript, Tailwind CSS, Lucide Icons, Canvas API |
+| **Data Visualization & Graphs** | D3.js (Force Networks), Recharts (Biometric & Telemetry Trends) |
+| **Audio & Ambient Physics** | Web Audio API (Synthesizers, Ambient Nature Loops, TTS Audio) |
+| **Backend & Server** | Express 4/5, Node.js (ESM/CJS), Vite Middleware Development Server |
+| **AI / LLM Engine** | Google Gemini API (`@google/genai`), Server-Side Proxying |
+| **Healthcare Standard** | HL7 FHIR R4 JSON Specifications |
+| **Cloud & Storage** | Google Cloud Platform, Firebase Firestore, Sovereign Local State |
+| **Autonomous Policy** | Deterministic Python 3 Execution Engine (`main.py`) |
 
 ---
 
@@ -136,36 +130,36 @@ dr-t-platform/
 ├── metadata.json                 # Application manifest & permissions
 ├── package.json                  # Node dependencies & build scripts
 ├── vite.config.ts                # Vite build & asset configuration
-├── server.ts                     # Full-stack Express server with Gemini API routes
-├── public/                       # Static public assets & generated submissions
+├── server.ts                     # Full-stack Express server with Gemini API proxy
+├── public/                       # Static public assets & simulation submissions
 │   ├── main.py                   # Standalone GreenieCulture Python agent
-│   ├── submission.zip            # Standard competition ZIP package
-│   ├── submission.tar.gz         # GZ compressed archive
-│   └── submission.tar.xz         # 7-Zip / LZMA compressed archive
-├── submission/                   # Agent submission build source
-│   ├── main.py                   # Golden master Python agent code
-│   └── README.md                 # Agent deployment instructions
+│   └── submission.zip            # Standard competition ZIP package
 └── src/
     ├── App.tsx                   # Main platform orchestration & routing
     ├── main.tsx                  # Application entry point
     ├── index.css                 # Global Tailwind stylesheet
     ├── types/                    # Domain TypeScript types & interfaces
-    ├── data/                     # Mock clinical, patient & telemetry fixtures
-    ├── engine/                   # GreenieVerse simulation engine & constants
+    ├── data/                     # Clinical fixtures, lab data & presets
+    ├── tribhouse/                # 🌳 Trib-House Living Library & Campus
+    │   ├── TribHouseContainer.tsx
+    │   ├── types.ts              # Treehouse pavilions, books, branches
+    │   ├── components/           # Campus 3D, Canopy Library, Reading Nest, Graph
+    │   └── data/                 # 20 Perspectives, 18 Branches, 1,480+ Books
+    ├── engine/                   # Simulation engines & security shields
     └── components/               # Modular UI component systems
-        ├── layout/               # Navbar, CommandPalette, NotificationDrawer
-        ├── drt/                  # Socratic dialog, Voice mode, SOAP notes
-        ├── health/               # Biometric telemetry, lab panels
+        ├── layout/               # Navbar (Polymath with Heart ∞), CommandPalette
+        ├── drt/                  # Socratic dialogue, Voice mode, SOAP notes
+        ├── health/               # Biometric telemetry & lab panels
         ├── informatics/          # HL7 FHIR R4 resource inspectors
-        ├── swarm/                # 5-specialist consensus & ICU monitor
-        ├── research/             # PubMed synthesis, biomarker charts
-        ├── smarist/              # Skin health vision, Chrono-wardrobe
-        ├── automation/           # WebMCP prior auth & clinical workflows
-        ├── privacy/              # Consent ledger & Sovereign memory
+        ├── swarm/                # 7-specialist consensus & ICU monitor
+        ├── research/             # PubMed synthesis & biomarker correlation
+        ├── smarist/              # Computer vision dermatology & Chrono-wardrobe
+        ├── automation/           # WebMCP prior authorization & workflows
+        ├── privacy/              # Sovereign memory & privacy center
         ├── economy/              # Agent compute token exchange
-        ├── petwhisperer/         # Veterinary diagnostic engine
+        ├── petwhisperer/         # K9 & veterinary diagnostic engine
         ├── openwebos/            # Web desktop OS & terminal
-        └── greenieverse/         # 10x10 Grid, market arbitrage, meteor shower
+        └── greenieverse/         # Galactic farm grid & meteor simulation
 ```
 
 ---
@@ -173,14 +167,14 @@ dr-t-platform/
 ## 🚀 Getting Started
 
 ### Prerequisites
-- Node.js >= 18.0.0
-- npm >= 9.0.0
+- **Node.js**: `>= 18.0.0`
+- **npm**: `>= 9.0.0`
 
-### Installation
+### Installation & Development
 
 ```bash
 # 1. Clone the repository
-git clone <repo_url>
+git clone https://github.com/your-org/dr-t-platform.git
 cd dr-t-platform
 
 # 2. Install dependencies
@@ -188,9 +182,9 @@ npm install
 
 # 3. Configure environment variables
 cp .env.example .env
-# Add your GEMINI_API_KEY to .env (handled securely server-side)
+# Set your GEMINI_API_KEY in .env (securely isolated on server-side)
 
-# 4. Start the full-stack development server
+# 4. Start full-stack development server (Port 3000)
 npm run dev
 ```
 
@@ -199,7 +193,7 @@ The application will be accessible at `http://localhost:3000`.
 ### Production Build
 
 ```bash
-# Compile client bundle and bundle Node server
+# Build Vite client and bundle Node CommonJS server
 npm run build
 
 # Start production server
@@ -208,30 +202,14 @@ npm start
 
 ---
 
-## 🎮 GreenieCulture Agent Execution
-
-The autonomous agent in `submission/main.py` is zero-dependency, self-contained, and deterministic.
-
-### Local Python Evaluation
-```bash
-python3 -c "
-import main
-obs = {'turn': 1, 'cash': 250, 'grid': [], 'market': {}, 'inventory': {}}
-action = main.agent(obs)
-print('Agent Action:', action)
-"
-```
-
----
-
 ## 🔒 Security & Privacy Commitments
 
-1. **Server-Side API Keys**: All Gemini API keys and sensitive credentials remain strictly server-side in `server.ts` and are never exposed to client browsers.
-2. **HIPAA-Inspired Privacy Architecture**: Client-side data sanitization and local sovereign encryption ensure patient telemetry remains under user control.
-3. **Clinical Guardrails**: Built-in safety classification layers distinguish general wellness education from urgent emergency recommendations.
+1. **Server-Side API Key Shielding**: All Gemini API keys and cloud credentials remain strictly server-side in `server.ts` and are never exposed to browser clients.
+2. **Fail-Closed Security Gate**: Document parsing and external inputs pass strict sandbox normalization before AI inference.
+3. **Clinical Safety & Socratic Guardrails**: Multi-tier triage classification clearly separates educational wellness from urgent medical escalations.
 
 ---
 
 ## 📄 License & Attribution
 
-Developed with Google AI Studio and Gemini 2.5. Distributed for advanced biomedical research, preventative health intelligence, and autonomous multi-agent simulation.
+Developed with **Google AI Studio** and **Gemini 2.5**. Dedicated to open knowledge, interdisciplinary polymathic inquiry, slow reading, and compassionate biomedical intelligence.

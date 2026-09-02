@@ -16,7 +16,10 @@ import {
   Upload, 
   FileSpreadsheet,
   Cloud,
-  X
+  X,
+  Trees,
+  BookOpen,
+  Clock
 } from 'lucide-react';
 
 interface CommandPaletteProps {
@@ -54,6 +57,19 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
   if (!isOpen) return null;
 
   const commands = [
+    {
+      category: '🌳 Trib-House (The Living Library in the Trees)',
+      items: [
+        { label: 'Open Trib-House Living Treehouse Commons', icon: <Trees className="w-4 h-4 text-emerald-600" />, action: () => { setActiveTab('tribhouse'); onClose(); } },
+        { label: 'Ask Trib — AI Knowledge Steward & Librarian', icon: <Bot className="w-4 h-4 text-teal-500" />, action: () => { setActiveTab('tribhouse'); onClose(); onSelectAction?.('trib_ask'); } },
+        { label: 'Open Reading Nest (Books, PDFs, Ingress)', icon: <BookOpen className="w-4 h-4 text-amber-500" />, action: () => { setActiveTab('tribhouse'); onClose(); onSelectAction?.('trib_library'); } },
+        { label: 'Explore Knowledge Graph & Idea Connections', icon: <Sparkles className="w-4 h-4 text-purple-500" />, action: () => { setActiveTab('tribhouse'); onClose(); onSelectAction?.('trib_graph'); } },
+        { label: 'Open Personal Knowledge Forest & Flourishing', icon: <Trees className="w-4 h-4 text-green-500" />, action: () => { setActiveTab('tribhouse'); onClose(); onSelectAction?.('trib_forest'); } },
+        { label: 'Future Library — 100-Year Branch & Letters to 2036..2126', icon: <Clock className="w-4 h-4 text-indigo-400" />, action: () => { setActiveTab('tribhouse'); onClose(); onSelectAction?.('trib_future'); } },
+        { label: 'Earth & Groves Dashboard (Knowledge-to-Ground TreeLedger)', icon: <Trees className="w-4 h-4 text-emerald-500" />, action: () => { setActiveTab('tribhouse'); onClose(); onSelectAction?.('trib_earth'); } },
+        { label: 'Launch Slow Zen Reading & Forest Soundscapes', icon: <Sparkles className="w-4 h-4 text-teal-400" />, action: () => { setActiveTab('tribhouse'); onClose(); onSelectAction?.('trib_zen'); } },
+      ],
+    },
     {
       category: 'Conversational Health',
       items: [
