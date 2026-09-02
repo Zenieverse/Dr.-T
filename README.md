@@ -210,6 +210,6 @@ npm start
 
 ---
 
-## 📄 License & Attribution
+## License
 
-Developed with **Google AI Studio** and **Gemini 2.5**. Dedicated to open knowledge, interdisciplinary polymathic inquiry, slow reading, and compassionate biomedical intelligence.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.

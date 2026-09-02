@@ -2,6 +2,7 @@
   "name": "dr-t-multilingual-soulmate",
   "private": true,
   "version": "1.0.0",
+  "license": "MIT",
   "type": "module",
   "scripts": {
     "dev": "tsx server.ts",
