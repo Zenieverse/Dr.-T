@@ -200,6 +200,37 @@ npm run build
 npm start
 ```
 
+### ☁️ Google Cloud Run Deployment & Verification
+
+```bash
+dev-tutorial=cloud-run-ai-challenge
+```
+
+#### Option 1: Deploy New Cloud Run Service
+```bash
+gcloud run deploy dr-t-multilingual-soulmate \
+  --source . \
+  --region asia-southeast1 \
+  --platform managed \
+  --allow-unauthenticated \
+  --port 3000 \
+  --labels dev-tutorial=cloud-run-ai-challenge
+```
+
+#### Option 2: Update Existing Service to Attach Required Label
+```bash
+gcloud run services update dr-t-multilingual-soulmate \
+  --region asia-southeast1 \
+  --update-labels dev-tutorial=cloud-run-ai-challenge
+```
+
+#### Option 3: Verify Attached Label
+```bash
+gcloud run services describe dr-t-multilingual-soulmate \
+  --region asia-southeast1 \
+  --format="value(metadata.labels)"
+```
+
 ---
 
 ## 🔒 Security & Privacy Commitments

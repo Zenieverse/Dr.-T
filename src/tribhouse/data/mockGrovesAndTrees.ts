@@ -1,4 +1,5 @@
 import { EcologyGrove, TreeRecord } from '../types';
+import { VIETNAM_FOREST_GROVE_IMAGE } from '../../assets/vietnamGroveImage';
 
 export const MOCK_ECOLOGY_GROVES: EcologyGrove[] = [
   {
@@ -11,7 +12,7 @@ export const MOCK_ECOLOGY_GROVES: EcologyGrove[] = [
     totalTrees: 4280,
     targetTrees: 10000,
     supportedByMembersCount: 1850,
-    photoUrl: 'https://images.unsplash.com/photo-1511497584788-87676104235f?w=600&auto=format&fit=crop&q=80',
+    photoUrl: VIETNAM_FOREST_GROVE_IMAGE,
     primarySpecies: ['Aquilaria crassna (Trầm Hương)', 'Hopea odorata (Sao Đen)', 'Chukrasia tabularis (Lát Hoa)', 'Dalbergia tonkinensis (Sưa Đỏ)'],
     biodiversityScore: 94,
     partnerOrganization: 'Vietnam National Forestry University & Cúc Phương Conservation Trust',
