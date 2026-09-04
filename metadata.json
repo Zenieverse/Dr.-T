@@ -1,6 +1,6 @@
 {
   "name": "Dr. T",
-  "description": "World-Class AI Biomedical Informatics, Wellness & Healthcare Platform with Trib-House: The Living Library Treehouse Commons for intergenerational knowledge, slow reading, knowledge graphs, and ecological stewardship.",
+  "description": "World-Class AI Platform featuring Trib-House: The Living Library Forests — Plant a Library, Grow a Forest, Feed a Mind across 16 countries, interactive world maps, mobile riverboat fleets, and 100-year ecological stewardship.",
   "requestFramePermissions": ["camera", "microphone"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

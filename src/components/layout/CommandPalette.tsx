@@ -60,14 +60,103 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     {
       category: '🌳 Trib-House (The Living Library in the Trees)',
       items: [
-        { label: 'Open Trib-House Living Treehouse Commons', icon: <Trees className="w-4 h-4 text-emerald-600" />, action: () => { setActiveTab('tribhouse'); onClose(); } },
-        { label: 'Ask Trib — AI Knowledge Steward & Librarian', icon: <Bot className="w-4 h-4 text-teal-500" />, action: () => { setActiveTab('tribhouse'); onClose(); onSelectAction?.('trib_ask'); } },
-        { label: 'Open Reading Nest (Books, PDFs, Ingress)', icon: <BookOpen className="w-4 h-4 text-amber-500" />, action: () => { setActiveTab('tribhouse'); onClose(); onSelectAction?.('trib_library'); } },
-        { label: 'Explore Knowledge Graph & Idea Connections', icon: <Sparkles className="w-4 h-4 text-purple-500" />, action: () => { setActiveTab('tribhouse'); onClose(); onSelectAction?.('trib_graph'); } },
-        { label: 'Open Personal Knowledge Forest & Flourishing', icon: <Trees className="w-4 h-4 text-green-500" />, action: () => { setActiveTab('tribhouse'); onClose(); onSelectAction?.('trib_forest'); } },
-        { label: 'Future Library — 100-Year Branch & Letters to 2036..2126', icon: <Clock className="w-4 h-4 text-indigo-400" />, action: () => { setActiveTab('tribhouse'); onClose(); onSelectAction?.('trib_future'); } },
-        { label: 'Earth & Groves Dashboard (Knowledge-to-Ground TreeLedger)', icon: <Trees className="w-4 h-4 text-emerald-500" />, action: () => { setActiveTab('tribhouse'); onClose(); onSelectAction?.('trib_earth'); } },
-        { label: 'Launch Slow Zen Reading & Forest Soundscapes', icon: <Sparkles className="w-4 h-4 text-teal-400" />, action: () => { setActiveTab('tribhouse'); onClose(); onSelectAction?.('trib_zen'); } },
+        { 
+          label: 'Living Forests & World Library Map (16 Countries, Mobile Fleets)', 
+          icon: <Trees className="w-4 h-4 text-emerald-600" />, 
+          action: () => { 
+            setActiveTab('tribhouse'); 
+            onClose(); 
+            window.dispatchEvent(new CustomEvent('tribhouse-navigate', { detail: { view: 'living-forests' } })); 
+          } 
+        },
+        { 
+          label: 'Living Campus 3D (Pavilions, Blueprints & Perspectives)', 
+          icon: <Trees className="w-4 h-4 text-teal-600" />, 
+          action: () => { 
+            setActiveTab('tribhouse'); 
+            onClose(); 
+            window.dispatchEvent(new CustomEvent('tribhouse-navigate', { detail: { view: 'campus' } })); 
+          } 
+        },
+        { 
+          label: 'Open Trib-House Living Treehouse Commons (Village Hub)', 
+          icon: <Trees className="w-4 h-4 text-emerald-600" />, 
+          action: () => { 
+            setActiveTab('tribhouse'); 
+            onClose(); 
+            window.dispatchEvent(new CustomEvent('tribhouse-navigate', { detail: { view: 'village' } })); 
+          } 
+        },
+        { 
+          label: 'Ask Trib — AI Knowledge Steward & Librarian', 
+          icon: <Bot className="w-4 h-4 text-teal-500" />, 
+          action: () => { 
+            setActiveTab('tribhouse'); 
+            onClose(); 
+            window.dispatchEvent(new CustomEvent('tribhouse-open-librarian')); 
+            onSelectAction?.('trib_ask'); 
+          } 
+        },
+        { 
+          label: 'Open Reading Nest (Books, PDFs, Ingress)', 
+          icon: <BookOpen className="w-4 h-4 text-amber-500" />, 
+          action: () => { 
+            setActiveTab('tribhouse'); 
+            onClose(); 
+            window.dispatchEvent(new CustomEvent('tribhouse-navigate', { detail: { view: 'reading' } })); 
+            onSelectAction?.('trib_library'); 
+          } 
+        },
+        { 
+          label: 'Explore Knowledge Graph & Idea Connections', 
+          icon: <Sparkles className="w-4 h-4 text-purple-500" />, 
+          action: () => { 
+            setActiveTab('tribhouse'); 
+            onClose(); 
+            window.dispatchEvent(new CustomEvent('tribhouse-navigate', { detail: { view: 'graph' } })); 
+            onSelectAction?.('trib_graph'); 
+          } 
+        },
+        { 
+          label: 'Open Personal Knowledge Forest & Flourishing', 
+          icon: <Trees className="w-4 h-4 text-green-500" />, 
+          action: () => { 
+            setActiveTab('tribhouse'); 
+            onClose(); 
+            window.dispatchEvent(new CustomEvent('tribhouse-navigate', { detail: { view: 'forest' } })); 
+            onSelectAction?.('trib_forest'); 
+          } 
+        },
+        { 
+          label: 'Future Library — 100-Year Branch & Letters to 2036..2126', 
+          icon: <Clock className="w-4 h-4 text-indigo-400" />, 
+          action: () => { 
+            setActiveTab('tribhouse'); 
+            onClose(); 
+            window.dispatchEvent(new CustomEvent('tribhouse-navigate', { detail: { view: 'century' } })); 
+            onSelectAction?.('trib_future'); 
+          } 
+        },
+        { 
+          label: 'Earth & Groves Dashboard (Knowledge-to-Ground TreeLedger)', 
+          icon: <Trees className="w-4 h-4 text-emerald-500" />, 
+          action: () => { 
+            setActiveTab('tribhouse'); 
+            onClose(); 
+            window.dispatchEvent(new CustomEvent('tribhouse-navigate', { detail: { view: 'groves' } })); 
+            onSelectAction?.('trib_earth'); 
+          } 
+        },
+        { 
+          label: 'Launch Slow Zen Reading & Forest Soundscapes', 
+          icon: <Sparkles className="w-4 h-4 text-teal-400" />, 
+          action: () => { 
+            setActiveTab('tribhouse'); 
+            onClose(); 
+            window.dispatchEvent(new CustomEvent('tribhouse-navigate', { detail: { view: 'reading' } })); 
+            onSelectAction?.('trib_zen'); 
+          } 
+        },
       ],
     },
     {

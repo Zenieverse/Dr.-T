@@ -27,16 +27,21 @@ export const VillageDashboard: React.FC<VillageDashboardProps> = ({
   onNavigateBranch
 }) => {
   const handleNav = (roomKey: string) => {
+    if (roomKey === 'ai_steward') {
+      handleAskTrib('curator', 'Hello Trib, recommend a living book for today');
+      return;
+    }
     if (onNavigateView) {
       if (roomKey === 'library') onNavigateView('canopy');
       else if (roomKey === 'campus' || roomKey === 'campus_architecture') onNavigateView('campus');
+      else if (roomKey === 'living_forests' || roomKey === 'living-forests') onNavigateView('living-forests');
       else if (roomKey === 'reading_nest') onNavigateView('reading');
       else if (roomKey === 'personal_forest') onNavigateView('forest');
       else if (roomKey === 'century_branch') onNavigateView('century');
-      else if (roomKey === 'community_forest') onNavigateView('community');
+      else if (roomKey === 'community_forest' || roomKey === 'story_circle') onNavigateView('community');
       else if (roomKey === 'learning_paths') onNavigateView('paths');
       else if (roomKey === 'mentorship') onNavigateView('mentorship');
-      else if (roomKey === 'commons_market') onNavigateView('market');
+      else if (roomKey === 'commons_market' || roomKey === 'marketplace') onNavigateView('market');
       else onNavigateView(roomKey);
     } else if (onSelectRoom) {
       onSelectRoom(roomKey as any);
@@ -91,6 +96,7 @@ export const VillageDashboard: React.FC<VillageDashboardProps> = ({
   });
 
   const roomsList: { id: string; title: string; subtitle: string; icon: React.ReactNode; color: string }[] = [
+    { id: 'living_forests', title: 'Living Forests & Global Map', subtitle: 'Plant a library, grow a forest, feed a mind across 16 countries & mobile fleets', icon: <Globe className="w-5 h-5" />, color: 'bg-emerald-800' },
     { id: 'campus', title: 'Living Campus 3D', subtitle: '12 treehouse pavilions, 20 master architectural perspectives & 100-yr blueprints', icon: <Compass className="w-5 h-5" />, color: 'bg-emerald-600' },
     { id: 'library', title: 'Canopy Library', subtitle: '1,480+ curated books across 18 living branches', icon: <BookOpen className="w-5 h-5" />, color: 'bg-amber-600' },
     { id: 'reading_nest', title: 'Reading Nest', subtitle: 'Distraction-free slow reading with ambient soundscapes', icon: <Leaf className="w-5 h-5" />, color: 'bg-emerald-600' },

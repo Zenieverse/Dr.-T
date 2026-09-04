@@ -18,7 +18,7 @@ export type TribRoom =
   | 'charter';     // Trib-House Charter & 100-Year Governance
 
 export type TribRoomId = TribRoom;
-export type TribHouseView = 'village' | 'campus' | 'canopy' | 'reading' | 'graph' | 'forest' | 'groves' | 'century' | 'community' | 'paths' | 'mentorship' | 'market';
+export type TribHouseView = 'village' | 'campus' | 'canopy' | 'reading' | 'graph' | 'forest' | 'groves' | 'century' | 'community' | 'paths' | 'mentorship' | 'market' | 'living-forests';
 export type ProvenanceBadge = ProvenanceType;
 export type Chapter = BookChapter;
 export type LearningPathDay = LearningDay;

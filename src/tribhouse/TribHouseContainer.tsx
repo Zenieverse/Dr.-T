@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Home, BookOpen, Network, UserCheck, Trees, Hourglass, 
-  Users, GraduationCap, UserPlus, ShoppingBag, Sparkles, Compass
+  Users, GraduationCap, UserPlus, ShoppingBag, Sparkles, Compass, Globe2
 } from 'lucide-react';
 import { TribHouseView, Book, KnowledgeBranchId } from './types';
 import { VillageDashboard } from './components/VillageDashboard';
@@ -16,6 +16,7 @@ import { CommunityForestView } from './components/CommunityForestView';
 import { LearningPathsView } from './components/LearningPathsView';
 import { MentorshipView } from './components/MentorshipView';
 import { CommonsMarketView } from './components/CommonsMarketView';
+import { LivingForestsDashboard } from './living-forests/LivingForestsDashboard';
 import { TribLibrarianModal } from './components/TribLibrarianModal';
 import { AmbientSoundBar } from './components/AmbientSoundBar';
 import { MOCK_BOOKS } from './data/mockBooks';
@@ -24,6 +25,27 @@ export const TribHouseContainer: React.FC = () => {
   const [activeView, setActiveView] = useState<TribHouseView>('village');
   const [selectedBookForReading, setSelectedBookForReading] = useState<Book | undefined>(undefined);
   const [selectedBranchFilter, setSelectedBranchFilter] = useState<KnowledgeBranchId | undefined>(undefined);
+
+  // Listen for global custom events from command palette or internal links
+  useEffect(() => {
+    const handleCustomNav = (e: any) => {
+      if (e.detail?.view) {
+        setActiveView(e.detail.view);
+        if (e.detail.book) setSelectedBookForReading(e.detail.book);
+      }
+    };
+    const handleOpenLib = () => {
+      setIsLibrarianOpen(true);
+    };
+
+    window.addEventListener('tribhouse-navigate', handleCustomNav);
+    window.addEventListener('tribhouse-open-librarian', handleOpenLib);
+
+    return () => {
+      window.removeEventListener('tribhouse-navigate', handleCustomNav);
+      window.removeEventListener('tribhouse-open-librarian', handleOpenLib);
+    };
+  }, []);
 
   // AI Librarian Modal state
   const [isLibrarianOpen, setIsLibrarianOpen] = useState<boolean>(false);
@@ -47,6 +69,7 @@ export const TribHouseContainer: React.FC = () => {
   };
 
   const navItems: { id: TribHouseView; label: string; icon: React.ReactNode }[] = [
+    { id: 'living-forests', label: 'Living Forests & Map', icon: <Globe2 className="w-3.5 h-3.5" /> },
     { id: 'village', label: 'Village Hub', icon: <Home className="w-3.5 h-3.5" /> },
     { id: 'campus', label: 'Living Campus 3D', icon: <Compass className="w-3.5 h-3.5" /> },
     { id: 'canopy', label: 'Canopy Library', icon: <BookOpen className="w-3.5 h-3.5" /> },
@@ -182,6 +205,12 @@ export const TribHouseContainer: React.FC = () => {
 
         {activeView === 'market' && (
           <CommonsMarketView />
+        )}
+
+        {activeView === 'living-forests' && (
+          <div className="max-w-7xl mx-auto px-4 py-6">
+            <LivingForestsDashboard />
+          </div>
         )}
       </main>
 
