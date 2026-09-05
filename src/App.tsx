@@ -46,6 +46,7 @@ import { SmAristStudio } from './components/smarist/SmAristStudio';
 import { ClinicalAutomation } from './components/automation/ClinicalAutomation';
 import { PrivacyCenter } from './components/privacy/PrivacyCenter';
 import { AgentEconomy } from './components/economy/AgentEconomy';
+import { X402PayPerRequestStudio } from './components/x402/X402PayPerRequestStudio';
 import { GoogleCloudHub } from './components/cloud/GoogleCloudHub';
 import { PetWhispererApp } from './components/petwhisperer/PetWhispererApp';
 import { OpenWebOSApp } from './components/openwebos/OpenWebOSApp';
@@ -402,6 +403,12 @@ export function App() {
         {activeTab === 'economy' && (
           <AgentEconomy
             services={MOCK_ECONOMY_AGENTS}
+            setActiveTab={setActiveTab}
+          />
+        )}
+
+        {activeTab === 'x402' && (
+          <X402PayPerRequestStudio
             setActiveTab={setActiveTab}
           />
         )}

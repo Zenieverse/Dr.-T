@@ -17,6 +17,7 @@ export type NavTab =
   | 'automation'
   | 'privacy'
   | 'economy'
+  | 'x402'
   | 'gcp'
   | 'settings';
 
@@ -296,3 +297,38 @@ export interface PlatformNotification {
   actionTab?: NavTab;
   read: boolean;
 }
+
+// x402 Pay-Per-Request Service Models
+export interface X402ServiceEndpoint {
+  id: string;
+  name: string;
+  path: string;
+  method: 'GET' | 'POST' | 'PUT';
+  priceUsdc: number;
+  payTo: string;
+  network: 'algorand-mainnet' | 'algorand-testnet';
+  assetId: number;
+  category: string;
+  description: string;
+  active: boolean;
+  totalCalls: number;
+  totalVolumeUsdc: number;
+  createdAt: string;
+  sampleInput?: Record<string, any>;
+  sampleOutput?: Record<string, any>;
+}
+
+export interface X402Transaction {
+  id: string;
+  txId: string;
+  endpointId: string;
+  endpointName: string;
+  amountUsdc: number;
+  payerAddress: string;
+  payTo: string;
+  confirmedRound: number;
+  network: string;
+  timestamp: string;
+  settlementSeconds: number;
+}
+

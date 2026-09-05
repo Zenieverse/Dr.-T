@@ -21,7 +21,8 @@ import {
   Cake,
   Trees,
   Infinity,
-  Heart
+  Heart,
+  Coins
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -82,7 +83,8 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: 'smarist', label: 'SmArtist AR', icon: <Sparkles className="w-4 h-4 text-pink-500" />, badge: 'AR' },
     { id: 'automation', label: 'Automation', icon: <Bot className="w-4 h-4 text-teal-500" /> },
     { id: 'privacy', label: 'Privacy', icon: <ShieldCheck className="w-4 h-4 text-indigo-500" /> },
-    { id: 'economy', label: 'Agent Economy', icon: <Zap className="w-4 h-4 text-amber-500" />, badge: 'x402' },
+    { id: 'x402', label: 'x402 Pay-Per-Request', icon: <Coins className="w-4 h-4 text-amber-500" />, badge: 'x402' },
+    { id: 'economy', label: 'Agent Economy', icon: <Zap className="w-4 h-4 text-amber-500" /> },
     { id: 'gcp', label: 'Google Cloud & Firestore', icon: <Cloud className="w-4 h-4 text-sky-500" />, badge: 'GCP' },
     { id: 'settings', label: 'Settings', icon: <Settings className="w-4 h-4 text-slate-400" /> },
   ];

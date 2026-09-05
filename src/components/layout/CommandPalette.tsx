@@ -19,7 +19,8 @@ import {
   X,
   Trees,
   BookOpen,
-  Clock
+  Clock,
+  Coins
 } from 'lucide-react';
 
 interface CommandPaletteProps {
@@ -240,6 +241,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       items: [
         { label: 'Clinical Workflow & RPA Control Center', icon: <Bot className="w-4 h-4 text-teal-500" />, action: () => { setActiveTab('automation'); onClose(); } },
         { label: 'Sovereign Privacy & Zero-Knowledge Proof Center', icon: <ShieldCheck className="w-4 h-4 text-indigo-500" />, action: () => { setActiveTab('privacy'); onClose(); } },
+        { label: 'Turn Your API Endpoint into a Pay-Per-Request Service (x402)', icon: <Coins className="w-4 h-4 text-amber-500" />, action: () => { setActiveTab('x402'); onClose(); } },
         { label: 'Agent Economy & x402 Micro-Transaction Marketplace', icon: <Zap className="w-4 h-4 text-amber-500" />, action: () => { setActiveTab('economy'); onClose(); } },
         { label: 'Google Cloud Infrastructure & Firestore Hub', icon: <Cloud className="w-4 h-4 text-sky-500" />, action: () => { setActiveTab('gcp'); onClose(); } },
         { label: 'Platform & AI Model Configuration Settings', icon: <Settings className="w-4 h-4 text-slate-500" />, action: () => { setActiveTab('settings'); onClose(); } },
