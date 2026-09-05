@@ -275,6 +275,8 @@ export const LivingForestsDashboard: React.FC = () => {
       {activeTab === 'MAP' && (
         <LivingLibraryMap
           projects={projects}
+          mobileRoutes={mobileRoutes}
+          dedications={dedications}
           onSelectProject={handleOpenDossier}
           onPlantForProject={handleOpenPlantForProject}
           onGiveTreeForProject={handleOpenGiveTreeForProject}
