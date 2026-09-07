@@ -19,6 +19,7 @@ export type NavTab =
   | 'economy'
   | 'x402'
   | 'gcp'
+  | 'cinema'
   | 'settings';
 
 export type LanguageCode = 'en' | 'vi' | 'de' | 'fr' | 'es' | 'zh' | 'ja';
@@ -331,4 +332,3 @@ export interface X402Transaction {
   timestamp: string;
   settlementSeconds: number;
 }
-
