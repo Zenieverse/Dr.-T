@@ -15,7 +15,8 @@ import {
   ExternalLink,
   ChevronRight,
   HeartHandshake,
-  Compass
+  Compass,
+  Maximize2
 } from 'lucide-react';
 import { CountryDossier, LibraryProject } from '../types';
 
@@ -24,6 +25,7 @@ interface CountryForestsViewProps {
   projects: LibraryProject[];
   onSelectProject: (project: LibraryProject) => void;
   onPlantForCountry: (country: CountryDossier) => void;
+  onFocusProjectOnMap?: (project: LibraryProject) => void;
 }
 
 export const CountryForestsView: React.FC<CountryForestsViewProps> = ({
@@ -31,6 +33,7 @@ export const CountryForestsView: React.FC<CountryForestsViewProps> = ({
   projects,
   onSelectProject,
   onPlantForCountry,
+  onFocusProjectOnMap,
 }) => {
   const [selectedCountryCode, setSelectedCountryCode] = useState<string>(countries[0]?.countryCode || 'VN');
 
@@ -240,6 +243,24 @@ export const CountryForestsView: React.FC<CountryForestsViewProps> = ({
                     <span className="text-amber-300">
                       👥 {proj.peopleServedCount} Learners
                     </span>
+                  </div>
+
+                  <div className="pt-1 flex items-center justify-end">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (onFocusProjectOnMap) {
+                          onFocusProjectOnMap(proj);
+                        } else {
+                          window.dispatchEvent(new CustomEvent('living-forests-focus-project', { detail: { project: proj } }));
+                        }
+                      }}
+                      className="px-2.5 py-1 rounded-lg bg-emerald-950/80 hover:bg-emerald-900 text-emerald-300 hover:text-white border border-emerald-500/40 text-[11px] font-bold flex items-center space-x-1 transition-all cursor-pointer"
+                      title="Focus camera on this project on the World Map"
+                    >
+                      <Maximize2 className="w-3 h-3 text-emerald-400" />
+                      <span>Focus Map</span>
+                    </button>
                   </div>
                 </div>
               ))}

@@ -4,6 +4,7 @@
 
 export type NavTab = 
   | 'drt'
+  | 'cinema'
   | 'tribhouse'
   | 'readit'
   | 'openwebos'
@@ -298,7 +299,7 @@ export interface PlatformNotification {
   read: boolean;
 }
 
-// x402 Pay-Per-Request Service Models
+// x402 Pay-Per-Request Service Models (Algorand MainNet & GoPlausible Facilitator)
 export interface X402ServiceEndpoint {
   id: string;
   name: string;
@@ -307,6 +308,7 @@ export interface X402ServiceEndpoint {
   priceUsdc: number;
   payTo: string;
   network: 'algorand-mainnet' | 'algorand-testnet';
+  caip2Network?: string;
   assetId: number;
   category: string;
   description: string;
@@ -316,6 +318,15 @@ export interface X402ServiceEndpoint {
   createdAt: string;
   sampleInput?: Record<string, any>;
   sampleOutput?: Record<string, any>;
+  // Global Challenge & Bazaar specifications
+  facilitatorUrl?: string;
+  bazaarDiscoveryEnabled?: boolean;
+  challengeTag?: string;
+  tags?: string[];
+  publicHttpsUrl?: string;
+  hasMainnetPayment?: boolean;
+  bazaarStatus?: 'INDEXED' | 'SYNCING' | 'PENDING';
+  trustScore?: number;
 }
 
 export interface X402Transaction {
@@ -330,5 +341,26 @@ export interface X402Transaction {
   network: string;
   timestamp: string;
   settlementSeconds: number;
+  feeAlgo?: number;
+  status?: 'CONFIRMED' | 'SETTLING' | 'VERIFIED';
+  explorerUrl?: string;
+  facilitator?: string;
+  challengeTag?: string;
+}
+
+export interface X402LeaderboardEntry {
+  rank: number;
+  name: string;
+  merchantAddress: string;
+  serviceCategory: string;
+  endpointCount: number;
+  totalVolumeUsdc: number;
+  realMainnetPayments: number;
+  lastPaymentRound: number;
+  lastSettledAt: string;
+  facilitator: string;
+  tags: string[];
+  challengeQualified: boolean;
+  isCurrentPlatform?: boolean;
 }
 

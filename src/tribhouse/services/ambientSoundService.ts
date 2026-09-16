@@ -65,6 +65,10 @@ class AmbientSoundService {
     return this.currentSoundscape;
   }
 
+  public setSoundscape(type: SoundscapeType) {
+    this.play(type);
+  }
+
   public getIsPlaying(): boolean {
     return this.isPlaying;
   }

@@ -20,7 +20,8 @@ import {
   Users,
   Compass,
   Hourglass,
-  Leaf
+  Leaf,
+  Maximize2
 } from 'lucide-react';
 import { LibraryProject } from '../types';
 
@@ -30,6 +31,7 @@ interface ProjectDossierModalProps {
   onClose: () => void;
   onPlantForProject: (project: LibraryProject) => void;
   onGiveTreeForProject: (project: LibraryProject) => void;
+  onFocusOnMap?: (project: LibraryProject) => void;
 }
 
 export const ProjectDossierModal: React.FC<ProjectDossierModalProps> = ({
@@ -38,6 +40,7 @@ export const ProjectDossierModal: React.FC<ProjectDossierModalProps> = ({
   onClose,
   onPlantForProject,
   onGiveTreeForProject,
+  onFocusOnMap,
 }) => {
   const [activeTab, setActiveTab] = useState<'overview' | 'financials' | 'evidence' | 'negative' | 'future'>('overview');
 
@@ -388,7 +391,23 @@ export const ProjectDossierModal: React.FC<ProjectDossierModalProps> = ({
             <span className="font-semibold text-stone-800">{project.communityName}</span> • Partner: {project.localPartner.name}
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              onClick={() => {
+                onClose();
+                if (onFocusOnMap) {
+                  onFocusOnMap(project);
+                } else {
+                  window.dispatchEvent(new CustomEvent('living-forests-focus-project', { detail: { project } }));
+                }
+              }}
+              className="px-3.5 py-2.5 rounded-xl bg-stone-900 hover:bg-stone-800 text-stone-100 font-bold text-xs border border-stone-700 shadow-xs flex items-center space-x-1.5 transition-transform active:scale-95 cursor-pointer"
+              title="Close modal and center camera on this project on the World Map"
+            >
+              <Maximize2 className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Focus Map</span>
+            </button>
+
             <button
               onClick={() => onGiveTreeForProject(project)}
               className="px-4 py-2.5 rounded-xl bg-white hover:bg-stone-100 text-emerald-800 font-bold text-xs border border-emerald-300 shadow-xs flex items-center space-x-1.5 transition-transform active:scale-95"

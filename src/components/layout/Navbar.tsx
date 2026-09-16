@@ -22,7 +22,8 @@ import {
   Trees,
   Infinity,
   Heart,
-  Coins
+  Coins,
+  Clapperboard
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -72,6 +73,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
       ) 
     },
+    { id: 'cinema', label: '🎬 Cinema', icon: <Clapperboard className="w-4 h-4 text-amber-500" />, badge: 'Studio' },
     { id: 'tribhouse', label: '🌳 Trib-House', icon: <Trees className="w-4 h-4 text-emerald-600" />, badge: 'Living Library' },
     { id: 'petwhisperer', label: 'K9Whisperer', icon: <span className="text-sm">🐾</span> },
     { id: 'openwebos', label: 'OpenWebOS', icon: <Globe className="w-4 h-4 text-cyan-500" />, badge: 'WebMCP' },
@@ -83,7 +85,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: 'smarist', label: 'SmArtist AR', icon: <Sparkles className="w-4 h-4 text-pink-500" />, badge: 'AR' },
     { id: 'automation', label: 'Automation', icon: <Bot className="w-4 h-4 text-teal-500" /> },
     { id: 'privacy', label: 'Privacy', icon: <ShieldCheck className="w-4 h-4 text-indigo-500" /> },
-    { id: 'x402', label: 'x402 Pay-Per-Request', icon: <Coins className="w-4 h-4 text-amber-500" />, badge: 'x402' },
+    { id: 'x402', label: 'x402 Pay-Per-Request', icon: <Coins className="w-4 h-4 text-amber-500" />, badge: 'Bazaar & Challenge' },
     { id: 'economy', label: 'Agent Economy', icon: <Zap className="w-4 h-4 text-amber-500" /> },
     { id: 'gcp', label: 'Google Cloud & Firestore', icon: <Cloud className="w-4 h-4 text-sky-500" />, badge: 'GCP' },
     { id: 'settings', label: 'Settings', icon: <Settings className="w-4 h-4 text-slate-400" /> },

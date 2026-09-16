@@ -38,6 +38,8 @@ interface LivingLibraryMapProps {
   onSelectProject: (project: LibraryProject) => void;
   onPlantForProject: (project: LibraryProject) => void;
   onGiveTreeForProject: (project: LibraryProject) => void;
+  focusedProject?: LibraryProject | null;
+  onClearFocusedProject?: () => void;
 }
 
 const STATUS_CONFIG: Record<ProjectStatus, { label: string; color: string; bg: string; border: string; hex: string }> = {
@@ -92,6 +94,8 @@ export const LivingLibraryMap: React.FC<LivingLibraryMapProps> = ({
   onSelectProject,
   onPlantForProject,
   onGiveTreeForProject,
+  focusedProject,
+  onClearFocusedProject,
 }) => {
   // State for filters & selection
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<string>('ALL');
@@ -123,6 +127,46 @@ export const LivingLibraryMap: React.FC<LivingLibraryMapProps> = ({
   // Mouse Coordinate Display
   const [cursorCoords, setCursorCoords] = useState<{ lat: number; lng: number } | null>(null);
 
+  // Active focus tracking
+  const [focusedPinId, setFocusedPinId] = useState<string | null>(null);
+  const [focusNotification, setFocusNotification] = useState<string | null>(null);
+  const animFrameRef = useRef<number | null>(null);
+  const focusTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Smooth viewBox camera animation
+  const animateViewBox = (targetVB: { x: number; y: number; w: number; h: number }, durationMs: number = 420) => {
+    if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+    const startVB = { ...currentViewBox };
+    const startTime = performance.now();
+
+    const step = (now: number) => {
+      const elapsed = now - startTime;
+      const progress = Math.min(1, elapsed / durationMs);
+      // easeOutCubic: 1 - (1 - t)^3
+      const ease = 1 - Math.pow(1 - progress, 3);
+
+      const curX = startVB.x + (targetVB.x - startVB.x) * ease;
+      const curY = startVB.y + (targetVB.y - startVB.y) * ease;
+      const curW = startVB.w + (targetVB.w - startVB.w) * ease;
+      const curH = startVB.h + (targetVB.h - startVB.h) * ease;
+
+      setCurrentViewBox({ x: curX, y: curY, w: curW, h: curH });
+
+      if (progress < 1) {
+        animFrameRef.current = requestAnimationFrame(step);
+      }
+    };
+    animFrameRef.current = requestAnimationFrame(step);
+  };
+
+  // Clean up animation on unmount
+  useEffect(() => {
+    return () => {
+      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+      if (focusTimerRef.current) clearTimeout(focusTimerRef.current);
+    };
+  }, []);
+
   // Filter projects based on stage, type, and search query
   const filteredProjects = useMemo(() => {
     return projects.filter(p => {
@@ -141,55 +185,150 @@ export const LivingLibraryMap: React.FC<LivingLibraryMapProps> = ({
 
   // Handle Zoom In
   const handleZoomIn = () => {
-    setCurrentViewBox(prev => {
-      const zoomFactor = 0.7; // zoom in 30%
-      const newW = Math.max(80, prev.w * zoomFactor);
-      const newH = Math.max(40, prev.h * zoomFactor);
-      const newX = Math.max(0, Math.min(1000 - newW, prev.x + (prev.w - newW) / 2));
-      const newY = Math.max(0, Math.min(500 - newH, prev.y + (prev.h - newH) / 2));
-      return { x: newX, y: newY, w: newW, h: newH };
-    });
+    const zoomFactor = 0.7; // zoom in 30%
+    const newW = Math.max(80, currentViewBox.w * zoomFactor);
+    const newH = Math.max(40, currentViewBox.h * zoomFactor);
+    const newX = Math.max(0, Math.min(1000 - newW, currentViewBox.x + (currentViewBox.w - newW) / 2));
+    const newY = Math.max(0, Math.min(500 - newH, currentViewBox.y + (currentViewBox.h - newH) / 2));
+    animateViewBox({ x: newX, y: newY, w: newW, h: newH }, 250);
     setActiveRegion('WORLD');
   };
 
   // Handle Zoom Out
   const handleZoomOut = () => {
-    setCurrentViewBox(prev => {
-      const zoomFactor = 1.4; // zoom out
-      const newW = Math.min(1000, prev.w * zoomFactor);
-      const newH = Math.min(500, prev.h * zoomFactor);
-      const newX = Math.max(0, Math.min(1000 - newW, prev.x - (newW - prev.w) / 2));
-      const newY = Math.max(0, Math.min(500 - newH, prev.y - (newH - prev.h) / 2));
-      return { x: newX, y: newY, w: newW, h: newH };
-    });
+    const zoomFactor = 1.4; // zoom out
+    const newW = Math.min(1000, currentViewBox.w * zoomFactor);
+    const newH = Math.min(500, currentViewBox.h * zoomFactor);
+    const newX = Math.max(0, Math.min(1000 - newW, currentViewBox.x - (newW - currentViewBox.w) / 2));
+    const newY = Math.max(0, Math.min(500 - newH, currentViewBox.y - (newH - currentViewBox.h) / 2));
+    animateViewBox({ x: newX, y: newY, w: newW, h: newH }, 250);
     setActiveRegion('WORLD');
   };
 
   // Reset View
   const handleResetView = () => {
-    setCurrentViewBox({ x: 0, y: 0, w: 1000, h: 500 });
     setActiveRegion('WORLD');
+    setFocusedPinId(null);
+    setFocusNotification(null);
+    animateViewBox({ x: 0, y: 0, w: 1000, h: 500 }, 400);
   };
+
+  // Listen for reset map view events (e.g. triggered by World Map button)
+  useEffect(() => {
+    const handleResetMapView = () => {
+      setActiveRegion('WORLD');
+      setSearchQuery('');
+      setSelectedStatusFilter('ALL');
+      setSelectedTypeFilter('ALL');
+      setFocusedPinId(null);
+      setFocusNotification(null);
+      animateViewBox({ x: 0, y: 0, w: 1000, h: 500 }, 400);
+    };
+    window.addEventListener('living-forests-reset-map-view', handleResetMapView);
+    return () => window.removeEventListener('living-forests-reset-map-view', handleResetMapView);
+  }, []);
 
   // Switch to specific Region Preset
   const handleSelectRegion = (preset: RegionPreset) => {
     setActiveRegion(preset.id);
-    setCurrentViewBox(preset.viewBox);
+    animateViewBox(preset.viewBox, 400);
   };
 
   // Focus directly onto a project pin
   const handleFocusProject = (proj: LibraryProject) => {
     setActiveProject(proj);
+    setHoveredProject(proj);
+    setFocusedPinId(proj.id);
+    setShowLibrariesLayer(true);
+    setActiveRegion(null as any);
+
+    // If active stage or type filter excludes this project, reset so pin is visible
+    if (selectedStatusFilter !== 'ALL' && proj.status !== selectedStatusFilter) {
+      setSelectedStatusFilter('ALL');
+    }
+    if (selectedTypeFilter !== 'ALL' && proj.projectType !== selectedTypeFilter) {
+      setSelectedTypeFilter('ALL');
+    }
+    if (searchQuery.trim()) {
+      setSearchQuery('');
+    }
+
     const { x, y } = projectToSvg(
       proj.geographicEntity.coordinates.lat,
       proj.geographicEntity.coordinates.lng
     );
-    const w = 160;
-    const h = 120;
+    // 2:1 aspect ratio matched zoom window
+    const w = 180;
+    const h = 90;
     const newX = Math.max(0, Math.min(1000 - w, x - w / 2));
     const newY = Math.max(0, Math.min(500 - h, y - h / 2));
-    setCurrentViewBox({ x: newX, y: newY, w, h });
+
+    animateViewBox({ x: newX, y: newY, w, h }, 450);
+
+    // Flash notification badge
+    setFocusNotification(`Centered on ${proj.name} (${proj.countryName})`);
+    if (focusTimerRef.current) clearTimeout(focusTimerRef.current);
+    focusTimerRef.current = setTimeout(() => {
+      setFocusNotification(null);
+    }, 4500);
+
+    // Smoothly scroll stage into viewport if needed
+    setTimeout(() => {
+      const stage = document.getElementById('living-library-map-canvas-stage') || document.getElementById('living-library-map-section');
+      if (stage) {
+        stage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 60);
   };
+
+  // Direct prop listener when focusedProject is passed from parent
+  useEffect(() => {
+    if (focusedProject) {
+      handleFocusProject(focusedProject);
+      if (onClearFocusedProject) {
+        onClearFocusedProject();
+      }
+    }
+  }, [focusedProject?.id]);
+
+  // External listener for focusing a project or route from other tabs/components
+  useEffect(() => {
+    const handleProjectFocusEvent = (e: any) => {
+      const proj = e.detail?.project;
+      if (proj) {
+        handleFocusProject(proj);
+      }
+    };
+
+    const handleRouteFocusEvent = (e: any) => {
+      const route = e.detail?.route;
+      if (route && route.points?.length) {
+        setShowCaravanLayer(true);
+        setActiveRegion(null as any);
+        const midPoint = route.points[Math.floor(route.points.length / 2)];
+        const { x, y } = projectToSvg(midPoint.lat, midPoint.lng);
+        const w = 170;
+        const h = 130;
+        const newX = Math.max(0, Math.min(1000 - w, x - w / 2));
+        const newY = Math.max(0, Math.min(500 - h, y - h / 2));
+        animateViewBox({ x: newX, y: newY, w, h }, 450);
+        setFocusNotification(`Tracking Mobile Caravan: ${route.name}`);
+        if (focusTimerRef.current) clearTimeout(focusTimerRef.current);
+        focusTimerRef.current = setTimeout(() => setFocusNotification(null), 4500);
+        setTimeout(() => {
+          const stage = document.getElementById('living-library-map-canvas-stage');
+          stage?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 60);
+      }
+    };
+
+    window.addEventListener('living-forests-focus-project', handleProjectFocusEvent);
+    window.addEventListener('living-forests-focus-route', handleRouteFocusEvent);
+    return () => {
+      window.removeEventListener('living-forests-focus-project', handleProjectFocusEvent);
+      window.removeEventListener('living-forests-focus-route', handleRouteFocusEvent);
+    };
+  }, [projects, selectedStatusFilter, selectedTypeFilter]);
 
   // Mouse pan handlers
   const handleMouseDown = (e: React.MouseEvent<SVGSVGElement>) => {
@@ -461,8 +600,25 @@ export const LivingLibraryMap: React.FC<LivingLibraryMapProps> = ({
       </div>
 
       {/* 3. Interactive World Map Stage (SVG Cartography) */}
-      <div className="relative rounded-3xl overflow-hidden bg-gradient-to-b from-[#081214] via-[#0d221c] to-[#071310] border border-stone-800 h-[480px] shadow-2xl select-none group">
-        
+      <div 
+        id="living-library-map-canvas-stage"
+        className="relative rounded-3xl overflow-hidden bg-gradient-to-b from-[#081214] via-[#0d221c] to-[#071310] border border-stone-800 h-[480px] shadow-2xl select-none group scroll-mt-24"
+      >
+        {/* Floating Active Focus Banner Notification */}
+        {focusNotification && (
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-40 flex items-center space-x-2 bg-emerald-950/95 backdrop-blur-md px-4 py-1.5 rounded-full border border-emerald-500/60 text-emerald-200 text-xs font-semibold shadow-xl">
+            <Sparkles className="w-3.5 h-3.5 text-emerald-400 animate-pulse shrink-0" />
+            <span className="truncate max-w-xs sm:max-w-md">{focusNotification}</span>
+            <button
+              onClick={handleResetView}
+              className="ml-2 px-2 py-0.5 rounded-full bg-emerald-900 hover:bg-emerald-800 text-[10px] text-white border border-emerald-600/40 transition-colors cursor-pointer shrink-0"
+              title="Reset to Full World View"
+            >
+              Reset View
+            </button>
+          </div>
+        )}
+
         {/* Floating Zoom & Map Nav Controls */}
         <div className="absolute top-4 right-4 z-30 flex flex-col items-center bg-stone-950/85 backdrop-blur-md rounded-2xl p-1 border border-stone-700/80 shadow-lg text-white space-y-1">
           <button
@@ -892,6 +1048,30 @@ export const LivingLibraryMap: React.FC<LivingLibraryMapProps> = ({
                     onMouseLeave={() => setHoveredProject(null)}
                     className="cursor-pointer transition-transform duration-200"
                   >
+                    {/* Radar Pulse & Focus Rings when explicitly focused */}
+                    {focusedPinId === project.id && (
+                      <g>
+                        <circle
+                          cx="0"
+                          cy="0"
+                          r="22"
+                          fill="none"
+                          stroke="#34d399"
+                          strokeWidth="2"
+                          className="animate-ping opacity-75"
+                        />
+                        <circle
+                          cx="0"
+                          cy="0"
+                          r="16"
+                          fill="none"
+                          stroke="#38bdf8"
+                          strokeWidth="1.2"
+                          strokeDasharray="4 3"
+                        />
+                      </g>
+                    )}
+
                     {/* Ping Wave Ring for Selected or Open Projects */}
                     {isSelected && (
                       <circle
@@ -1063,11 +1243,15 @@ export const LivingLibraryMap: React.FC<LivingLibraryMapProps> = ({
               <button
                 id={`btn-focus-map-${activeProject.id}`}
                 onClick={() => handleFocusProject(activeProject)}
-                className="px-3 py-2 rounded-xl bg-white hover:bg-stone-100 text-stone-800 font-bold text-xs border border-stone-300 shadow-xs flex items-center space-x-1.5 transition-colors"
-                title="Center camera on this project"
+                className={`px-3 py-2 rounded-xl font-bold text-xs border shadow-xs flex items-center space-x-1.5 transition-all cursor-pointer ${
+                  focusedPinId === activeProject.id
+                    ? 'bg-emerald-100 text-emerald-900 border-emerald-400 ring-2 ring-emerald-400/50'
+                    : 'bg-white hover:bg-stone-100 text-stone-800 border-stone-300'
+                }`}
+                title="Center camera and zoom in on this project"
               >
-                <Maximize2 className="w-3.5 h-3.5 text-stone-500" />
-                <span>Focus Map</span>
+                <Maximize2 className={`w-3.5 h-3.5 ${focusedPinId === activeProject.id ? 'text-emerald-700 animate-pulse' : 'text-stone-500'}`} />
+                <span>{focusedPinId === activeProject.id ? 'Map Focused' : 'Focus Map'}</span>
               </button>
 
               <button

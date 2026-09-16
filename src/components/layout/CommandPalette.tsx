@@ -20,7 +20,12 @@ import {
   Trees,
   BookOpen,
   Clock,
-  Coins
+  Coins,
+  Clapperboard,
+  Network,
+  Leaf,
+  Trophy,
+  Globe
 } from 'lucide-react';
 
 interface CommandPaletteProps {
@@ -59,8 +64,83 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 
   const commands = [
     {
+      category: '🎬 Dr. T Cinema (Autonomous Evidence-to-Screen Studio)',
+      items: [
+        {
+          label: 'Cinema Studio Command Center (Active Production Overview)',
+          icon: <Clapperboard className="w-4 h-4 text-amber-500" />,
+          action: () => {
+            setActiveTab('cinema');
+            onClose();
+          }
+        },
+        {
+          label: 'Master Screenplay & Evidence Traceability Markers [C-xxx]',
+          icon: <Clapperboard className="w-4 h-4 text-sky-500" />,
+          action: () => {
+            setActiveTab('cinema');
+            onClose();
+          }
+        },
+        {
+          label: 'Parallel Search Evidence Ledger & Provenance Graph',
+          icon: <Clapperboard className="w-4 h-4 text-emerald-500" />,
+          action: () => {
+            setActiveTab('cinema');
+            onClose();
+          }
+        },
+        {
+          label: 'Director Storyboard, Lens Profiles & Lighting Palettes',
+          icon: <Clapperboard className="w-4 h-4 text-purple-500" />,
+          action: () => {
+            setActiveTab('cinema');
+            onClose();
+          }
+        },
+        {
+          label: 'Export Center (Director Package, Evidence JSON, SRT Subtitles)',
+          icon: <Clapperboard className="w-4 h-4 text-amber-400" />,
+          action: () => {
+            setActiveTab('cinema');
+            onClose();
+          }
+        }
+      ]
+    },
+    {
       category: '🌳 Trib-House (The Living Library in the Trees)',
       items: [
+        { 
+          label: 'Federated Mesh Explorer (P2P Constellation, Gossip Protocol & Node Sync)', 
+          icon: <Network className="w-4 h-4 text-emerald-400" />, 
+          action: () => { 
+            setActiveTab('tribhouse'); 
+            onClose(); 
+            window.dispatchEvent(new CustomEvent('tribhouse-navigate', { detail: { view: 'zen-world' } })); 
+            setTimeout(() => {
+              window.dispatchEvent(new CustomEvent('zen-world-open-mesh'));
+            }, 120);
+          } 
+        },
+        { 
+          label: 'Zen World Online Library (Connected Libraries, Online Reading & Virus Scans)', 
+          icon: <Sparkles className="w-4 h-4 text-amber-500" />, 
+          action: () => { 
+            setActiveTab('tribhouse'); 
+            onClose(); 
+            window.dispatchEvent(new CustomEvent('tribhouse-navigate', { detail: { view: 'zen-world', mode: 'vault' } })); 
+          } 
+        },
+        { 
+          label: 'Zen World Reading Nest (Distraction-Free Sanctuary, Themes, Koans & Rice Paper)', 
+          icon: <Leaf className="w-4 h-4 text-emerald-500" />, 
+          action: () => { 
+            setActiveTab('tribhouse'); 
+            onClose(); 
+            window.dispatchEvent(new CustomEvent('tribhouse-navigate', { detail: { view: 'zen-world', mode: 'nest' } })); 
+          } 
+        },
         { 
           label: 'Living Forests & World Library Map (16 Countries, Mobile Fleets)', 
           icon: <Trees className="w-4 h-4 text-emerald-600" />, 
@@ -242,6 +322,9 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         { label: 'Clinical Workflow & RPA Control Center', icon: <Bot className="w-4 h-4 text-teal-500" />, action: () => { setActiveTab('automation'); onClose(); } },
         { label: 'Sovereign Privacy & Zero-Knowledge Proof Center', icon: <ShieldCheck className="w-4 h-4 text-indigo-500" />, action: () => { setActiveTab('privacy'); onClose(); } },
         { label: 'Turn Your API Endpoint into a Pay-Per-Request Service (x402)', icon: <Coins className="w-4 h-4 text-amber-500" />, action: () => { setActiveTab('x402'); onClose(); } },
+        { label: 'GoPlausible Bazaar Discovery Catalog (#x402-global-challenge)', icon: <Globe className="w-4 h-4 text-cyan-400" />, action: () => { setActiveTab('x402'); onClose(); window.dispatchEvent(new CustomEvent('x402-navigate', { detail: { subTab: 'bazaar' } })); } },
+        { label: 'Global x402 Challenge Competition Leaderboard', icon: <Trophy className="w-4 h-4 text-amber-400" />, action: () => { setActiveTab('x402'); onClose(); window.dispatchEvent(new CustomEvent('x402-navigate', { detail: { subTab: 'leaderboard' } })); } },
+        { label: 'Algorand MainNet Real Payment Settlement Ledger', icon: <Coins className="w-4 h-4 text-emerald-400" />, action: () => { setActiveTab('x402'); onClose(); window.dispatchEvent(new CustomEvent('x402-navigate', { detail: { subTab: 'ledger' } })); } },
         { label: 'Agent Economy & x402 Micro-Transaction Marketplace', icon: <Zap className="w-4 h-4 text-amber-500" />, action: () => { setActiveTab('economy'); onClose(); } },
         { label: 'Google Cloud Infrastructure & Firestore Hub', icon: <Cloud className="w-4 h-4 text-sky-500" />, action: () => { setActiveTab('gcp'); onClose(); } },
         { label: 'Platform & AI Model Configuration Settings', icon: <Settings className="w-4 h-4 text-slate-500" />, action: () => { setActiveTab('settings'); onClose(); } },

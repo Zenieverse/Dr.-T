@@ -98,6 +98,18 @@ export const ReadingNestView: React.FC<ReadingNestViewProps> = ({
             <span className="hidden sm:inline">Canopy Library</span>
           </button>
 
+          <button
+            id="switch-to-zen-nest-btn"
+            onClick={() => {
+              window.dispatchEvent(new CustomEvent('tribhouse-navigate', { detail: { view: 'zen-world', mode: 'nest' } }));
+            }}
+            className="p-2 rounded-xl text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 transition-colors flex items-center gap-1.5 text-xs font-semibold"
+            title="Switch to Zen World Reading Nest (Classical Koans & Sutras)"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+            <span className="hidden sm:inline">Zen Nest</span>
+          </button>
+
           <div className="h-4 w-px bg-stone-200 dark:bg-stone-800" />
 
           <div>

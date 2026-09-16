@@ -32,7 +32,8 @@ export const VillageDashboard: React.FC<VillageDashboardProps> = ({
       return;
     }
     if (onNavigateView) {
-      if (roomKey === 'library') onNavigateView('canopy');
+      if (roomKey === 'zen_world' || roomKey === 'zen-world') onNavigateView('zen-world');
+      else if (roomKey === 'library') onNavigateView('canopy');
       else if (roomKey === 'campus' || roomKey === 'campus_architecture') onNavigateView('campus');
       else if (roomKey === 'living_forests' || roomKey === 'living-forests') onNavigateView('living-forests');
       else if (roomKey === 'reading_nest') onNavigateView('reading');
@@ -96,6 +97,7 @@ export const VillageDashboard: React.FC<VillageDashboardProps> = ({
   });
 
   const roomsList: { id: string; title: string; subtitle: string; icon: React.ReactNode; color: string }[] = [
+    { id: 'zen_world', title: 'Zen World Online Library', subtitle: 'Connected temple vaults, online reading & virus-scanned threat-free downloads', icon: <Sparkles className="w-5 h-5" />, color: 'bg-amber-600' },
     { id: 'living_forests', title: 'Living Forests & Global Map', subtitle: 'Plant a library, grow a forest, feed a mind across 16 countries & mobile fleets', icon: <Globe className="w-5 h-5" />, color: 'bg-emerald-800' },
     { id: 'campus', title: 'Living Campus 3D', subtitle: '12 treehouse pavilions, 20 master architectural perspectives & 100-yr blueprints', icon: <Compass className="w-5 h-5" />, color: 'bg-emerald-600' },
     { id: 'library', title: 'Canopy Library', subtitle: '1,480+ curated books across 18 living branches', icon: <BookOpen className="w-5 h-5" />, color: 'bg-amber-600' },
@@ -167,6 +169,15 @@ export const VillageDashboard: React.FC<VillageDashboardProps> = ({
             >
               <BookOpen className="w-4 h-4 text-emerald-400" />
               <span>Enter Canopy Library</span>
+            </button>
+
+            <button
+              id="hero-explore-world-map-btn"
+              onClick={() => handleNav('living_forests')}
+              className="px-5 py-3 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-200 font-semibold text-sm flex items-center gap-2 transition-all border border-stone-700 hover:border-sky-400"
+            >
+              <Globe className="w-4 h-4 text-sky-400" />
+              <span>World Map & Forests</span>
             </button>
 
             <button

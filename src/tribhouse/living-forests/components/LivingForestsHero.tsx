@@ -134,7 +134,8 @@ export const LivingForestsHero: React.FC<LivingForestsHeroProps> = ({
               <button
                 id="btn-hero-explore-map"
                 onClick={onNavigateToMap}
-                className="px-4 py-2.5 rounded-xl bg-stone-800/80 hover:bg-stone-700 text-stone-200 font-medium text-xs sm:text-sm flex items-center gap-1.5 border border-stone-700 transition-all"
+                className="px-4 py-2.5 rounded-xl bg-stone-800/90 hover:bg-stone-700 text-stone-200 hover:text-white font-semibold text-xs sm:text-sm flex items-center gap-1.5 border border-stone-700 hover:border-sky-400 shadow-sm transition-all active:scale-95 cursor-pointer"
+                title="Navigate and zoom to the Interactive Living Forests World Map"
               >
                 <Globe2 className="w-4 h-4 text-sky-400" />
                 <span>World Map</span>

@@ -52,6 +52,7 @@ import { PetWhispererApp } from './components/petwhisperer/PetWhispererApp';
 import { OpenWebOSApp } from './components/openwebos/OpenWebOSApp';
 import { GreenieVerseApp } from './components/greenieverse/GreenieVerseApp';
 import { TribHouseContainer } from './tribhouse/TribHouseContainer';
+import { CinemaContainer } from './cinema/CinemaContainer';
 import { SettingsPage } from './components/settings/SettingsPage';
 
 export function App() {
@@ -341,6 +342,10 @@ export function App() {
 
         {activeTab === 'tribhouse' && (
           <TribHouseContainer />
+        )}
+
+        {activeTab === 'cinema' && (
+          <CinemaContainer />
         )}
 
         {activeTab === 'intelligence' && (

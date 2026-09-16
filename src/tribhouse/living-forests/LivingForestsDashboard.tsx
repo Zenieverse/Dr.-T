@@ -3,7 +3,7 @@
 // Integrated system for global libraries, mobile caravans, and tree stewardship
 // =========================================================================
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Globe2, 
   Trees, 
@@ -18,7 +18,8 @@ import {
   DollarSign,
   AlertTriangle,
   Award,
-  Layers
+  Layers,
+  Maximize2
 } from 'lucide-react';
 import { 
   LibraryProject, 
@@ -56,6 +57,7 @@ export const LivingForestsDashboard: React.FC = () => {
 
   // Modals state
   const [selectedProjectForDossier, setSelectedProjectForDossier] = useState<LibraryProject | null>(null);
+  const [focusedProjectForMap, setFocusedProjectForMap] = useState<LibraryProject | null>(null);
   const [isDossierOpen, setIsDossierOpen] = useState(false);
   const [isPlantModalOpen, setIsPlantModalOpen] = useState(false);
   const [targetProjectForPlant, setTargetProjectForPlant] = useState<LibraryProject | null>(null);
@@ -89,6 +91,59 @@ export const LivingForestsDashboard: React.FC = () => {
     setTargetProjectForPlant(proj);
     setIsPlantModalOpen(true);
   };
+
+  const handleNavigateToWorldMap = () => {
+    setActiveTab('MAP');
+    // Ensure smooth scrolling and immediate focus onto the Interactive World Map
+    setTimeout(() => {
+      const mapEl = document.getElementById('living-library-map-section');
+      if (mapEl) {
+        mapEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        mapEl.classList.add('ring-4', 'ring-emerald-400/60', 'transition-all', 'duration-500');
+        setTimeout(() => {
+          mapEl.classList.remove('ring-4', 'ring-emerald-400/60');
+        }, 1500);
+      }
+      // Reset view to entire world
+      window.dispatchEvent(new CustomEvent('living-forests-reset-map-view'));
+    }, 60);
+  };
+
+  const handleNavigateToCountries = () => {
+    setActiveTab('COUNTRIES');
+    setTimeout(() => {
+      const el = document.getElementById('country-forests-registry');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 60);
+  };
+
+  // Direct focus handlers for World Map
+  const handleFocusProjectOnMap = (project: LibraryProject) => {
+    setFocusedProjectForMap(project);
+    setActiveTab('MAP');
+    setIsDossierOpen(false);
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('living-forests-focus-project', { detail: { project } }));
+    }, 60);
+  };
+
+  const handleFocusRouteOnMap = (route: MobileLibraryRoute) => {
+    setActiveTab('MAP');
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('living-forests-focus-route', { detail: { route } }));
+    }, 80);
+  };
+
+  // Listen for navigation events to World Map from parent or child components
+  useEffect(() => {
+    const handleGoToMap = () => {
+      handleNavigateToWorldMap();
+    };
+    window.addEventListener('living-forests-go-to-map', handleGoToMap);
+    return () => window.removeEventListener('living-forests-go-to-map', handleGoToMap);
+  }, []);
 
   const handleContributionConfirmed = (data: {
     tierId: string;
@@ -236,8 +291,8 @@ export const LivingForestsDashboard: React.FC = () => {
         onOpenAiMatcherModal={() => setIsAiMatcherOpen(true)}
         onOpenCharterModal={() => setIsCharterOpen(true)}
         onOpenZenModal={() => setIsZenOpen(true)}
-        onNavigateToMap={() => setActiveTab('MAP')}
-        onNavigateToCountries={() => setActiveTab('COUNTRIES')}
+        onNavigateToMap={handleNavigateToWorldMap}
+        onNavigateToCountries={handleNavigateToCountries}
       />
 
       {/* 2. Primary Navigation Bar */}
@@ -252,7 +307,15 @@ export const LivingForestsDashboard: React.FC = () => {
           <button
             key={tab.id}
             id={`nav-tab-${tab.id.toLowerCase()}`}
-            onClick={() => setActiveTab(tab.id as any)}
+            onClick={() => {
+              if (tab.id === 'MAP') {
+                handleNavigateToWorldMap();
+              } else if (tab.id === 'COUNTRIES') {
+                handleNavigateToCountries();
+              } else {
+                setActiveTab(tab.id as any);
+              }
+            }}
             className={`px-4 py-2.5 rounded-xl whitespace-nowrap flex items-center space-x-2 transition-all ${
               activeTab === tab.id
                 ? 'bg-stone-900 text-white shadow-sm'
@@ -280,6 +343,8 @@ export const LivingForestsDashboard: React.FC = () => {
           onSelectProject={handleOpenDossier}
           onPlantForProject={handleOpenPlantForProject}
           onGiveTreeForProject={handleOpenGiveTreeForProject}
+          focusedProject={focusedProjectForMap}
+          onClearFocusedProject={() => setFocusedProjectForMap(null)}
         />
       )}
 
@@ -289,6 +354,7 @@ export const LivingForestsDashboard: React.FC = () => {
           projects={projects}
           onSelectProject={handleOpenDossier}
           onPlantForCountry={handlePlantForCountry}
+          onFocusProjectOnMap={handleFocusProjectOnMap}
         />
       )}
 
@@ -309,39 +375,50 @@ export const LivingForestsDashboard: React.FC = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
               {mobileRoutes.map((route) => (
-                <div key={route.id} className="p-5 rounded-2xl bg-stone-50 border border-stone-200 space-y-3">
-                  <div className="flex items-start justify-between">
-                    <span className="p-2.5 rounded-xl bg-teal-100 text-teal-800 text-lg">
-                      {route.vehicleType === 'RIVER_BOAT' ? '⛵' : route.vehicleType === 'CARGO_BICYCLE' ? '🚲' : '🐪'}
-                    </span>
-                    <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-100 text-emerald-800">
-                      {route.annualFuelEcoMode}
-                    </span>
+                <div key={route.id} className="p-5 rounded-2xl bg-stone-50 border border-stone-200 space-y-3 flex flex-col justify-between">
+                  <div className="space-y-3">
+                    <div className="flex items-start justify-between">
+                      <span className="p-2.5 rounded-xl bg-teal-100 text-teal-800 text-lg">
+                        {route.vehicleType === 'RIVER_BOAT' ? '⛵' : route.vehicleType === 'CARGO_BICYCLE' ? '🚲' : '🐪'}
+                      </span>
+                      <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                        {route.annualFuelEcoMode}
+                      </span>
+                    </div>
+
+                    <div>
+                      <h4 className="font-bold text-stone-900 text-sm">{route.unitName}</h4>
+                      <span className="text-[11px] text-stone-500 block mt-0.5">Route: {route.activeRouteName}</span>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-2 py-2 border-y border-stone-200 text-center text-xs">
+                      <div>
+                        <span className="text-[10px] text-stone-400 uppercase block font-semibold">Stops</span>
+                        <strong className="text-stone-900">{route.stopsCount}</strong>
+                      </div>
+                      <div>
+                        <span className="text-[10px] text-stone-400 uppercase block font-semibold">Villages</span>
+                        <strong className="text-stone-900">{route.weeklyCommunitiesServed}</strong>
+                      </div>
+                      <div>
+                        <span className="text-[10px] text-stone-400 uppercase block font-semibold">Books</span>
+                        <strong className="text-emerald-700">{route.booksOnBoard}</strong>
+                      </div>
+                    </div>
+
+                    <div className="text-[11px] text-stone-600">
+                      Operator: <strong className="text-stone-800">{route.operatorName}</strong>
+                    </div>
                   </div>
 
-                  <div>
-                    <h4 className="font-bold text-stone-900 text-sm">{route.unitName}</h4>
-                    <span className="text-[11px] text-stone-500 block mt-0.5">Route: {route.activeRouteName}</span>
-                  </div>
-
-                  <div className="grid grid-cols-3 gap-2 py-2 border-y border-stone-200 text-center text-xs">
-                    <div>
-                      <span className="text-[10px] text-stone-400 uppercase block font-semibold">Stops</span>
-                      <strong className="text-stone-900">{route.stopsCount}</strong>
-                    </div>
-                    <div>
-                      <span className="text-[10px] text-stone-400 uppercase block font-semibold">Villages</span>
-                      <strong className="text-stone-900">{route.weeklyCommunitiesServed}</strong>
-                    </div>
-                    <div>
-                      <span className="text-[10px] text-stone-400 uppercase block font-semibold">Books</span>
-                      <strong className="text-emerald-700">{route.booksOnBoard}</strong>
-                    </div>
-                  </div>
-
-                  <div className="text-[11px] text-stone-600">
-                    Operator: <strong className="text-stone-800">{route.operatorName}</strong>
-                  </div>
+                  <button
+                    onClick={() => handleFocusRouteOnMap(route)}
+                    className="w-full mt-3 py-2 px-3 rounded-xl bg-white hover:bg-emerald-50 text-stone-700 hover:text-emerald-800 font-bold text-xs border border-stone-300 hover:border-emerald-300 shadow-xs flex items-center justify-center space-x-1.5 transition-colors cursor-pointer"
+                    title="Open World Map and center on this caravan's route"
+                  >
+                    <Maximize2 className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>Focus Route on Map</span>
+                  </button>
                 </div>
               ))}
             </div>
@@ -503,6 +580,7 @@ export const LivingForestsDashboard: React.FC = () => {
         onClose={() => setIsDossierOpen(false)}
         onPlantForProject={handleOpenPlantForProject}
         onGiveTreeForProject={handleOpenGiveTreeForProject}
+        onFocusOnMap={handleFocusProjectOnMap}
       />
 
       <PlantLibraryModal
