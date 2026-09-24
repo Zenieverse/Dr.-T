@@ -25,7 +25,9 @@ import {
   Network,
   Leaf,
   Trophy,
-  Globe
+  Globe,
+  FileCheck,
+  Stethoscope
 } from 'lucide-react';
 
 interface CommandPaletteProps {
@@ -63,6 +65,59 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
   if (!isOpen) return null;
 
   const commands = [
+    {
+      category: '🩺 Dr. T Health Bridge (11 Responsible Health-AI Pillars)',
+      items: [
+        {
+          label: 'Health Bridge Hub: The Path to the Right Human Decision',
+          icon: <Stethoscope className="w-4 h-4 text-rose-500" />,
+          action: () => {
+            setActiveTab('bridge');
+            onClose();
+          }
+        },
+        {
+          label: 'Evidence-Grounded Reasoning with GRADE & PubMed Attribution',
+          icon: <Activity className="w-4 h-4 text-amber-500" />,
+          action: () => {
+            setActiveTab('bridge');
+            onClose();
+          }
+        },
+        {
+          label: 'HL7 FHIR R4 Structured Health Data & LOINC Inspector',
+          icon: <FileSpreadsheet className="w-4 h-4 text-teal-500" />,
+          action: () => {
+            setActiveTab('bridge');
+            onClose();
+          }
+        },
+        {
+          label: 'Clinical Decision Support with Human-in-the-Loop (HITL) Sign-Off',
+          icon: <ShieldCheck className="w-4 h-4 text-indigo-500" />,
+          action: () => {
+            setActiveTab('bridge');
+            onClose();
+          }
+        },
+        {
+          label: 'Personalized Nutrition & Blood Health Biomarker Matching',
+          icon: <Sparkles className="w-4 h-4 text-emerald-500" />,
+          action: () => {
+            setActiveTab('bridge');
+            onClose();
+          }
+        },
+        {
+          label: 'Continuous Safety Benchmarking (MedQA USMLE & Hallucination)',
+          icon: <ShieldCheck className="w-4 h-4 text-purple-500" />,
+          action: () => {
+            setActiveTab('bridge');
+            onClose();
+          }
+        }
+      ]
+    },
     {
       category: '🎬 Dr. T Cinema (Autonomous Evidence-to-Screen Studio)',
       items: [
@@ -298,6 +353,14 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       items: [
         { label: 'Launch AI Swarm Orchestrator (7 Agents)', icon: <Cpu className="w-4 h-4 text-purple-500" />, action: () => { setActiveTab('swarm'); onClose(); } },
         { label: 'Inspect Agent Disagreement & Reasoning Review', icon: <Cpu className="w-4 h-4 text-purple-500" />, action: () => { setActiveTab('swarm'); onClose(); } },
+      ],
+    },
+    {
+      category: 'Patient & Member 360 Copilot',
+      items: [
+        { label: 'Patient & Member 360 Clinical & Regulatory Copilot', icon: <FileCheck className="w-4 h-4 text-indigo-500" />, action: () => { setActiveTab('copilot360'); onClose(); } },
+        { label: 'Cross-Silo EHR, Claims & Dense Document Unification', icon: <FileCheck className="w-4 h-4 text-indigo-500" />, action: () => { setActiveTab('copilot360'); onClose(); } },
+        { label: 'Explainable Risk Stratification (Never Opaque Predictions)', icon: <FileCheck className="w-4 h-4 text-indigo-500" />, action: () => { setActiveTab('copilot360'); onClose(); } },
       ],
     },
     {

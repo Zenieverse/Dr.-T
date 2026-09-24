@@ -19,6 +19,8 @@ export type NavTab =
   | 'privacy'
   | 'economy'
   | 'x402'
+  | 'copilot360'
+  | 'bridge'
   | 'gcp'
   | 'settings';
 
@@ -362,5 +364,105 @@ export interface X402LeaderboardEntry {
   tags: string[];
   challengeQualified: boolean;
   isCurrentPlatform?: boolean;
+}
+
+// ==========================================
+// PATIENT & MEMBER 360 & CLINICAL/REGULATORY COPILOT
+// ==========================================
+
+export interface UnstructuredDocCitation {
+  citationId: string;
+  documentId: string;
+  documentTitle: string;
+  documentType: 'EHR_NOTE' | 'PATHOLOGY' | 'FDA_LABEL' | 'PAYER_POLICY' | 'CLINICAL_TRIAL_PROTOCOL' | 'DSMB_SAFETY' | 'LEGAL_REGULATORY';
+  section: string;
+  pageNumber?: number;
+  verbatimQuote: string;
+  sourceAuthority: string;
+  timestamp?: string;
+  relevanceExplanation: string;
+}
+
+export interface StructuredClinicalPoint {
+  id: string;
+  sourceSystem: 'Epic EHR' | 'Cerner Millennium' | 'Optum Claims Engine' | 'Medicaid/Medicare Claims' | 'Specialty Pharmacy (NCPDP)' | 'EDC Rave';
+  category: 'VITAL' | 'LAB' | 'DIAGNOSIS_ICD10' | 'PROCEDURE_CPT' | 'CLAIM_PA' | 'PHARMACY_NDC';
+  code: string;
+  display: string;
+  value?: string | number;
+  date: string;
+  status: 'active' | 'denied' | 'paid' | 'abnormal' | 'normal' | 'adjudicated';
+  relevanceToQuestion?: string;
+}
+
+export interface UnstructuredDocument {
+  id: string;
+  title: string;
+  documentType: 'EHR_NOTE' | 'PATHOLOGY' | 'FDA_LABEL' | 'PAYER_POLICY' | 'CLINICAL_TRIAL_PROTOCOL' | 'DSMB_SAFETY' | 'LEGAL_REGULATORY';
+  date: string;
+  facilityOrAgency: string;
+  classification: string;
+  sha256Hash: string;
+  content: string;
+  keyExcerpts: Array<{
+    id: string;
+    section: string;
+    text: string;
+    page: number;
+    tags: string[];
+  }>;
+}
+
+export interface RiskStratificationScore {
+  riskName: string;
+  category: 'Clinical Safety' | 'Regulatory Compliance' | 'Financial & Claims' | 'Protocol Adherence';
+  tier: 'LOW' | 'MODERATE' | 'HIGH' | 'CRITICAL';
+  scorePercent: number;
+  summary: string;
+  mitigationProtocol: string;
+  evidenceFactors: Array<{
+    sourceType: 'structured' | 'unstructured';
+    description: string;
+    sourceRef: string;
+    quoteOrValue: string;
+  }>;
+}
+
+export interface CopilotQAResponse {
+  id: string;
+  question: string;
+  patientOrMemberId: string;
+  answerSummary: string;
+  detailedClinicalOrRegulatorySynthesis: string;
+  safetyCaveats: string[];
+  structuredEvidence: StructuredClinicalPoint[];
+  unstructuredCitations: UnstructuredDocCitation[];
+  riskStratifications: RiskStratificationScore[];
+  actionableNextSteps: string[];
+  timestamp: string;
+  isAiGenerated: boolean;
+  confidenceScore: number;
+}
+
+export interface PatientMember360Profile {
+  id: string;
+  type: 'PATIENT_CLINICAL' | 'HEALTH_PLAN_MEMBER' | 'TRIAL_SUBJECT';
+  name: string;
+  dob: string;
+  age: number;
+  gender: string;
+  mrnOrMemberId: string;
+  payerOrSponsor: string;
+  planOrTrialProtocol: string;
+  primaryDiagnosis: string;
+  keyPhenotypeOrCohort: string;
+  summary360: string;
+  structuredRecords: StructuredClinicalPoint[];
+  unstructuredDocuments: UnstructuredDocument[];
+  baselineRiskScores: RiskStratificationScore[];
+  presetQuestions: Array<{
+    category: 'Clinical Safety' | 'Regulatory & Compliance' | 'Claims & Coverage' | 'Trial Protocol';
+    question: string;
+  }>;
 }
 

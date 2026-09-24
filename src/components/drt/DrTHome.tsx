@@ -30,7 +30,9 @@ import {
   ArrowRight,
   RefreshCw,
   Cpu,
-  BadgeCheck
+  BadgeCheck,
+  Stethoscope,
+  Lock
 } from 'lucide-react';
 
 interface DrTHomeProps {
@@ -155,10 +157,18 @@ export const DrTHome: React.FC<DrTHomeProps> = ({
             {/* Quick CTA row */}
             <div className="flex flex-wrap items-center gap-3 pt-3">
               <button
-                onClick={openVoiceMode}
-                className="px-4 py-2.5 rounded-2xl bg-white hover:bg-rose-50 text-rose-600 text-xs font-black shadow-lg shadow-rose-900/10 flex items-center space-x-2 transition transform active:scale-98"
+                onClick={() => setActiveTab('bridge')}
+                className="px-4 py-2.5 rounded-2xl bg-white hover:bg-rose-50 text-indigo-700 text-xs font-black shadow-lg shadow-indigo-950/20 flex items-center space-x-2 transition transform active:scale-98 border border-white"
               >
-                <Mic className="w-4 h-4 text-rose-600" />
+                <Stethoscope className="w-4 h-4 text-indigo-600" />
+                <span>Health Bridge (11 Pillars)</span>
+              </button>
+
+              <button
+                onClick={openVoiceMode}
+                className="px-4 py-2.5 rounded-2xl bg-white/20 hover:bg-white/30 border border-white/30 text-white text-xs font-bold flex items-center space-x-2 transition backdrop-blur-xs"
+              >
+                <Mic className="w-4 h-4 text-white" />
                 <span>Talk with Dr. T Live</span>
               </button>
 
@@ -250,6 +260,74 @@ export const DrTHome: React.FC<DrTHomeProps> = ({
           <div className="text-[10px] text-slate-500 italic max-w-xs text-right hidden md:block">
             Dr. T is educational decision support and not a substitute for professional medical diagnosis.
           </div>
+        </div>
+      </div>
+
+      {/* 2.5 Dr. T Health Bridge to Human Care Vision Banner */}
+      <div className="rounded-3xl bg-gradient-to-r from-indigo-900 via-slate-900 to-indigo-950 p-5 sm:p-6 text-white border border-indigo-800/80 shadow-md">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div className="space-y-2 max-w-3xl">
+            <div className="flex items-center space-x-2">
+              <span className="p-1 rounded-lg bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                <Stethoscope className="w-4 h-4 text-indigo-300" />
+              </span>
+              <span className="text-xs uppercase font-extrabold tracking-widest text-indigo-200 font-mono">
+                The Dr. T Health Bridge
+              </span>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-500/30 text-indigo-200">
+                11 Responsible Pillars
+              </span>
+            </div>
+            <p className="text-sm font-semibold text-slate-100 leading-snug">
+              "Dr. T is not trying to become the doctor. It is trying to make health information easier to understand—and make the path to the right human decision clearer."
+            </p>
+            <p className="text-xs text-slate-300 leading-relaxed">
+              Our long-term vision is for Dr. T to become a trusted bridge between people, health knowledge, AI, and healthcare professionals—helping people understand their health without pretending that AI can replace human care.
+            </p>
+          </div>
+
+          <div className="shrink-0 flex flex-col sm:flex-row lg:flex-col gap-2">
+            <button
+              onClick={() => setActiveTab('bridge')}
+              className="px-4 py-2.5 rounded-2xl bg-indigo-500 hover:bg-indigo-600 text-white text-xs font-bold transition flex items-center justify-center space-x-2 shadow-md cursor-pointer"
+            >
+              <span>Explore All 11 Pillars</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+            <button
+              onClick={() => setActiveTab('copilot360')}
+              className="px-4 py-2.5 rounded-2xl bg-white/10 hover:bg-white/20 text-slate-200 text-xs font-semibold border border-white/20 transition flex items-center justify-center space-x-2 cursor-pointer"
+            >
+              <span>Patient 360 & Copilot</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Pillar quick chips */}
+        <div className="flex flex-wrap items-center gap-1.5 pt-4 mt-4 border-t border-indigo-800/60 text-[11px]">
+          <span className="text-indigo-300 font-bold text-[10px] uppercase mr-1">Direct Access:</span>
+          {[
+            { label: 'GRADE Evidence', icon: '📜' },
+            { label: 'HL7 FHIR R4', icon: '🗄️' },
+            { label: 'Med-Gemini & Models', icon: '🧠' },
+            { label: 'Multimodal Vision & ECG', icon: '👁️' },
+            { label: 'Accessible Voice & Phonetics', icon: '🎙️' },
+            { label: 'Blood Panel & Nutrition', icon: '🥗' },
+            { label: 'Human Oversight (HITL)', icon: '🩺' },
+            { label: 'HIPAA Safe Harbor', icon: '🔒' },
+            { label: '8 Underserved Languages', icon: '🌐' },
+            { label: 'Clinician Portal', icon: '👥' },
+            { label: 'USMLE Safety Benchmarks', icon: '🛡️' }
+          ].map((pill, pidx) => (
+            <button
+              key={pidx}
+              onClick={() => setActiveTab('bridge')}
+              className="px-2.5 py-1 rounded-xl bg-white/5 hover:bg-white/15 border border-white/10 text-slate-200 text-[11px] font-medium transition cursor-pointer flex items-center space-x-1"
+            >
+              <span>{pill.icon}</span>
+              <span>{pill.label}</span>
+            </button>
+          ))}
         </div>
       </div>
 

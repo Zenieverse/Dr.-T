@@ -23,7 +23,9 @@ import {
   Infinity,
   Heart,
   Coins,
-  Clapperboard
+  Clapperboard,
+  FileCheck,
+  Stethoscope
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -73,12 +75,14 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
       ) 
     },
+    { id: 'bridge', label: 'Health Bridge', icon: <Stethoscope className="w-4 h-4 text-rose-500" />, badge: '11 Pillars' },
     { id: 'cinema', label: '🎬 Cinema', icon: <Clapperboard className="w-4 h-4 text-amber-500" />, badge: 'Studio' },
     { id: 'tribhouse', label: '🌳 Trib-House', icon: <Trees className="w-4 h-4 text-emerald-600" />, badge: 'Living Library' },
     { id: 'petwhisperer', label: 'K9Whisperer', icon: <span className="text-sm">🐾</span> },
     { id: 'openwebos', label: 'OpenWebOS', icon: <Globe className="w-4 h-4 text-cyan-500" />, badge: 'WebMCP' },
     { id: 'greenieverse', label: 'GreenieVerse', icon: <span className="text-sm">🌌</span>, badge: 'Galactic' },
     { id: 'intelligence', label: 'Health Intelligence', icon: <Activity className="w-4 h-4 text-emerald-500" /> },
+    { id: 'copilot360', label: 'Patient 360 & Copilot', icon: <FileCheck className="w-4 h-4 text-indigo-500" />, badge: '360° AI' },
     { id: 'informatics', label: 'Clinical Informatics', icon: <FileText className="w-4 h-4 text-blue-500" /> },
     { id: 'swarm', label: 'AI Swarm', icon: <Cpu className="w-4 h-4 text-purple-500" />, badge: '7 Agents' },
     { id: 'research', label: 'Research Lab', icon: <FlaskConical className="w-4 h-4 text-amber-500" /> },

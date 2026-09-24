@@ -47,6 +47,8 @@ import { ClinicalAutomation } from './components/automation/ClinicalAutomation';
 import { PrivacyCenter } from './components/privacy/PrivacyCenter';
 import { AgentEconomy } from './components/economy/AgentEconomy';
 import { X402PayPerRequestStudio } from './components/x402/X402PayPerRequestStudio';
+import { PatientMember360Copilot } from './components/copilot360/PatientMember360Copilot';
+import { DrTHealthBridge } from './components/bridge/DrTHealthBridge';
 import { GoogleCloudHub } from './components/cloud/GoogleCloudHub';
 import { PetWhispererApp } from './components/petwhisperer/PetWhispererApp';
 import { OpenWebOSApp } from './components/openwebos/OpenWebOSApp';
@@ -353,6 +355,18 @@ export function App() {
             patient={patient}
             events={MOCK_TIMELINE_EVENTS}
             insights={MOCK_HEALTH_INSIGHTS}
+            setActiveTab={setActiveTab}
+          />
+        )}
+
+        {activeTab === 'copilot360' && (
+          <PatientMember360Copilot
+            setActiveTab={setActiveTab}
+          />
+        )}
+
+        {activeTab === 'bridge' && (
+          <DrTHealthBridge
             setActiveTab={setActiveTab}
           />
         )}
