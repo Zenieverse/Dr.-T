@@ -1,0 +1,25 @@
+name: lifeweave
+version: 1.0.0
+model: gemma-4-31b-it-qat-w4a16-ct
+description: Evidence-guided autonomous software engineering agent for repository defect localization, minimal patching, and invariant validation.
+
+tools:
+  - run_command
+  - read_file
+  - write_file
+  - edit_file
+  - get_status
+  - submit_patch
+  - search_similar_code
+  - get_code_neighbors
+  - get_code_subgraph
+
+prompts:
+  system: prompts/system.md
+  analyzer: prompts/analyzer.md
+
+skills:
+  - skills/lifeweave/SKILL.md
+
+configs:
+  sampling: configs/sampling.yaml

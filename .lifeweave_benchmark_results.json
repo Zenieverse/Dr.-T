@@ -1,0 +1,1225 @@
+[
+  {
+    "taskId": "TASK-01",
+    "strategy": "CONFIG_A_SEMANTIC",
+    "passed": false,
+    "toolCallsCount": 4,
+    "toolCallSequence": [
+      "search_similar_code",
+      "read_file",
+      "edit_file",
+      "run_command"
+    ],
+    "filesInspected": [
+      "src/engine/readit/security/urlSecurityEngine.ts"
+    ],
+    "recallAt1": true,
+    "recallAt3": true,
+    "contradictionDetected": false,
+    "recoverySteps": 0,
+    "wallClockMs": 32,
+    "failureClass": "WRONG_LOCALIZATION",
+    "repairedInvariant": "Decode URI query components safely with try/catch fallback returning sanitized strings without throwing unhandled URIError."
+  },
+  {
+    "taskId": "TASK-02",
+    "strategy": "CONFIG_A_SEMANTIC",
+    "passed": true,
+    "toolCallsCount": 4,
+    "toolCallSequence": [
+      "search_similar_code",
+      "read_file",
+      "edit_file",
+      "run_command"
+    ],
+    "filesInspected": [
+      "server.ts"
+    ],
+    "recallAt1": true,
+    "recallAt3": true,
+    "contradictionDetected": false,
+    "recoverySteps": 0,
+    "wallClockMs": 20,
+    "repairedInvariant": "Reject all non-HTTP and non-HTTPS protocols at Gate 1 with 400 Bad Request before attempting network connection."
+  },
+  {
+    "taskId": "TASK-03",
+    "strategy": "CONFIG_A_SEMANTIC",
+    "passed": false,
+    "toolCallsCount": 4,
+    "toolCallSequence": [
+      "search_similar_code",
+      "read_file",
+      "edit_file",
+      "run_command"
+    ],
+    "filesInspected": [
+      "src/tribhouse/treeLibrary.ts"
+    ],
+    "recallAt1": true,
+    "recallAt3": true,
+    "contradictionDetected": false,
+    "recoverySteps": 0,
+    "wallClockMs": 12,
+    "failureClass": "WRONG_LOCALIZATION",
+    "repairedInvariant": "Page boundary item count must exactly equal limit without duplicating cursor offset item."
+  },
+  {
+    "taskId": "TASK-04",
+    "strategy": "CONFIG_A_SEMANTIC",
+    "passed": false,
+    "toolCallsCount": 4,
+    "toolCallSequence": [
+      "search_similar_code",
+      "read_file",
+      "edit_file",
+      "run_command"
+    ],
+    "filesInspected": [
+      "server.ts"
+    ],
+    "recallAt1": true,
+    "recallAt3": true,
+    "contradictionDetected": false,
+    "recoverySteps": 0,
+    "wallClockMs": 10,
+    "failureClass": "WRONG_LOCALIZATION",
+    "repairedInvariant": "Every intermediate redirect hop location header must be checked against DNS private IP resolution."
+  },
+  {
+    "taskId": "TASK-05",
+    "strategy": "CONFIG_A_SEMANTIC",
+    "passed": true,
+    "toolCallsCount": 4,
+    "toolCallSequence": [
+      "search_similar_code",
+      "read_file",
+      "edit_file",
+      "run_command"
+    ],
+    "filesInspected": [
+      "src/lifeweave/components/EvidenceFieldCard.tsx"
+    ],
+    "recallAt1": true,
+    "recallAt3": true,
+    "contradictionDetected": false,
+    "recoverySteps": 0,
+    "wallClockMs": 18,
+    "repairedInvariant": "Component renders asynchronous metrics gracefully using proper state update guarantees."
+  },
+  {
+    "taskId": "TASK-06",
+    "strategy": "CONFIG_A_SEMANTIC",
+    "passed": false,
+    "toolCallsCount": 4,
+    "toolCallSequence": [
+      "search_similar_code",
+      "read_file",
+      "edit_file",
+      "run_command"
+    ],
+    "filesInspected": [
+      "server.ts"
+    ],
+    "recallAt1": true,
+    "recallAt3": true,
+    "contradictionDetected": false,
+    "recoverySteps": 0,
+    "wallClockMs": 12,
+    "failureClass": "WRONG_LOCALIZATION",
+    "repairedInvariant": "CORS middleware permits authorized development client origins and headers across all proxy routes."
+  },
+  {
+    "taskId": "TASK-07",
+    "strategy": "CONFIG_A_SEMANTIC",
+    "passed": true,
+    "toolCallsCount": 4,
+    "toolCallSequence": [
+      "search_similar_code",
+      "read_file",
+      "edit_file",
+      "run_command"
+    ],
+    "filesInspected": [
+      "server.ts"
+    ],
+    "recallAt1": true,
+    "recallAt3": true,
+    "contradictionDetected": false,
+    "recoverySteps": 0,
+    "wallClockMs": 34,
+    "repairedInvariant": "Wrap arrayBuffer in Buffer.from() before calling crypto.update() to guarantee deterministic SHA-256 hash."
+  },
+  {
+    "taskId": "TASK-08",
+    "strategy": "CONFIG_A_SEMANTIC",
+    "passed": false,
+    "toolCallsCount": 4,
+    "toolCallSequence": [
+      "search_similar_code",
+      "read_file",
+      "edit_file",
+      "run_command"
+    ],
+    "filesInspected": [
+      "src/lifeweave/services/lifeweaveService.ts"
+    ],
+    "recallAt1": true,
+    "recallAt3": true,
+    "contradictionDetected": false,
+    "recoverySteps": 0,
+    "wallClockMs": 24,
+    "failureClass": "WRONG_LOCALIZATION",
+    "repairedInvariant": "All investigation progress states must strictly conform to numeric type contract."
+  },
+  {
+    "taskId": "TASK-09",
+    "strategy": "CONFIG_A_SEMANTIC",
+    "passed": false,
+    "toolCallsCount": 4,
+    "toolCallSequence": [
+      "search_similar_code",
+      "read_file",
+      "edit_file",
+      "run_command"
+    ],
+    "filesInspected": [
+      "src/services/firebase.ts"
+    ],
+    "recallAt1": true,
+    "recallAt3": true,
+    "contradictionDetected": false,
+    "recoverySteps": 0,
+    "wallClockMs": 32,
+    "failureClass": "WRONG_LOCALIZATION",
+    "repairedInvariant": "Break circular import by decoupling shared interfaces into dedicated types contract."
+  },
+  {
+    "taskId": "TASK-10",
+    "strategy": "CONFIG_A_SEMANTIC",
+    "passed": false,
+    "toolCallsCount": 4,
+    "toolCallSequence": [
+      "search_similar_code",
+      "read_file",
+      "edit_file",
+      "run_command"
+    ],
+    "filesInspected": [
+      "src/data/healthBridgeData.ts"
+    ],
+    "recallAt1": true,
+    "recallAt3": true,
+    "contradictionDetected": false,
+    "recoverySteps": 0,
+    "wallClockMs": 19,
+    "failureClass": "WRONG_LOCALIZATION",
+    "repairedInvariant": "Phone number scrubbing regex must require delimiter or area code grouping to prevent false-positive postal code redaction."
+  },
+  {
+    "taskId": "TASK-01",
+    "strategy": "CONFIG_B_SEMANTIC_GRAPH",
+    "passed": true,
+    "toolCallsCount": 6,
+    "toolCallSequence": [
+      "search_similar_code",
+      "get_code_neighbors",
+      "get_code_subgraph",
+      "read_file",
+      "edit_file",
+      "run_command"
+    ],
+    "filesInspected": [
+      "src/engine/readit/security/urlSecurityEngine.ts",
+      "src/components/readit/components/UrlReaderModal.tsx"
+    ],
+    "recallAt1": true,
+    "recallAt3": true,
+    "contradictionDetected": false,
+    "recoverySteps": 0,
+    "wallClockMs": 33,
+    "repairedInvariant": "Decode URI query components safely with try/catch fallback returning sanitized strings without throwing unhandled URIError."
+  },
+  {
+    "taskId": "TASK-02",
+    "strategy": "CONFIG_B_SEMANTIC_GRAPH",
+    "passed": true,
+    "toolCallsCount": 6,
+    "toolCallSequence": [
+      "search_similar_code",
+      "get_code_neighbors",
+      "get_code_subgraph",
+      "read_file",
+      "edit_file",
+      "run_command"
+    ],
+    "filesInspected": [
+      "server.ts",
+      "src/engine/readit/security/urlSecurityEngine.ts"
+    ],
+    "recallAt1": true,
+    "recallAt3": true,
+    "contradictionDetected": false,
+    "recoverySteps": 0,
+    "wallClockMs": 23,
+    "repairedInvariant": "Reject all non-HTTP and non-HTTPS protocols at Gate 1 with 400 Bad Request before attempting network connection."
+  },
+  {
+    "taskId": "TASK-03",
+    "strategy": "CONFIG_B_SEMANTIC_GRAPH",
+    "passed": true,
+    "toolCallsCount": 6,
+    "toolCallSequence": [
+      "search_similar_code",
+      "get_code_neighbors",
+      "get_code_subgraph",
+      "read_file",
+      "edit_file",
+      "run_command"
+    ],
+    "filesInspected": [
+      "src/tribhouse/treeLibrary.ts",
+      "src/tribhouse/TribHouseContainer.tsx"
+    ],
+    "recallAt1": true,
+    "recallAt3": true,
+    "contradictionDetected": false,
+    "recoverySteps": 0,
+    "wallClockMs": 22,
+    "repairedInvariant": "Page boundary item count must exactly equal limit without duplicating cursor offset item."
+  },
+  {
+    "taskId": "TASK-04",
+    "strategy": "CONFIG_B_SEMANTIC_GRAPH",
+    "passed": false,
+    "toolCallsCount": 6,
+    "toolCallSequence": [
+      "search_similar_code",
+      "get_code_neighbors",
+      "get_code_subgraph",
+      "read_file",
+      "edit_file",
+      "run_command"
+    ],
+    "filesInspected": [
+      "server.ts",
+      "src/engine/readit/security/urlSecurityEngine.ts"
+    ],
+    "recallAt1": true,
+    "recallAt3": true,
+    "contradictionDetected": false,
+    "recoverySteps": 0,
+    "wallClockMs": 13,
+    "failureClass": "INCOMPLETE_EVIDENCE",
+    "repairedInvariant": "Every intermediate redirect hop location header must be checked against DNS private IP resolution."
+  },
+  {
+    "taskId": "TASK-05",
+    "strategy": "CONFIG_B_SEMANTIC_GRAPH",
+    "passed": true,
+    "toolCallsCount": 6,
+    "toolCallSequence": [
+      "search_similar_code",
+      "get_code_neighbors",
+      "get_code_subgraph",
+      "read_file",
+      "edit_file",
+      "run_command"
+    ],
+    "filesInspected": [
+      "src/lifeweave/components/EvidenceFieldCard.tsx",
+      "src/lifeweave/LifeWeaveStudio.tsx"
+    ],
+    "recallAt1": true,
+    "recallAt3": true,
+    "contradictionDetected": false,
+    "recoverySteps": 0,
+    "wallClockMs": 13,
+    "repairedInvariant": "Component renders asynchronous metrics gracefully using proper state update guarantees."
+  },
+  {
+    "taskId": "TASK-06",
+    "strategy": "CONFIG_B_SEMANTIC_GRAPH",
+    "passed": true,
+    "toolCallsCount": 6,
+    "toolCallSequence": [
+      "search_similar_code",
+      "get_code_neighbors",
+      "get_code_subgraph",
+      "read_file",
+      "edit_file",
+      "run_command"
+    ],
+    "filesInspected": [
+      "server.ts",
+      "vite.config.ts"
+    ],
+    "recallAt1": true,
+    "recallAt3": true,
+    "contradictionDetected": false,
+    "recoverySteps": 0,
+    "wallClockMs": 25,
+    "repairedInvariant": "CORS middleware permits authorized development client origins and headers across all proxy routes."
+  },
+  {
+    "taskId": "TASK-07",
+    "strategy": "CONFIG_B_SEMANTIC_GRAPH",
+    "passed": true,
+    "toolCallsCount": 6,
+    "toolCallSequence": [
+      "search_similar_code",
+      "get_code_neighbors",
+      "get_code_subgraph",
+      "read_file",
+      "edit_file",
+      "run_command"
+    ],
+    "filesInspected": [
+      "server.ts",
+      "src/engine/readit/security/urlSecurityEngine.ts"
+    ],
+    "recallAt1": true,
+    "recallAt3": true,
+    "contradictionDetected": false,
+    "recoverySteps": 0,
+    "wallClockMs": 20,
+    "repairedInvariant": "Wrap arrayBuffer in Buffer.from() before calling crypto.update() to guarantee deterministic SHA-256 hash."
+  },
+  {
+    "taskId": "TASK-08",
+    "strategy": "CONFIG_B_SEMANTIC_GRAPH",
+    "passed": true,
+    "toolCallsCount": 6,
+    "toolCallSequence": [
+      "search_similar_code",
+      "get_code_neighbors",
+      "get_code_subgraph",
+      "read_file",
+      "edit_file",
+      "run_command"
+    ],
+    "filesInspected": [
+      "src/lifeweave/services/lifeweaveService.ts",
+      "src/lifeweave/types/lifeweaveTypes.ts"
+    ],
+    "recallAt1": true,
+    "recallAt3": true,
+    "contradictionDetected": false,
+    "recoverySteps": 0,
+    "wallClockMs": 21,
+    "repairedInvariant": "All investigation progress states must strictly conform to numeric type contract."
+  },
+  {
+    "taskId": "TASK-09",
+    "strategy": "CONFIG_B_SEMANTIC_GRAPH",
+    "passed": true,
+    "toolCallsCount": 6,
+    "toolCallSequence": [
+      "search_similar_code",
+      "get_code_neighbors",
+      "get_code_subgraph",
+      "read_file",
+      "edit_file",
+      "run_command"
+    ],
+    "filesInspected": [
+      "src/services/firebase.ts",
+      "src/types.ts"
+    ],
+    "recallAt1": true,
+    "recallAt3": true,
+    "contradictionDetected": false,
+    "recoverySteps": 0,
+    "wallClockMs": 33,
+    "repairedInvariant": "Break circular import by decoupling shared interfaces into dedicated types contract."
+  },
+  {
+    "taskId": "TASK-10",
+    "strategy": "CONFIG_B_SEMANTIC_GRAPH",
+    "passed": false,
+    "toolCallsCount": 6,
+    "toolCallSequence": [
+      "search_similar_code",
+      "get_code_neighbors",
+      "get_code_subgraph",
+      "read_file",
+      "edit_file",
+      "run_command"
+    ],
+    "filesInspected": [
+      "src/data/healthBridgeData.ts",
+      "src/components/bridge/DrTHealthBridge.tsx"
+    ],
+    "recallAt1": true,
+    "recallAt3": true,
+    "contradictionDetected": false,
+    "recoverySteps": 0,
+    "wallClockMs": 23,
+    "failureClass": "INCOMPLETE_EVIDENCE",
+    "repairedInvariant": "Phone number scrubbing regex must require delimiter or area code grouping to prevent false-positive postal code redaction."
+  },
+  {
+    "taskId": "TASK-01",
+    "strategy": "CONFIG_C_EVIDENCE",
+    "passed": true,
+    "toolCallsCount": 6,
+    "toolCallSequence": [
+      "search_similar_code",
+      "get_code_neighbors",
+      "get_code_subgraph",
+      "read_file",
+      "edit_file",
+      "run_command"
+    ],
+    "filesInspected": [
+      "src/engine/readit/security/urlSecurityEngine.ts",
+      "src/components/readit/components/UrlReaderModal.tsx",
+      "server.ts"
+    ],
+    "recallAt1": true,
+    "recallAt3": true,
+    "contradictionDetected": false,
+    "recoverySteps": 0,
+    "wallClockMs": 17,
+    "repairedInvariant": "Decode URI query components safely with try/catch fallback returning sanitized strings without throwing unhandled URIError."
+  },
+  {
+    "taskId": "TASK-02",
+    "strategy": "CONFIG_C_EVIDENCE",
+    "passed": true,
+    "toolCallsCount": 6,
+    "toolCallSequence": [
+      "search_similar_code",
+      "get_code_neighbors",
+      "get_code_subgraph",
+      "read_file",
+      "edit_file",
+      "run_command"
+    ],
+    "filesInspected": [
+      "server.ts",
+      "src/engine/readit/security/urlSecurityEngine.ts"
+    ],
+    "recallAt1": true,
+    "recallAt3": true,
+    "contradictionDetected": false,
+    "recoverySteps": 0,
+    "wallClockMs": 26,
+    "repairedInvariant": "Reject all non-HTTP and non-HTTPS protocols at Gate 1 with 400 Bad Request before attempting network connection."
+  },
+  {
+    "taskId": "TASK-03",
+    "strategy": "CONFIG_C_EVIDENCE",
+    "passed": true,
+    "toolCallsCount": 6,
+    "toolCallSequence": [
+      "search_similar_code",
+      "get_code_neighbors",
+      "get_code_subgraph",
+      "read_file",
+      "edit_file",
+      "run_command"
+    ],
+    "filesInspected": [
+      "src/tribhouse/treeLibrary.ts",
+      "src/tribhouse/TribHouseContainer.tsx"
+    ],
+    "recallAt1": true,
+    "recallAt3": true,
+    "contradictionDetected": false,
+    "recoverySteps": 0,
+    "wallClockMs": 14,
+    "repairedInvariant": "Page boundary item count must exactly equal limit without duplicating cursor offset item."
+  },
+  {
+    "taskId": "TASK-04",
+    "strategy": "CONFIG_C_EVIDENCE",
+    "passed": false,
+    "toolCallsCount": 6,
+    "toolCallSequence": [
+      "search_similar_code",
+      "get_code_neighbors",
+      "get_code_subgraph",
+      "read_file",
+      "edit_file",
+      "run_command"
+    ],
+    "filesInspected": [
+      "server.ts",
+      "src/engine/readit/security/urlSecurityEngine.ts",
+      "src/components/readit/components/UrlReaderModal.tsx"
+    ],
+    "recallAt1": true,
+    "recallAt3": true,
+    "contradictionDetected": false,
+    "recoverySteps": 0,
+    "wallClockMs": 14,
+    "failureClass": "INCOMPLETE_EVIDENCE",
+    "repairedInvariant": "Every intermediate redirect hop location header must be checked against DNS private IP resolution."
+  },
+  {
+    "taskId": "TASK-05",
+    "strategy": "CONFIG_C_EVIDENCE",
+    "passed": true,
+    "toolCallsCount": 6,
+    "toolCallSequence": [
+      "search_similar_code",
+      "get_code_neighbors",
+      "get_code_subgraph",
+      "read_file",
+      "edit_file",
+      "run_command"
+    ],
+    "filesInspected": [
+      "src/lifeweave/components/EvidenceFieldCard.tsx",
+      "src/lifeweave/LifeWeaveStudio.tsx"
+    ],
+    "recallAt1": true,
+    "recallAt3": true,
+    "contradictionDetected": false,
+    "recoverySteps": 0,
+    "wallClockMs": 13,
+    "repairedInvariant": "Component renders asynchronous metrics gracefully using proper state update guarantees."
+  },
+  {
+    "taskId": "TASK-06",
+    "strategy": "CONFIG_C_EVIDENCE",
+    "passed": true,
+    "toolCallsCount": 6,
+    "toolCallSequence": [
+      "search_similar_code",
+      "get_code_neighbors",
+      "get_code_subgraph",
+      "read_file",
+      "edit_file",
+      "run_command"
+    ],
+    "filesInspected": [
+      "server.ts",
+      "vite.config.ts"
+    ],
+    "recallAt1": true,
+    "recallAt3": true,
+    "contradictionDetected": false,
+    "recoverySteps": 0,
+    "wallClockMs": 16,
+    "repairedInvariant": "CORS middleware permits authorized development client origins and headers across all proxy routes."
+  },
+  {
+    "taskId": "TASK-07",
+    "strategy": "CONFIG_C_EVIDENCE",
+    "passed": true,
+    "toolCallsCount": 6,
+    "toolCallSequence": [
+      "search_similar_code",
+      "get_code_neighbors",
+      "get_code_subgraph",
+      "read_file",
+      "edit_file",
+      "run_command"
+    ],
+    "filesInspected": [
+      "server.ts",
+      "src/engine/readit/security/urlSecurityEngine.ts"
+    ],
+    "recallAt1": true,
+    "recallAt3": true,
+    "contradictionDetected": false,
+    "recoverySteps": 0,
+    "wallClockMs": 15,
+    "repairedInvariant": "Wrap arrayBuffer in Buffer.from() before calling crypto.update() to guarantee deterministic SHA-256 hash."
+  },
+  {
+    "taskId": "TASK-08",
+    "strategy": "CONFIG_C_EVIDENCE",
+    "passed": true,
+    "toolCallsCount": 6,
+    "toolCallSequence": [
+      "search_similar_code",
+      "get_code_neighbors",
+      "get_code_subgraph",
+      "read_file",
+      "edit_file",
+      "run_command"
+    ],
+    "filesInspected": [
+      "src/lifeweave/services/lifeweaveService.ts",
+      "src/lifeweave/types/lifeweaveTypes.ts",
+      "src/lifeweave/LifeWeaveStudio.tsx"
+    ],
+    "recallAt1": true,
+    "recallAt3": true,
+    "contradictionDetected": false,
+    "recoverySteps": 0,
+    "wallClockMs": 16,
+    "repairedInvariant": "All investigation progress states must strictly conform to numeric type contract."
+  },
+  {
+    "taskId": "TASK-09",
+    "strategy": "CONFIG_C_EVIDENCE",
+    "passed": true,
+    "toolCallsCount": 6,
+    "toolCallSequence": [
+      "search_similar_code",
+      "get_code_neighbors",
+      "get_code_subgraph",
+      "read_file",
+      "edit_file",
+      "run_command"
+    ],
+    "filesInspected": [
+      "src/services/firebase.ts",
+      "src/types.ts"
+    ],
+    "recallAt1": true,
+    "recallAt3": true,
+    "contradictionDetected": false,
+    "recoverySteps": 0,
+    "wallClockMs": 30,
+    "repairedInvariant": "Break circular import by decoupling shared interfaces into dedicated types contract."
+  },
+  {
+    "taskId": "TASK-10",
+    "strategy": "CONFIG_C_EVIDENCE",
+    "passed": true,
+    "toolCallsCount": 6,
+    "toolCallSequence": [
+      "search_similar_code",
+      "get_code_neighbors",
+      "get_code_subgraph",
+      "read_file",
+      "edit_file",
+      "run_command"
+    ],
+    "filesInspected": [
+      "src/data/healthBridgeData.ts",
+      "src/components/bridge/DrTHealthBridge.tsx"
+    ],
+    "recallAt1": true,
+    "recallAt3": true,
+    "contradictionDetected": false,
+    "recoverySteps": 0,
+    "wallClockMs": 13,
+    "repairedInvariant": "Phone number scrubbing regex must require delimiter or area code grouping to prevent false-positive postal code redaction."
+  },
+  {
+    "taskId": "TASK-01",
+    "strategy": "CONFIG_D_CONTRADICTION",
+    "passed": true,
+    "toolCallsCount": 7,
+    "toolCallSequence": [
+      "search_similar_code",
+      "get_code_neighbors",
+      "get_code_subgraph",
+      "read_file",
+      "read_file",
+      "edit_file",
+      "run_command"
+    ],
+    "filesInspected": [
+      "src/engine/readit/security/urlSecurityEngine.ts",
+      "src/components/readit/components/UrlReaderModal.tsx",
+      "server.ts"
+    ],
+    "recallAt1": true,
+    "recallAt3": true,
+    "contradictionDetected": true,
+    "recoverySteps": 0,
+    "wallClockMs": 30,
+    "repairedInvariant": "Decode URI query components safely with try/catch fallback returning sanitized strings without throwing unhandled URIError."
+  },
+  {
+    "taskId": "TASK-02",
+    "strategy": "CONFIG_D_CONTRADICTION",
+    "passed": true,
+    "toolCallsCount": 7,
+    "toolCallSequence": [
+      "search_similar_code",
+      "get_code_neighbors",
+      "get_code_subgraph",
+      "read_file",
+      "read_file",
+      "edit_file",
+      "run_command"
+    ],
+    "filesInspected": [
+      "server.ts",
+      "src/engine/readit/security/urlSecurityEngine.ts"
+    ],
+    "recallAt1": true,
+    "recallAt3": true,
+    "contradictionDetected": false,
+    "recoverySteps": 0,
+    "wallClockMs": 10,
+    "repairedInvariant": "Reject all non-HTTP and non-HTTPS protocols at Gate 1 with 400 Bad Request before attempting network connection."
+  },
+  {
+    "taskId": "TASK-03",
+    "strategy": "CONFIG_D_CONTRADICTION",
+    "passed": true,
+    "toolCallsCount": 7,
+    "toolCallSequence": [
+      "search_similar_code",
+      "get_code_neighbors",
+      "get_code_subgraph",
+      "read_file",
+      "read_file",
+      "edit_file",
+      "run_command"
+    ],
+    "filesInspected": [
+      "src/tribhouse/treeLibrary.ts",
+      "src/tribhouse/TribHouseContainer.tsx"
+    ],
+    "recallAt1": true,
+    "recallAt3": true,
+    "contradictionDetected": true,
+    "recoverySteps": 0,
+    "wallClockMs": 34,
+    "repairedInvariant": "Page boundary item count must exactly equal limit without duplicating cursor offset item."
+  },
+  {
+    "taskId": "TASK-04",
+    "strategy": "CONFIG_D_CONTRADICTION",
+    "passed": true,
+    "toolCallsCount": 7,
+    "toolCallSequence": [
+      "search_similar_code",
+      "get_code_neighbors",
+      "get_code_subgraph",
+      "read_file",
+      "read_file",
+      "edit_file",
+      "run_command"
+    ],
+    "filesInspected": [
+      "server.ts",
+      "src/engine/readit/security/urlSecurityEngine.ts",
+      "src/components/readit/components/UrlReaderModal.tsx"
+    ],
+    "recallAt1": true,
+    "recallAt3": true,
+    "contradictionDetected": true,
+    "recoverySteps": 0,
+    "wallClockMs": 13,
+    "repairedInvariant": "Every intermediate redirect hop location header must be checked against DNS private IP resolution."
+  },
+  {
+    "taskId": "TASK-05",
+    "strategy": "CONFIG_D_CONTRADICTION",
+    "passed": true,
+    "toolCallsCount": 7,
+    "toolCallSequence": [
+      "search_similar_code",
+      "get_code_neighbors",
+      "get_code_subgraph",
+      "read_file",
+      "read_file",
+      "edit_file",
+      "run_command"
+    ],
+    "filesInspected": [
+      "src/lifeweave/components/EvidenceFieldCard.tsx",
+      "src/lifeweave/LifeWeaveStudio.tsx"
+    ],
+    "recallAt1": true,
+    "recallAt3": true,
+    "contradictionDetected": false,
+    "recoverySteps": 0,
+    "wallClockMs": 24,
+    "repairedInvariant": "Component renders asynchronous metrics gracefully using proper state update guarantees."
+  },
+  {
+    "taskId": "TASK-06",
+    "strategy": "CONFIG_D_CONTRADICTION",
+    "passed": true,
+    "toolCallsCount": 7,
+    "toolCallSequence": [
+      "search_similar_code",
+      "get_code_neighbors",
+      "get_code_subgraph",
+      "read_file",
+      "read_file",
+      "edit_file",
+      "run_command"
+    ],
+    "filesInspected": [
+      "server.ts",
+      "vite.config.ts"
+    ],
+    "recallAt1": true,
+    "recallAt3": true,
+    "contradictionDetected": true,
+    "recoverySteps": 0,
+    "wallClockMs": 33,
+    "repairedInvariant": "CORS middleware permits authorized development client origins and headers across all proxy routes."
+  },
+  {
+    "taskId": "TASK-07",
+    "strategy": "CONFIG_D_CONTRADICTION",
+    "passed": true,
+    "toolCallsCount": 7,
+    "toolCallSequence": [
+      "search_similar_code",
+      "get_code_neighbors",
+      "get_code_subgraph",
+      "read_file",
+      "read_file",
+      "edit_file",
+      "run_command"
+    ],
+    "filesInspected": [
+      "server.ts",
+      "src/engine/readit/security/urlSecurityEngine.ts"
+    ],
+    "recallAt1": true,
+    "recallAt3": true,
+    "contradictionDetected": false,
+    "recoverySteps": 0,
+    "wallClockMs": 27,
+    "repairedInvariant": "Wrap arrayBuffer in Buffer.from() before calling crypto.update() to guarantee deterministic SHA-256 hash."
+  },
+  {
+    "taskId": "TASK-08",
+    "strategy": "CONFIG_D_CONTRADICTION",
+    "passed": true,
+    "toolCallsCount": 7,
+    "toolCallSequence": [
+      "search_similar_code",
+      "get_code_neighbors",
+      "get_code_subgraph",
+      "read_file",
+      "read_file",
+      "edit_file",
+      "run_command"
+    ],
+    "filesInspected": [
+      "src/lifeweave/services/lifeweaveService.ts",
+      "src/lifeweave/types/lifeweaveTypes.ts",
+      "src/lifeweave/LifeWeaveStudio.tsx"
+    ],
+    "recallAt1": true,
+    "recallAt3": true,
+    "contradictionDetected": true,
+    "recoverySteps": 0,
+    "wallClockMs": 14,
+    "repairedInvariant": "All investigation progress states must strictly conform to numeric type contract."
+  },
+  {
+    "taskId": "TASK-09",
+    "strategy": "CONFIG_D_CONTRADICTION",
+    "passed": true,
+    "toolCallsCount": 7,
+    "toolCallSequence": [
+      "search_similar_code",
+      "get_code_neighbors",
+      "get_code_subgraph",
+      "read_file",
+      "read_file",
+      "edit_file",
+      "run_command"
+    ],
+    "filesInspected": [
+      "src/services/firebase.ts",
+      "src/types.ts"
+    ],
+    "recallAt1": true,
+    "recallAt3": true,
+    "contradictionDetected": true,
+    "recoverySteps": 0,
+    "wallClockMs": 24,
+    "repairedInvariant": "Break circular import by decoupling shared interfaces into dedicated types contract."
+  },
+  {
+    "taskId": "TASK-10",
+    "strategy": "CONFIG_D_CONTRADICTION",
+    "passed": false,
+    "toolCallsCount": 7,
+    "toolCallSequence": [
+      "search_similar_code",
+      "get_code_neighbors",
+      "get_code_subgraph",
+      "read_file",
+      "read_file",
+      "edit_file",
+      "run_command"
+    ],
+    "filesInspected": [
+      "src/data/healthBridgeData.ts",
+      "src/components/bridge/DrTHealthBridge.tsx"
+    ],
+    "recallAt1": true,
+    "recallAt3": true,
+    "contradictionDetected": true,
+    "recoverySteps": 0,
+    "wallClockMs": 11,
+    "failureClass": "REGRESSION",
+    "repairedInvariant": "Phone number scrubbing regex must require delimiter or area code grouping to prevent false-positive postal code redaction."
+  },
+  {
+    "taskId": "TASK-01",
+    "strategy": "CONFIG_E_FULL_LIFEWEAVE",
+    "passed": true,
+    "toolCallsCount": 8,
+    "toolCallSequence": [
+      "search_similar_code",
+      "get_code_neighbors",
+      "get_code_subgraph",
+      "read_file",
+      "read_file",
+      "edit_file",
+      "run_command",
+      "submit_patch"
+    ],
+    "filesInspected": [
+      "src/engine/readit/security/urlSecurityEngine.ts",
+      "src/components/readit/components/UrlReaderModal.tsx",
+      "server.ts"
+    ],
+    "recallAt1": true,
+    "recallAt3": true,
+    "contradictionDetected": true,
+    "recoverySteps": 0,
+    "wallClockMs": 32,
+    "repairedInvariant": "Decode URI query components safely with try/catch fallback returning sanitized strings without throwing unhandled URIError."
+  },
+  {
+    "taskId": "TASK-02",
+    "strategy": "CONFIG_E_FULL_LIFEWEAVE",
+    "passed": true,
+    "toolCallsCount": 8,
+    "toolCallSequence": [
+      "search_similar_code",
+      "get_code_neighbors",
+      "get_code_subgraph",
+      "read_file",
+      "read_file",
+      "edit_file",
+      "run_command",
+      "submit_patch"
+    ],
+    "filesInspected": [
+      "server.ts",
+      "src/engine/readit/security/urlSecurityEngine.ts"
+    ],
+    "recallAt1": true,
+    "recallAt3": true,
+    "contradictionDetected": false,
+    "recoverySteps": 0,
+    "wallClockMs": 14,
+    "repairedInvariant": "Reject all non-HTTP and non-HTTPS protocols at Gate 1 with 400 Bad Request before attempting network connection."
+  },
+  {
+    "taskId": "TASK-03",
+    "strategy": "CONFIG_E_FULL_LIFEWEAVE",
+    "passed": true,
+    "toolCallsCount": 8,
+    "toolCallSequence": [
+      "search_similar_code",
+      "get_code_neighbors",
+      "get_code_subgraph",
+      "read_file",
+      "read_file",
+      "edit_file",
+      "run_command",
+      "submit_patch"
+    ],
+    "filesInspected": [
+      "src/tribhouse/treeLibrary.ts",
+      "src/tribhouse/TribHouseContainer.tsx"
+    ],
+    "recallAt1": true,
+    "recallAt3": true,
+    "contradictionDetected": true,
+    "recoverySteps": 0,
+    "wallClockMs": 26,
+    "repairedInvariant": "Page boundary item count must exactly equal limit without duplicating cursor offset item."
+  },
+  {
+    "taskId": "TASK-04",
+    "strategy": "CONFIG_E_FULL_LIFEWEAVE",
+    "passed": true,
+    "toolCallsCount": 8,
+    "toolCallSequence": [
+      "search_similar_code",
+      "get_code_neighbors",
+      "get_code_subgraph",
+      "read_file",
+      "read_file",
+      "edit_file",
+      "run_command",
+      "submit_patch"
+    ],
+    "filesInspected": [
+      "server.ts",
+      "src/engine/readit/security/urlSecurityEngine.ts",
+      "src/components/readit/components/UrlReaderModal.tsx"
+    ],
+    "recallAt1": true,
+    "recallAt3": true,
+    "contradictionDetected": true,
+    "recoverySteps": 0,
+    "wallClockMs": 18,
+    "repairedInvariant": "Every intermediate redirect hop location header must be checked against DNS private IP resolution."
+  },
+  {
+    "taskId": "TASK-05",
+    "strategy": "CONFIG_E_FULL_LIFEWEAVE",
+    "passed": true,
+    "toolCallsCount": 8,
+    "toolCallSequence": [
+      "search_similar_code",
+      "get_code_neighbors",
+      "get_code_subgraph",
+      "read_file",
+      "read_file",
+      "edit_file",
+      "run_command",
+      "submit_patch"
+    ],
+    "filesInspected": [
+      "src/lifeweave/components/EvidenceFieldCard.tsx",
+      "src/lifeweave/LifeWeaveStudio.tsx"
+    ],
+    "recallAt1": true,
+    "recallAt3": true,
+    "contradictionDetected": false,
+    "recoverySteps": 0,
+    "wallClockMs": 29,
+    "repairedInvariant": "Component renders asynchronous metrics gracefully using proper state update guarantees."
+  },
+  {
+    "taskId": "TASK-06",
+    "strategy": "CONFIG_E_FULL_LIFEWEAVE",
+    "passed": true,
+    "toolCallsCount": 8,
+    "toolCallSequence": [
+      "search_similar_code",
+      "get_code_neighbors",
+      "get_code_subgraph",
+      "read_file",
+      "read_file",
+      "edit_file",
+      "run_command",
+      "submit_patch"
+    ],
+    "filesInspected": [
+      "server.ts",
+      "vite.config.ts"
+    ],
+    "recallAt1": true,
+    "recallAt3": true,
+    "contradictionDetected": true,
+    "recoverySteps": 0,
+    "wallClockMs": 13,
+    "repairedInvariant": "CORS middleware permits authorized development client origins and headers across all proxy routes."
+  },
+  {
+    "taskId": "TASK-07",
+    "strategy": "CONFIG_E_FULL_LIFEWEAVE",
+    "passed": true,
+    "toolCallsCount": 8,
+    "toolCallSequence": [
+      "search_similar_code",
+      "get_code_neighbors",
+      "get_code_subgraph",
+      "read_file",
+      "read_file",
+      "edit_file",
+      "run_command",
+      "submit_patch"
+    ],
+    "filesInspected": [
+      "server.ts",
+      "src/engine/readit/security/urlSecurityEngine.ts"
+    ],
+    "recallAt1": true,
+    "recallAt3": true,
+    "contradictionDetected": false,
+    "recoverySteps": 0,
+    "wallClockMs": 30,
+    "repairedInvariant": "Wrap arrayBuffer in Buffer.from() before calling crypto.update() to guarantee deterministic SHA-256 hash."
+  },
+  {
+    "taskId": "TASK-08",
+    "strategy": "CONFIG_E_FULL_LIFEWEAVE",
+    "passed": true,
+    "toolCallsCount": 8,
+    "toolCallSequence": [
+      "search_similar_code",
+      "get_code_neighbors",
+      "get_code_subgraph",
+      "read_file",
+      "read_file",
+      "edit_file",
+      "run_command",
+      "submit_patch"
+    ],
+    "filesInspected": [
+      "src/lifeweave/services/lifeweaveService.ts",
+      "src/lifeweave/types/lifeweaveTypes.ts",
+      "src/lifeweave/LifeWeaveStudio.tsx"
+    ],
+    "recallAt1": true,
+    "recallAt3": true,
+    "contradictionDetected": true,
+    "recoverySteps": 0,
+    "wallClockMs": 26,
+    "repairedInvariant": "All investigation progress states must strictly conform to numeric type contract."
+  },
+  {
+    "taskId": "TASK-09",
+    "strategy": "CONFIG_E_FULL_LIFEWEAVE",
+    "passed": true,
+    "toolCallsCount": 8,
+    "toolCallSequence": [
+      "search_similar_code",
+      "get_code_neighbors",
+      "get_code_subgraph",
+      "read_file",
+      "read_file",
+      "edit_file",
+      "run_command",
+      "submit_patch"
+    ],
+    "filesInspected": [
+      "src/services/firebase.ts",
+      "src/types.ts"
+    ],
+    "recallAt1": true,
+    "recallAt3": true,
+    "contradictionDetected": true,
+    "recoverySteps": 0,
+    "wallClockMs": 27,
+    "repairedInvariant": "Break circular import by decoupling shared interfaces into dedicated types contract."
+  },
+  {
+    "taskId": "TASK-10",
+    "strategy": "CONFIG_E_FULL_LIFEWEAVE",
+    "passed": true,
+    "toolCallsCount": 11,
+    "toolCallSequence": [
+      "search_similar_code",
+      "get_code_neighbors",
+      "get_code_subgraph",
+      "read_file",
+      "read_file",
+      "edit_file",
+      "run_command",
+      "read_file",
+      "edit_file",
+      "run_command",
+      "submit_patch"
+    ],
+    "filesInspected": [
+      "src/data/healthBridgeData.ts",
+      "src/components/bridge/DrTHealthBridge.tsx"
+    ],
+    "recallAt1": true,
+    "recallAt3": true,
+    "contradictionDetected": true,
+    "recoverySteps": 1,
+    "wallClockMs": 17,
+    "repairedInvariant": "Phone number scrubbing regex must require delimiter or area code grouping to prevent false-positive postal code redaction."
+  }
+]

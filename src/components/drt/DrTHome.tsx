@@ -295,8 +295,14 @@ export const DrTHome: React.FC<DrTHomeProps> = ({
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
             <button
+              onClick={() => setActiveTab('deck')}
+              className="px-4 py-2 rounded-2xl bg-purple-500/30 hover:bg-purple-500/50 text-purple-200 text-xs font-bold border border-purple-400/40 transition flex items-center justify-center space-x-2 cursor-pointer"
+            >
+              <span>📊 Executive Deck & MVP</span>
+            </button>
+            <button
               onClick={() => setActiveTab('copilot360')}
-              className="px-4 py-2.5 rounded-2xl bg-white/10 hover:bg-white/20 text-slate-200 text-xs font-semibold border border-white/20 transition flex items-center justify-center space-x-2 cursor-pointer"
+              className="px-4 py-2 rounded-2xl bg-white/10 hover:bg-white/20 text-slate-200 text-xs font-semibold border border-white/20 transition flex items-center justify-center space-x-2 cursor-pointer"
             >
               <span>Patient 360 & Copilot</span>
             </button>

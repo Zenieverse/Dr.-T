@@ -21,6 +21,8 @@ export type NavTab =
   | 'x402'
   | 'copilot360'
   | 'bridge'
+  | 'deck'
+  | 'lifeweave'
   | 'gcp'
   | 'settings';
 

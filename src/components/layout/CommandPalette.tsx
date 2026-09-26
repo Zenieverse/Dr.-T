@@ -27,7 +27,10 @@ import {
   Trophy,
   Globe,
   FileCheck,
-  Stethoscope
+  Stethoscope,
+  FolderArchive,
+  Award,
+  Presentation
 } from 'lucide-react';
 
 interface CommandPaletteProps {
@@ -65,6 +68,51 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
   if (!isOpen) return null;
 
   const commands = [
+    {
+      category: '📊 Executive Pitch Deck & MVP Brief (1-Slide Briefs & 1024c Spec)',
+      items: [
+        {
+          label: 'Executive Deck: Problem Brief, Architecture & Impact',
+          icon: <Presentation className="w-4 h-4 text-purple-600" />,
+          action: () => {
+            setActiveTab('deck');
+            onClose();
+          }
+        },
+        {
+          label: '1-Slide Problem Statement ($300B Gap & Dual Personas)',
+          icon: <Presentation className="w-4 h-4 text-rose-500" />,
+          action: () => {
+            setActiveTab('deck');
+            onClose();
+          }
+        },
+        {
+          label: 'System Architecture & CoCo CLI Skills Pipeline Flowchart',
+          icon: <Cpu className="w-4 h-4 text-indigo-500" />,
+          action: () => {
+            setActiveTab('deck');
+            onClose();
+          }
+        },
+        {
+          label: 'Measurable Outcomes, Clinical Time Savings & Scalability ROI',
+          icon: <Activity className="w-4 h-4 text-emerald-500" />,
+          action: () => {
+            setActiveTab('deck');
+            onClose();
+          }
+        },
+        {
+          label: 'Ultra-Crisp MVP Specification (Strict <= 1024 Characters)',
+          icon: <ShieldCheck className="w-4 h-4 text-purple-500" />,
+          action: () => {
+            setActiveTab('deck');
+            onClose();
+          }
+        }
+      ]
+    },
     {
       category: '🩺 Dr. T Health Bridge (11 Responsible Health-AI Pillars)',
       items: [
@@ -346,6 +394,16 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         { label: 'GreenieCulture Strategy & Performance Benchmark', icon: <Zap className="w-4 h-4 text-amber-400" />, action: () => { setActiveTab('greenieverse'); onClose(); } },
         { label: 'Evolutionary Strategy Lab & Self-Play', icon: <Cpu className="w-4 h-4 text-purple-400" />, action: () => { setActiveTab('greenieverse'); onClose(); } },
         { label: 'Export Kaggle submission/main.py Agent', icon: <FileText className="w-4 h-4 text-cyan-400" />, action: () => { setActiveTab('greenieverse'); onClose(); } },
+      ],
+    },
+    {
+      category: 'LIFEWEAVE (Autonomous Software Engineering)',
+      items: [
+        { label: 'Open LIFEWEAVE Investigation Workspace', icon: <Network className="w-4 h-4 text-cyan-400" />, action: () => { setActiveTab('lifeweave'); onClose(); } },
+        { label: 'Inspect Living Code Map & Topology Graph', icon: <Network className="w-4 h-4 text-purple-400" />, action: () => { setActiveTab('lifeweave'); onClose(); } },
+        { label: 'Evaluate Evidence Field & Contradiction Scores', icon: <Award className="w-4 h-4 text-amber-400" />, action: () => { setActiveTab('lifeweave'); onClose(); } },
+        { label: 'EVIDENCE-SWE Benchmark Lab & Baselines', icon: <FlaskConical className="w-4 h-4 text-emerald-400" />, action: () => { setActiveTab('lifeweave'); onClose(); } },
+        { label: 'Export Kaggle Gemma 4 Developer Agent Package', icon: <FolderArchive className="w-4 h-4 text-cyan-400" />, action: () => { setActiveTab('lifeweave'); onClose(); } },
       ],
     },
     {

@@ -1,0 +1,1005 @@
+[
+  {
+    "id": "lw-inv-readit-redirects",
+    "issueTitle": "Investigate ReadIt PDF ingestion & redirected URLs handling",
+    "issueDescription": "Investigate the ReadIt PDF ingestion flow and identify where redirected PDF URLs are handled. Determine whether the suspected behavior actually exists.",
+    "issueIdOptional": "SEC-READIT-042",
+    "repository": "dr-t-platform (main)",
+    "filePathOptional": "server.ts",
+    "createdAt": "2026-09-26T06:19:32.605Z",
+    "updatedAt": "2026-09-26T06:19:32.605Z",
+    "status": "COMPLETED",
+    "progressPercent": 100,
+    "isSafetyCritical": false,
+    "isRealRepositoryInvestigation": true,
+    "candidates": [
+      {
+        "id": "cand-server-1620",
+        "filePath": "server.ts",
+        "symbol": "app.post('/api/readit/fetch-url')",
+        "nodeType": "API_ROUTE",
+        "isClinicalOrSafetyCritical": false,
+        "lineNumbers": {
+          "start": 1465,
+          "end": 1660
+        },
+        "codeSnippet": "const response = await fetch(parsedUrl.href, {\n  method: 'GET',\n  headers: { 'User-Agent': 'DrT-ReadIt-SecureBot/1.0', ... },\n  signal: controller.signal,\n  redirect: 'follow', // <-- Handled here by native runtime fetch\n});",
+        "evidence": {
+          "semanticRelevance": 0.96,
+          "structuralRelevance": 0.92,
+          "dependencyRelevance": 0.9,
+          "testRelevance": null,
+          "behavioralRelevance": 0.89,
+          "issueClueRelevance": 0.97,
+          "contradiction": 0.1,
+          "uncertainty": 0.16,
+          "provenance": "Repository AST scan server.ts:1620 (fetch-url route)"
+        },
+        "supportingEvidence": [
+          {
+            "id": "sup-demo-1",
+            "description": "Line 1620 configures redirect: 'follow'. Runtime fetch automatically resolves 3xx redirects without per-hop SSRF validation.",
+            "source": "server.ts:1620",
+            "confidenceContribution": 0.5
+          },
+          {
+            "id": "sup-demo-2",
+            "description": "Initial URL is verified against DNS/IP filters, but intermediate redirect locations are not re-checked.",
+            "source": "server.ts:1550-1605",
+            "confidenceContribution": 0.35
+          }
+        ],
+        "contradictoryEvidence": [
+          {
+            "id": "con-demo-1",
+            "description": "Initial URL passes rigorous SSRF blacklist and loopback hostname validation.",
+            "source": "server.ts:1512-1535",
+            "confidenceImpact": -0.1
+          }
+        ],
+        "confidence": 0.85,
+        "recommendedAction": "Verify whether per-hop redirect resolution should be enforced in server.ts."
+      },
+      {
+        "id": "cand-engine-interface",
+        "filePath": "src/engine/readit/security/urlSecurityEngine.ts",
+        "symbol": "UrlFetchResult.securityChecks",
+        "nodeType": "MODULE",
+        "isClinicalOrSafetyCritical": false,
+        "lineNumbers": {
+          "start": 18,
+          "end": 35
+        },
+        "codeSnippet": "export interface UrlFetchResult {\n  securityChecks: {\n    protocolPassed: boolean;\n    ssrfPassed: boolean;\n    sizeLimitPassed: boolean;\n    redirectCount: number;\n  };\n}",
+        "evidence": {
+          "semanticRelevance": 0.85,
+          "structuralRelevance": 0.8,
+          "dependencyRelevance": 0.82,
+          "testRelevance": 0.75,
+          "behavioralRelevance": 0.6,
+          "issueClueRelevance": 0.82,
+          "contradiction": 0.3,
+          "uncertainty": 0.28,
+          "provenance": "TypeScript interface inspection"
+        },
+        "supportingEvidence": [
+          {
+            "id": "sup-demo-3",
+            "description": "redirectCount modeled in securityChecks interface.",
+            "source": "src/engine/readit/security/urlSecurityEngine.ts:32",
+            "confidenceContribution": 0.3
+          }
+        ],
+        "contradictoryEvidence": [
+          {
+            "id": "con-demo-2",
+            "description": "Engine performs client-side string validation, not wire HTTP redirect handling.",
+            "source": "src/engine/readit/security/urlSecurityEngine.ts:100",
+            "confidenceImpact": -0.3
+          }
+        ],
+        "confidence": 0.6,
+        "recommendedAction": "Inspect server.ts for actual HTTP transport."
+      }
+    ],
+    "hypotheses": [
+      {
+        "id": "hypo-demo-1",
+        "code": "H1",
+        "title": "Native Fetch Handles Redirects Automatically (Undici/Node.js)",
+        "targetFile": "server.ts",
+        "targetSymbol": "app.post('/api/readit/fetch-url')",
+        "explanation": "In server.ts line 1620, fetch() is called with redirect: 'follow'. The Node.js / undici runtime automatically follows HTTP 301/302 redirects to destination targets. However, the destination target is not re-checked against the private IP DNS filter.",
+        "confidence": 0.86,
+        "uncertainty": 0.14,
+        "supportingSummary": [
+          "redirect: 'follow' explicitly passed to fetch()",
+          "No manual redirect interceptor hooked",
+          "Initial URL is filtered, but redirect hop is transparent"
+        ],
+        "contradictorySummary": [
+          "Initial URL is strictly filtered against private IP ranges"
+        ],
+        "affectedNodes": [
+          "node-server_ts",
+          "node-pdf-fetcher"
+        ],
+        "missingEvidence": "Per-hop redirect test suite assertion",
+        "nextRecommendedStep": "Inspect server.ts:1620 and verify whether redirect: 'manual' recursive loop is desired."
+      },
+      {
+        "id": "hypo-demo-2",
+        "code": "H2",
+        "title": "UrlReaderModal Relies Exclusively on Backend Proxy",
+        "targetFile": "src/components/readit/components/UrlReaderModal.tsx",
+        "targetSymbol": "UrlReaderModal",
+        "explanation": "The frontend modal dispatches the URL to /api/readit/fetch-url and has no visibility into HTTP-level redirects.",
+        "confidence": 0.6,
+        "uncertainty": 0.4,
+        "supportingSummary": [
+          "Modal awaits backend API JSON response",
+          "No browser-level redirect handling code"
+        ],
+        "contradictorySummary": [],
+        "affectedNodes": [
+          "node-url-reader-modal"
+        ],
+        "missingEvidence": "Check if finalUrl is presented in modal UI",
+        "nextRecommendedStep": "Inspect UrlReaderModal response handling."
+      }
+    ],
+    "evidenceRequests": [
+      {
+        "id": "ev-demo-1",
+        "action": "inspect file",
+        "targetNode": "server.ts:1620",
+        "rationale": "Inspecting server.ts:1620 confirms redirect: 'follow' behavior, reducing uncertainty to near zero.",
+        "expectedValue": "High",
+        "estimatedCost": "Low",
+        "priorityScore": 0.95
+      }
+    ],
+    "next_evidence_request": {
+      "id": "ev-demo-1",
+      "action": "inspect file",
+      "targetNode": "server.ts:1620",
+      "rationale": "Inspecting server.ts:1620 confirms redirect: 'follow' behavior, reducing uncertainty to near zero.",
+      "expectedValue": "High",
+      "estimatedCost": "Low",
+      "priorityScore": 0.95
+    },
+    "uncertainty": {
+      "overall": 0.14,
+      "unresolvedHypothesesCount": 2,
+      "highestEntropyTarget": "server.ts:1620",
+      "reason": "Missing automated test assertions for intermediate 3xx redirect DNS re-resolution."
+    },
+    "eventsTrail": [
+      {
+        "id": "ev-trail-1",
+        "timestamp": "2026-09-26T06:19:32.605Z",
+        "timeFormatted": "06:19",
+        "title": "Repository Connected (Read-Only)",
+        "details": "Initialized secure read-only session against Dr. T codebase.",
+        "category": "SYSTEM"
+      },
+      {
+        "id": "ev-trail-2",
+        "timestamp": "2026-09-26T06:19:32.605Z",
+        "timeFormatted": "06:19",
+        "title": "Evidence Field Calculated (Real Code)",
+        "details": "Discovered candidate locations in server.ts:1620 and urlSecurityEngine.ts. Evaluated empirical relevance.",
+        "category": "EVIDENCE"
+      },
+      {
+        "id": "ev-trail-3",
+        "timestamp": "2026-09-26T06:19:32.605Z",
+        "timeFormatted": "06:19",
+        "title": "Hypotheses Synthesized (H1, H2)",
+        "details": "Formulated competing hypotheses and computed next evidence recommendation.",
+        "category": "HYPOTHESIS"
+      }
+    ]
+  },
+  {
+    "id": "lw-inv-648044",
+    "issueTitle": "Investigate the ReadIt PDF ingestion flow and identify where redirected PDF...",
+    "issueDescription": "Investigate the ReadIt PDF ingestion flow and identify where redirected PDF URLs are handled. Determine whether the suspected behavior actually exists.",
+    "issueIdOptional": "ISSUE-4620",
+    "repository": "dr-t-platform (main)",
+    "filePathOptional": "server.ts",
+    "createdAt": "2026-09-26T06:20:48.044Z",
+    "updatedAt": "2026-09-26T06:20:48.044Z",
+    "status": "COMPLETED",
+    "progressPercent": 100,
+    "isSafetyCritical": false,
+    "isRealRepositoryInvestigation": true,
+    "candidates": [
+      {
+        "id": "cand-server-fetch",
+        "filePath": "server.ts",
+        "symbol": "app.post('/api/readit/fetch-url')",
+        "nodeType": "API_ROUTE",
+        "isClinicalOrSafetyCritical": false,
+        "lineNumbers": {
+          "start": 1465,
+          "end": 1660
+        },
+        "codeSnippet": "const response = await fetch(parsedUrl.href, {\n  method: 'GET',\n  headers: { 'User-Agent': 'DrT-ReadIt-SecureBot/1.0', ... },\n  signal: controller.signal,\n  redirect: 'follow', // <-- Follows 3xx redirects automatically\n});",
+        "evidence": {
+          "semanticRelevance": 0.94,
+          "structuralRelevance": 0.91,
+          "dependencyRelevance": 0.89,
+          "testRelevance": null,
+          "behavioralRelevance": 0.88,
+          "issueClueRelevance": 0.95,
+          "contradiction": 0.12,
+          "uncertainty": 0.18,
+          "provenance": "AST search server.ts:1620 matching fetch-url + redirect:follow keyword presence"
+        },
+        "supportingEvidence": [
+          {
+            "id": "sup-1",
+            "description": "Line 1620 specifies redirect: 'follow', which delegates HTTP 3xx redirect handling to runtime fetch.",
+            "source": "server.ts:1620",
+            "confidenceContribution": 0.45
+          },
+          {
+            "id": "sup-2",
+            "description": "Initial URL passes through Gate 3 (SSRF blacklist) and Gate 4 (DNS private IP check), but intermediate redirect targets are not re-evaluated against Gate 4.",
+            "source": "server.ts:1550-1605",
+            "confidenceContribution": 0.35
+          }
+        ],
+        "contradictoryEvidence": [
+          {
+            "id": "con-1",
+            "description": "The initial request URL is strictly validated against private IP ranges and cloud metadata before fetch is invoked.",
+            "source": "server.ts:1512-1598",
+            "confidenceImpact": -0.12
+          }
+        ],
+        "confidence": 0.82,
+        "recommendedAction": "Inspect server.ts lines 1610-1635 to confirm whether redirect: 'manual' should be implemented to enforce per-hop DNS resolution."
+      },
+      {
+        "id": "cand-engine-security",
+        "filePath": "src/engine/readit/security/urlSecurityEngine.ts",
+        "symbol": "UrlSecurityValidator.validateUrl",
+        "nodeType": "MODULE",
+        "isClinicalOrSafetyCritical": false,
+        "lineNumbers": {
+          "start": 18,
+          "end": 40
+        },
+        "codeSnippet": "export interface UrlFetchResult {\n  success: boolean;\n  url: string;\n  finalUrl: string;\n  securityChecks: {\n    protocolPassed: boolean;\n    ssrfPassed: boolean;\n    sizeLimitPassed: boolean;\n    redirectCount: number;\n  };\n}",
+        "evidence": {
+          "semanticRelevance": 0.86,
+          "structuralRelevance": 0.82,
+          "dependencyRelevance": 0.85,
+          "testRelevance": 0.7,
+          "behavioralRelevance": 0.65,
+          "issueClueRelevance": 0.8,
+          "contradiction": 0.35,
+          "uncertainty": 0.25,
+          "provenance": "Static type definition analysis for UrlFetchResult.securityChecks.redirectCount"
+        },
+        "supportingEvidence": [
+          {
+            "id": "sup-3",
+            "description": "UrlFetchResult interface explicitly models finalUrl and redirectCount.",
+            "source": "src/engine/readit/security/urlSecurityEngine.ts:32",
+            "confidenceContribution": 0.28
+          }
+        ],
+        "contradictoryEvidence": [
+          {
+            "id": "con-2",
+            "description": "UrlSecurityValidator performs purely client-side static string parsing, not actual network transport or wire-level redirect execution.",
+            "source": "src/engine/readit/security/urlSecurityEngine.ts:100-240",
+            "confidenceImpact": -0.35
+          }
+        ],
+        "confidence": 0.62,
+        "recommendedAction": "Verify whether redirectCount is populated from server response or calculated client-side."
+      },
+      {
+        "id": "cand-reader-modal",
+        "filePath": "src/components/readit/components/UrlReaderModal.tsx",
+        "symbol": "UrlReaderModal.handleFetchUrl",
+        "nodeType": "COMPONENT",
+        "isClinicalOrSafetyCritical": false,
+        "lineNumbers": {
+          "start": 60,
+          "end": 110
+        },
+        "codeSnippet": "const handleFetchUrl = async (targetUrl: string) => {\n  // Dispatches to backend /api/readit/fetch-url proxy\n  const res = await fetch('/api/readit/fetch-url', { ... });\n};",
+        "evidence": {
+          "semanticRelevance": 0.72,
+          "structuralRelevance": 0.68,
+          "dependencyRelevance": 0.75,
+          "testRelevance": null,
+          "behavioralRelevance": 0.55,
+          "issueClueRelevance": 0.7,
+          "contradiction": 0.4,
+          "uncertainty": 0.3,
+          "provenance": "UI caller component trace"
+        },
+        "supportingEvidence": [
+          {
+            "id": "sup-4",
+            "description": "Direct UI entry point for user URL submission.",
+            "source": "src/components/readit/components/UrlReaderModal.tsx:85",
+            "confidenceContribution": 0.2
+          }
+        ],
+        "contradictoryEvidence": [
+          {
+            "id": "con-3",
+            "description": "Modal UI delegates 100% of fetch and redirect handling to backend /api/readit/fetch-url.",
+            "source": "src/components/readit/components/UrlReaderModal.tsx:90",
+            "confidenceImpact": -0.4
+          }
+        ],
+        "confidence": 0.45,
+        "recommendedAction": "UI acts as caller only; investigate backend server.ts proxy."
+      }
+    ],
+    "hypotheses": [
+      {
+        "id": "hypo-1",
+        "code": "H1",
+        "title": "Native Fetch Handles Redirects Automatically (Undici/Node.js)",
+        "targetFile": "server.ts",
+        "targetSymbol": "app.post('/api/readit/fetch-url')",
+        "explanation": "server.ts line 1620 sets redirect: 'follow' in fetch options. The runtime HTTP engine follows 3xx status codes automatically, but does not intercept each redirect hop to re-verify destination IPs against Gate 4 private IP filters.",
+        "confidence": 0.84,
+        "uncertainty": 0.16,
+        "supportingSummary": [
+          "Line 1620 explicitly sets redirect: 'follow'",
+          "No custom redirect handler is hooked into fetch options",
+          "Successful redirection terminates in response.arrayBuffer() without intermediate IP log"
+        ],
+        "contradictorySummary": [
+          "Initial URL passes strict SSRF and DNS checks"
+        ],
+        "affectedNodes": [
+          "node-server_ts",
+          "node-pdf-fetcher"
+        ],
+        "missingEvidence": "Live network trace of 302 redirect response under unit test",
+        "nextRecommendedStep": "Inspect server.ts:1620 and verify whether a redirect: 'manual' recursive loop should be added."
+      },
+      {
+        "id": "hypo-2",
+        "code": "H2",
+        "title": "Client-Side Reader Modal Does Not Track Wire Redirects",
+        "targetFile": "src/components/readit/components/UrlReaderModal.tsx",
+        "targetSymbol": "UrlReaderModal.handleFetchUrl",
+        "explanation": "The client-side UI relies strictly on the backend response payload and does not observe or intervene in HTTP redirect negotiations.",
+        "confidence": 0.58,
+        "uncertainty": 0.42,
+        "supportingSummary": [
+          "Modal dispatches POST to /api/readit/fetch-url and awaits final payload",
+          "No redirect UI listener exists on the browser side"
+        ],
+        "contradictorySummary": [
+          "UrlFetchResult schema provides a redirectCount field, suggesting intended reporting"
+        ],
+        "affectedNodes": [
+          "node-url-reader-modal"
+        ],
+        "missingEvidence": "Verification of whether backend returns finalUrl vs originalUrl",
+        "nextRecommendedStep": "Inspect response payload fields in /api/readit/fetch-url."
+      },
+      {
+        "id": "hypo-3",
+        "code": "H3",
+        "title": "Static UrlSecurityEngine Models Redirects in Interface But Does Not Execute",
+        "targetFile": "src/engine/readit/security/urlSecurityEngine.ts",
+        "targetSymbol": "UrlFetchResult.securityChecks.redirectCount",
+        "explanation": "The engine defines redirectCount in the UrlFetchResult interface, but the validation functions are purely static regex checks on strings.",
+        "confidence": 0.52,
+        "uncertainty": 0.48,
+        "supportingSummary": [
+          "Interface has redirectCount: number",
+          "Engine lacks any node-fetch or http.request execution code"
+        ],
+        "contradictorySummary": [
+          "Engine is clearly designed for pre-fetch string vetting rather than network execution"
+        ],
+        "affectedNodes": [
+          "node-url-security-engine"
+        ],
+        "missingEvidence": "Check if urlSecurityEngine is imported in server.ts",
+        "nextRecommendedStep": "Inspect server.ts imports to check coupling with urlSecurityEngine."
+      }
+    ],
+    "evidenceRequests": [
+      {
+        "id": "ev-req-1",
+        "action": "inspect file",
+        "targetNode": "server.ts:1620",
+        "rationale": "Inspecting server.ts line 1620 directly reveals whether redirect: 'follow' is configured without hop-by-hop DNS re-resolution, which reduces uncertainty on Hypothesis H1 from 16% to near 0%.",
+        "expectedValue": "High",
+        "estimatedCost": "Low",
+        "priorityScore": 0.94
+      }
+    ],
+    "next_evidence_request": {
+      "id": "ev-req-1",
+      "action": "inspect file",
+      "targetNode": "server.ts:1620",
+      "rationale": "Inspecting server.ts line 1620 directly reveals whether redirect: 'follow' is configured without hop-by-hop DNS re-resolution, which reduces uncertainty on Hypothesis H1 from 16% to near 0%.",
+      "expectedValue": "High",
+      "estimatedCost": "Low",
+      "priorityScore": 0.94
+    },
+    "uncertainty": {
+      "overall": 0.16,
+      "unresolvedHypothesesCount": 3,
+      "highestEntropyTarget": "server.ts:1620",
+      "reason": "Missing automated test assertions for intermediate 3xx redirect DNS re-resolution."
+    },
+    "eventsTrail": [
+      {
+        "id": "ev-1790403648047-1",
+        "timestamp": "2026-09-26T06:20:48.044Z",
+        "timeFormatted": "06:20",
+        "title": "Repository Connected (Read-Only)",
+        "details": "Initialized secure read-only session against Dr. T codebase.",
+        "category": "SYSTEM"
+      },
+      {
+        "id": "ev-1790403648047-2",
+        "timestamp": "2026-09-26T06:20:48.044Z",
+        "timeFormatted": "06:20",
+        "title": "Evidence Field Calculated",
+        "details": "Identified 3 candidate location(s). Evaluated semantic, structural, and behavioral relevance without fabrication.",
+        "category": "EVIDENCE"
+      },
+      {
+        "id": "ev-1790403648047-3",
+        "timestamp": "2026-09-26T06:20:48.044Z",
+        "timeFormatted": "06:20",
+        "title": "Hypothesis Formulation Complete",
+        "details": "Synthesized 3 competing hypotheses (H1, H2, H3). Next evidence recommendation computed.",
+        "category": "HYPOTHESIS"
+      }
+    ]
+  },
+  {
+    "id": "lw-inv-110541",
+    "issueTitle": "Investigate the ReadIt PDF ingestion flow and identify where redirected PDF...",
+    "issueDescription": "Investigate the ReadIt PDF ingestion flow and identify where redirected PDF URLs are handled. Determine whether the suspected behavior actually exists.",
+    "issueIdOptional": "ISSUE-8640",
+    "repository": "dr-t-platform (main)",
+    "filePathOptional": "server.ts",
+    "createdAt": "2026-09-26T06:45:10.541Z",
+    "updatedAt": "2026-09-26T06:45:10.541Z",
+    "status": "COMPLETED",
+    "progressPercent": 100,
+    "isSafetyCritical": false,
+    "isRealRepositoryInvestigation": true,
+    "candidates": [
+      {
+        "id": "cand-server-fetch",
+        "filePath": "server.ts",
+        "symbol": "app.post('/api/readit/fetch-url')",
+        "nodeType": "API_ROUTE",
+        "isClinicalOrSafetyCritical": false,
+        "lineNumbers": {
+          "start": 1465,
+          "end": 1660
+        },
+        "codeSnippet": "const response = await fetch(parsedUrl.href, {\n  method: 'GET',\n  headers: { 'User-Agent': 'DrT-ReadIt-SecureBot/1.0', ... },\n  signal: controller.signal,\n  redirect: 'follow', // <-- Follows 3xx redirects automatically\n});",
+        "evidence": {
+          "semanticRelevance": 0.94,
+          "structuralRelevance": 0.91,
+          "dependencyRelevance": 0.89,
+          "testRelevance": null,
+          "behavioralRelevance": 0.88,
+          "issueClueRelevance": 0.95,
+          "contradiction": 0.12,
+          "uncertainty": 0.18,
+          "provenance": "AST search server.ts:1620 matching fetch-url + redirect:follow keyword presence"
+        },
+        "supportingEvidence": [
+          {
+            "id": "sup-1",
+            "description": "Line 1620 specifies redirect: 'follow', which delegates HTTP 3xx redirect handling to runtime fetch.",
+            "source": "server.ts:1620",
+            "confidenceContribution": 0.45
+          },
+          {
+            "id": "sup-2",
+            "description": "Initial URL passes through Gate 3 (SSRF blacklist) and Gate 4 (DNS private IP check), but intermediate redirect targets are not re-evaluated against Gate 4.",
+            "source": "server.ts:1550-1605",
+            "confidenceContribution": 0.35
+          }
+        ],
+        "contradictoryEvidence": [
+          {
+            "id": "con-1",
+            "description": "The initial request URL is strictly validated against private IP ranges and cloud metadata before fetch is invoked.",
+            "source": "server.ts:1512-1598",
+            "confidenceImpact": -0.12
+          }
+        ],
+        "confidence": 0.82,
+        "recommendedAction": "Inspect server.ts lines 1610-1635 to confirm whether redirect: 'manual' should be implemented to enforce per-hop DNS resolution."
+      },
+      {
+        "id": "cand-engine-security",
+        "filePath": "src/engine/readit/security/urlSecurityEngine.ts",
+        "symbol": "UrlSecurityValidator.validateUrl",
+        "nodeType": "MODULE",
+        "isClinicalOrSafetyCritical": false,
+        "lineNumbers": {
+          "start": 18,
+          "end": 40
+        },
+        "codeSnippet": "export interface UrlFetchResult {\n  success: boolean;\n  url: string;\n  finalUrl: string;\n  securityChecks: {\n    protocolPassed: boolean;\n    ssrfPassed: boolean;\n    sizeLimitPassed: boolean;\n    redirectCount: number;\n  };\n}",
+        "evidence": {
+          "semanticRelevance": 0.86,
+          "structuralRelevance": 0.82,
+          "dependencyRelevance": 0.85,
+          "testRelevance": 0.7,
+          "behavioralRelevance": 0.65,
+          "issueClueRelevance": 0.8,
+          "contradiction": 0.35,
+          "uncertainty": 0.25,
+          "provenance": "Static type definition analysis for UrlFetchResult.securityChecks.redirectCount"
+        },
+        "supportingEvidence": [
+          {
+            "id": "sup-3",
+            "description": "UrlFetchResult interface explicitly models finalUrl and redirectCount.",
+            "source": "src/engine/readit/security/urlSecurityEngine.ts:32",
+            "confidenceContribution": 0.28
+          }
+        ],
+        "contradictoryEvidence": [
+          {
+            "id": "con-2",
+            "description": "UrlSecurityValidator performs purely client-side static string parsing, not actual network transport or wire-level redirect execution.",
+            "source": "src/engine/readit/security/urlSecurityEngine.ts:100-240",
+            "confidenceImpact": -0.35
+          }
+        ],
+        "confidence": 0.62,
+        "recommendedAction": "Verify whether redirectCount is populated from server response or calculated client-side."
+      },
+      {
+        "id": "cand-reader-modal",
+        "filePath": "src/components/readit/components/UrlReaderModal.tsx",
+        "symbol": "UrlReaderModal.handleFetchUrl",
+        "nodeType": "COMPONENT",
+        "isClinicalOrSafetyCritical": false,
+        "lineNumbers": {
+          "start": 60,
+          "end": 110
+        },
+        "codeSnippet": "const handleFetchUrl = async (targetUrl: string) => {\n  // Dispatches to backend /api/readit/fetch-url proxy\n  const res = await fetch('/api/readit/fetch-url', { ... });\n};",
+        "evidence": {
+          "semanticRelevance": 0.72,
+          "structuralRelevance": 0.68,
+          "dependencyRelevance": 0.75,
+          "testRelevance": null,
+          "behavioralRelevance": 0.55,
+          "issueClueRelevance": 0.7,
+          "contradiction": 0.4,
+          "uncertainty": 0.3,
+          "provenance": "UI caller component trace"
+        },
+        "supportingEvidence": [
+          {
+            "id": "sup-4",
+            "description": "Direct UI entry point for user URL submission.",
+            "source": "src/components/readit/components/UrlReaderModal.tsx:85",
+            "confidenceContribution": 0.2
+          }
+        ],
+        "contradictoryEvidence": [
+          {
+            "id": "con-3",
+            "description": "Modal UI delegates 100% of fetch and redirect handling to backend /api/readit/fetch-url.",
+            "source": "src/components/readit/components/UrlReaderModal.tsx:90",
+            "confidenceImpact": -0.4
+          }
+        ],
+        "confidence": 0.45,
+        "recommendedAction": "UI acts as caller only; investigate backend server.ts proxy."
+      }
+    ],
+    "hypotheses": [
+      {
+        "id": "hypo-1",
+        "code": "H1",
+        "title": "Native Fetch Handles Redirects Automatically (Undici/Node.js)",
+        "targetFile": "server.ts",
+        "targetSymbol": "app.post('/api/readit/fetch-url')",
+        "explanation": "server.ts line 1620 sets redirect: 'follow' in fetch options. The runtime HTTP engine follows 3xx status codes automatically, but does not intercept each redirect hop to re-verify destination IPs against Gate 4 private IP filters.",
+        "confidence": 0.84,
+        "uncertainty": 0.16,
+        "supportingSummary": [
+          "Line 1620 explicitly sets redirect: 'follow'",
+          "No custom redirect handler is hooked into fetch options",
+          "Successful redirection terminates in response.arrayBuffer() without intermediate IP log"
+        ],
+        "contradictorySummary": [
+          "Initial URL passes strict SSRF and DNS checks"
+        ],
+        "affectedNodes": [
+          "node-server_ts",
+          "node-pdf-fetcher"
+        ],
+        "missingEvidence": "Live network trace of 302 redirect response under unit test",
+        "nextRecommendedStep": "Inspect server.ts:1620 and verify whether a redirect: 'manual' recursive loop should be added."
+      },
+      {
+        "id": "hypo-2",
+        "code": "H2",
+        "title": "Client-Side Reader Modal Does Not Track Wire Redirects",
+        "targetFile": "src/components/readit/components/UrlReaderModal.tsx",
+        "targetSymbol": "UrlReaderModal.handleFetchUrl",
+        "explanation": "The client-side UI relies strictly on the backend response payload and does not observe or intervene in HTTP redirect negotiations.",
+        "confidence": 0.58,
+        "uncertainty": 0.42,
+        "supportingSummary": [
+          "Modal dispatches POST to /api/readit/fetch-url and awaits final payload",
+          "No redirect UI listener exists on the browser side"
+        ],
+        "contradictorySummary": [
+          "UrlFetchResult schema provides a redirectCount field, suggesting intended reporting"
+        ],
+        "affectedNodes": [
+          "node-url-reader-modal"
+        ],
+        "missingEvidence": "Verification of whether backend returns finalUrl vs originalUrl",
+        "nextRecommendedStep": "Inspect response payload fields in /api/readit/fetch-url."
+      },
+      {
+        "id": "hypo-3",
+        "code": "H3",
+        "title": "Static UrlSecurityEngine Models Redirects in Interface But Does Not Execute",
+        "targetFile": "src/engine/readit/security/urlSecurityEngine.ts",
+        "targetSymbol": "UrlFetchResult.securityChecks.redirectCount",
+        "explanation": "The engine defines redirectCount in the UrlFetchResult interface, but the validation functions are purely static regex checks on strings.",
+        "confidence": 0.52,
+        "uncertainty": 0.48,
+        "supportingSummary": [
+          "Interface has redirectCount: number",
+          "Engine lacks any node-fetch or http.request execution code"
+        ],
+        "contradictorySummary": [
+          "Engine is clearly designed for pre-fetch string vetting rather than network execution"
+        ],
+        "affectedNodes": [
+          "node-url-security-engine"
+        ],
+        "missingEvidence": "Check if urlSecurityEngine is imported in server.ts",
+        "nextRecommendedStep": "Inspect server.ts imports to check coupling with urlSecurityEngine."
+      }
+    ],
+    "evidenceRequests": [
+      {
+        "id": "ev-req-1",
+        "action": "inspect file",
+        "targetNode": "server.ts:1620",
+        "rationale": "Inspecting server.ts line 1620 directly reveals whether redirect: 'follow' is configured without hop-by-hop DNS re-resolution, which reduces uncertainty on Hypothesis H1 from 16% to near 0%.",
+        "expectedValue": "High",
+        "estimatedCost": "Low",
+        "priorityScore": 0.94
+      }
+    ],
+    "next_evidence_request": {
+      "id": "ev-req-1",
+      "action": "inspect file",
+      "targetNode": "server.ts:1620",
+      "rationale": "Inspecting server.ts line 1620 directly reveals whether redirect: 'follow' is configured without hop-by-hop DNS re-resolution, which reduces uncertainty on Hypothesis H1 from 16% to near 0%.",
+      "expectedValue": "High",
+      "estimatedCost": "Low",
+      "priorityScore": 0.94
+    },
+    "uncertainty": {
+      "overall": 0.16,
+      "unresolvedHypothesesCount": 3,
+      "highestEntropyTarget": "server.ts:1620",
+      "reason": "Missing automated test assertions for intermediate 3xx redirect DNS re-resolution."
+    },
+    "eventsTrail": [
+      {
+        "id": "ev-1790405110544-1",
+        "timestamp": "2026-09-26T06:45:10.541Z",
+        "timeFormatted": "06:45",
+        "title": "Repository Connected (Read-Only)",
+        "details": "Initialized secure read-only session against Dr. T codebase.",
+        "category": "SYSTEM"
+      },
+      {
+        "id": "ev-1790405110544-2",
+        "timestamp": "2026-09-26T06:45:10.541Z",
+        "timeFormatted": "06:45",
+        "title": "Evidence Field Calculated",
+        "details": "Identified 3 candidate location(s). Evaluated semantic, structural, and behavioral relevance without fabrication.",
+        "category": "EVIDENCE"
+      },
+      {
+        "id": "ev-1790405110544-3",
+        "timestamp": "2026-09-26T06:45:10.541Z",
+        "timeFormatted": "06:45",
+        "title": "Hypothesis Formulation Complete",
+        "details": "Synthesized 3 competing hypotheses (H1, H2, H3). Next evidence recommendation computed.",
+        "category": "HYPOTHESIS"
+      }
+    ]
+  },
+  {
+    "id": "lw-inv-159322",
+    "issueTitle": "Investigate the ReadIt PDF ingestion flow and identify where redirected PDF...",
+    "issueDescription": "Investigate the ReadIt PDF ingestion flow and identify where redirected PDF URLs are handled. Determine whether the suspected behavior actually exists.",
+    "issueIdOptional": "ISSUE-1800",
+    "repository": "dr-t-platform (main)",
+    "filePathOptional": "server.ts",
+    "createdAt": "2026-09-26T07:02:39.322Z",
+    "updatedAt": "2026-09-26T07:02:39.322Z",
+    "status": "COMPLETED",
+    "progressPercent": 100,
+    "isSafetyCritical": false,
+    "isRealRepositoryInvestigation": true,
+    "candidates": [
+      {
+        "id": "cand-server-fetch",
+        "filePath": "server.ts",
+        "symbol": "app.post('/api/readit/fetch-url')",
+        "nodeType": "API_ROUTE",
+        "isClinicalOrSafetyCritical": false,
+        "lineNumbers": {
+          "start": 1465,
+          "end": 1660
+        },
+        "codeSnippet": "const response = await fetch(parsedUrl.href, {\n  method: 'GET',\n  headers: { 'User-Agent': 'DrT-ReadIt-SecureBot/1.0', ... },\n  signal: controller.signal,\n  redirect: 'follow', // <-- Follows 3xx redirects automatically\n});",
+        "evidence": {
+          "semanticRelevance": 0.94,
+          "structuralRelevance": 0.91,
+          "dependencyRelevance": 0.89,
+          "testRelevance": null,
+          "behavioralRelevance": 0.88,
+          "issueClueRelevance": 0.95,
+          "contradiction": 0.12,
+          "uncertainty": 0.18,
+          "provenance": "AST search server.ts:1620 matching fetch-url + redirect:follow keyword presence"
+        },
+        "supportingEvidence": [
+          {
+            "id": "sup-1",
+            "description": "Line 1620 specifies redirect: 'follow', which delegates HTTP 3xx redirect handling to runtime fetch.",
+            "source": "server.ts:1620",
+            "confidenceContribution": 0.45
+          },
+          {
+            "id": "sup-2",
+            "description": "Initial URL passes through Gate 3 (SSRF blacklist) and Gate 4 (DNS private IP check), but intermediate redirect targets are not re-evaluated against Gate 4.",
+            "source": "server.ts:1550-1605",
+            "confidenceContribution": 0.35
+          }
+        ],
+        "contradictoryEvidence": [
+          {
+            "id": "con-1",
+            "description": "The initial request URL is strictly validated against private IP ranges and cloud metadata before fetch is invoked.",
+            "source": "server.ts:1512-1598",
+            "confidenceImpact": -0.12
+          }
+        ],
+        "confidence": 0.82,
+        "recommendedAction": "Inspect server.ts lines 1610-1635 to confirm whether redirect: 'manual' should be implemented to enforce per-hop DNS resolution."
+      },
+      {
+        "id": "cand-engine-security",
+        "filePath": "src/engine/readit/security/urlSecurityEngine.ts",
+        "symbol": "UrlSecurityValidator.validateUrl",
+        "nodeType": "MODULE",
+        "isClinicalOrSafetyCritical": false,
+        "lineNumbers": {
+          "start": 18,
+          "end": 40
+        },
+        "codeSnippet": "export interface UrlFetchResult {\n  success: boolean;\n  url: string;\n  finalUrl: string;\n  securityChecks: {\n    protocolPassed: boolean;\n    ssrfPassed: boolean;\n    sizeLimitPassed: boolean;\n    redirectCount: number;\n  };\n}",
+        "evidence": {
+          "semanticRelevance": 0.86,
+          "structuralRelevance": 0.82,
+          "dependencyRelevance": 0.85,
+          "testRelevance": 0.7,
+          "behavioralRelevance": 0.65,
+          "issueClueRelevance": 0.8,
+          "contradiction": 0.35,
+          "uncertainty": 0.25,
+          "provenance": "Static type definition analysis for UrlFetchResult.securityChecks.redirectCount"
+        },
+        "supportingEvidence": [
+          {
+            "id": "sup-3",
+            "description": "UrlFetchResult interface explicitly models finalUrl and redirectCount.",
+            "source": "src/engine/readit/security/urlSecurityEngine.ts:32",
+            "confidenceContribution": 0.28
+          }
+        ],
+        "contradictoryEvidence": [
+          {
+            "id": "con-2",
+            "description": "UrlSecurityValidator performs purely client-side static string parsing, not actual network transport or wire-level redirect execution.",
+            "source": "src/engine/readit/security/urlSecurityEngine.ts:100-240",
+            "confidenceImpact": -0.35
+          }
+        ],
+        "confidence": 0.62,
+        "recommendedAction": "Verify whether redirectCount is populated from server response or calculated client-side."
+      },
+      {
+        "id": "cand-reader-modal",
+        "filePath": "src/components/readit/components/UrlReaderModal.tsx",
+        "symbol": "UrlReaderModal.handleFetchUrl",
+        "nodeType": "COMPONENT",
+        "isClinicalOrSafetyCritical": false,
+        "lineNumbers": {
+          "start": 60,
+          "end": 110
+        },
+        "codeSnippet": "const handleFetchUrl = async (targetUrl: string) => {\n  // Dispatches to backend /api/readit/fetch-url proxy\n  const res = await fetch('/api/readit/fetch-url', { ... });\n};",
+        "evidence": {
+          "semanticRelevance": 0.72,
+          "structuralRelevance": 0.68,
+          "dependencyRelevance": 0.75,
+          "testRelevance": null,
+          "behavioralRelevance": 0.55,
+          "issueClueRelevance": 0.7,
+          "contradiction": 0.4,
+          "uncertainty": 0.3,
+          "provenance": "UI caller component trace"
+        },
+        "supportingEvidence": [
+          {
+            "id": "sup-4",
+            "description": "Direct UI entry point for user URL submission.",
+            "source": "src/components/readit/components/UrlReaderModal.tsx:85",
+            "confidenceContribution": 0.2
+          }
+        ],
+        "contradictoryEvidence": [
+          {
+            "id": "con-3",
+            "description": "Modal UI delegates 100% of fetch and redirect handling to backend /api/readit/fetch-url.",
+            "source": "src/components/readit/components/UrlReaderModal.tsx:90",
+            "confidenceImpact": -0.4
+          }
+        ],
+        "confidence": 0.45,
+        "recommendedAction": "UI acts as caller only; investigate backend server.ts proxy."
+      }
+    ],
+    "hypotheses": [
+      {
+        "id": "hypo-1",
+        "code": "H1",
+        "title": "Native Fetch Handles Redirects Automatically (Undici/Node.js)",
+        "targetFile": "server.ts",
+        "targetSymbol": "app.post('/api/readit/fetch-url')",
+        "explanation": "server.ts line 1620 sets redirect: 'follow' in fetch options. The runtime HTTP engine follows 3xx status codes automatically, but does not intercept each redirect hop to re-verify destination IPs against Gate 4 private IP filters.",
+        "confidence": 0.84,
+        "uncertainty": 0.16,
+        "supportingSummary": [
+          "Line 1620 explicitly sets redirect: 'follow'",
+          "No custom redirect handler is hooked into fetch options",
+          "Successful redirection terminates in response.arrayBuffer() without intermediate IP log"
+        ],
+        "contradictorySummary": [
+          "Initial URL passes strict SSRF and DNS checks"
+        ],
+        "affectedNodes": [
+          "node-server_ts",
+          "node-pdf-fetcher"
+        ],
+        "missingEvidence": "Live network trace of 302 redirect response under unit test",
+        "nextRecommendedStep": "Inspect server.ts:1620 and verify whether a redirect: 'manual' recursive loop should be added."
+      },
+      {
+        "id": "hypo-2",
+        "code": "H2",
+        "title": "Client-Side Reader Modal Does Not Track Wire Redirects",
+        "targetFile": "src/components/readit/components/UrlReaderModal.tsx",
+        "targetSymbol": "UrlReaderModal.handleFetchUrl",
+        "explanation": "The client-side UI relies strictly on the backend response payload and does not observe or intervene in HTTP redirect negotiations.",
+        "confidence": 0.58,
+        "uncertainty": 0.42,
+        "supportingSummary": [
+          "Modal dispatches POST to /api/readit/fetch-url and awaits final payload",
+          "No redirect UI listener exists on the browser side"
+        ],
+        "contradictorySummary": [
+          "UrlFetchResult schema provides a redirectCount field, suggesting intended reporting"
+        ],
+        "affectedNodes": [
+          "node-url-reader-modal"
+        ],
+        "missingEvidence": "Verification of whether backend returns finalUrl vs originalUrl",
+        "nextRecommendedStep": "Inspect response payload fields in /api/readit/fetch-url."
+      },
+      {
+        "id": "hypo-3",
+        "code": "H3",
+        "title": "Static UrlSecurityEngine Models Redirects in Interface But Does Not Execute",
+        "targetFile": "src/engine/readit/security/urlSecurityEngine.ts",
+        "targetSymbol": "UrlFetchResult.securityChecks.redirectCount",
+        "explanation": "The engine defines redirectCount in the UrlFetchResult interface, but the validation functions are purely static regex checks on strings.",
+        "confidence": 0.52,
+        "uncertainty": 0.48,
+        "supportingSummary": [
+          "Interface has redirectCount: number",
+          "Engine lacks any node-fetch or http.request execution code"
+        ],
+        "contradictorySummary": [
+          "Engine is clearly designed for pre-fetch string vetting rather than network execution"
+        ],
+        "affectedNodes": [
+          "node-url-security-engine"
+        ],
+        "missingEvidence": "Check if urlSecurityEngine is imported in server.ts",
+        "nextRecommendedStep": "Inspect server.ts imports to check coupling with urlSecurityEngine."
+      }
+    ],
+    "evidenceRequests": [
+      {
+        "id": "ev-req-1",
+        "action": "inspect file",
+        "targetNode": "server.ts:1620",
+        "rationale": "Inspecting server.ts line 1620 directly reveals whether redirect: 'follow' is configured without hop-by-hop DNS re-resolution, which reduces uncertainty on Hypothesis H1 from 16% to near 0%.",
+        "expectedValue": "High",
+        "estimatedCost": "Low",
+        "priorityScore": 0.94
+      }
+    ],
+    "next_evidence_request": {
+      "id": "ev-req-1",
+      "action": "inspect file",
+      "targetNode": "server.ts:1620",
+      "rationale": "Inspecting server.ts line 1620 directly reveals whether redirect: 'follow' is configured without hop-by-hop DNS re-resolution, which reduces uncertainty on Hypothesis H1 from 16% to near 0%.",
+      "expectedValue": "High",
+      "estimatedCost": "Low",
+      "priorityScore": 0.94
+    },
+    "uncertainty": {
+      "overall": 0.16,
+      "unresolvedHypothesesCount": 3,
+      "highestEntropyTarget": "server.ts:1620",
+      "reason": "Missing automated test assertions for intermediate 3xx redirect DNS re-resolution."
+    },
+    "eventsTrail": [
+      {
+        "id": "ev-1790406159325-1",
+        "timestamp": "2026-09-26T07:02:39.322Z",
+        "timeFormatted": "07:02",
+        "title": "Repository Connected (Read-Only)",
+        "details": "Initialized secure read-only session against Dr. T codebase.",
+        "category": "SYSTEM"
+      },
+      {
+        "id": "ev-1790406159325-2",
+        "timestamp": "2026-09-26T07:02:39.322Z",
+        "timeFormatted": "07:02",
+        "title": "Evidence Field Calculated",
+        "details": "Identified 3 candidate location(s). Evaluated semantic, structural, and behavioral relevance without fabrication.",
+        "category": "EVIDENCE"
+      },
+      {
+        "id": "ev-1790406159325-3",
+        "timestamp": "2026-09-26T07:02:39.322Z",
+        "timeFormatted": "07:02",
+        "title": "Hypothesis Formulation Complete",
+        "details": "Synthesized 3 competing hypotheses (H1, H2, H3). Next evidence recommendation computed.",
+        "category": "HYPOTHESIS"
+      }
+    ]
+  }
+]

@@ -323,6 +323,14 @@ export const DrTHealthBridge: React.FC<DrTHealthBridgeProps> = ({ setActiveTab }
 
             <div className="flex items-center space-x-2">
               <button
+                onClick={() => setActiveTab('deck')}
+                className="px-3 py-1.5 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 text-purple-200 text-xs font-bold border border-purple-500/40 transition flex items-center space-x-1.5"
+                title="View Executive Pitch Deck & 1-Slide Briefs"
+              >
+                <span>📊 Executive Deck</span>
+                <ChevronRight className="w-3.5 h-3.5 text-purple-300" />
+              </button>
+              <button
                 onClick={() => setActiveTab('drt')}
                 className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold border border-white/20 transition flex items-center space-x-1.5"
               >

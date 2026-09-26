@@ -49,6 +49,8 @@ import { AgentEconomy } from './components/economy/AgentEconomy';
 import { X402PayPerRequestStudio } from './components/x402/X402PayPerRequestStudio';
 import { PatientMember360Copilot } from './components/copilot360/PatientMember360Copilot';
 import { DrTHealthBridge } from './components/bridge/DrTHealthBridge';
+import { ExecutiveDeckTab } from './components/deck/ExecutiveDeckTab';
+import { LifeWeaveStudio } from './lifeweave/LifeWeaveStudio';
 import { GoogleCloudHub } from './components/cloud/GoogleCloudHub';
 import { PetWhispererApp } from './components/petwhisperer/PetWhispererApp';
 import { OpenWebOSApp } from './components/openwebos/OpenWebOSApp';
@@ -367,6 +369,18 @@ export function App() {
 
         {activeTab === 'bridge' && (
           <DrTHealthBridge
+            setActiveTab={setActiveTab}
+          />
+        )}
+
+        {activeTab === 'deck' && (
+          <ExecutiveDeckTab
+            setActiveTab={setActiveTab}
+          />
+        )}
+
+        {activeTab === 'lifeweave' && (
+          <LifeWeaveStudio
             setActiveTab={setActiveTab}
           />
         )}

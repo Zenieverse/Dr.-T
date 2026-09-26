@@ -1,0 +1,95 @@
+{
+  "investigation_id": "lw-inv-001",
+  "issue": "PDF URL redirect handling causes a document to fail before threat scanning. When external medical research journals or PubMed links issue a 301/302 redirect header, pdfFetcher terminates the stream early with ERR_UNHANDLED_REDIRECT instead of resolving the final target URI, causing threatScanner to receive a 0-byte buffer.",
+  "repository": "dr-t-platform (main)",
+  "is_safety_critical": false,
+  "status": "PATCH_PROPOSED",
+  "candidates": [
+    {
+      "file": "src/readit/pdfFetcher.ts",
+      "symbol": "fetchPdfStream",
+      "confidence": 0.72,
+      "evidence": {
+        "semanticRelevance": 0.91,
+        "structuralRelevance": 0.84,
+        "dependencyRelevance": 0.88,
+        "testRelevance": 0.79,
+        "behavioralRelevance": 0.63,
+        "issueClueRelevance": 0.92,
+        "contradiction": 0.11,
+        "uncertainty": 0.19,
+        "provenance": "Stack trace frames + AST import analysis + failing unit test trace"
+      },
+      "supporting": [
+        "Failing execution trace enters fetchPdfStream before crash at line 42",
+        "HTTP 302 redirect response branch exists in this file with missing recursive follow logic",
+        "Failing integration test imports this module and mocks a redirect response"
+      ],
+      "contradictory": [
+        "documentLoader.ts also inspects Content-Type headers before delegating"
+      ]
+    },
+    {
+      "file": "src/readit/threatScanner.ts",
+      "symbol": "scanBufferPayload",
+      "confidence": 0.21,
+      "evidence": {
+        "semanticRelevance": 0.45,
+        "structuralRelevance": 0.72,
+        "dependencyRelevance": 0.68,
+        "testRelevance": 0.34,
+        "behavioralRelevance": 0.12,
+        "issueClueRelevance": 0.48,
+        "contradiction": 0.74,
+        "uncertainty": 0.42,
+        "provenance": "Downstream call graph relationship"
+      },
+      "supporting": [
+        "Receives zero-byte buffer error when redirect occurs"
+      ],
+      "contradictory": [
+        "Unit tests for scanBufferPayload with valid buffers pass with 100% success",
+        "Scanner is never called when redirect throws upfront in fetcher"
+      ]
+    }
+  ],
+  "hypotheses": [
+    {
+      "code": "H1",
+      "title": "Redirect handling in fetchPdfStream drops response stream",
+      "confidence": 0.72,
+      "uncertainty": 0.28
+    },
+    {
+      "code": "H2",
+      "title": "PDF Content-Type validation rejects redirected intermediate HTML header",
+      "confidence": 0.51,
+      "uncertainty": 0.49
+    },
+    {
+      "code": "H3",
+      "title": "ThreatScanner timeout rejects slow redirect resolution",
+      "confidence": 0.34,
+      "uncertainty": 0.66
+    }
+  ],
+  "patch_proposed": {
+    "files": [
+      "src/readit/pdfFetcher.ts"
+    ],
+    "invariant": "Redirected PDF URLs must resolve to the final PDF resource without bypassing threat scanning.",
+    "risk": "LOW",
+    "approved": "APPROVED"
+  },
+  "validation": {
+    "overall": "PASS",
+    "tests": {
+      "executed": 6,
+      "passed": 6,
+      "failed": 0,
+      "durationMs": 420
+    }
+  },
+  "recovery_steps_count": 0,
+  "timestamp": "2026-09-24T19:55:00Z"
+}
