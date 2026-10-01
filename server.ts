@@ -8,6 +8,8 @@ import { GoogleGenAI } from '@google/genai';
 import { MOCK_PATIENT_360_PROFILES } from './src/data/patient360Data';
 import { lifeweaveEngineeringService } from './src/server/lifeweaveEngineeringService';
 import { lifeweaveBenchmarkHarness } from './src/server/lifeweaveBenchmarkHarness';
+import { hederaService } from './src/modules/hedera/hederaService';
+import { provenanceStore } from './src/modules/hedera/provenanceStore';
 
 const app = express();
 const PORT = 3000;
@@ -3252,6 +3254,130 @@ app.post('/api/lifeweave/competition/benchmark/run', (req, res) => {
     success: true,
     ...results
   });
+});
+
+// 14. Upload Custom Portrait Background for Celebration Modal
+app.post('/api/upload-portrait', (req, res) => {
+  try {
+    const { base64Data } = req.body;
+    if (!base64Data) {
+      return res.status(400).json({ success: false, error: 'Missing base64Data' });
+    }
+    const cleanBase64 = base64Data.replace(/^data:image\/\w+;base64,/, '');
+    const buffer = Buffer.from(cleanBase64, 'base64');
+    
+    // Save to public/IMG_2165.jpg and src/assets/images/IMG_2165.jpg
+    fs.writeFileSync(path.join(process.cwd(), 'public', 'IMG_2165.jpg'), buffer);
+    fs.writeFileSync(path.join(process.cwd(), 'public', 'dr_t_operating_portrait.jpg'), buffer);
+    fs.writeFileSync(path.join(process.cwd(), 'src', 'assets', 'images', 'IMG_2165.jpg'), buffer);
+    
+    res.json({ success: true, message: 'Portrait uploaded and saved successfully' });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// ==========================================
+// 15. HEDERA COMMONS: TRUST, PROVENANCE & VERIFICATION APIS
+// ==========================================
+
+// Hedera Network Status & Config
+app.get('/api/hedera/status', async (req, res) => {
+  try {
+    const status = await hederaService.getStatus();
+    res.json(status);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// List Provenance Records with Filtering
+app.get('/api/hedera/provenance', (req, res) => {
+  try {
+    const { artifactType, privacy, query, verifiedOnly } = req.query;
+    const records = provenanceStore.getAll({
+      artifactType: artifactType as any,
+      privacy: privacy as any,
+      query: query as string,
+      verifiedOnly: verifiedOnly === 'true'
+    });
+    const stats = provenanceStore.getStats();
+    res.json({ success: true, records, stats });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Get Single Provenance Record
+app.get('/api/hedera/provenance/:id', (req, res) => {
+  try {
+    const record = provenanceStore.getById(req.params.id);
+    if (!record) {
+      return res.status(404).json({ error: 'Provenance record not found' });
+    }
+    res.json({ success: true, record });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Register and Anchor New Artifact to Hedera HCS
+app.post('/api/hedera/provenance/register', async (req, res) => {
+  try {
+    const { artifactId, artifactType, artifactTitle, artifactVersion, content, privacyClassification, actorId, metadata } = req.body;
+    
+    if (!artifactId || !artifactType || !artifactTitle || content === undefined || !privacyClassification) {
+      return res.status(400).json({ 
+        error: 'Missing required fields: artifactId, artifactType, artifactTitle, content, and privacyClassification are mandatory.' 
+      });
+    }
+
+    const result = await provenanceStore.register({
+      artifactId,
+      artifactType,
+      artifactTitle,
+      artifactVersion,
+      content,
+      privacyClassification,
+      actorId,
+      metadata
+    });
+
+    res.json({
+      success: true,
+      record: result.record,
+      notice: result.notice
+    });
+  } catch (err: any) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// Verify Artifact against Hedera HCS and Mirror Node
+app.post('/api/hedera/provenance/verify', async (req, res) => {
+  try {
+    const { recordId, artifactId, content, expectedHash } = req.body;
+    const result = await provenanceStore.verify({
+      recordId,
+      artifactId,
+      content,
+      expectedHash
+    });
+    res.json(result);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Recent Hedera Network & Topic Activity
+app.get('/api/hedera/activity', (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit as string, 10) || 15;
+    const activity = provenanceStore.getRecentActivity(limit);
+    res.json({ success: true, activity });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Setup Vite or Static serving

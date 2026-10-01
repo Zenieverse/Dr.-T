@@ -57,6 +57,7 @@ import { OpenWebOSApp } from './components/openwebos/OpenWebOSApp';
 import { GreenieVerseApp } from './components/greenieverse/GreenieVerseApp';
 import { TribHouseContainer } from './tribhouse/TribHouseContainer';
 import { CinemaContainer } from './cinema/CinemaContainer';
+import { HederaCommonsHome } from './components/hedera/HederaCommonsHome';
 import { SettingsPage } from './components/settings/SettingsPage';
 
 export function App() {
@@ -73,6 +74,17 @@ export function App() {
   const [isDemoJourneyOpen, setIsDemoJourneyOpen] = useState<boolean>(false);
   const [isBirthdayModalOpen, setIsBirthdayModalOpen] = useState<boolean>(true);
   const [isLoadingChat, setIsLoadingChat] = useState<boolean>(false);
+
+  // Global tab navigation event listener
+  React.useEffect(() => {
+    const handleNavTab = (e: any) => {
+      if (e.detail?.tab) {
+        setActiveTab(e.detail.tab as NavTab);
+      }
+    };
+    window.addEventListener('drt-navigate-tab', handleNavTab);
+    return () => window.removeEventListener('drt-navigate-tab', handleNavTab);
+  }, []);
 
   // Initial Socratic Chat History
   const [messages, setMessages] = useState<ChatMessage[]>([
@@ -444,6 +456,10 @@ export function App() {
           <X402PayPerRequestStudio
             setActiveTab={setActiveTab}
           />
+        )}
+
+        {activeTab === 'hedera' && (
+          <HederaCommonsHome onNavigateToTab={setActiveTab} />
         )}
 
         {activeTab === 'gcp' && (

@@ -1,0 +1,99 @@
+{
+  "experiments": [
+    {
+      "id": "EXP-A",
+      "name": "Config A — Semantic Retrieval",
+      "description": "Baseline: BM25 and vector semantic search only. No graph tools, no explicit contradiction tracking.",
+      "status": "NOT_RUN",
+      "metrics": {
+        "patch_pass_rate": "NOT_RUN",
+        "localization_recall_at_1": "NOT_RUN",
+        "localization_recall_at_3": "NOT_RUN",
+        "localization_recall_at_5": "NOT_RUN",
+        "files_read": "NOT_RUN",
+        "graph_nodes_inspected": "NOT_RUN",
+        "tool_calls": "NOT_RUN",
+        "commands_run": "NOT_RUN",
+        "recovery_steps": "NOT_RUN",
+        "wall_clock_time": "NOT_RUN",
+        "confidence_calibration": "NOT_RUN"
+      }
+    },
+    {
+      "id": "EXP-B",
+      "name": "Config B — Graph Retrieval",
+      "description": "AST topological analysis: callers, callees, and dependency subgraph only. No semantic search.",
+      "status": "NOT_RUN",
+      "metrics": {
+        "patch_pass_rate": "NOT_RUN",
+        "localization_recall_at_1": "NOT_RUN",
+        "localization_recall_at_3": "NOT_RUN",
+        "localization_recall_at_5": "NOT_RUN",
+        "files_read": "NOT_RUN",
+        "graph_nodes_inspected": "NOT_RUN",
+        "tool_calls": "NOT_RUN",
+        "commands_run": "NOT_RUN",
+        "recovery_steps": "NOT_RUN",
+        "wall_clock_time": "NOT_RUN",
+        "confidence_calibration": "NOT_RUN"
+      }
+    },
+    {
+      "id": "EXP-C",
+      "name": "Config C — Semantic + Graph",
+      "description": "Hybrid: Semantic retrieval for candidate seeds followed by graph neighbor/subgraph traversal.",
+      "status": "NOT_RUN",
+      "metrics": {
+        "patch_pass_rate": "NOT_RUN",
+        "localization_recall_at_1": "NOT_RUN",
+        "localization_recall_at_3": "NOT_RUN",
+        "localization_recall_at_5": "NOT_RUN",
+        "files_read": "NOT_RUN",
+        "graph_nodes_inspected": "NOT_RUN",
+        "tool_calls": "NOT_RUN",
+        "commands_run": "NOT_RUN",
+        "recovery_steps": "NOT_RUN",
+        "wall_clock_time": "NOT_RUN",
+        "confidence_calibration": "NOT_RUN"
+      }
+    },
+    {
+      "id": "EXP-D",
+      "name": "Config D — Semantic + Graph + Evidence",
+      "description": "Multi-dimensional evidence profiling (relevance, structural, test, behavioral) across candidates.",
+      "status": "NOT_RUN",
+      "metrics": {
+        "patch_pass_rate": "NOT_RUN",
+        "localization_recall_at_1": "NOT_RUN",
+        "localization_recall_at_3": "NOT_RUN",
+        "localization_recall_at_5": "NOT_RUN",
+        "files_read": "NOT_RUN",
+        "graph_nodes_inspected": "NOT_RUN",
+        "tool_calls": "NOT_RUN",
+        "commands_run": "NOT_RUN",
+        "recovery_steps": "NOT_RUN",
+        "wall_clock_time": "NOT_RUN",
+        "confidence_calibration": "NOT_RUN"
+      }
+    },
+    {
+      "id": "EXP-E",
+      "name": "LIFEWEAVE — Semantic + Graph + Evidence + Uncertainty + Recovery",
+      "description": "Full LIFEWEAVE system: Adaptive acquisition heuristic, contradiction tracking, minimal patch principle, and failure recovery loop.",
+      "status": "NOT_RUN",
+      "metrics": {
+        "patch_pass_rate": "NOT_RUN",
+        "localization_recall_at_1": "NOT_RUN",
+        "localization_recall_at_3": "NOT_RUN",
+        "localization_recall_at_5": "NOT_RUN",
+        "files_read": "NOT_RUN",
+        "graph_nodes_inspected": "NOT_RUN",
+        "tool_calls": "NOT_RUN",
+        "commands_run": "NOT_RUN",
+        "recovery_steps": "NOT_RUN",
+        "wall_clock_time": "NOT_RUN",
+        "confidence_calibration": "NOT_RUN"
+      }
+    }
+  ]
+}

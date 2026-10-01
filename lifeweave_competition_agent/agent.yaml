@@ -1,7 +1,7 @@
-name: lifeweave
-version: 1.0.0
+name: "LIFEWEAVE Gemma 4 Developer Agent"
+version: "1.0.0"
 model: gemma-4-31b-it-qat-w4a16-ct
-description: Evidence-guided autonomous software engineering agent for repository defect localization, minimal patching, and invariant validation.
+description: "Repository-agnostic evidence-guided autonomous software engineering agent for defect localization, minimal patching, invariant validation, and failure recovery."
 
 tools:
   - run_command

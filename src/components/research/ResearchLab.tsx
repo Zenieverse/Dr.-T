@@ -11,6 +11,7 @@ import {
   FileText, 
   ExternalLink, 
   ShieldAlert, 
+  ShieldCheck,
   Image as ImageIcon, 
   Activity, 
   BarChart3, 
@@ -217,6 +218,23 @@ export const ResearchLab: React.FC<ResearchLabProps> = ({
                     <span>Scientific Uncertainty & Methodological Limits:</span>
                   </span>
                   <p>{evidenceData.uncertaintyNotes}</p>
+                </div>
+
+                {/* Hedera Commons Trust & Provenance Anchor Action */}
+                <div className="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
+                  <div className="text-[11px] text-slate-500 flex items-center space-x-1.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" />
+                    <span>Cryptographic audit proof available on Hedera Consensus Service</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('hedera')}
+                    className="px-3.5 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 font-bold text-xs border border-purple-200 transition flex items-center space-x-1.5 shadow-2xs"
+                    title="Notarize research synthesis on Hedera Consensus Service"
+                  >
+                    <ShieldCheck className="w-4 h-4 text-purple-600" />
+                    <span>Anchor Synthesis to Hedera HCS</span>
+                  </button>
                 </div>
 
               </div>

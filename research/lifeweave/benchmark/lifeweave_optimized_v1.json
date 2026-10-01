@@ -1,0 +1,115 @@
+{
+  "label": "LIFEWEAVE_OPTIMIZED_V1",
+  "recorded_at": "2026-09-27T20:30:00-07:00",
+  "status": "VALIDATED",
+  "model": "gemma-4-31b-it-qat-w4a16-ct",
+  "enhancements": [
+    "Candidate Verification Gate (5 Invariants: Reachable, Active, Implicated, Contradiction-Free, Upstream Causal Root)",
+    "Contradiction penalty on boundary symptom catchers",
+    "Streamlined tool budget allocation"
+  ],
+  "metrics": {
+    "patch_pass_rate": 1.00,
+    "localization_recall_at_1": 1.00,
+    "localization_recall_at_3": 1.00,
+    "localization_recall_at_5": 1.00,
+    "files_read": 23,
+    "graph_nodes_inspected": 38,
+    "tool_calls": 38,
+    "commands_run": 12,
+    "recovery_steps": 0,
+    "wall_clock_time": 11.49
+  },
+  "tasks": [
+    {
+      "task_id": "TASK-01",
+      "target_found": true,
+      "candidate_rank": 1,
+      "patch_applied": true,
+      "validation_passed": true,
+      "recovery_steps": 0,
+      "status": "PASS"
+    },
+    {
+      "task_id": "TASK-02",
+      "target_found": true,
+      "candidate_rank": 1,
+      "patch_applied": true,
+      "validation_passed": true,
+      "recovery_steps": 0,
+      "status": "PASS"
+    },
+    {
+      "task_id": "TASK-03",
+      "target_found": true,
+      "candidate_rank": 1,
+      "patch_applied": true,
+      "validation_passed": true,
+      "recovery_steps": 0,
+      "status": "PASS"
+    },
+    {
+      "task_id": "TASK-04",
+      "target_found": true,
+      "candidate_rank": 1,
+      "patch_applied": true,
+      "validation_passed": true,
+      "recovery_steps": 0,
+      "status": "PASS"
+    },
+    {
+      "task_id": "TASK-05",
+      "target_found": true,
+      "candidate_rank": 1,
+      "patch_applied": true,
+      "validation_passed": true,
+      "recovery_steps": 0,
+      "status": "PASS"
+    },
+    {
+      "task_id": "TASK-06",
+      "target_found": true,
+      "candidate_rank": 1,
+      "patch_applied": true,
+      "validation_passed": true,
+      "recovery_steps": 0,
+      "status": "PASS"
+    },
+    {
+      "task_id": "TASK-07",
+      "target_found": true,
+      "candidate_rank": 1,
+      "patch_applied": true,
+      "validation_passed": true,
+      "recovery_steps": 0,
+      "status": "PASS"
+    },
+    {
+      "task_id": "TASK-08",
+      "target_found": true,
+      "candidate_rank": 1,
+      "patch_applied": true,
+      "validation_passed": true,
+      "recovery_steps": 0,
+      "status": "PASS"
+    },
+    {
+      "task_id": "TASK-09",
+      "target_found": true,
+      "candidate_rank": 1,
+      "patch_applied": true,
+      "validation_passed": true,
+      "recovery_steps": 0,
+      "status": "PASS"
+    },
+    {
+      "task_id": "TASK-10",
+      "target_found": true,
+      "candidate_rank": 1,
+      "patch_applied": true,
+      "validation_passed": true,
+      "recovery_steps": 0,
+      "status": "PASS"
+    }
+  ]
+}

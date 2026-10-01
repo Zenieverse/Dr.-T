@@ -92,6 +92,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: 'smarist', label: 'SmArtist AR', icon: <Sparkles className="w-4 h-4 text-pink-500" />, badge: 'AR' },
     { id: 'automation', label: 'Automation', icon: <Bot className="w-4 h-4 text-teal-500" /> },
     { id: 'lifeweave', label: 'LIFEWEAVE', icon: <Network className="w-4 h-4 text-cyan-600" />, badge: 'SWE Agent' },
+    { id: 'hedera', label: 'Hedera Commons', icon: <ShieldCheck className="w-4 h-4 text-purple-600" />, badge: 'Trust & HCS' },
     { id: 'privacy', label: 'Privacy', icon: <ShieldCheck className="w-4 h-4 text-indigo-500" /> },
     { id: 'x402', label: 'x402 Pay-Per-Request', icon: <Coins className="w-4 h-4 text-amber-500" />, badge: 'Bazaar & Challenge' },
     { id: 'economy', label: 'Agent Economy', icon: <Zap className="w-4 h-4 text-amber-500" /> },

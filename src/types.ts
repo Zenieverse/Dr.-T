@@ -23,6 +23,7 @@ export type NavTab =
   | 'bridge'
   | 'deck'
   | 'lifeweave'
+  | 'hedera'
   | 'gcp'
   | 'settings';
 

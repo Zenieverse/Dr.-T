@@ -1,0 +1,98 @@
+{
+  "executedAt": "2026-10-01T03:43:07.652Z",
+  "totalTasks": 10,
+  "passedTasks": 10,
+  "passRate": "100.0%",
+  "tasks": [
+    {
+      "taskId": "TASK-01",
+      "category": "wrong_function",
+      "command": "npx tsx research/lifeweave/fixtures/task_01_wrong_function/test_sorter.ts",
+      "exitCode": 0,
+      "durationMs": 950,
+      "stdout": "PASS: sortTags handles alphanumeric tags with natural number ordering",
+      "passed": true
+    },
+    {
+      "taskId": "TASK-02",
+      "category": "downstream_symptom",
+      "command": "npx tsx research/lifeweave/fixtures/task_02_downstream_symptom/test_auth.ts",
+      "exitCode": 0,
+      "durationMs": 940,
+      "stdout": "PASS: extractBearerToken correctly parses case-insensitive Bearer headers",
+      "passed": true
+    },
+    {
+      "taskId": "TASK-03",
+      "category": "redirect_handling",
+      "command": "npx tsx research/lifeweave/fixtures/task_03_redirect_handling/test_redirect.ts",
+      "exitCode": 0,
+      "durationMs": 960,
+      "stdout": "PASS: validateRedirectDestination secures hop-by-hop redirects against SSRF",
+      "passed": true
+    },
+    {
+      "taskId": "TASK-04",
+      "category": "missing_validation",
+      "command": "npx tsx research/lifeweave/fixtures/task_04_missing_validation/test_retry.ts",
+      "exitCode": 0,
+      "durationMs": 938,
+      "stdout": "PASS: computeBackoff strictly clamps backoff duration to positive range",
+      "passed": true
+    },
+    {
+      "taskId": "TASK-05",
+      "category": "configuration_bug",
+      "command": "npx tsx research/lifeweave/fixtures/task_05_configuration_bug/test_config.ts",
+      "exitCode": 0,
+      "durationMs": 966,
+      "stdout": "PASS: loadCacheConfig supports both keys and defaults cleanly to 300s",
+      "passed": true
+    },
+    {
+      "taskId": "TASK-06",
+      "category": "dependency_mismatch",
+      "command": "npx tsx research/lifeweave/fixtures/task_06_dependency_mismatch/test_version.ts",
+      "exitCode": 0,
+      "durationMs": 972,
+      "stdout": "PASS: compareVersions correctly normalizes and compares version strings",
+      "passed": true
+    },
+    {
+      "taskId": "TASK-07",
+      "category": "test_failure",
+      "command": "npx tsx research/lifeweave/fixtures/task_07_test_failure/test_async.ts",
+      "exitCode": 0,
+      "durationMs": 998,
+      "stdout": "PASS: AsyncWorker flushes and completes all queue tasks sequentially",
+      "passed": true
+    },
+    {
+      "taskId": "TASK-08",
+      "category": "multi_file_repair",
+      "command": "npx tsx research/lifeweave/fixtures/task_08_multi_file_repair/test_events.ts",
+      "exitCode": 0,
+      "durationMs": 981,
+      "stdout": "PASS: AuditEventEmitter preserves bidirectional backward compatibility",
+      "passed": true
+    },
+    {
+      "taskId": "TASK-09",
+      "category": "misleading_semantic_match",
+      "command": "npx tsx research/lifeweave/fixtures/task_09_misleading_semantic_match/test_router.ts",
+      "exitCode": 0,
+      "durationMs": 996,
+      "stdout": "PASS: active_router resolves routes accurately without deprecated legacy parser",
+      "passed": true
+    },
+    {
+      "taskId": "TASK-10",
+      "category": "failed_first_patch_requiring_recovery",
+      "command": "npx tsx research/lifeweave/fixtures/task_10_recovery_after_failure/test_boundary.ts",
+      "exitCode": 0,
+      "durationMs": 952,
+      "stdout": "PASS: handleIncomingRequest properly catches validation errors and emits 400",
+      "passed": true
+    }
+  ]
+}

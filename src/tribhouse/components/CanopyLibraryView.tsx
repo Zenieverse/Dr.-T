@@ -246,6 +246,19 @@ export const CanopyLibraryView: React.FC<CanopyLibraryViewProps> = ({
                     <span>Ask Trib</span>
                   </button>
                 </div>
+
+                {/* Hedera Commons Verification Action */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    window.dispatchEvent(new CustomEvent('drt-navigate-tab', { detail: { tab: 'hedera' } }));
+                  }}
+                  className="w-full py-1.5 px-2 rounded-xl bg-purple-50 dark:bg-purple-950/40 hover:bg-purple-100 dark:hover:bg-purple-900/40 text-purple-700 dark:text-purple-300 font-bold text-[11px] flex items-center justify-center gap-1.5 transition-colors border border-purple-200 dark:border-purple-800/60"
+                  title="Verify provenance on Hedera Consensus Service"
+                >
+                  <ShieldCheck className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
+                  <span>Hedera Provenance Proof</span>
+                </button>
               </div>
             </div>
           );

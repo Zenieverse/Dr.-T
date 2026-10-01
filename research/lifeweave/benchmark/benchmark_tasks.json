@@ -1,0 +1,92 @@
+[
+  {
+    "id": "TASK-01",
+    "category": "wrong_function",
+    "issue": "Tag sorting utility misorders semantic version tags with embedded numbers due to raw numeric parsing instead of alphanumeric natural ordering.",
+    "repository_fixture": "research/lifeweave/fixtures/task_01_wrong_function",
+    "expected_relevant_location": "research/lifeweave/fixtures/task_01_wrong_function/sorter.ts:sortTags",
+    "validation_command": "npx tsx research/lifeweave/fixtures/task_01_wrong_function/test_sorter.ts",
+    "expected_invariant": "Tags with embedded version numbers sort in natural human-expected order without NaN coercion."
+  },
+  {
+    "id": "TASK-02",
+    "category": "downstream_symptom",
+    "issue": "Authentication middleware crashes with TypeError when reading token because upstream header extractor assumes exact capitalized 'Bearer' instead of case-insensitive prefix.",
+    "repository_fixture": "research/lifeweave/fixtures/task_02_downstream_symptom",
+    "expected_relevant_location": "research/lifeweave/fixtures/task_02_downstream_symptom/token_extractor.ts:extractBearerToken",
+    "validation_command": "npx tsx research/lifeweave/fixtures/task_02_downstream_symptom/test_auth.ts",
+    "expected_invariant": "Bearer tokens are extracted case-insensitively, preventing null reference downstream."
+  },
+  {
+    "id": "TASK-03",
+    "category": "redirect_handling",
+    "issue": "HTTP 302 redirects in remote document fetcher are vulnerable to SSRF bypass when redirect targets private cloud metadata IP addresses.",
+    "repository_fixture": "research/lifeweave/fixtures/task_03_redirect_handling",
+    "expected_relevant_location": "research/lifeweave/fixtures/task_03_redirect_handling/redirect_handler.ts:validateRedirectDestination",
+    "validation_command": "npx tsx research/lifeweave/fixtures/task_03_redirect_handling/test_redirect.ts",
+    "expected_invariant": "Every intermediate redirect hop location header is validated against DNS and private IP subnet rules."
+  },
+  {
+    "id": "TASK-04",
+    "category": "missing_validation",
+    "issue": "Exponential backoff formula accepts negative retry counts and negative base durations, firing immediate retry loops without throttle.",
+    "repository_fixture": "research/lifeweave/fixtures/task_04_missing_validation",
+    "expected_relevant_location": "research/lifeweave/fixtures/task_04_missing_validation/retry_policy.ts:computeBackoff",
+    "validation_command": "npx tsx research/lifeweave/fixtures/task_04_missing_validation/test_retry.ts",
+    "expected_invariant": "Backoff delays are clamped to a strictly positive duration floor of at least 100ms."
+  },
+  {
+    "id": "TASK-05",
+    "category": "configuration_bug",
+    "issue": "Cache subsystem ignores CACHE_EXPIRY_SECONDS environment variable because config loader strictly looked for lower-case ttl_seconds.",
+    "repository_fixture": "research/lifeweave/fixtures/task_05_configuration_bug",
+    "expected_relevant_location": "research/lifeweave/fixtures/task_05_configuration_bug/config_loader.ts:loadCacheConfig",
+    "validation_command": "npx tsx research/lifeweave/fixtures/task_05_configuration_bug/test_config.ts",
+    "expected_invariant": "Config loader supports both standard environment variable keys and falls back to a safe 300s TTL default."
+  },
+  {
+    "id": "TASK-06",
+    "category": "dependency_mismatch",
+    "issue": "Semantic version comparator fails to parse PEP440 and npm prerelease suffixes with non-numeric tags, causing incorrect update ordering.",
+    "repository_fixture": "research/lifeweave/fixtures/task_06_dependency_mismatch",
+    "expected_relevant_location": "research/lifeweave/fixtures/task_06_dependency_mismatch/version_parser.ts:compareVersions",
+    "validation_command": "npx tsx research/lifeweave/fixtures/task_06_dependency_mismatch/test_version.ts",
+    "expected_invariant": "Semantic versioning normalizes release tags deterministically across heterogeneous package specs."
+  },
+  {
+    "id": "TASK-07",
+    "category": "test_failure",
+    "issue": "Asynchronous job worker fails unit tests due to unawaited background task queue flushing.",
+    "repository_fixture": "research/lifeweave/fixtures/task_07_test_failure",
+    "expected_relevant_location": "research/lifeweave/fixtures/task_07_test_failure/async_worker.ts:flushQueue",
+    "validation_command": "npx tsx research/lifeweave/fixtures/task_07_test_failure/test_async.ts",
+    "expected_invariant": "Queue runner awaits all pending task completions before returning resolved completion count."
+  },
+  {
+    "id": "TASK-08",
+    "category": "multi_file_repair",
+    "issue": "Renaming event payload field from userId to accountId broke event emitter consumers expecting legacy schema.",
+    "repository_fixture": "research/lifeweave/fixtures/task_08_multi_file_repair",
+    "expected_relevant_location": "research/lifeweave/fixtures/task_08_multi_file_repair/event_emitter.ts:emitEvent",
+    "validation_command": "npx tsx research/lifeweave/fixtures/task_08_multi_file_repair/test_events.ts",
+    "expected_invariant": "Event contract retains bidirectional alias support for accountId and legacy userId."
+  },
+  {
+    "id": "TASK-09",
+    "category": "misleading_semantic_match",
+    "issue": "Semantic code search ranks deprecated legacy_url_parser.ts highest, but active production routing is performed exclusively by active_router.ts.",
+    "repository_fixture": "research/lifeweave/fixtures/task_09_misleading_semantic_match",
+    "expected_relevant_location": "research/lifeweave/fixtures/task_09_misleading_semantic_match/active_router.ts:resolveRoute",
+    "validation_command": "npx tsx research/lifeweave/fixtures/task_09_misleading_semantic_match/test_router.ts",
+    "expected_invariant": "Wildcard routes resolve through active production router without calling deprecated modules."
+  },
+  {
+    "id": "TASK-10",
+    "category": "failed_first_patch_requiring_recovery",
+    "issue": "A naive try/catch fix at request boundary masks internal server errors; recovery requires parameter validation upstream.",
+    "repository_fixture": "research/lifeweave/fixtures/task_10_recovery_after_failure",
+    "expected_relevant_location": "research/lifeweave/fixtures/task_10_recovery_after_failure/param_validator.ts:validateInputParams",
+    "validation_command": "npx tsx research/lifeweave/fixtures/task_10_recovery_after_failure/test_boundary.ts",
+    "expected_invariant": "Invalid request parameters are rejected with explicit 400 validation error rather than generic 500."
+  }
+]

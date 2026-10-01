@@ -371,13 +371,19 @@ export class LifeweaveEngineeringService {
     };
   }
 
-  public searchCode(query: string, maxResults = 25): Array<{
+  public searchCode(query: string, maxResults = 100): Array<{
     filePath: string;
     lineNumber: number;
     lineContent: string;
     matchIndex: number;
   }> {
-    const files = this.listRepositoryFiles();
+    const rawFiles = this.listRepositoryFiles();
+    // Prioritize key entry points like server.ts
+    const files = [...rawFiles].sort((a, b) => {
+      if (a === 'server.ts') return -1;
+      if (b === 'server.ts') return 1;
+      return a.localeCompare(b);
+    });
     const results: Array<{
       filePath: string;
       lineNumber: number;

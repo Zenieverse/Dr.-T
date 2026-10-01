@@ -438,6 +438,16 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       ],
     },
     {
+      category: '🛡️ Hedera Commons (Trust, Provenance & Verification Center)',
+      items: [
+        { label: 'Hedera Commons Dashboard (Trust, Provenance & Verification)', icon: <ShieldCheck className="w-4 h-4 text-purple-600" />, action: () => { setActiveTab('hedera'); onClose(); } },
+        { label: 'Register & Anchor Artifact Provenance (HCS Topic 0.0.5892147)', icon: <Network className="w-4 h-4 text-emerald-500" />, action: () => { setActiveTab('hedera'); onClose(); } },
+        { label: 'Cryptographic SHA-256 Provenance Verifier (Dual-Hash Audit)', icon: <FileCheck className="w-4 h-4 text-indigo-500" />, action: () => { setActiveTab('hedera'); onClose(); } },
+        { label: 'Hedera Mirror Node Consensus Event Stream & Activity', icon: <Activity className="w-4 h-4 text-blue-500" />, action: () => { setActiveTab('hedera'); onClose(); } },
+        { label: 'How It Works: Zero-PHI Off-Chain Cryptographic Trust Architecture', icon: <Sparkles className="w-4 h-4 text-purple-500" />, action: () => { setActiveTab('hedera'); onClose(); } },
+      ],
+    },
+    {
       category: 'Automation & Governance',
       items: [
         { label: 'Clinical Workflow & RPA Control Center', icon: <Bot className="w-4 h-4 text-teal-500" />, action: () => { setActiveTab('automation'); onClose(); } },
