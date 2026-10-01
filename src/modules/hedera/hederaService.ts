@@ -52,14 +52,15 @@ export class HederaService {
     const rawMode = (process.env.HEDERA_MODE || '').toLowerCase();
     const accountId = (process.env.HEDERA_ACCOUNT_ID || '').trim();
     const privateKey = (process.env.HEDERA_PRIVATE_KEY || '').trim();
-    const topicId = (process.env.HEDERA_TOPIC_ID || '0.0.5892147').trim();
-    const customMirrorUrl = process.env.HEDERA_MIRROR_NODE_URL;
+    const rawTopicId = (process.env.HEDERA_TOPIC_ID || '').trim();
+    const topicId = /^\d+\.\d+\.\d+/.test(rawTopicId) ? rawTopicId : '0.0.5892147';
+    const customMirrorUrl = (process.env.HEDERA_MIRROR_NODE_URL || '').trim();
 
     this.network = rawNetwork === 'mainnet' ? 'mainnet' : rawNetwork === 'previewnet' ? 'previewnet' : 'testnet';
     this.topicIdStr = topicId;
     this.accountIdStr = accountId;
 
-    if (customMirrorUrl) {
+    if (customMirrorUrl && /^https?:\/\//i.test(customMirrorUrl)) {
       this.mirrorNodeUrl = customMirrorUrl;
     } else {
       this.mirrorNodeUrl = this.network === 'mainnet' 

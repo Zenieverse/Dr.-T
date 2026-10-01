@@ -40,9 +40,11 @@ export class HederaMirrorNodeService {
     if (network === 'mainnet') defaultUrl = 'https://mainnet.mirrornode.hedera.com';
     if (network === 'previewnet') defaultUrl = 'https://previewnet.mirrornode.hedera.com';
 
+    const validUrl = customUrl && /^https?:\/\//i.test(customUrl) ? customUrl : defaultUrl;
+
     this.config = {
       network,
-      baseUrl: customUrl || defaultUrl,
+      baseUrl: validUrl,
       isMock,
     };
   }
@@ -52,9 +54,11 @@ export class HederaMirrorNodeService {
     if (network === 'mainnet') defaultUrl = 'https://mainnet.mirrornode.hedera.com';
     if (network === 'previewnet') defaultUrl = 'https://previewnet.mirrornode.hedera.com';
 
+    const validUrl = customUrl && /^https?:\/\//i.test(customUrl) ? customUrl : defaultUrl;
+
     this.config = {
       network,
-      baseUrl: customUrl || defaultUrl,
+      baseUrl: validUrl,
       isMock,
     };
   }

@@ -1,0 +1,113 @@
+# ==========================================
+# HEDERA HARNESS SPECIFICATION v1.0
+# Context, Patterns & Tiered Validation Suite
+# ==========================================
+
+harness_version: "1.0.0"
+platform: "Dr. T Healthcare Ecosystem & Hedera Commons"
+license: "MIT"
+bounty_track: "Hedera Developer Agent & Verifiable AI Trust Infrastructure"
+
+metadata:
+  name: "Dr. T Hedera Harness"
+  description: "Declarative Hedera service specifications, canonical integration patterns, and 5-tier automated validation harness for verifiable AI trust, research provenance, and zero-PHI health integrity."
+  repository: "https://github.com/Zenieverse/Dr.-T"
+  author: "Dr. T Engineering & Zenieverse"
+  environment:
+    runtime: "Node.js >= 20.0.0"
+    framework: "React 18 / Express 5 / TypeScript 5.7"
+    sdk: "@hashgraph/sdk v2.76.0"
+
+network_targets:
+  testnet:
+    node_addresses: ["0.testnet.hedera.com:50211", "1.testnet.hedera.com:50211"]
+    mirror_node: "https://testnet.mirrornode.hedera.com"
+    explorer: "https://hashscan.io/testnet"
+    default_topic_id: "0.0.5892147"
+  mainnet:
+    mirror_node: "https://mainnet.mirrornode.hedera.com"
+    explorer: "https://hashscan.io/mainnet"
+  previewnet:
+    mirror_node: "https://previewnet.mirrornode.hedera.com"
+    explorer: "https://hashscan.io/previewnet"
+  mock_sandbox:
+    mode: "mock"
+    ledger: "deterministic-in-memory"
+    explorer_links_enabled: false
+    notice: "Safe development sandbox. Generates real SHA-256 digests locally without external network charges."
+
+services:
+  hedera_consensus_service:
+    service_code: "HCS"
+    role: "Tamper-evident timestamping & chronological ordering of provenance events"
+    topic_id_env_var: "HEDERA_TOPIC_ID"
+    default_topic: "0.0.5892147"
+    message_schema: "drt.provenance.v1"
+    transaction_type: "TopicMessageSubmitTransaction"
+    consensus_metrics:
+      target_finality_seconds: 2.0
+      fixed_fee_usd: 0.0001
+      energy_kwh_per_tx: 0.000003
+    receipt_invariants:
+      - "topicSequenceNumber must be positive integer"
+      - "topicRunningHash or consensusTimestamp must be captured"
+      - "transactionId must conform to account@timestamp pattern"
+
+  mirror_node_client:
+    service_code: "MIRROR"
+    role: "Read-only independent cryptographic verification and ledger queries"
+    base_url_env_var: "HEDERA_MIRROR_NODE_URL"
+    default_base_url: "https://testnet.mirrornode.hedera.com"
+    endpoints:
+      topic_message_by_seq: "/api/v1/topics/{topicId}/messages/{sequenceNumber}"
+      recent_topic_messages: "/api/v1/topics/{topicId}/messages?limit={limit}&order=desc"
+      account_balance: "/api/v1/accounts/{accountId}"
+      transaction_lookup: "/api/v1/transactions/{transactionId}"
+    verification_invariants:
+      - "Decoded message contentHash must match local calculated digest"
+      - "Network failures must return VERIFICATION_UNAVAILABLE instead of silent false-pass"
+      - "Never fabricate simulated Mirror responses as real on-chain confirmations"
+
+  privacy_compliance_guard:
+    service_code: "ZERO_PHI"
+    role: "HIPAA Safe Harbor and GDPR Article 9 boundary enforcement"
+    policy: "STRICT_OFF_CHAIN_DATA"
+    enforced_rule: "Patient records, clinical notes, credentials, and PII are strictly barred from on-chain payload. Only cryptographic digests (SHA-256) are transmitted."
+    classifications:
+      - "PUBLIC: Fully open research metadata and public identifiers"
+      - "INTERNAL: Institutional registry; detailed payloads withheld off-chain"
+      - "PRIVATE: Proprietary research; all attributes stripped, digest only"
+      - "SENSITIVE: Clinical health tier; auto-rejection if sensitive tokens are detected"
+
+  cryptographic_engine:
+    service_code: "CRYPTO"
+    algorithm: "SHA-256"
+    digest_encoding: "hexadecimal lowercase (64 chars)"
+    canonicalization: "RFC 8785 JSON (deterministic sorted keys, normalized nulls)"
+    collision_resistance: "Pre-image and collision resistant 256-bit space"
+
+validation_tiers:
+  tier_1_schema_crypto:
+    name: "Static Schema & Cryptographic Integrity"
+    scope: "Validates RFC 8785 canonicalization, SHA-256 collision resistance, and schema conformance"
+    file: "hedera_harness/validators/tier1_schema_crypto.ts"
+  
+  tier_2_privacy_security:
+    name: "Privacy, HIPAA/GDPR & Zero-PHI Compliance"
+    scope: "Verifies that clinical notes, patient names, and credentials never leak into on-chain messages"
+    file: "hedera_harness/validators/tier2_privacy_security.ts"
+
+  tier_3_hcs_transaction:
+    name: "Hedera Consensus Service Operations"
+    scope: "Validates TopicMessageSubmitTransaction creation, receipt parsing, and sequence handling"
+    file: "hedera_harness/validators/tier3_hcs_transaction.ts"
+
+  tier_4_mirror_node:
+    name: "Mirror Node REST Audit & Hashscan Explorer"
+    scope: "Validates Mirror Node REST queries, base64 decoding, and legitimate Hashscan URL generation"
+    file: "hedera_harness/validators/tier4_mirror_node.ts"
+
+  tier_5_e2e_tamper:
+    name: "End-to-End Orchestration & Tamper Resilience"
+    scope: "Simulates full registration, intentional tamper injection, and mismatch detection"
+    file: "hedera_harness/validators/tier5_e2e_tamper.ts"
