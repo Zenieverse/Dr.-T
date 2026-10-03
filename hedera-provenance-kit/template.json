@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "name": "hedera-provenance-kit",
+  "title": "Hedera Provenance Kit",
+  "version": "1.0.0",
+  "description": "Production-grade Scaffold-HBAR developer template for anchoring verifiable cryptographic provenance, RFC 8785 canonicalization, and Mirror Node audits via Hedera Consensus Service (HCS).",
+  "author": "Zenieverse",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Zenieverse/hedera-provenance-kit"
+  },
+  "license": "MIT",
+  "categories": [
+    "provenance",
+    "hcs",
+    "security",
+    "compliance",
+    "zero-phi"
+  ],
+  "framework": "nextjs",
+  "smartContractTool": "hardhat",
+  "defaultNetwork": "testnet",
+  "capabilities": {
+    "hcs": true,
+    "hts": false,
+    "smartContracts": true,
+    "mirrorNode": true,
+    "canonicalization": true,
+    "sha256": true,
+    "zeroPhiPrivacy": true
+  },
+  "env": {
+    "required": [
+      "HEDERA_NETWORK",
+      "HEDERA_ACCOUNT_ID",
+      "HEDERA_PRIVATE_KEY",
+      "HEDERA_TOPIC_ID"
+    ],
+    "optional": [
+      "HEDERA_MODE",
+      "HEDERA_MIRROR_NODE_URL",
+      "NEXT_PUBLIC_APP_URL"
+    ]
+  },
+  "links": {
+    "docs": "https://github.com/Zenieverse/hedera-provenance-kit#readme",
+    "scaffoldHbar": "https://github.com/hedera-dev/scaffold-hbar",
+    "hederaDocs": "https://docs.hedera.com/hedera/sdks-and-apis/sdks/consensus-service"
+  }
+}

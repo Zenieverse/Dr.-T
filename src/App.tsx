@@ -57,7 +57,7 @@ import { OpenWebOSApp } from './components/openwebos/OpenWebOSApp';
 import { GreenieVerseApp } from './components/greenieverse/GreenieVerseApp';
 import { TribHouseContainer } from './tribhouse/TribHouseContainer';
 import { CinemaContainer } from './cinema/CinemaContainer';
-import { HederaCommonsHome } from './components/hedera/HederaCommonsHome';
+import { HederaCommonsPage as HederaCommonsHome } from './modules/hedera/pages/HederaCommonsPage';
 import { SettingsPage } from './components/settings/SettingsPage';
 
 export function App() {

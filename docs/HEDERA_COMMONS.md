@@ -140,3 +140,24 @@ Tests cover all 7 mandatory verification cases:
 * **LIFEWEAVE SWE Agent:** AI model specifications and 10-task competition benchmarks are anchored with immutable version proofs.
 * **GreenieVerse Galactic Canopy:** Carbon sequestration and tree sensor telemetry are verified cryptographically.
 * **Command Palette (⌘K):** Dedicated commands for registering, auditing, and inspecting consensus streams.
+
+---
+
+## 8. Canonical Hedera Testnet Provenance Proof
+
+The official, frozen reference transaction for Dr. T Hedera Commons on Hedera Testnet:
+
+* **Title**: `CANONICAL HEDERA TESTNET PROVENANCE PROOF — Dr. T Hedera Commons`
+* **Network**: `Hedera Testnet`
+* **Topic ID**: `0.0.10818730`
+* **Sequence Number**: `1`
+* **Transaction ID**: `0.0.6399349@1790908963.573187309`
+* **Consensus Timestamp**: `1790908970.043224069`
+* **Artifact SHA-256**: `ca7c77d8e0aab26f85254783d3659484200514c59c78f3fbc59b582874a98f54`
+* **Mirror Node Verification**: `PASS`
+* **Hash Verification**: `PASS`
+* **Application Verification**: `PASS`
+* **Hashscan Explorer Link**: [https://hashscan.io/testnet/transaction/0.0.6399349-1790908963-573187309](https://hashscan.io/testnet/transaction/0.0.6399349-1790908963-573187309)
+* **Mirror Node REST Endpoint**: [https://testnet.mirrornode.hedera.com/api/v1/topics/0.0.10818730/messages/1](https://testnet.mirrornode.hedera.com/api/v1/topics/0.0.10818730/messages/1)
+* **Documentation Evidence**: `docs/evidence/CANONICAL_TESTNET_PROOF.md` & `docs/evidence/hedera-testnet-provenance.json`
+

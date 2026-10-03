@@ -3380,6 +3380,78 @@ app.get('/api/hedera/activity', (req, res) => {
   }
 });
 
+// Standard Aliases for /api/provenance/*
+app.get('/api/provenance', (req, res) => {
+  try {
+    const { artifactType, privacy, query, verifiedOnly } = req.query;
+    const records = provenanceStore.getAll({
+      artifactType: artifactType as any,
+      privacy: privacy as any,
+      query: query as string,
+      verifiedOnly: verifiedOnly === 'true'
+    });
+    const stats = provenanceStore.getStats();
+    res.json({ success: true, records, stats });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/api/provenance/:id', (req, res) => {
+  try {
+    const record = provenanceStore.getById(req.params.id);
+    if (!record) {
+      return res.status(404).json({ error: 'Provenance record not found' });
+    }
+    res.json({ success: true, record });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/provenance/register', async (req, res) => {
+  try {
+    const { artifactId, artifactType, artifactTitle, artifactVersion, content, privacyClassification, actorId, metadata } = req.body;
+    if (!artifactId || !artifactType || !artifactTitle || content === undefined || !privacyClassification) {
+      return res.status(400).json({ 
+        error: 'Missing required fields: artifactId, artifactType, artifactTitle, content, and privacyClassification are mandatory.' 
+      });
+    }
+    const result = await provenanceStore.register({
+      artifactId,
+      artifactType,
+      artifactTitle,
+      artifactVersion,
+      content,
+      privacyClassification,
+      actorId,
+      metadata
+    });
+    res.json({
+      success: true,
+      record: result.record,
+      notice: result.notice
+    });
+  } catch (err: any) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+app.post('/api/provenance/verify', async (req, res) => {
+  try {
+    const { recordId, artifactId, content, expectedHash } = req.body;
+    const result = await provenanceStore.verify({
+      recordId,
+      artifactId,
+      content,
+      expectedHash
+    });
+    res.json(result);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Setup Vite or Static serving
 async function setupApp() {
   if (process.env.NODE_ENV !== 'production') {

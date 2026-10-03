@@ -85,6 +85,68 @@ class ProvenanceStore {
 
     const seeds: DrTProvenanceRecord[] = [
       {
+        id: 'prov-hpk-testnet-template-v1',
+        schemaVersion: 'hpk.provenance.v1',
+        artifactId: 'hpk-canonical-template-v1',
+        artifactType: 'code',
+        artifactTitle: 'Hedera Provenance Kit Community Scaffold-HBAR Template Specification',
+        artifactVersion: '1.0.0',
+        contentHash: 'ae7e7030220cf6729fded7eee293059ade5e8d96b7160a1a2d7f3ce2949863d5',
+        hashAlgorithm: 'SHA-256',
+        canonicalSerialization: '{"architecture":"Artifact -> RFC 8785 Canonicalization -> SHA-256 -> Hedera Consensus Service -> Mirror Node -> Cryptographic Audit","author":"Zenieverse & Dr. T Engineering","privacy":"Zero-PHI On-Chain Guarantee","purpose":"Decentralized cryptographic provenance, tamper-evident RFC 8785 canonicalization, and Mirror Node verification for Web3 applications.","repository":"Zenieverse/hedera-provenance-kit","scaffold":"Scaffold-HBAR","schema":"hpk.provenance.v1","template":"Hedera Provenance Kit","timestamp":"2026-10-02T02:50:00.000Z","version":"1.0.0"}',
+        createdAt: '2026-10-02T02:51:56.172Z',
+        actorId: 'HPK_CORE_ENGINE',
+        privacyClassification: 'PUBLIC',
+        network: 'testnet',
+        topicId: '0.0.10818730',
+        transactionId: '0.0.6399349@1790909508.462971661',
+        sequenceNumber: 2,
+        consensusTimestamp: '1790909516.734166434',
+        runningHash: 'L2k7+nmEYss1TnAFo+fT1mbFT0mY0zJNEcFu+B8+fnyhsDLx4qcbIscQ3bJp9d8v',
+        hashscanUrl: 'https://hashscan.io/testnet/transaction/0.0.6399349-1790909508-462971661',
+        verificationStatus: 'VERIFIED',
+        lastVerifiedAt: '2026-10-02T17:37:33.000Z',
+        isMock: false,
+        metadata: {
+          author: 'Zenieverse & Dr. T Engineering',
+          sourceModule: 'hedera-provenance-kit',
+          repository: 'Zenieverse/hedera-provenance-kit',
+          byteLength: 557,
+          isCanonicalBountyProof: true,
+          tags: ['scaffold-hbar', 'testnet-verified', 'sequence-2-proof', 'hcs-anchored', 'zero-phi', 'hashscan-verified']
+        }
+      },
+      {
+        id: 'prov-hedera-testnet-verification-01',
+        schemaVersion: 'drt.provenance.v1',
+        artifactId: 'drt-hedera-testnet-verification',
+        artifactType: 'research',
+        artifactTitle: 'Dr. T Hedera Commons public provenance verification artifact',
+        artifactVersion: '1.0.0',
+        contentHash: 'ca7c77d8e0aab26f85254783d3659484200514c59c78f3fbc59b582874a98f54',
+        hashAlgorithm: 'SHA-256',
+        canonicalSerialization: '"Dr. T Hedera Commons public provenance verification artifact.\\n\\nThis artifact contains no personal data,\\nno patient information,\\nno clinical record,\\nand no confidential research information.\\n\\nPurpose:\\nVerify end-to-end SHA-256 hashing,\\nHedera Consensus Service anchoring,\\nMirror Node retrieval,\\nand cryptographic provenance verification\\nfor the Dr. T platform."',
+        createdAt: '2026-10-02T02:42:56.053Z',
+        actorId: 'DR_T_SYSTEM',
+        privacyClassification: 'PUBLIC',
+        network: 'testnet',
+        topicId: '0.0.10818730',
+        transactionId: '0.0.6399349@1790908963.573187309',
+        sequenceNumber: 1,
+        consensusTimestamp: '1790908970.043224069',
+        runningHash: '211,250,43,58,182,142,217,30,146,220,152,254,196,224,125,140,43,221,36,174,25,218,18,205,250,216,145,46,204,24,74,56,36,155,33,55,210,113,181,247,34,185,137,109,3,213,197,41',
+        hashscanUrl: 'https://hashscan.io/testnet/transaction/0.0.6399349-1790908963-573187309',
+        verificationStatus: 'VERIFIED',
+        lastVerifiedAt: '2026-10-02T02:42:58.000Z',
+        isMock: false,
+        metadata: {
+          author: 'Dr. T Engineering & Zenieverse',
+          sourceModule: 'hedera-commons',
+          byteLength: 373,
+          tags: ['testnet-verified', 'hcs-anchored', 'zero-phi', 'hashscan-verified']
+        }
+      },
+      {
         id: 'prv_trib_1790401',
         schemaVersion: 'drt.provenance.v1',
         artifactId: 'art-trib-paper-century',
@@ -248,7 +310,7 @@ class ProvenanceStore {
         artifactTitle: record.artifactTitle,
         contentHash: record.contentHash,
         privacyClassification: record.privacyClassification,
-        isMock: record.isMock,
+        isMock: Boolean(record.isMock),
         hashscanUrl: record.hashscanUrl,
       });
     }
@@ -382,7 +444,7 @@ class ProvenanceStore {
       artifactTitle: record.artifactTitle,
       contentHash: record.contentHash,
       privacyClassification: record.privacyClassification,
-      isMock: record.isMock,
+      isMock: Boolean(record.isMock),
       hashscanUrl: record.hashscanUrl,
     });
 
@@ -478,7 +540,7 @@ class ProvenanceStore {
         rawMirrorResponse: mirrorCheck.rawPayload,
         message: mirrorCheck.message
       },
-      isMock: targetRecord.isMock,
+      isMock: Boolean(targetRecord.isMock),
       message,
     };
   }

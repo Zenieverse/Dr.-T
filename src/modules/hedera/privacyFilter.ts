@@ -76,8 +76,8 @@ export function enforcePrivacyPolicy(params: {
     }
   }
 
-  // SENSITIVE/PRIVATE classifications get strict zero-metadata guarantee
-  if (params.privacyClassification === 'SENSITIVE' || params.privacyClassification === 'PRIVATE') {
+  // SENSITIVE/PRIVATE/PROTECTED classifications get strict zero-metadata guarantee
+  if (params.privacyClassification === 'SENSITIVE' || params.privacyClassification === 'PRIVATE' || params.privacyClassification === 'PROTECTED') {
     customProperties = {
       protectedPrivacyTier: params.privacyClassification,
       offChainStorageGuaranteed: true,
@@ -95,13 +95,13 @@ export function enforcePrivacyPolicy(params: {
     timestamp: new Date().toISOString(),
     platform: 'Dr. T',
     privacyClassification: params.privacyClassification,
-    actorId: params.privacyClassification === 'SENSITIVE' ? 'ANONYMIZED_ACTOR' : (params.actorId || 'DR_T_SYSTEM'),
+    actorId: (params.privacyClassification === 'SENSITIVE' || params.privacyClassification === 'PROTECTED') ? 'ANONYMIZED_ACTOR' : (params.actorId || 'DR_T_SYSTEM'),
     customProperties,
   };
 
   const allowed = violations.length === 0;
 
-  const notice = params.privacyClassification === 'SENSITIVE'
+  const notice = (params.privacyClassification === 'SENSITIVE' || params.privacyClassification === 'PROTECTED')
     ? 'Strict HIPAA/GDPR clinical privacy tier enforced: Zero clinical text, PHI, or PII is transmitted to Hedera. Only SHA-256 cryptographic digest is anchored on HCS.'
     : params.privacyClassification === 'PRIVATE'
     ? 'Private classification: Content remains strictly off-chain. Only cryptographic proof and identifier anchored on HCS.'

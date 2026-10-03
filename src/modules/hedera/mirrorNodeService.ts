@@ -75,8 +75,10 @@ export class HederaMirrorNodeService {
     sequenceNumber: number, 
     expectedContentHash: string
   ): Promise<MirrorVerificationResult> {
-    if (this.config.isMock) {
-      // In mock mode, Mirror Node verification is resolved locally with explicit notice
+    const isRealOnChainTopic = topicId === '0.0.10818730';
+
+    if (this.config.isMock && !isRealOnChainTopic) {
+      // In mock mode for simulated mock topics, Mirror Node verification is resolved locally with explicit notice
       return {
         queried: true,
         statusCode: 200,

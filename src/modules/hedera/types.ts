@@ -3,42 +3,28 @@
 // Trust, Provenance & Verification for Dr. T
 // ==========================================
 
-export type ArtifactType = 
-  | 'research'
-  | 'knowledge'
-  | 'ai_model'
-  | 'ai_evaluation'
-  | 'dataset'
-  | 'document'
-  | 'greenieverse'
-  | 'other';
+export * from './types/provenance';
+export * from './types/hedera';
 
-export type PrivacyClassification = 
-  | 'PUBLIC'       // Freely verifiable metadata, no confidential content
-  | 'INTERNAL'     // Platform-internal record; off-chain storage with cryptographic proof
-  | 'PRIVATE'      // Private data; only pure SHA-256 digest on-chain, all attributes stripped
-  | 'SENSITIVE';   // Clinical/medical privacy tier: HIPAA/GDPR strict barrier, zero PHI/PII on-chain
+import { 
+  ArtifactType, 
+  PrivacyClassification, 
+  VerificationStatus, 
+  TransactionState, 
+  ProvenanceRecord 
+} from './types/provenance';
+import { HederaNetwork } from './types/hedera';
 
-export type VerificationStatus = 
-  | 'VERIFIED'
-  | 'INTEGRITY_CHECK_FAILED'
-  | 'RECORD_NOT_FOUND'
-  | 'VERIFICATION_UNAVAILABLE';
-
-export type TransactionState = 
-  | 'IDLE'
-  | 'PREPARING'
-  | 'SUBMITTING'
-  | 'PENDING'
-  | 'CONFIRMED'
-  | 'FAILED'
-  | 'VERIFICATION_PENDING'
-  | 'VERIFIED';
-
-export type HederaNetwork = 'testnet' | 'mainnet' | 'previewnet' | 'mock';
+export type { 
+  ArtifactType, 
+  PrivacyClassification, 
+  VerificationStatus, 
+  TransactionState, 
+  HederaNetwork 
+};
 
 export interface HCSProvenanceMessage {
-  schema: 'drt.provenance.v1';
+  schema: 'drt.provenance.v1' | 'hpk.provenance.v1';
   artifactId: string;
   artifactType: ArtifactType;
   artifactTitle: string;
@@ -46,7 +32,7 @@ export interface HCSProvenanceMessage {
   contentHash: string;
   hashAlgorithm: 'SHA-256';
   timestamp: string;
-  platform: 'Dr. T';
+  platform: 'Dr. T' | 'Hedera Provenance Kit';
   privacyClassification: PrivacyClassification;
   actorId?: string;
   metadataDigest?: string;
@@ -55,7 +41,7 @@ export interface HCSProvenanceMessage {
 
 export interface DrTProvenanceRecord {
   id: string; // e.g. prv_1790458123456
-  schemaVersion: 'drt.provenance.v1';
+  schemaVersion: 'drt.provenance.v1' | 'hpk.provenance.v1' | string;
   artifactId: string;
   artifactType: ArtifactType;
   artifactTitle: string;
