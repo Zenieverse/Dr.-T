@@ -1,29 +1,17 @@
 {
-  "name": "@zenieverse/hedera-provenance-kit",
-  "version": "1.0.0",
+  "name": "hedera-provenance-kit",
   "private": true,
-  "description": "Scaffold-HBAR developer template for cryptographic provenance, HCS anchoring, and Mirror Node verification",
+  "version": "1.0.0",
   "workspaces": [
     "packages/*"
   ],
   "scripts": {
-    "dev": "npm --workspace=packages/frontend run dev",
-    "build": "npm --workspace=packages/frontend run build && npm --workspace=packages/contracts run build",
-    "lint": "npm --workspace=packages/frontend run lint && npm --workspace=packages/contracts run lint",
-    "test": "npm --workspace=packages/frontend run test && npm --workspace=packages/contracts run test",
-    "test:provenance": "npm --workspace=packages/frontend run test",
-    "broadcast:testnet": "npm --workspace=packages/frontend run broadcast:testnet"
+    "build": "npm run build --workspaces",
+    "lint": "npm run lint --workspaces",
+    "test": "npm run test --workspaces"
   },
-  "keywords": [
-    "hedera",
-    "scaffold-hbar",
-    "provenance",
-    "hcs",
-    "hashgraph",
-    "mirror-node",
-    "trust",
-    "cryptographic-proof"
-  ],
-  "author": "Zenieverse",
+  "engines": {
+    "node": ">=20.18.3"
+  },
   "license": "MIT"
 }

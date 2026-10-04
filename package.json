@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx server.ts",
-    "build": "vite build && esbuild server.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/server.cjs && node scripts/prepare-build-artifacts.cjs",
+    "build": "vite build && esbuild server.ts --bundle --platform=node --format=cjs --external:vite --external:lightningcss --sourcemap --outfile=dist/server.cjs && node scripts/prepare-build-artifacts.cjs",
     "start": "node dist/server.cjs",
     "lint": "tsc --noEmit",
     "hedera:harness": "tsx hedera_harness/harness_runner.ts"
