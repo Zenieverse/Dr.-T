@@ -1,7 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  serverExternalPackages: ['@hashgraph/sdk']
+  experimental: {
+    serverComponentsExternalPackages: ['@hashgraph/sdk']
+  }
 };
 
 export default nextConfig;
+

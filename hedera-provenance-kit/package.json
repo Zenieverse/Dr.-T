@@ -8,7 +8,8 @@
   "scripts": {
     "build": "npm run build --workspaces",
     "lint": "npm run lint --workspaces",
-    "test": "npm run test --workspaces"
+    "test": "npm run test --workspaces",
+    "typecheck": "npm run typecheck --workspaces"
   },
   "engines": {
     "node": ">=20.18.3"

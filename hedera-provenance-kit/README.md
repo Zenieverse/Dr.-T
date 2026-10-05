@@ -211,15 +211,35 @@ hedera-provenance-kit/
 
 ---
 
-## 11. Testing
+## 11. Testing & Validation
 
-Run all automated test suites:
+Run all automated test suites across workspaces:
 
 ```bash
 npm test
 ```
 
+Or run individual lifecycle commands:
+
+```bash
+# Workspace lint (ESLint for Next.js + TypeScript static check)
+npm run lint
+
+# Workspace typecheck (tsc --noEmit across frontend and contracts)
+npm run typecheck
+
+# Workspace build (Next.js production build + Hardhat compilation)
+npm run build
+
+# Hardhat contracts test suite (8 tests)
+npm run test --workspace=@zenieverse/hedera-provenance-kit-contracts
+
+# Frontend provenance cryptographic invariants (5 tests)
+npm run test --workspace=@zenieverse/hedera-provenance-kit-frontend
+```
+
 Verifies:
+* **EVM Anchor Registry**: Hardhat tests verify deployment, anchor registration, event emission, lookup, and hash verification against `ProvenanceAnchorRegistry.sol`.
 * **Deterministic Canonicalization**: Inverted dictionary keys yield identical hashes (RFC 8785).
 * **Collision Resistance**: Modifying one byte changes the digest (Avalanche effect).
 * **Schema Validation**: Valid `hpk.provenance.v1` passes; malformed structures are rejected.

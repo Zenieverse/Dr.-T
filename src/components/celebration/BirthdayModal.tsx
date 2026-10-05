@@ -553,12 +553,15 @@ Dr. T V2.9.3.7.0`;
                 
                 {/* The Uploaded Image Card (Responsive with High Fidelity) */}
                 <div className="relative rounded-2xl overflow-hidden border-2 border-teal-300/80 shadow-lg bg-slate-900 group">
-                  <img
-                    src="/InCoatofWhite.png"
-                    alt="In Coat of White - Always comes first in line - By ZEN"
-                    referrerPolicy="no-referrer"
-                    className="w-full h-auto max-h-[340px] sm:max-h-[380px] object-contain mx-auto bg-gradient-to-b from-teal-950 via-teal-900 to-slate-950"
-                  />
+                  <picture>
+                    <source srcSet="/InCoatofWhite.svg" type="image/svg+xml" />
+                    <img
+                      src="/InCoatofWhite.png"
+                      alt="In Coat of White - Always comes first in line - By ZEN"
+                      referrerPolicy="no-referrer"
+                      className="w-full h-auto max-h-[340px] sm:max-h-[380px] object-contain mx-auto bg-gradient-to-b from-teal-950 via-teal-900 to-slate-950"
+                    />
+                  </picture>
                   
                   {/* Subtle Badge Overlay in Corner */}
                   <div className="absolute bottom-2.5 right-2.5 px-2.5 py-1 rounded-xl bg-slate-950/80 backdrop-blur-md border border-teal-400/50 text-[10px] font-mono text-cyan-300 font-bold flex items-center space-x-1 shadow-md">
