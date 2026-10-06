@@ -30,7 +30,13 @@ import {
   Stethoscope,
   FolderArchive,
   Award,
-  Presentation
+  Presentation,
+  Piano,
+  Music,
+  Headphones,
+  Compass,
+  MapPin,
+  EyeOff
 } from 'lucide-react';
 
 interface CommandPaletteProps {
@@ -68,6 +74,91 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
   if (!isOpen) return null;
 
   const commands = [
+    {
+      category: '🎹 PIANIST & 🌿 Touch Grass (Outdoor Music Discovery)',
+      items: [
+        {
+          label: 'PIANIST — Touch Grass: 60-Second Music Walk (Outdoor Signature Demo)',
+          icon: <Compass className="w-4 h-4 text-emerald-400" />,
+          action: () => {
+            setActiveTab('touchgrass');
+            onClose();
+          }
+        },
+        {
+          label: 'Touch Grass: Outdoor Rhythm Hunt (Footsteps, Rain, Traffic, Bells)',
+          icon: <Clock className="w-4 h-4 text-emerald-300" />,
+          action: () => {
+            setActiveTab('touchgrass');
+            onClose();
+          }
+        },
+        {
+          label: 'Touch Grass: Melody Hunt & Avian Contour Reproduction',
+          icon: <Headphones className="w-4 h-4 text-teal-400" />,
+          action: () => {
+            setActiveTab('touchgrass');
+            onClose();
+          }
+        },
+        {
+          label: 'Touch Grass: Acoustic Sound Map Radar (No-GPS Coarse Plotter)',
+          icon: <MapPin className="w-4 h-4 text-amber-400" />,
+          action: () => {
+            setActiveTab('touchgrass');
+            onClose();
+          }
+        },
+        {
+          label: 'Touch Grass: 60-Second Silence Mission (Active Listening Training)',
+          icon: <EyeOff className="w-4 h-4 text-purple-400" />,
+          action: () => {
+            setActiveTab('touchgrass');
+            onClose();
+          }
+        },
+        {
+          label: 'PIANIST: Today\'s Practice Mission & Adaptive Routine',
+          icon: <Piano className="w-4 h-4 text-teal-400" />,
+          action: () => {
+            setActiveTab('pianist');
+            onClose();
+          }
+        },
+        {
+          label: 'Interactive Acoustic Piano & Physical Modeling Synthesizer',
+          icon: <Piano className="w-4 h-4 text-emerald-400" />,
+          action: () => {
+            setActiveTab('pianist');
+            onClose();
+          }
+        },
+        {
+          label: 'Ear Lab: Relative Pitch, Interval Recognition & Play-by-Ear',
+          icon: <Headphones className="w-4 h-4 text-amber-400" />,
+          action: () => {
+            setActiveTab('pianist');
+            onClose();
+          }
+        },
+        {
+          label: 'Sheet Music & Sight-Reading Lab (Interactive Grand Staff)',
+          icon: <Music className="w-4 h-4 text-sky-400" />,
+          action: () => {
+            setActiveTab('pianist');
+            onClose();
+          }
+        },
+        {
+          label: 'The Ultimate Test: Independent Pianist Milestone Challenge',
+          icon: <Trophy className="w-4 h-4 text-amber-400" />,
+          action: () => {
+            setActiveTab('pianist');
+            onClose();
+          }
+        }
+      ]
+    },
     {
       category: '📊 Executive Pitch Deck & MVP Brief (1-Slide Briefs & 1024c Spec)',
       items: [

@@ -58,6 +58,7 @@ import { GreenieVerseApp } from './components/greenieverse/GreenieVerseApp';
 import { TribHouseContainer } from './tribhouse/TribHouseContainer';
 import { CinemaContainer } from './cinema/CinemaContainer';
 import { HederaCommonsPage as HederaCommonsHome } from './modules/hedera/pages/HederaCommonsPage';
+import { PianistApp } from './components/pianist/PianistApp';
 import { SettingsPage } from './components/settings/SettingsPage';
 
 export function App() {
@@ -338,6 +339,14 @@ export function App() {
             setActiveTab={setActiveTab}
             isLoading={isLoadingChat}
           />
+        )}
+
+        {activeTab === 'pianist' && (
+          <PianistApp />
+        )}
+
+        {activeTab === 'touchgrass' && (
+          <PianistApp initialSubTab="touch-grass" />
         )}
 
         {activeTab === 'readit' && (

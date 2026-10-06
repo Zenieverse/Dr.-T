@@ -27,7 +27,8 @@ import {
   FileCheck,
   Stethoscope,
   Network,
-  Presentation
+  Presentation,
+  Piano
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -77,6 +78,8 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
       ) 
     },
+    { id: 'pianist', label: '🎹 Pianist', icon: <Piano className="w-4 h-4 text-teal-400" />, badge: 'Adaptive' },
+    { id: 'touchgrass', label: '🌿 Touch Grass', icon: <Trees className="w-4 h-4 text-emerald-400" />, badge: 'Outdoor' },
     { id: 'bridge', label: 'Health Bridge', icon: <Stethoscope className="w-4 h-4 text-rose-500" />, badge: '11 Pillars' },
     { id: 'deck', label: 'Executive Deck', icon: <Presentation className="w-4 h-4 text-purple-600" />, badge: 'MVP Brief' },
     { id: 'cinema', label: '🎬 Cinema', icon: <Clapperboard className="w-4 h-4 text-amber-500" />, badge: 'Studio' },
