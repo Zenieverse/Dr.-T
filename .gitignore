@@ -7,6 +7,14 @@ node_modules/
 dist/
 build/
 .next/
+*.zip
+*.tar.gz
+submission/
+
+# Local benchmark and harness run results
+.lifeweave_benchmark_results.json
+.lifeweave_investigations.json
+hedera-harness-report.json
 
 # Local environment and secrets
 .env
