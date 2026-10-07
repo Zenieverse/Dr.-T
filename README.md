@@ -6,6 +6,14 @@ An open-source AI music-learning platform that transforms real-world outdoor sou
 
 ---
 
+## 🏆 GitLab Transcend AI Hackathon Showcase
+**Transcend Hackathon Showcase workspace for @zenieverse (DevPost: zenieverse)**
+* Visit the [onboarding issue](https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/28080870/showcase/-/work_items/1) to get started.
+* Official repository: [GitLab Transcend Showcase](https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/28080870/showcase)
+* Full GitLab onboarding guide preserved at [`docs/SHOWCASE_ONBOARDING.md`](docs/SHOWCASE_ONBOARDING.md).
+
+---
+
 ## 🌟 Overview
 
 Most music learning platforms trap students in front of a glass screen:
@@ -20,7 +28,8 @@ The screen is the shortest part of the experience. Learners physically step away
 
 ---
 
-## 🎯 Target Repository
+## 🎯 Target Repositories
+- **GitLab Showcase**: [`gitlab-ai-hackathon/transcend-october-2026/28080870/showcase`](https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/28080870/showcase)
 - **GitHub Repository**: [`Zenieverse/pianist-touch-grass`](https://github.com/Zenieverse/pianist-touch-grass)
 - **License**: MIT
 - **Architecture**: Web Audio API Physical Modeling Synthesizer + Gemma Open AI Reasoning Layer + React 18 + Tailwind CSS
@@ -71,8 +80,8 @@ The screen is the shortest part of the experience. Learners physically step away
 ### Installation
 ```bash
 # Clone the repository
-git clone https://github.com/Zenieverse/pianist-touch-grass.git
-cd pianist-touch-grass
+git clone https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/28080870/showcase.git
+cd showcase
 
 # Install dependencies
 npm install
@@ -89,21 +98,22 @@ Visit `http://localhost:3000` to launch the experience.
 
 ```
 ├── docs/
-│   ├── ARCHITECTURE.md       # Technical design & audio pipeline
-│   ├── CHALLENGE.md          # The Independent Pianist Ultimate Test
-│   ├── DEMO.md               # Deterministic demo guide (60s Walk)
-│   ├── GEMMA.md              # Gemma prompt schemas & provider integration
-│   ├── OUTDOOR-MISSIONS.md   # Mission library & pedagogical milestones
-│   └── PRIVACY.md            # Privacy constitution & audio lifecycle
+│   ├── ARCHITECTURE.md          # Technical design & audio pipeline
+│   ├── CHALLENGE.md             # The Independent Pianist Ultimate Test
+│   ├── DEMO.md                  # Deterministic demo guide (60s Walk)
+│   ├── GEMMA.md                 # Gemma prompt schemas & provider integration
+│   ├── OUTDOOR-MISSIONS.md      # Mission library & pedagogical milestones
+│   ├── PRIVACY.md               # Privacy constitution & audio lifecycle
+│   └── SHOWCASE_ONBOARDING.md   # Original GitLab Transcend onboarding instructions
 ├── src/
 │   ├── components/
 │   │   ├── pianist/
-│   │   │   ├── touchgrass/   # Touch Grass outdoor core
-│   │   │   │   ├── ai/       # AIProvider, GemmaLocal & GemmaCloud
-│   │   │   │   ├── audio/    # Web Audio AnalyserNode feature extractor
+│   │   │   ├── touchgrass/      # Touch Grass outdoor core
+│   │   │   │   ├── ai/          # AIProvider, GemmaLocal & GemmaCloud
+│   │   │   │   ├── audio/       # Web Audio AnalyserNode feature extractor
 │   │   │   │   └── TouchGrassStudio.tsx
-│   │   │   ├── audio/        # Web Audio additive piano synthesizer
-│   │   │   └── components/   # Interactive keyboard & notation staves
+│   │   │   ├── audio/           # Web Audio additive piano synthesizer
+│   │   │   └── components/      # Interactive keyboard & notation staves
 ├── CONTRIBUTING.md
 ├── LICENSE
 ├── README.md

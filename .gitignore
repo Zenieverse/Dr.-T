@@ -7,9 +7,10 @@ node_modules/
 dist/
 build/
 .next/
+.vite/
 *.zip
 *.tar.gz
-submission/
+/submission/
 
 # Local benchmark and harness run results
 .lifeweave_benchmark_results.json
