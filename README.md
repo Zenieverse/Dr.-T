@@ -6,11 +6,32 @@ An open-source AI music-learning platform that transforms real-world outdoor sou
 
 ---
 
-## 🏆 GitLab Transcend AI Hackathon Showcase
-**Transcend Hackathon Showcase workspace for @zenieverse (DevPost: zenieverse)**
-* Visit the [onboarding issue](https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/28080870/showcase/-/work_items/1) to get started.
-* Official repository: [GitLab Transcend Showcase](https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/28080870/showcase)
-* Full GitLab onboarding guide preserved at [`docs/SHOWCASE_ONBOARDING.md`](docs/SHOWCASE_ONBOARDING.md).
+## 🌐 Live Demo
+
+* **PIANIST — Touch Grass**: [https://ais-pre-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app](https://ais-pre-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app)
+* **GitLab Showcase**: [https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/28080870/showcase](https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/28080870/showcase)
+
+---
+
+## 🏆 Hackathon Submission
+
+* **Project**: PIANIST — Touch Grass
+* **GitLab Showcase Repository**: [https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/28080870/showcase](https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/28080870/showcase)
+* **Live Demo**: [https://ais-pre-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app](https://ais-pre-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app)
+* **Demo Video**: *To be added* (placeholder for post-recording submission upload)
+* **Technology Stack**: React 18, TypeScript, Tailwind CSS, Web Audio API (Additive Synthesis & AnalyserNode), Gemma AI Reasoning Layer (Local & Cloud), Vite
+* **Privacy Approach**: 100% Client-side in-memory acoustic feature extraction; raw audio buffers immediately discarded; zero persistent GPS tracking; zero external telemetry
+* **GitLab AI / Agent Development Evidence**: See repository history and documented workflow in [`docs/GITLAB_AI.md`](docs/GITLAB_AI.md); no unsupported feature claims are made.
+* **Onboarding & Work Items**: Official GitLab workspace for `@zenieverse` (DevPost: `zenieverse`). Onboarding guide preserved at [`docs/SHOWCASE_ONBOARDING.md`](docs/SHOWCASE_ONBOARDING.md).
+
+---
+
+## 🚶 Demo Flow: OUTSIDE → LISTEN → DISCOVER → PIANO
+
+1. **OUTSIDE (60-Second Walk)**: Step away from screens. A calming 60-second timer reminds the learner: *"Put your phone away. Eyes up. Listen."*
+2. **LISTEN (Acoustic Capture)**: Upon return, capture real environmental rhythms and melodies via short 3-second mic sampling, interactive tap tempo, or verified acoustic demo scenarios (gravel footsteps, birdcalls, raindrops, flowing water).
+3. **DISCOVER (Gemma Reasoning)**: Gemma analyzes pulse, tempo (BPM), and melodic contours to translate ambient soundscapes into pedagogical exercises and target notes.
+4. **PIANO (Interactive Performance)**: Audition the target phrase, practice on the responsive physical-modeling piano synthesizer (keyboard, touch, or MIDI), prove mastery, and earn outdoor ear-training milestones.
 
 ---
 

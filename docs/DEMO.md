@@ -4,6 +4,13 @@ The **60-Second Music Walk** is the flagship signature demo of **PIANIST — Tou
 
 ---
 
+## 🌐 Live Experience
+* **Live App**: [https://ais-pre-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app](https://ais-pre-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app)
+* **Direct Navigation**: Select **🌿 Touch Grass** in the top navigation bar.
+* **Evidence & Screenshots**: See [`docs/evidence/README.md`](evidence/README.md) for screenshot specifications and demo audit notes.
+
+---
+
 ## 🎯 Demo Walkthrough Steps
 
 ### 1. Launch Mission
