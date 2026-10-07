@@ -36,9 +36,9 @@ The **60-Second Music Walk** is the flagship signature demo of **PIANIST — Tou
      - *Raindrops on Leaves*: Broken triad ostinato at 84 BPM.
      - *Flowing Brook*: Pentatonic improvisation seed at 78 BPM.
 
-### 4. Gemma Interprets the Sound
-- The selected audio features are analyzed by the Gemma provider.
-- Gemma outputs a structured reasoning payload:
+### 4. Acoustic Interpretation & Structured Reasoning
+- The captured audio features are analyzed by the active reasoning engine (`LocalHeuristicProvider` or `GemmaCloudProvider`).
+- The engine outputs a structured reasoning payload conforming to the musical schema:
   ```json
   {
     "sound_type": "environmental_footstep_pulse",

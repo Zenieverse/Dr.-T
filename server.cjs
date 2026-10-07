@@ -172095,7 +172095,7 @@ Return STRICTLY valid JSON matching this schema:
       "instructions": "string instructions for piano learner"
     },
     "coach_tip": "string guidance tip",
-    "model_provider_name": "Gemma-2-9B (Google Hosted)"
+    "model_provider_name": "Gemma-Compatible Hosted Reasoning Engine"
   }
 }`;
         const response = await gemini.models.generateContent({
@@ -172153,7 +172153,7 @@ Return STRICTLY valid JSON matching this schema:
           instructions: "Play target notes in time with your outdoor cadence, feeling the physical pulse in your arm."
         },
         coach_tip: "Drop your arm with natural relaxation, letting gravity generate tone rather than muscle tension.",
-        model_provider_name: "Gemma Local Heuristic Engine"
+        model_provider_name: "Deterministic Local Heuristic Fallback"
       }
     });
   } catch (error) {

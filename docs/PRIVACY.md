@@ -29,6 +29,6 @@
 | Data Type | Processed | Stored | Transmitted |
 | --------- | --------- | ------ | ----------- |
 | Raw Audio | In-Memory (3.5s) | No | No |
-| Audio Features (BPM, Centroid) | Local Client | Local Storage (Optional) | Gemma Payload |
+| Audio Features (BPM, Centroid) | Local Client | Local Storage (Optional) | Only if Cloud Bridge enabled |
 | GPS Coordinates | None | None | None |
 | Piano Performance Events | Local Client | Local Storage | No |

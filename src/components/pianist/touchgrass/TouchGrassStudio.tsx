@@ -8,7 +8,7 @@ import {
   SoundMapPoint,
   ActiveListeningLevel
 } from './types/touchGrassTypes';
-import { AIProvider, gemmaLocalProvider, gemmaCloudProvider } from './ai/aiProvider';
+import { AIProvider, localHeuristicProvider, gemmaCloudProvider } from './ai/aiProvider';
 import { audioFeatureExtractor } from './audio/audioFeatureExtractor';
 import { pianoAudio } from '../audio/pianoAudio';
 
@@ -178,7 +178,7 @@ export const TouchGrassStudio: React.FC<TouchGrassStudioProps> = ({
   const [activeView, setActiveView] = useState<'hub' | 'walk-demo' | 'rhythm-hunt' | 'melody-hunt' | 'sound-map' | 'rhythm-walk' | 'silence'>('hub');
   
   // AI Provider Selection
-  const [currentProvider, setCurrentProvider] = useState<AIProvider>(gemmaLocalProvider);
+  const [currentProvider, setCurrentProvider] = useState<AIProvider>(localHeuristicProvider);
   
   // 60-Second Walk State Machine
   const [walkStep, setWalkStep] = useState<'ready' | 'outside-phone-away' | 'what-did-you-hear' | 'gemma-analyzing' | 'bring-it-home' | 'completed'>('ready');
@@ -429,22 +429,22 @@ export const TouchGrassStudio: React.FC<TouchGrassStudioProps> = ({
 
         {/* Global Controls: AI Provider & Outdoor XP */}
         <div className="flex flex-wrap items-center gap-2.5 text-xs">
-          {/* Gemma Provider Selector */}
+          {/* Reasoning Provider Selector */}
           <div className="flex items-center bg-slate-800/90 rounded-xl p-1 border border-slate-700">
             <span className="text-[10px] font-mono text-slate-400 px-2 flex items-center gap-1">
               <Brain className="w-3.5 h-3.5 text-teal-400" />
-              Gemma:
+              Reasoning:
             </span>
             <button
               type="button"
-              onClick={() => setCurrentProvider(gemmaLocalProvider)}
+              onClick={() => setCurrentProvider(localHeuristicProvider)}
               className={`px-2.5 py-1 rounded-lg font-mono text-[11px] font-bold transition ${
                 currentProvider.providerType === 'local'
                   ? 'bg-emerald-500 text-slate-950 shadow-xs'
                   : 'text-slate-400 hover:text-white'
               }`}
             >
-              Local Edge (Privacy)
+              Local Heuristic (Privacy)
             </button>
             <button
               type="button"
@@ -455,7 +455,7 @@ export const TouchGrassStudio: React.FC<TouchGrassStudioProps> = ({
                   : 'text-slate-400 hover:text-white'
               }`}
             >
-              Cloud Hosted
+              Gemma Cloud Bridge
             </button>
           </div>
 

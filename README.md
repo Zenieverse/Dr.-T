@@ -68,11 +68,11 @@ The screen is the shortest part of the experience. Learners physically step away
    - Performance evaluation on the live keyboard.
    - *"You heard it. Now play it. You didn't memorize this. You discovered it."*
 
-2. **Gemma Open AI Reasoning Layer**
-   - Abstraction interface (`AIProvider`) with zero vendor lock-in.
-   - **Gemma Local Provider**: Deterministic on-device edge reasoning with full JSON schema compliance.
-   - **Gemma Cloud Provider**: Configurable integration with hosted Gemma models (`gemma-2-9b-it`, `gemma-2-27b-it`, Ollama, vLLM).
-   - Generates structured JSON describing sound classification, pulse detection, estimated BPM, melodic contours, and pedagogical exercises.
+2. **AI Reasoning Layer (Local Heuristic & Gemma Cloud Bridge)**
+   - Extensible abstraction interface (`AIProvider`) with zero vendor lock-in.
+   - **Local Heuristic Provider (Default)**: 100% offline, client-side deterministic music theory and acoustic reasoning engine ensuring absolute privacy and 0ms latency.
+   - **Gemma Cloud Provider**: Configurable bridge for hosted Gemma model endpoints (`gemma-2-9b-it`, `gemma-2-27b-it`, Ollama, vLLM) with graceful fallback to local heuristic reasoning.
+   - Generates structured JSON conforming to the musical reasoning schema (pulse detection, estimated BPM, melodic contours, pedagogical hand assignments, and target notes).
 
 3. **100% Client-Side Audio Privacy**
    - Live audio is analyzed in-memory via the Web Audio API `AnalyserNode`.

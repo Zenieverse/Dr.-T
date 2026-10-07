@@ -1,6 +1,6 @@
 // =======================================================
-// GEMMA AI PROVIDER ABSTRACTION LAYER FOR TOUCH GRASS
-// Implements GemmaCloudProvider and GemmaLocalProvider
+// AI PROVIDER ABSTRACTION LAYER FOR TOUCH GRASS
+// Implements LocalHeuristicProvider and GemmaCloudProvider
 // =======================================================
 
 import { 
@@ -26,14 +26,15 @@ export interface AIProvider {
 }
 
 // -------------------------------------------------------
-// 1. GEMMA LOCAL PROVIDER
-// Runs zero-network, privacy-first deterministic reasoning
-// matching the exact Gemma musical JSON schema
+// 1. DETERMINISTIC LOCAL HEURISTIC PROVIDER
+// Runs zero-network, 100% offline, privacy-first deterministic
+// music theory & acoustic reasoning. (Does not run neural weights).
+// Outputs structured JSON matching the musical reasoning schema.
 // -------------------------------------------------------
-export class GemmaLocalProvider implements AIProvider {
-  public name = 'Gemma Local Edge Engine';
+export class LocalHeuristicProvider implements AIProvider {
+  public name = 'Deterministic Local Music Reasoning Engine';
   public providerType: 'local' = 'local';
-  public modelId = 'gemma-local-embedded-v1';
+  public modelId = 'deterministic-local-heuristic-v1';
 
   public async interpretSound(
     features: ExtractedAudioFeatures,
@@ -63,7 +64,7 @@ export class GemmaLocalProvider implements AIProvider {
           instructions: 'Play Left Hand C3 on beat 1, step up to G3 on beat 2, A3 on beat 3, and F3 on beat 4, synchronizing with your remembered walking pace.'
         },
         coach_tip: 'Keep your left wrist loose, as if dropping your arm gently with each heel strike.',
-        model_provider_name: 'Gemma Local Heuristic Engine'
+        model_provider_name: 'Deterministic Local Heuristic Engine'
       };
     }
 
@@ -88,7 +89,7 @@ export class GemmaLocalProvider implements AIProvider {
           instructions: 'Start on G4 (Treble landmark), drop a minor 3rd to E4, then flutter back up to G4 and resolve softly on A4.'
         },
         coach_tip: 'Play with light fingertips, letting the keys rebound quickly like feathers.',
-        model_provider_name: 'Gemma Local Heuristic Engine'
+        model_provider_name: 'Deterministic Local Heuristic Engine'
       };
     }
 
@@ -113,7 +114,7 @@ export class GemmaLocalProvider implements AIProvider {
           instructions: 'Play rapid, crisp repeated eighth/sixteenth pulses on G4 and B4, anchoring your wrist and using light finger-action.'
         },
         coach_tip: 'Keep your forearm completely still. The energy comes from the knuckles.',
-        model_provider_name: 'Gemma Local Heuristic Engine'
+        model_provider_name: 'Deterministic Local Heuristic Engine'
       };
     }
 
@@ -138,7 +139,7 @@ export class GemmaLocalProvider implements AIProvider {
           instructions: 'Strike low A2/E3 octaves with solid weight on count 1, then rest on counts 2 and 3 like a heavy machine cycle.'
         },
         coach_tip: 'Use full arm drop from the shoulder into the keyboard bed without tensing your wrists.',
-        model_provider_name: 'Gemma Local Heuristic Engine'
+        model_provider_name: 'Deterministic Local Heuristic Engine'
       };
     }
 
@@ -163,7 +164,7 @@ export class GemmaLocalProvider implements AIProvider {
           instructions: 'Lock into the steady 108 BPM pulse. Play four repeated quarter notes without rushing or dragging.'
         },
         coach_tip: 'Breathe evenly on beats 1 and 3 to anchor your nervous system.',
-        model_provider_name: 'Gemma Local Heuristic Engine'
+        model_provider_name: 'Deterministic Local Heuristic Engine'
       };
     }
 
@@ -188,7 +189,7 @@ export class GemmaLocalProvider implements AIProvider {
           instructions: 'Play tension chord (G-B-F) then firmly resolve into stable home chord (C-E-G).'
         },
         coach_tip: 'Feel the sense of arrival when the C major chord settles.',
-        model_provider_name: 'Gemma Local Heuristic Engine'
+        model_provider_name: 'Deterministic Local Heuristic Engine'
       };
     }
 
@@ -213,7 +214,7 @@ export class GemmaLocalProvider implements AIProvider {
           instructions: 'Repeat the broken triad E4 → G4 → C5 → G4 softly in looping eighth notes, mimicking droplets tapping a windowpane.'
         },
         coach_tip: 'Use subtle damper pedal to let the notes blend without blurring into dissonance.',
-        model_provider_name: 'Gemma Local Heuristic Engine'
+        model_provider_name: 'Deterministic Local Heuristic Engine'
       };
     }
 
@@ -238,7 +239,7 @@ export class GemmaLocalProvider implements AIProvider {
         instructions: 'Play C4 with thumb in rhythm with your detected outdoor tempo, answering with E4 and G4.'
       },
       coach_tip: 'Close your eyes for 5 seconds before playing to bring the acoustic memory back into focus.',
-      model_provider_name: 'Gemma Local Heuristic Engine'
+      model_provider_name: 'Deterministic Local Heuristic Engine'
     };
   }
 
@@ -273,15 +274,15 @@ export class GemmaLocalProvider implements AIProvider {
 }
 
 // -------------------------------------------------------
-// 2. GEMMA CLOUD PROVIDER
+// 2. GEMMA-COMPATIBLE CLOUD PROVIDER
 // Interfaces with hosted Gemma-2 endpoints or backend proxy
-// with seamless graceful fallback to GemmaLocalProvider
+// with seamless graceful fallback to LocalHeuristicProvider
 // -------------------------------------------------------
 export class GemmaCloudProvider implements AIProvider {
-  public name = 'Gemma Cloud Engine (gemma-2-9b-it)';
+  public name = 'Gemma Cloud Provider (Hosted Model Bridge)';
   public providerType: 'cloud' = 'cloud';
-  public modelId = 'gemma-2-9b-it';
-  private localFallback = new GemmaLocalProvider();
+  public modelId = 'gemma-compatible-cloud-v1';
+  private localFallback = new LocalHeuristicProvider();
 
   public async interpretSound(
     features: ExtractedAudioFeatures,
@@ -300,7 +301,7 @@ export class GemmaCloudProvider implements AIProvider {
         if (data.reasoning) {
           return {
             ...data.reasoning,
-            model_provider_name: 'Gemma-2-9B (Google Hosted)'
+            model_provider_name: data.reasoning.model_provider_name || 'Gemma Cloud Provider (Hosted)'
           };
         }
       }
@@ -312,7 +313,7 @@ export class GemmaCloudProvider implements AIProvider {
     const localResult = await this.localFallback.interpretSound(features, userDescription);
     return {
       ...localResult,
-      model_provider_name: 'Gemma Local Heuristic (Offline / Fallback)'
+      model_provider_name: 'Deterministic Local Heuristic (Offline / Fallback)'
     };
   }
 
@@ -324,6 +325,10 @@ export class GemmaCloudProvider implements AIProvider {
   }
 }
 
-// Default export singleton
-export const gemmaLocalProvider = new GemmaLocalProvider();
+// Default export singletons
+export const localHeuristicProvider = new LocalHeuristicProvider();
 export const gemmaCloudProvider = new GemmaCloudProvider();
+
+// Preserved aliases for backwards compatibility without false Gemma claims
+export { LocalHeuristicProvider as GemmaLocalProvider, localHeuristicProvider as gemmaLocalProvider };
+
