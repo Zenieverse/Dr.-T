@@ -174950,7 +174950,7 @@ async function setupApp() {
   const isProduction = !isDev && (process.env.NODE_ENV === "production" || Boolean(process.env.K_SERVICE) || Boolean(process.env.PORT && process.env.PORT !== "3000") || hasDist);
   if (!isProduction) {
     const vite = await (0, import_vite.createServer)({
-      server: { middlewareMode: true },
+      server: { middlewareMode: true, hmr: false },
       appType: "spa"
     });
     app.use(vite.middlewares);
