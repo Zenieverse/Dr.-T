@@ -71,7 +71,7 @@
 2. **AI Provider Abstraction (`src/components/pianist/touchgrass/ai/aiProvider.ts`)**
    - Decouples UI components from specific inference engines.
    - `LocalHeuristicProvider`: Deterministic, offline music theory and acoustic reasoning rules (zero on-device neural weights).
-   - `GemmaCloudProvider`: Production cloud interface for hosted Gemma model servers with graceful local heuristic fallback.
+   - `GemmaCloudProvider`: Production cloud interface executing hosted Gemma 4 models (`gemma-4-31b-it` / `gemma-4-26b-a4b-it`) with graceful local heuristic fallback.
 
 3. **Touch Grass Studio (`src/components/pianist/touchgrass/TouchGrassStudio.tsx`)**
    - Orchestrates the state machine:

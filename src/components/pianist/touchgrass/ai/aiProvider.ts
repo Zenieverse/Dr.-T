@@ -279,9 +279,9 @@ export class LocalHeuristicProvider implements AIProvider {
 // with seamless graceful fallback to LocalHeuristicProvider
 // -------------------------------------------------------
 export class GemmaCloudProvider implements AIProvider {
-  public name = 'Gemma Cloud Provider (Hosted Model Bridge)';
+  public name = 'Gemma Cloud Provider (gemma-4-31b-it)';
   public providerType: 'cloud' = 'cloud';
-  public modelId = 'gemma-compatible-cloud-v1';
+  public modelId = 'gemma-4-31b-it';
   private localFallback = new LocalHeuristicProvider();
 
   public async interpretSound(

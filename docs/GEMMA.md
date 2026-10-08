@@ -39,11 +39,11 @@ The project implements a pluggable provider interface (`AIProvider`) with two co
   - Works completely offline in remote parks and nature trails without cellular connectivity.
   - 0ms inference latency.
 
-### 2. `GemmaCloudProvider` (Hosted Model Bridge)
-* **Execution Location**: Server-side proxy (`/api/gemma/interpret`) or hosted inference endpoints.
-* **Supported Models**: Configurable bridge for hosted Gemma runtimes (`gemma-2-9b-it`, `gemma-2-27b-it`, Vertex AI, Ollama, or vLLM endpoints).
-* **Technical Function**: Sends extracted numerical acoustic features and contextual notes to the model with a strict system instruction constraining output to the musical reasoning JSON schema.
-* **Fallback Behavior**: If network connectivity is lost, credentials are unconfigured, or the endpoint fails, it automatically and silently falls back to `LocalHeuristicProvider` to ensure uninterrupted learner experience.
+### 2. `GemmaCloudProvider` (Hosted Model Inference)
+* **Execution Location**: Server-side endpoint (`/api/gemma/interpret`) via Google GenAI SDK.
+* **Active Models**: Native hosted Gemma 4 models (**`gemma-4-31b-it`**, with automatic **`gemma-4-26b-a4b-it`** demand-spike fallback).
+* **Technical Function**: Sends extracted numerical acoustic features and contextual notes to the Gemma model with a strict system instruction constraining output to the musical reasoning JSON schema.
+* **Fallback Behavior**: If network connectivity is lost, credentials are unconfigured, or the endpoint fails, it automatically and silently falls back to `LocalHeuristicProvider` labeled as `"Deterministic Local Heuristic Fallback"`.
 
 ---
 

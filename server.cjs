@@ -172064,7 +172064,7 @@ app.post("/api/gemma/interpret", async (req, res) => {
     const gemini = getGemini();
     if (gemini) {
       try {
-        const prompt = `You are the Gemma Open-Source Musical Reasoning Engine for PIANIST Touch Grass.
+        const prompt = `You are Gemma 4 (gemma-4-31b-it), the open-source musical reasoning engine for PIANIST Touch Grass.
 Tagline: "Hear the world. Find the music. Play it."
 
 Extracted Audio Features from Outdoor Environment:
@@ -172095,19 +172095,37 @@ Return STRICTLY valid JSON matching this schema:
       "instructions": "string instructions for piano learner"
     },
     "coach_tip": "string guidance tip",
-    "model_provider_name": "Gemma-Compatible Hosted Reasoning Engine"
+    "model_provider_name": "Gemma 4 (gemma-4-31b-it)"
   }
 }`;
-        const response = await gemini.models.generateContent({
-          model: "gemini-2.5-flash",
-          contents: [{ role: "user", parts: [{ text: prompt }] }],
-          config: {
-            responseMimeType: "application/json",
-            temperature: 0.2
-          }
-        });
+        let response;
+        let activeModelId = "gemma-4-31b-it";
+        try {
+          response = await gemini.models.generateContent({
+            model: "gemma-4-31b-it",
+            contents: [{ role: "user", parts: [{ text: prompt }] }],
+            config: {
+              responseMimeType: "application/json",
+              temperature: 0.2
+            }
+          });
+        } catch (err31) {
+          console.warn("gemma-4-31b-it high demand spike, attempting gemma-4-26b-a4b-it:", err31?.message);
+          activeModelId = "gemma-4-26b-a4b-it";
+          response = await gemini.models.generateContent({
+            model: "gemma-4-26b-a4b-it",
+            contents: [{ role: "user", parts: [{ text: prompt }] }],
+            config: {
+              responseMimeType: "application/json",
+              temperature: 0.2
+            }
+          });
+        }
         const text = response.text || "";
         const parsed = JSON.parse(text);
+        if (parsed.reasoning) {
+          parsed.reasoning.model_provider_name = `Gemma ${activeModelId}`;
+        }
         return res.json(parsed);
       } catch (err) {
         console.warn("Gemma Cloud generation failed, using local deterministic fallback:", err);
