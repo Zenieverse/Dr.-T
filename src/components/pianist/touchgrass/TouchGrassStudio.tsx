@@ -44,14 +44,17 @@ import {
   Layers,
   Sparkle,
   Sliders,
-  ExternalLink
+  ExternalLink,
+  BookOpen
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { GrandPianoWorkspace } from '../grandpiano/components/GrandPianoWorkspace';
 
 interface TouchGrassStudioProps {
   onOpenPiano?: () => void;
   onSetTargetNotes?: (notes: string[]) => void;
   onXpEarned?: (xp: number) => void;
+  initialSubView?: 'hub' | 'walk-demo' | 'grand-piano' | 'rhythm-hunt' | 'melody-hunt' | 'sound-map' | 'rhythm-walk' | 'silence';
 }
 
 // 4 Deterministic Demo Scenarios
@@ -172,10 +175,11 @@ const INITIAL_SOUND_MAP_POINTS: SoundMapPoint[] = [
 export const TouchGrassStudio: React.FC<TouchGrassStudioProps> = ({
   onOpenPiano,
   onSetTargetNotes,
-  onXpEarned
+  onXpEarned,
+  initialSubView
 }) => {
   // Navigation / Mission Subview
-  const [activeView, setActiveView] = useState<'hub' | 'walk-demo' | 'rhythm-hunt' | 'melody-hunt' | 'sound-map' | 'rhythm-walk' | 'silence'>('hub');
+  const [activeView, setActiveView] = useState<'hub' | 'walk-demo' | 'grand-piano' | 'rhythm-hunt' | 'melody-hunt' | 'sound-map' | 'rhythm-walk' | 'silence'>(initialSubView || 'hub');
   
   // AI Provider Selection
   const [currentProvider, setCurrentProvider] = useState<AIProvider>(localHeuristicProvider);
@@ -242,6 +246,11 @@ export const TouchGrassStudio: React.FC<TouchGrassStudioProps> = ({
 
   // Open-Source GitHub Modal
   const [isGitHubModalOpen, setIsGitHubModalOpen] = useState<boolean>(false);
+
+  // Richard Clayderman "Always" Play-Along Masterclass State
+  const [isAlwaysModalOpen, setIsAlwaysModalOpen] = useState<boolean>(false);
+  const [grandPianoSubTab, setGrandPianoSubTab] = useState<'tutor' | 'whole-tracks' | 'studio' | 'library' | 'learn-ear' | 'theory' | 'outdoor-bridge'>('whole-tracks');
+  const [grandPianoTrackId, setGrandPianoTrackId] = useState<string>('track-clayderman-always-complete');
 
   // Countdown timer for "Put your phone away" (60s Music Walk)
   useEffect(() => {
@@ -540,6 +549,7 @@ export const TouchGrassStudio: React.FC<TouchGrassStudioProps> = ({
         {[
           { id: 'hub', label: 'Philosophy & Sound → Music', icon: <Trees className="w-3.5 h-3.5" /> },
           { id: 'walk-demo', label: '60s Music Walk (Signature)', icon: <Footprints className="w-3.5 h-3.5 text-emerald-400" />, badge: 'Demo' },
+          { id: 'grand-piano', label: 'Grand Piano', icon: <Piano className="w-3.5 h-3.5 text-amber-400" />, badge: 'Studio' },
           { id: 'rhythm-hunt', label: '1. Rhythm Hunt', icon: <Clock className="w-3.5 h-3.5" />, badge: '9 Sounds' },
           { id: 'melody-hunt', label: '2. Melody Hunt', icon: <Headphones className="w-3.5 h-3.5" />, badge: '5 Steps' },
           { id: 'sound-map', label: '3. Sound Map', icon: <MapPin className="w-3.5 h-3.5" />, badge: 'Radar' },
@@ -914,13 +924,21 @@ export const TouchGrassStudio: React.FC<TouchGrassStudioProps> = ({
                 <span>+75 Outdoor XP Awarded • Active Listening Level Maintained</span>
               </div>
 
-              <div className="flex justify-center gap-3">
+              <div className="flex flex-wrap justify-center gap-3">
                 <button
                   type="button"
                   onClick={startWalkMission}
                   className="px-5 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs transition shadow-md"
                 >
                   Start Another 60s Music Walk
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveView('grand-piano')}
+                  className="px-5 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold text-xs transition shadow-md flex items-center space-x-1.5 cursor-pointer"
+                >
+                  <Piano className="w-4 h-4" />
+                  <span>Play in Grand Piano Studio</span>
                 </button>
                 {onOpenPiano && (
                   <button
@@ -1726,6 +1744,278 @@ export const TouchGrassStudio: React.FC<TouchGrassStudioProps> = ({
               <p className="text-xs text-slate-400 mt-1 leading-relaxed">
                 Rhythm & texture → Pentatonic improvisation prompt.
               </p>
+            </div>
+          </div>
+
+          {/* Richard Clayderman: Always (Featured Complete Track Hero Card) */}
+          <div className="p-6 sm:p-7 rounded-3xl bg-gradient-to-r from-rose-950/70 via-stone-950 to-amber-950/70 border border-rose-500/40 shadow-2xl space-y-4">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+              <div>
+                <div className="flex flex-wrap items-center gap-2 mb-2">
+                  <span className="px-3 py-1 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/40 text-[10px] font-mono font-bold tracking-wider uppercase flex items-center space-x-1.5 shadow-xs">
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>FEATURED COMPLETE TRACK • REPERTOIRE MASTERPIECE</span>
+                  </span>
+                  <span className="text-[11px] font-mono text-amber-300">
+                    Richard Clayderman • C Minor / Eb Major • 80 BPM • 16 Measures
+                  </span>
+                </div>
+                <h3 className="text-xl sm:text-2xl font-serif font-black text-rose-100">
+                  Always — Richard Clayderman (Complete Track with Hints)
+                </h3>
+                <p className="text-xs sm:text-sm text-stone-300 mt-1.5 max-w-2xl leading-relaxed">
+                  The quintessential New Romantic piano ballad. Rolling 10th-interval left-hand arpeggios carry a soaring right-hand cantabile melody. Learn how to play along note-by-note with live hand guidance, finger hints, and syncopated pedaling.
+                </p>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setIsAlwaysModalOpen(true)}
+                  className="px-4 py-2.5 rounded-xl bg-stone-900 hover:bg-stone-800 text-amber-200 border border-amber-900/50 text-xs font-bold transition flex items-center space-x-1.5 cursor-pointer shadow-md"
+                >
+                  <BookOpen className="w-4 h-4 text-amber-400" />
+                  <span>How to Play Hints</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setGrandPianoSubTab('whole-tracks');
+                    setGrandPianoTrackId('track-clayderman-always-complete');
+                    setActiveView('grand-piano');
+                  }}
+                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-rose-500 hover:from-amber-400 hover:to-rose-400 text-stone-950 font-black text-xs transition flex items-center space-x-2 shadow-lg cursor-pointer"
+                >
+                  <Piano className="w-4 h-4" />
+                  <span>Play Along on Grand Piano</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Quick 3-Pillar Technique Preview Bar */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-2 border-t border-rose-950/60 text-[11px]">
+              <div className="p-2.5 rounded-xl bg-stone-950/70 border border-stone-800/80">
+                <span className="text-amber-400 font-bold block mb-0.5">1. Left Hand 10th Arpeggios</span>
+                <span className="text-stone-400">Glide wrist laterally (5-3-2-1) to roll C2-G2-C3-Eb3 effortlessly.</span>
+              </div>
+              <div className="p-2.5 rounded-xl bg-stone-950/70 border border-stone-800/80">
+                <span className="text-rose-400 font-bold block mb-0.5">2. Right Hand Cantabile</span>
+                <span className="text-stone-400">Arm weight drives the 5th finger (pinky) so the melody sings like a voice.</span>
+              </div>
+              <div className="p-2.5 rounded-xl bg-stone-950/70 border border-stone-800/80">
+                <span className="text-teal-400 font-bold block mb-0.5">3. Syncopated Pedaling</span>
+                <span className="text-stone-400">Depress pedal just after beat 1; clear and refresh on beat 3 chord shifts.</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Grand Piano Integration Hero Card */}
+          <div className="p-6 rounded-3xl bg-gradient-to-r from-stone-950 via-amber-950/40 to-stone-950 border border-amber-900/40 shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-mono font-bold uppercase tracking-wider mb-2">
+                <Piano className="w-3.5 h-3.5" />
+                <span>FEATURED SUBTAB</span>
+              </div>
+              <h3 className="text-lg font-serif font-black text-amber-100">
+                Grand Piano Studio & Classical Repertoire
+              </h3>
+              <p className="text-xs text-stone-300 mt-1 max-w-xl leading-relaxed">
+                Bridge nature's acoustic rhythms to the concert stage. Experience physical modeling presets (Steinway, Bösendorfer, Felt), dual Grand Staff notation, and learn classical masterworks by ear.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setActiveView('grand-piano')}
+              className="px-5 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-black text-xs transition shadow-lg flex items-center space-x-2 cursor-pointer shrink-0"
+            >
+              <Piano className="w-4 h-4" />
+              <span>Open Grand Piano Subtab</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ======================================================== */}
+      {/* VIEW: GRAND PIANO (CONCERT GRAND STUDIO & MASTERCLASS)  */}
+      {/* ======================================================== */}
+      {activeView === 'grand-piano' && (
+        <GrandPianoWorkspace
+          onXpEarned={onXpEarned}
+          initialSubTab={grandPianoSubTab}
+          initialTrackId={grandPianoTrackId}
+          importedNotes={gemmaReasoning?.exercise?.targetNotes || (selectedDemoScenario ? selectedDemoScenario.notes : undefined)}
+          outdoorSoundContext={selectedDemoScenario ? {
+            title: selectedDemoScenario.title,
+            category: selectedDemoScenario.category,
+            tempo: selectedDemoScenario.tempo,
+            pattern: selectedDemoScenario.pattern,
+            notes: selectedDemoScenario.notes,
+            explanation: selectedDemoScenario.explanation
+          } : (gemmaReasoning ? {
+            title: gemmaReasoning.exercise.title,
+            category: gemmaReasoning.source_category,
+            tempo: gemmaReasoning.tempo_estimate,
+            pattern: gemmaReasoning.pattern,
+            notes: gemmaReasoning.exercise.targetNotes,
+            explanation: gemmaReasoning.pedagogy_explanation
+          } : null)}
+          onBackToMissions={() => setActiveView('hub')}
+        />
+      )}
+
+      {/* ======================================================== */}
+      {/* RICHARD CLAYDERMAN "ALWAYS" COMPLETE PLAY-ALONG HINTS MODAL */}
+      {/* ======================================================== */}
+      {isAlwaysModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-stone-950 border border-amber-900/50 rounded-3xl p-6 sm:p-8 max-w-3xl w-full text-slate-100 space-y-6 shadow-2xl my-8">
+            <div className="flex items-center justify-between pb-4 border-b border-amber-900/40">
+              <div className="flex items-center space-x-3">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-rose-600 via-amber-500 to-rose-700 p-0.5 shadow-lg flex items-center justify-center">
+                  <div className="w-full h-full bg-stone-950 rounded-2xl flex items-center justify-center text-amber-300 font-serif font-black text-xl">
+                    🎹
+                  </div>
+                </div>
+                <div>
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-rose-400 font-bold block">
+                    Virtuoso Masterclass • Complete Track Guide
+                  </span>
+                  <h3 className="text-xl sm:text-2xl font-serif font-black text-amber-100">
+                    Always — Richard Clayderman
+                  </h3>
+                  <span className="text-xs text-stone-400 font-mono">
+                    Key of C Minor / Eb Major • 80 BPM • 4/4 Time Signature • 16 Measures
+                  </span>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setIsAlwaysModalOpen(false)}
+                className="text-stone-400 hover:text-stone-200 text-sm font-mono px-3 py-1.5 rounded-xl bg-stone-900 border border-stone-800 cursor-pointer"
+              >
+                ✕ Close
+              </button>
+            </div>
+
+            {/* Narrative & Nature Connection */}
+            <div className="p-4 rounded-2xl bg-stone-900/80 border border-stone-800 text-xs sm:text-[13px] text-stone-300 leading-relaxed space-y-2">
+              <p>
+                Richard Clayderman's <strong className="text-amber-200">"Always"</strong> (adapted from the lyrical ballad <em>那么爱你为什么</em>) is the hallmark of the French New Romantic piano idiom. Just like listening to gentle breezes through long meadow grass during a quiet outdoor walk, the piece weaves rolling, unbroken acoustic waves beneath a heartfelt human melody.
+              </p>
+            </div>
+
+            {/* The 4 Core Play-Along Pillars */}
+            <div className="space-y-3">
+              <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-amber-400">
+                The 4 Core Pillars of How to Play Along on Grand Piano:
+              </h4>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                <div className="p-4 rounded-2xl bg-stone-900/80 border border-stone-800 space-y-1.5">
+                  <div className="flex items-center space-x-2 text-rose-300 font-bold font-serif">
+                    <span>1. Cantabile Right-Hand Voicing</span>
+                  </div>
+                  <p className="text-stone-300 text-[11px] leading-relaxed">
+                    Lead with your <strong className="text-amber-200">5th finger (pinky)</strong>. Transfer relaxed weight from your forearm and shoulder into the melodic keybed so the melody rings out warm and singing above the accompaniment.
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-stone-900/80 border border-stone-800 space-y-1.5">
+                  <div className="flex items-center space-x-2 text-amber-300 font-bold font-serif">
+                    <span>2. Rolling 10th-Interval LH Arpeggios</span>
+                  </div>
+                  <p className="text-stone-300 text-[11px] leading-relaxed">
+                    On wide spans (<strong className="text-amber-200">C2 → G2 → C3 → Eb3</strong>), do not stretch with stiff fingers. Keep fingers curved (5-3-2-1) and rotate your wrist smoothly from left to right like rolling a billiard ball.
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-stone-900/80 border border-stone-800 space-y-1.5">
+                  <div className="flex items-center space-x-2 text-teal-300 font-bold font-serif">
+                    <span>3. Syncopated Damper Pedaling</span>
+                  </div>
+                  <p className="text-stone-300 text-[11px] leading-relaxed">
+                    Depress pedal immediately <em>after</em> the bass note strikes on beat 1. Hold across the arpeggio bloom, and perform a quick half-pedal clear on beat 3 when harmony shifts to prevent muddy bass accumulation.
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-stone-900/80 border border-stone-800 space-y-1.5">
+                  <div className="flex items-center space-x-2 text-yellow-300 font-bold font-serif">
+                    <span>4. Expressive Rubato & Phrasing</span>
+                  </div>
+                  <p className="text-stone-300 text-[11px] leading-relaxed">
+                    Don't play like a rigid machine. Push tempo slightly forward during ascending phrase crests (Measures 7-9), then stretch and decelerate tenderly into cadence points (Measures 6, 14, 16).
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Measure Roadmap */}
+            <div className="space-y-3">
+              <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-amber-400">
+                16-Measure Play-Along Roadmap:
+              </h4>
+
+              <div className="max-h-48 overflow-y-auto space-y-1.5 pr-1 font-mono text-[11px]">
+                <div className="p-2.5 rounded-xl bg-stone-900 border border-stone-800 flex justify-between items-center text-stone-300">
+                  <span><strong>M1–2 (Prologue):</strong> Gentle C Minor rolling waves (pp)</span>
+                  <span className="text-amber-400">LH 5-3-2-1</span>
+                </div>
+                <div className="p-2.5 rounded-xl bg-stone-900 border border-stone-800 flex justify-between items-center text-stone-300">
+                  <span><strong>M3–4 (Theme A):</strong> Melody G4 → C5 → D5 → Eb5 over Cm & Ab</span>
+                  <span className="text-amber-400">RH 1-3-4-5</span>
+                </div>
+                <div className="p-2.5 rounded-xl bg-stone-900 border border-stone-800 flex justify-between items-center text-stone-300">
+                  <span><strong>M5–6 (Swell):</strong> Bb swell into peaceful Gm resolution</span>
+                  <span className="text-amber-400">RH 4-5-5 / p</span>
+                </div>
+                <div className="p-2.5 rounded-xl bg-stone-900 border border-stone-800 flex justify-between items-center text-stone-300">
+                  <span><strong>M7–8 (Theme B):</strong> Fm7 nostalgic longing rising to F5</span>
+                  <span className="text-amber-400">RH 1-3-4 / mf</span>
+                </div>
+                <div className="p-2.5 rounded-xl bg-stone-900 border border-stone-800 flex justify-between items-center text-stone-300">
+                  <span><strong>M9–10 (Climax):</strong> Eb Major full bloom on high G5, G7 turn</span>
+                  <span className="text-amber-400">RH 5 / f cantabile</span>
+                </div>
+                <div className="p-2.5 rounded-xl bg-stone-900 border border-stone-800 flex justify-between items-center text-stone-300">
+                  <span><strong>M11–13 (Chorus):</strong> Full recapitulation & liquid cascading descent</span>
+                  <span className="text-amber-400">RH 1-3-5-4-3-2-1</span>
+                </div>
+                <div className="p-2.5 rounded-xl bg-stone-900 border border-stone-800 flex justify-between items-center text-stone-300">
+                  <span><strong>M14–16 (Resolution):</strong> Ritardando cadence, arpeggio roll to fade</span>
+                  <span className="text-amber-400">Morendo / Hold pedal</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Actions */}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-amber-900/40">
+              <span className="text-xs text-stone-400 font-mono">
+                Ready to play? Choose "Wait-For-Me" mode for guided practice.
+              </span>
+
+              <div className="flex items-center space-x-2">
+                <button
+                  type="button"
+                  onClick={() => setIsAlwaysModalOpen(false)}
+                  className="px-4 py-2.5 rounded-xl bg-stone-900 hover:bg-stone-800 text-stone-300 text-xs font-bold transition border border-stone-800 cursor-pointer"
+                >
+                  Close Guide
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsAlwaysModalOpen(false);
+                    setGrandPianoSubTab('whole-tracks');
+                    setGrandPianoTrackId('track-clayderman-always-complete');
+                    setActiveView('grand-piano');
+                  }}
+                  className="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-black text-xs transition flex items-center space-x-2 shadow-lg cursor-pointer"
+                >
+                  <Piano className="w-4 h-4" />
+                  <span>Start Interactive Play-Along</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>

@@ -36,7 +36,11 @@ import {
   Headphones,
   Compass,
   MapPin,
-  EyeOff
+  EyeOff,
+  Users,
+  Store,
+  ScanLine,
+  Briefcase
 } from 'lucide-react';
 
 interface CommandPaletteProps {
@@ -536,6 +540,19 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         { label: 'Cryptographic SHA-256 Provenance Verifier (Dual-Hash Audit)', icon: <FileCheck className="w-4 h-4 text-indigo-500" />, action: () => { setActiveTab('hedera'); onClose(); } },
         { label: 'Hedera Mirror Node Consensus Event Stream & Activity', icon: <Activity className="w-4 h-4 text-blue-500" />, action: () => { setActiveTab('hedera'); onClose(); } },
         { label: 'How It Works: Zero-PHI Off-Chain Cryptographic Trust Architecture', icon: <Sparkles className="w-4 h-4 text-purple-500" />, action: () => { setActiveTab('hedera'); onClose(); } },
+      ],
+    },
+    {
+      category: '💼 MicroBiz — Social Learning & Enterprise (Made for All, By All)',
+      items: [
+        { label: 'MicroBiz Community Discovery Feed & Maker Stories', icon: <Sparkles className="w-4 h-4 text-emerald-500" />, action: () => { setActiveTab('microbiz'); onClose(); } },
+        { label: 'Practical Hands-on Courses & Peer Certifications', icon: <BookOpen className="w-4 h-4 text-emerald-500" />, action: () => { setActiveTab('microbiz'); onClose(); } },
+        { label: 'Community Groups, Collaborative Projects & Mentorship', icon: <Users className="w-4 h-4 text-emerald-500" />, action: () => { setActiveTab('microbiz'); onClose(); } },
+        { label: 'Local Artisan Marketplace & Quotation Requests', icon: <Store className="w-4 h-4 text-emerald-500" />, action: () => { setActiveTab('microbiz'); onClose(); } },
+        { label: 'MicroBiz Operations, Daily Bookkeeping & Invoice Generator', icon: <FileText className="w-4 h-4 text-emerald-500" />, action: () => { setActiveTab('microbiz'); onClose(); } },
+        { label: 'Receipt & Invoice Document OCR Scanner', icon: <ScanLine className="w-4 h-4 text-emerald-500" />, action: () => { setActiveTab('microbiz'); onClose(); } },
+        { label: 'MicroBiz AI Studio: Curriculum, Copywriting & Lean Canvas', icon: <Bot className="w-4 h-4 text-emerald-500" />, action: () => { setActiveTab('microbiz'); onClose(); } },
+        { label: 'Trust, Safety & Zero-Deception Moderation Desk', icon: <ShieldCheck className="w-4 h-4 text-emerald-500" />, action: () => { setActiveTab('microbiz'); onClose(); } },
       ],
     },
     {

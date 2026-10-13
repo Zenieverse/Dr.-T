@@ -1,0 +1,107 @@
+{
+  "registry_title": "LIFEWEAVE Paper Track Reproducible Experiment Registry",
+  "competition": "Google — The Gemma 4 Developer Agent Paper Track",
+  "target_model": "gemma-4-31b-it-qat-w4a16-ct",
+  "recorded_at": "2026-10-09T05:39:00Z",
+  "immutable_frozen_version": "LIFEWEAVE_OPTIMIZED_V1",
+  "frozen_artifact_sha256": "cbcc8e59b7e0329c48f08169027df6341f3ea0039638a61e8011de1570075a12",
+  "completed_benchmark_runs": [
+    {
+      "experiment_id": "EXP-001-BASELINE",
+      "date": "2026-09-27T20:20:00-07:00",
+      "agent_version": "LIFEWEAVE_BASELINE_V1",
+      "status": "HISTORICAL_RECORD_FROZEN",
+      "target_model": "gemma-4-31b-it-qat-w4a16-ct",
+      "fixture_suite": "ten_fixture_regression_suite (TASK-01 to TASK-10)",
+      "configuration_summary": "Initial agent with Evidence Hierarchy, without Candidate Verification Gate",
+      "metrics": {
+        "tasks_total": 10,
+        "tasks_passed": 10,
+        "patch_pass_rate": 1.00,
+        "localization_recall_at_1": 0.90,
+        "localization_recall_at_3": 1.00,
+        "localization_recall_at_5": 1.00,
+        "total_tool_calls": 42,
+        "total_commands_run": 14,
+        "files_read": 24,
+        "graph_nodes_inspected": 38,
+        "recovery_steps": 1,
+        "wall_clock_seconds": 11.53
+      },
+      "failure_analysis": "TASK-02 initially flagged downstream symptom catcher in token_extractor instead of upstream header normalizer, triggering 1 recovery step.",
+      "environment_notes": "Executed on local developer workstation test harness."
+    },
+    {
+      "experiment_id": "EXP-002-OPTIMIZED",
+      "date": "2026-09-27T20:30:00-07:00",
+      "agent_version": "LIFEWEAVE_OPTIMIZED_V1",
+      "status": "OFFICIAL_ACCEPTED_FROZEN",
+      "target_model": "gemma-4-31b-it-qat-w4a16-ct",
+      "archive_sha256": "cbcc8e59b7e0329c48f08169027df6341f3ea0039638a61e8011de1570075a12",
+      "fixture_suite": "ten_fixture_regression_suite (TASK-01 to TASK-10)",
+      "configuration_summary": "Candidate Verification Gate enabled with 5 invariants (Reachability, Activity, Implication, Contradiction, Causal Root)",
+      "metrics": {
+        "tasks_total": 10,
+        "tasks_passed": 10,
+        "patch_pass_rate": 1.00,
+        "localization_recall_at_1": 1.00,
+        "localization_recall_at_3": 1.00,
+        "localization_recall_at_5": 1.00,
+        "total_tool_calls": 38,
+        "total_commands_run": 12,
+        "files_read": 23,
+        "graph_nodes_inspected": 38,
+        "recovery_steps": 0,
+        "wall_clock_seconds": 11.49
+      },
+      "final_smoke_test_verification": {
+        "date": "2026-10-09T04:53:58Z",
+        "tasks_passed": "10/10",
+        "smoke_test_wall_clock_seconds": 12.50,
+        "divergence_explanation": "The 11.49s and 12.50s wall-clock times reflect different background load conditions across test sessions. No claim of wall-clock speedup is asserted."
+      },
+      "failure_analysis": "Zero recovery steps required. Candidate Verification Gate pruned downstream symptom trap in TASK-02 on initial evaluation pass."
+    }
+  ],
+  "proposed_future_ablations": [
+    {
+      "ablation_id": "ABL-A",
+      "name": "Config A — Semantic Retrieval Only",
+      "description": "BM25 and vector semantic search only. Graph traversal disabled; Evidence Field disabled; Verification Gate disabled.",
+      "status": "NOT_RUN",
+      "rationale": "Measures bug localization accuracy when relying strictly on keyword and semantic text similarity without structural code graph context."
+    },
+    {
+      "ablation_id": "ABL-B",
+      "name": "Config B — Graph Retrieval Only",
+      "description": "AST topological analysis: callers, callees, and dependency subgraph only. Semantic search disabled.",
+      "status": "NOT_RUN",
+      "rationale": "Measures bug localization accuracy when traversing only structural call and type graphs without semantic matching seeds."
+    },
+    {
+      "ablation_id": "ABL-C",
+      "name": "Config C — Semantic + Graph Retrieval",
+      "description": "Hybrid: Semantic search produces initial candidate seeds; graph tools expand neighbors and subgraphs. Contradiction tracking and Candidate Verification Gate disabled.",
+      "status": "NOT_RUN",
+      "rationale": "Evaluates standard modern agent architecture before introducing explicit Evidence Field and verification checks."
+    },
+    {
+      "ablation_id": "ABL-D",
+      "name": "Config D — Evidence-Aware Localization",
+      "description": "Semantic + Graph + multi-dimensional Evidence Field + contradiction tracking. Candidate Verification Gate disabled.",
+      "status": "NOT_RUN",
+      "rationale": "Isolates the specific contribution of contradiction tracking prior to enforcing the 5-point Candidate Verification Gate."
+    },
+    {
+      "ablation_id": "ABL-E",
+      "name": "Config E — Evidence-Aware Localization + Candidate Verification Gate",
+      "description": "Full LIFEWEAVE architecture (equivalent to LIFEWEAVE_OPTIMIZED_V1).",
+      "status": "NOT_RUN_FOR_CROSS_DATASET_ABLATION",
+      "local_ten_fixture_status": "VALIDATED_10_OF_10"
+    }
+  ],
+  "methodological_guards": {
+    "ten_fixture_boundary": "All completed results reflect the project's internal ten-fixture regression benchmark. External performance on Kaggle's hidden evaluation test set is unobserved and unverified.",
+    "no_overclaims": "No claim of universal superiority, general SWE-bench rank, or statistical significance is asserted without large-scale external evaluation."
+  }
+}

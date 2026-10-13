@@ -303,4 +303,14 @@ export interface Gemma4AgentManifest {
   analyzerPromptContent: string;
   skillMdContent: string;
   samplingYamlContent: string;
+  version?: string;
+  sha256?: string;
+  status?: string;
+  archiveSizeBytes?: number;
+  fileCount?: number;
+  harnessValidationCommand?: string;
+  harnessValidationResult?: string;
+  benchmarkScore?: string;
+  submissionDescriptionMd?: string;
+  validationReportMd?: string;
 }

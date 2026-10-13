@@ -40,16 +40,16 @@ async function runLifeweaveTestSuite() {
 
   // TEST 3: File Reading & Code Extraction (Phase 3)
   console.log('\n--- Test 3: Safe File Content Reading & Code Extraction ---');
-  const serverContent = lifeweaveEngineeringService.getFileContent('server.ts', 1610, 1630);
-  assert(serverContent.exists === true, 'Can read server.ts within allowed line range');
-  assert(serverContent.content.includes("redirect: 'follow'"), "Verified exact line containing redirect: 'follow' in server.ts");
+  const serverContent = lifeweaveEngineeringService.getFileContent('server.impl.ts', 1745, 1765);
+  assert(serverContent.exists === true, 'Can read server.impl.ts within allowed line range');
+  assert(serverContent.content.includes("redirect: 'follow'"), "Verified exact line containing redirect: 'follow' in server.impl.ts");
   assert(!serverContent.content.includes('AIzaSy'), 'No unredacted Google API keys exposed');
 
   // TEST 4: Code Search (Phase 3)
   console.log('\n--- Test 4: Code Search Engine ---');
   const searchMatches = lifeweaveEngineeringService.searchCode('readit/fetch-url');
   assert(searchMatches.length > 0, `Search finds real route occurrences (${searchMatches.length} matches)`);
-  assert(searchMatches.some(m => m.filePath === 'server.ts'), 'Search identifies server.ts as containing the route');
+  assert(searchMatches.some(m => m.filePath === 'server.impl.ts' || m.filePath === 'server.ts'), 'Search identifies server.impl.ts as containing the route');
 
   // TEST 5: Living Code Map AST Generation (Phase 4)
   console.log('\n--- Test 5: Living Code Map Topology Graph ---');

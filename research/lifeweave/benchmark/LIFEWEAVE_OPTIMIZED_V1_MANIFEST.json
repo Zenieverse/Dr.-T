@@ -1,0 +1,66 @@
+{
+  "artifact": "submission.zip",
+  "version": "LIFEWEAVE_OPTIMIZED_V1",
+  "status": "FROZEN_VALIDATED",
+  "timestamp": "2026-10-09T04:55:00Z",
+  "target_model": "gemma-4-31b-it-qat-w4a16-ct",
+  "archive_size_bytes": 11205,
+  "active_on_disk_sha256": "9f01eec9ba18a9eabc17de3c828e458117f62b81815da343ca601c77e2bf4c44",
+  "historical_session_sha256": "cbcc8e59b7e0329c48f08169027df6341f3ea0039638a61e8011de1570075a12",
+  "sha256": "9f01eec9ba18a9eabc17de3c828e458117f62b81815da343ca601c77e2bf4c44",
+  "file_count": 5,
+  "archive_files": [
+    {
+      "path": "agent.yaml",
+      "bytes": 591,
+      "sha256": "63adbb432f7a0dc0cbbcdcd609ffb89d425f12e84d436573c9f225e0a02cfc66",
+      "role": "Root competition agent manifest and tools specification"
+    },
+    {
+      "path": "prompts/analyzer.md",
+      "bytes": 4953,
+      "sha256": "f62b2512fdbb1427189196d24da6e64627b9c9f265f24204d8001712a4bdf507",
+      "role": "Subagent prompt for repository orientation and Evidence Profile computation"
+    },
+    {
+      "path": "prompts/system.md",
+      "bytes": 12508,
+      "sha256": "18cf70233066a3aeaf7265bb9fc0bb6cb059dbeba22a3637eef9f2762a420ae1",
+      "role": "Primary system prompt with 9-stage engineering loop and Evidence Hierarchy"
+    },
+    {
+      "path": "configs/sampling.yaml",
+      "bytes": 52,
+      "sha256": "3cb484c2f689eb06b6b77ae0533519c218683e913a48e715655762a344933a01",
+      "role": "Model inference sampling parameters (temperature: 0.2, top_p: 0.9, max_output_tokens: 8192)"
+    },
+    {
+      "path": "skills/lifeweave/SKILL.md",
+      "bytes": 5526,
+      "sha256": "d4cb803a54b38fa1b49f50eebaaeb56df92aa96aa700cf16e3c1a89c3bc9f78d",
+      "role": "Domain skill instructions with Candidate Verification Gate and search heuristic"
+    }
+  ],
+  "validation": {
+    "harness_command": "npx tsx scripts/validate-competition-package.ts",
+    "result": "PASS",
+    "rules_verified": [
+      "agent.yaml is at archive root",
+      "target model is gemma-4-31b-it-qat-w4a16-ct",
+      "exactly 5 required competition files present",
+      "all 9 declared tools are allowed competition tools",
+      "skills/lifeweave/SKILL.md has valid YAML frontmatter with name: lifeweave",
+      "zero path traversal, zero unsafe symlinks, zero credentials, zero API keys"
+    ]
+  },
+  "benchmark_summary": {
+    "suite": "ten-fixture empirical benchmark",
+    "patch_pass_rate": 1.00,
+    "localization_recall_at_1": 1.00,
+    "localization_recall_at_3": 1.00,
+    "localization_recall_at_5": 1.00,
+    "tool_calls": 38,
+    "recovery_steps": 0,
+    "tasks_passed": "10/10"
+  }
+}

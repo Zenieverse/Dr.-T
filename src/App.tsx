@@ -59,6 +59,7 @@ import { TribHouseContainer } from './tribhouse/TribHouseContainer';
 import { CinemaContainer } from './cinema/CinemaContainer';
 import { HederaCommonsPage as HederaCommonsHome } from './modules/hedera/pages/HederaCommonsPage';
 import { PianistApp } from './components/pianist/PianistApp';
+import { MicroBizApp } from './components/microbiz/MicroBizApp';
 import { SettingsPage } from './components/settings/SettingsPage';
 
 export function App() {
@@ -469,6 +470,10 @@ export function App() {
 
         {activeTab === 'hedera' && (
           <HederaCommonsHome onNavigateToTab={setActiveTab} />
+        )}
+
+        {activeTab === 'microbiz' && (
+          <MicroBizApp currentLanguage={currentLanguage} />
         )}
 
         {activeTab === 'gcp' && (

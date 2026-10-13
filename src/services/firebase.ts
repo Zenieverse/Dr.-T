@@ -18,6 +18,15 @@ import {
   onSnapshot,
   Timestamp
 } from 'firebase/firestore';
+import { 
+  getAuth, 
+  Auth, 
+  signInWithPopup, 
+  GoogleAuthProvider, 
+  signOut, 
+  onAuthStateChanged, 
+  User 
+} from 'firebase/auth';
 import firebaseConfigData from '../../firebase-applet-config.json';
 
 // Initialize Firebase App
@@ -39,6 +48,33 @@ if (!getApps().length) {
 export const db: Firestore = firebaseConfigData.firestoreDatabaseId && firebaseConfigData.firestoreDatabaseId !== '(default)'
   ? getFirestore(app, firebaseConfigData.firestoreDatabaseId)
   : getFirestore(app);
+
+// Initialize Firebase Authentication
+export const auth: Auth = getAuth(app);
+
+export async function signInWithGoogle(): Promise<User | null> {
+  try {
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
+    const result = await signInWithPopup(auth, provider);
+    return result.user;
+  } catch (error) {
+    console.warn('Firebase Google Sign-In note:', error);
+    return null;
+  }
+}
+
+export async function signOutUser(): Promise<void> {
+  try {
+    await signOut(auth);
+  } catch (error) {
+    console.warn('Firebase Sign-Out error:', error);
+  }
+}
+
+export function subscribeAuthState(callback: (user: User | null) => void): () => void {
+  return onAuthStateChanged(auth, callback);
+}
 
 export { app };
 

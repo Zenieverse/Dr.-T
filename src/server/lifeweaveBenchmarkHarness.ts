@@ -487,6 +487,26 @@ export class LifeweaveBenchmarkHarness {
     }
 
     try {
+      // If frozen submission.zip already exists, serve it without modifying or re-compressing
+      if (fs.existsSync(zipPath)) {
+        const stat = fs.statSync(zipPath);
+        const pyList = `import zipfile
+with zipfile.ZipFile(r'${zipPath}', 'r') as zf:
+    for name in zf.namelist():
+        print(name)
+`;
+        const stdout = execSync(`python3 -c "${pyList.replace(/"/g, '\\"')}"`, { cwd: this.repoRoot }).toString();
+        const files = stdout.split('\n').map(s => s.trim()).filter(Boolean);
+
+        return {
+          success: true,
+          zipPath,
+          fileCount: files.length,
+          byteSize: stat.size,
+          files
+        };
+      }
+
       // Execute Python zipfile utility (cross-platform, zero external dependencies)
       const pyScript = `import zipfile, os
 zip_path = r'${zipPath}'

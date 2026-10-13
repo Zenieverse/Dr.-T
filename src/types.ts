@@ -26,6 +26,7 @@ export type NavTab =
   | 'deck'
   | 'lifeweave'
   | 'hedera'
+  | 'microbiz'
   | 'gcp'
   | 'settings';
 

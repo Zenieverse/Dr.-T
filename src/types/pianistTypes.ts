@@ -85,6 +85,7 @@ export interface TodayMission {
 export type PianistSubTab = 
   | 'home'
   | 'touch-grass'
+  | 'grand-piano'
   | 'outdoor'
   | 'keyboard'
   | 'learn'

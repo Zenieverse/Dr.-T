@@ -125,6 +125,7 @@ export const PianistApp: React.FC<PianistAppProps> = ({ initialSubTab = 'home' }
   const navItems: Array<{ id: PianistSubTab; label: string; icon: React.ReactNode; badge?: string }> = [
     { id: 'home', label: 'Today', icon: <Home className="w-4 h-4" /> },
     { id: 'touch-grass', label: '🌿 Touch Grass', icon: <Trees className="w-4 h-4 text-emerald-400" />, badge: 'Outdoor' },
+    { id: 'grand-piano', label: 'Grand Piano', icon: <Piano className="w-4 h-4 text-amber-400" />, badge: 'Concert' },
     { id: 'keyboard', label: 'Free Piano', icon: <Piano className="w-4 h-4" /> },
     { id: 'learn', label: 'Curriculum', icon: <BookOpen className="w-4 h-4" />, badge: '6 Paths' },
     { id: 'sight-reading', label: 'Sight-Reading', icon: <Music className="w-4 h-4" /> },
@@ -400,6 +401,16 @@ export const PianistApp: React.FC<PianistAppProps> = ({ initialSubTab = 'home' }
         {/* SUBTAB: TOUCH GRASS (OUTDOOR MISSIONS) */}
         {(activeSubTab === 'touch-grass' || activeSubTab === 'outdoor') && (
           <TouchGrassStudio
+            onOpenPiano={() => setActiveSubTab('keyboard')}
+            onSetTargetNotes={(notes) => setTargetKeyboardNotes(notes)}
+            onXpEarned={handleEarnXp}
+          />
+        )}
+
+        {/* SUBTAB: GRAND PIANO */}
+        {activeSubTab === 'grand-piano' && (
+          <TouchGrassStudio
+            initialSubView="grand-piano"
             onOpenPiano={() => setActiveSubTab('keyboard')}
             onSetTargetNotes={(notes) => setTargetKeyboardNotes(notes)}
             onXpEarned={handleEarnXp}

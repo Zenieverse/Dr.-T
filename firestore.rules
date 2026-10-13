@@ -1,39 +1,129 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Helper function to check if user is authenticated
+    // ----------------------------------------------------
+    // GLOBAL SECURITY & AUTHENTICATION HELPERS
+    // ----------------------------------------------------
     function isAuthenticated() {
       return request.auth != null;
     }
 
-    // Helper to check user ownership
     function isOwner(userId) {
       return isAuthenticated() && request.auth.uid == userId;
     }
 
-    // User profiles
-    match /users/{userId} {
-      allow read, write: if true; // Allow client applet user access
+    // Explicit administrator definition
+    function isAdmin() {
+      return isAuthenticated() && (
+        request.auth.token.email == 'zenieverse@gmail.com' ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
     }
 
-    // Health and clinical records
+    // ----------------------------------------------------
+    // DR. T CORE CLINICAL & HEALTH COLLECTIONS
+    // ----------------------------------------------------
+    match /users/{userId} {
+      allow read, write: if true;
+    }
+
     match /healthRecords/{recordId} {
       allow read, write: if true;
     }
 
-    // Consultations and chat sessions
     match /consultations/{consultationId} {
       allow read, write: if true;
     }
 
-    // Skin analyses
     match /skinAnalyses/{analysisId} {
       allow read, write: if true;
     }
 
-    // Cloud audit and infrastructure telemetry logs
     match /cloudAuditLogs/{logId} {
       allow read, write: if true;
+    }
+
+    // ----------------------------------------------------
+    // MICROBIZ SOCIAL LEARNING & LIVELIHOOD PLATFORM
+    // ----------------------------------------------------
+
+    // 1. Private Financial Records & Bookkeeping Ledger
+    // Strictly confidential: Only the creator who owns the record or an administrator can read or delete
+    match /microbiz_finances/{financeId} {
+      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+    }
+
+    // 2. Direct Customer Inquiries & Quotation Proposals
+    // Confidential between customer and artisan storefront owner
+    match /microbiz_inquiries/{inquiryId} {
+      allow read: if isAuthenticated() && (
+        resource.data.customerContact == request.auth.token.email ||
+        resource.data.businessId == request.auth.uid ||
+        isAdmin()
+      );
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && (resource.data.businessId == request.auth.uid || isAdmin());
+      allow delete: if isAdmin();
+    }
+
+    // 3. Abuse & Safety Moderation Reports
+    // Restricted: Only the reporting user can view their submission; only admins can resolve/delete
+    match /microbiz_reports/{reportId} {
+      allow create: if isAuthenticated() && request.resource.data.reporterUserId == request.auth.uid;
+      allow read: if isAdmin() || (isAuthenticated() && resource.data.reporterUserId == request.auth.uid);
+      allow update, delete: if isAdmin();
+    }
+
+    // 4. Community Discovery Posts
+    // Public to view; only verified creator can author; authors or admins can delete
+    match /microbiz_posts/{postId} {
+      allow read: if true;
+      allow create: if isAuthenticated() && request.resource.data.authorId == request.auth.uid;
+      allow update: if isAuthenticated(); // Permits reaction increments and comment additions
+      allow delete: if isAuthenticated() && (resource.data.authorId == request.auth.uid || isAdmin());
+    }
+
+    // 5. Educational Courses & Curricula
+    match /microbiz_courses/{courseId} {
+      allow read: if true;
+      allow create: if isAuthenticated() && request.resource.data.creatorId == request.auth.uid;
+      allow update, delete: if isAuthenticated() && (resource.data.creatorId == request.auth.uid || isAdmin());
+    }
+
+    // 6. Course Enrollments, Quizzes & Community Certificates
+    match /microbiz_enrollments/{enrollmentId} {
+      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create, update: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      allow delete: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+    }
+
+    // 7. Artisan Storefronts & Maker Profiles
+    match /microbiz_businesses/{businessId} {
+      allow read: if true;
+      allow create: if isAuthenticated() && request.resource.data.ownerId == request.auth.uid;
+      allow update, delete: if isAuthenticated() && (resource.data.ownerId == request.auth.uid || isAdmin());
+    }
+
+    // 8. Community Groups & Collaborative Projects
+    match /microbiz_groups/{groupId} {
+      allow read: if true;
+      allow create, update: if isAuthenticated();
+      allow delete: if isAdmin();
+    }
+
+    match /microbiz_projects/{projectId} {
+      allow read: if true;
+      allow create, update: if isAuthenticated();
+      allow delete: if isAdmin();
+    }
+
+    // 9. MicroBiz User Profiles
+    match /microbiz_profiles/{profileId} {
+      allow read: if true;
+      allow create, update: if isOwner(profileId) || isAdmin();
+      allow delete: if isAdmin();
     }
   }
 }

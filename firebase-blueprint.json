@@ -59,6 +59,58 @@
         "latencyMs": { "type": "number", "description": "Request latency in ms" },
         "timestamp": { "type": "timestamp", "description": "Log timestamp" }
       }
+    },
+    "MicroBizPost": {
+      "collection": "microbiz_posts",
+      "fields": {
+        "id": { "type": "string", "description": "Post identifier" },
+        "authorId": { "type": "string", "description": "User ID of post author" },
+        "authorName": { "type": "string", "description": "Author name" },
+        "authorRole": { "type": "string", "description": "Creator, Learner, Mentor, Business" },
+        "content": { "type": "string", "description": "Post body text" },
+        "category": { "type": "string", "description": "Learning, Story, Showcase, Question" },
+        "tags": { "type": "array", "description": "Topic and skill tags" },
+        "reactions": { "type": "object", "description": "Reaction counts" },
+        "commentsCount": { "type": "number", "description": "Total comments" },
+        "createdAt": { "type": "timestamp", "description": "Post timestamp" }
+      }
+    },
+    "MicroBizCourse": {
+      "collection": "microbiz_courses",
+      "fields": {
+        "id": { "type": "string", "description": "Course identifier" },
+        "title": { "type": "string", "description": "Course title" },
+        "creatorId": { "type": "string", "description": "Creator author ID" },
+        "category": { "type": "string", "description": "Skill domain" },
+        "level": { "type": "string", "description": "Beginner, Intermediate, Advanced" },
+        "modules": { "type": "array", "description": "Curriculum modules and lessons" },
+        "published": { "type": "boolean", "description": "Publication state" },
+        "enrolledCount": { "type": "number", "description": "Student enrollments" }
+      }
+    },
+    "MicroBizBusiness": {
+      "collection": "microbiz_businesses",
+      "fields": {
+        "id": { "type": "string", "description": "Business profile ID" },
+        "ownerId": { "type": "string", "description": "Owner user ID" },
+        "name": { "type": "string", "description": "Microbusiness name" },
+        "category": { "type": "string", "description": "Crafts, Services, Culinary, Tech, Wellness" },
+        "tagline": { "type": "string", "description": "Short bio or value prop" },
+        "listings": { "type": "array", "description": "Products and services" },
+        "inquiriesCount": { "type": "number", "description": "Inquiries received" }
+      }
+    },
+    "MicroBizFinance": {
+      "collection": "microbiz_finances",
+      "fields": {
+        "id": { "type": "string", "description": "Transaction/Invoice record ID" },
+        "userId": { "type": "string", "description": "Microbusiness owner ID" },
+        "type": { "type": "string", "description": "income, expense, invoice, quote" },
+        "amount": { "type": "number", "description": "Amount in currency" },
+        "category": { "type": "string", "description": "Cost or revenue category" },
+        "date": { "type": "string", "description": "ISO date" },
+        "description": { "type": "string", "description": "Details or line items" }
+      }
     }
   }
 }
