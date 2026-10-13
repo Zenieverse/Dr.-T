@@ -1,160 +1,244 @@
-# PIANIST — Touch Grass 🌿🎹
+# 🩺 Dr. T — Biomedical Intelligence, Hedera Commons & MicroBiz Platform
 
-> **Hear the world. Find the music. Play it.**
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue.svg?logo=typescript)](https://www.typescriptlang.org/)
+[![React](https://img.shields.io/badge/React-18.3-61dafb.svg?logo=react)](https://react.dev/)
+[![Vite](https://img.shields.io/badge/Vite-6.1-646CFF.svg?logo=vite)](https://vitejs.dev/)
+[![Firebase](https://img.shields.io/badge/Firebase-Firestore%20%26%20Auth-FFCA28.svg?logo=firebase)](https://firebase.google.com/)
+[![Gemini](https://img.shields.io/badge/Google%20GenAI-Gemini%202.5%20Flash-8E75B2.svg?logo=google)](https://ai.google.dev/)
+[![Hedera](https://img.shields.io/badge/Hedera-HCS%20Provenance-222222.svg)](https://hedera.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-An open-source AI music-learning platform that transforms real-world outdoor sounds into piano learning missions, melodic contours, and rhythmic exercises powered by **Gemma**.
-
----
-
-## 🌐 Live Demo
-
-* **PIANIST — Touch Grass**: [https://ais-pre-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app](https://ais-pre-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app)
-* **GitLab Showcase**: [https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/28080870/showcase](https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/28080870/showcase)
-
----
-
-## 🏆 Hackathon Submission
-
-* **Project**: PIANIST — Touch Grass
-* **GitLab Showcase Repository**: [https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/28080870/showcase](https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/28080870/showcase)
-* **Live Demo**: [https://ais-pre-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app](https://ais-pre-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app)
-* **Demo Video**: *To be added* (placeholder for post-recording submission upload)
-* **Technology Stack**: React 18, TypeScript, Tailwind CSS, Web Audio API (Additive Synthesis & AnalyserNode), Gemma AI Reasoning Layer (Local & Cloud), Vite
-* **Privacy Approach**: 100% Client-side in-memory acoustic feature extraction; raw audio buffers immediately discarded; zero persistent GPS tracking; zero external telemetry
-* **GitLab AI / Agent Development Evidence**: See repository history and documented workflow in [`docs/GITLAB_AI.md`](docs/GITLAB_AI.md); no unsupported feature claims are made.
-* **Onboarding & Work Items**: Official GitLab workspace for `@zenieverse` (DevPost: `zenieverse`). Onboarding guide preserved at [`docs/SHOWCASE_ONBOARDING.md`](docs/SHOWCASE_ONBOARDING.md).
+> **Dr. T** is a multi-dimensional AI ecosystem unifying clinical informatics, Socratic health intelligence, outdoor acoustics, cryptographically verifiable provenance, and grassroots economic empowerment (**MicroBiz: Made for All, By All**).
 
 ---
 
-## 🚶 Demo Flow: OUTSIDE → LISTEN → DISCOVER → PIANO
+## 🌐 Live Deployments & Repository
 
-1. **OUTSIDE (60-Second Walk)**: Step away from screens. A calming 60-second timer reminds the learner: *"Put your phone away. Eyes up. Listen."*
-2. **LISTEN (Acoustic Capture)**: Upon return, capture real environmental rhythms and melodies via short 3-second mic sampling, interactive tap tempo, or verified acoustic demo scenarios (gravel footsteps, birdcalls, raindrops, flowing water).
-3. **DISCOVER (Gemma Reasoning)**: Gemma analyzes pulse, tempo (BPM), and melodic contours to translate ambient soundscapes into pedagogical exercises and target notes.
-4. **PIANO (Interactive Performance)**: Audition the target phrase, practice on the responsive physical-modeling piano synthesizer (keyboard, touch, or MIDI), prove mastery, and earn outdoor ear-training milestones.
+* **Development App**: [https://ais-dev-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app](https://ais-dev-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app)
+* **Shared Production Preview**: [https://ais-pre-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app](https://ais-pre-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app)
+* **GitHub Repository**: [https://github.com/Zenieverse/Dr.-T](https://github.com/Zenieverse/Dr.-T)
 
 ---
 
-## 🌟 Overview
+## 🌟 Platform Overview & Core Modules
 
-Most music learning platforms trap students in front of a glass screen:
-`Screen → Lesson → Exercise → Screen`
+Dr. T connects clinical medicine, creative discovery, and community livelihoods across 10+ integrated workspaces:
 
-**PIANIST — Touch Grass** reverses the cycle:
 ```
-GO OUTSIDE → LISTEN → DISCOVER → RESPOND → RETURN TO THE PIANO → PLAY
+┌────────────────────────────────────────────────────────────────────────┐
+│                              🩺 DR. T                                  │
+├───────────────────┬───────────────────┬────────────────────────────────┤
+│  HEALTH & CLINIC  │   GRASSROOTS BIZ  │   ACOUSTICS, TRUST & AGENTS    │
+│  • Socratic Triage│  • MicroBiz Feed  │  • Pianist & Touch Grass 🌿    │
+│  • Biomarker R4   │  • Courses & Quiz │  • Hedera Commons (HCS / HPK)  │
+│  • SOAP Notes     │  • Storefronts    │  • LIFEWEAVE Multi-Agent SWE   │
+│  • 360° Copilot   │  • Bookkeeping    │  • PetWhisperer & OpenWebOS    │
+│  • Health Bridge  │  • OCR Scanner    │  • x402 Pay-Per-Request Bazaar │
+│  • Research Lab   │  • Gemini AI Hub  │  • Trib-House & Dr. T Cinema   │
+└───────────────────┴───────────────────┴────────────────────────────────┘
 ```
 
-The screen is the shortest part of the experience. Learners physically step away from digital devices, explore the outdoors, listen for real rhythms (footsteps, water, traffic, bicycle wheels) and melodic contours (birdcalls, voices, train whistles), and return to the piano to translate environmental sound into musicianship.
+---
+
+### 1. 💼 Dr. T MicroBiz — "Made for All, By All"
+An inclusive social learning and sustainable livelihood platform designed for everyday makers, smallholder artisans, repair technicians, and neighborhood learners:
+
+* **Discovery Feed (`DiscoveryFeed.tsx`)**: Real-world craft stories, scrap-sharing exchanges, community advice, post reactions, and bookmarking.
+* **Course Platform (`CoursePlatformView.tsx`)**: Practical, zero-jargon courses (Botanical Soapmaking, Operations & Bookkeeping 101, Repair Diagnostics), interactive quizzes with instant rationale, and verifiable completion certificates dynamically stamped with the active learner's name.
+* **Community Groups & Collaboration (`CommunityGroupsView.tsx`)**: Grassroots artisan circles, collaborative project boards with task assignees, and a volunteer peer-mentorship directory.
+* **Artisan Marketplace (`MarketplaceView.tsx`)**: Direct maker storefronts and itemized product listings with transparent unit costs. Features direct inquiry routing with **mandatory payment disclosures** (automated card charging disabled to protect local artisans from hidden transaction fees).
+* **Everyday Operations Ledger (`OperationsView.tsx`)**: Plain-language income/expense ledger, net cash margin calculation, transaction logging, CSV data export, and customer-facing quote and invoice generation with in-modal clipboard export.
+* **Receipt & Invoice OCR Scanner (`DocScannerView.tsx`)**: Digitizes paper invoices and payment slips via Gemini 2.5 Flash and heuristic regex parsing, automatically extracting vendor, date, line items, and totals into the operations ledger.
+* **AI Studio (`AiStudioView.tsx`)**: Plain-language AI assistant powered by Gemini 2.5 Flash:
+  * *Course Curriculum Architect*: Creates structured 2-module syllabi with learning objectives and quizzes.
+  * *Artisan Product Storyteller*: Generates authentic craft descriptions, features, and social snippets.
+  * *Lean Business Plan Drafter*: Generates 1-page Lean Business Canvases with community giveback initiatives.
+  * *AI Transparency Badges*: Real-time indicators distinguishing **Live Gemini AI** from **Offline Heuristic Engine** fallbacks.
+* **Trust & Safety (`TrustAdminView.tsx`)**: Transparent moderation queue, community standards enforcement, and anti-abuse safeguards.
 
 ---
 
-## 🎯 Target Repositories
-- **GitLab Showcase**: [`gitlab-ai-hackathon/transcend-october-2026/28080870/showcase`](https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/28080870/showcase)
-- **GitHub Repository**: [`Zenieverse/pianist-touch-grass`](https://github.com/Zenieverse/pianist-touch-grass)
-- **License**: MIT
-- **Architecture**: Web Audio API Physical Modeling Synthesizer + Gemma Open AI Reasoning Layer + React 18 + Tailwind CSS
+### 2. 🩺 Biomedical Intelligence & Clinical Decision Support
+* **Socratic Consultation (`DrTHome.tsx`)**: Longitudinal health dialogue analyzing wearable telemetry, metabolic blood markers, and circadian sleep phases.
+* **Clinical Informatics (`ClinicalInformatics.tsx`)**: FHIR R4 interoperability, LOINC/SNOMED CT structured data, and automated SOAP clinical summary generation.
+* **Health Bridge (`DrTHealthBridge.tsx`)**: 11 clinical pillars for health record migration and wellness coordination.
+* **Patient 360 Copilot (`PatientMember360Copilot.tsx`)**: Unified patient record with risk stratification and preventative reminders.
+* **Research Lab (`ResearchLab.tsx`)**: Evidence synthesis across biomedical literature and ICU cohort profiles.
 
 ---
 
-## ✨ Core Pillars
-
-1. **The 60-Second Music Walk (Signature Demo)**
-   - Guided outdoor mission: *"Put your phone away. Eyes up. Listen."*
-   - Active countdown timer with acoustic awareness prompt.
-   - Reflection & feature capture upon return.
-   - Real-world microphone feature extraction or verified demo datasets.
-   - Conversion to an interactive piano exercise.
-   - Performance evaluation on the live keyboard.
-   - *"You heard it. Now play it. You didn't memorize this. You discovered it."*
-
-2. **AI Reasoning Layer (Local Heuristic & Gemma 4 Cloud Inference)**
-   - Extensible abstraction interface (`AIProvider`) with zero vendor lock-in.
-   - **Local Heuristic Provider (Default)**: 100% offline, client-side deterministic music theory and acoustic reasoning engine ensuring absolute privacy and 0ms latency.
-   - **Gemma Cloud Provider**: Actively executes native hosted **Gemma 4 (`gemma-4-31b-it` / `gemma-4-26b-a4b-it`)** via the Google GenAI SDK with graceful fallback to local heuristic reasoning.
-   - Generates structured JSON conforming to the musical reasoning schema (pulse detection, estimated BPM, melodic contours, pedagogical hand assignments, and target notes).
-
-3. **100% Client-Side Audio Privacy**
-   - Live audio is analyzed in-memory via the Web Audio API `AnalyserNode`.
-   - Musical features (spectral centroid, RMS energy, onsets) are extracted in real time.
-   - **Raw audio buffers are immediately discarded** and never transmitted to external servers without explicit consent.
-   - Zero continuous background recording.
-
-4. **Interactive Physical Modeling Piano**
-   - Additive synthesis with realistic acoustic overtones, hammer strike transients, and damper pedal decay.
-   - Works across touchscreen, mouse, computer keyboard shortcuts (`A-S-D-F-G-H-J-K`), and Web MIDI hardware digital pianos.
-
-5. **Outdoor Missions Library**
-   - **Rhythm Hunt**: Capture walking strides, machinery, or rainfall pulses and convert to left-hand bass ostinatos.
-   - **Melody Hunt**: Isolate avian and human vocal contours (ascending, descending, arched) and map intervals to treble keys.
-   - **Silence Mission**: 60 seconds of silent active listening with post-mission auditory reflection questions.
-   - **Sound Map**: Coarse, privacy-safe acoustic mapping (near, mid, far distance) without persistent GPS tracking.
+### 3. 🎹 PIANIST & Touch Grass 🌿
+* **Adaptive Grand Piano (`GrandPianoWorkspace.tsx`)**: Physical modeling acoustic piano synthesizer utilizing additive synthesis, realistic overtones, hammer strike transients, and damper pedal simulation.
+* **88-Key Repertoire Player (`ClassicalTrackPlayer.tsx`)**: Full interactive guided play-along for classical works, including **Richard Clayderman's "Always"**, Chopin, and Bach, with note-by-note synchronization, pedal hints, and measure annotations.
+* **Touch Grass Outdoor Sound-to-Music (`TouchGrassStudio.tsx`)**: Converts real-world acoustic feature extraction (spectral centroid, RMS energy, and onset detection via Web Audio API `AnalyserNode`) into melodic contours and piano missions.
 
 ---
 
-## 🚀 Quick Start
+### 4. 🛡️ Hedera Commons & Hedera Provenance Kit (HPK)
+* **Consensus Service Integration (`HederaCommonsPage.tsx`)**: Submits cryptographically canonical JSON hashes to Hedera Consensus Service (HCS) topics for immutable audit records.
+* **Cryptographic Invariants (`provenanceStore.ts`)**: RFC 8785 canonical JSON serialization with SHA-256 fingerprinting.
+
+---
+
+### 5. 🕸️ LIFEWEAVE Studio, x402 & Multimodal Extensions
+* **LIFEWEAVE (`LifeWeaveStudio.tsx`)**: Multi-agent software engineering orchestration workspace.
+* **x402 Pay-Per-Request Studio (`X402PayPerRequestStudio.tsx`)**: Decentralized machine-to-machine micropayment bazaar and challenge verification.
+* **Dr. T Cinema & Trib-House (`CinemaContainer.tsx`, `TribHouseContainer.tsx`)**: Multimodal biomedical media and living library commons.
+
+---
+
+## 🔒 Security, Authentication & Data Isolation
+
+1. **Authenticated User Identity**:
+   * Bound to real Firebase Authentication (`subscribeAuthState`).
+   * No fallback to placeholder identities (e.g. Alex Rivera) for active sessions.
+   * `MicroBizNavbar` features dynamic user chips showing verified account status, email, and Google Sign-In/Out controls.
+2. **Ephemeral Guest Sandbox**:
+   * Unauthenticated users receive an isolated, randomized guest session ID (`guest_<timestamp>_<random>`).
+   * Guest operations are stored strictly in browser sandbox storage and **cannot read or overwrite authenticated production Firestore documents**.
+3. **Firestore Security Rules (`firestore.rules`)**:
+   * Rules verified and deployed directly to `ai-studio-drt-2e1619d9-9932-4538-9b6c-26b489ebfec2`.
+   * `microbiz_finances`: Private to record owner (`resource.data.userId == request.auth.uid`) or admin (`zenieverse@gmail.com`).
+   * `microbiz_inquiries`: Restricted to buyer and maker.
+   * `microbiz_reports`: Private reporting queue accessible only to reporting user and system administrators.
+   * `microbiz_posts`, `microbiz_courses`, `microbiz_businesses`: Public read; write/delete restricted to authenticated owners or admins.
+4. **Server-Side API Proxy & Secret Zero-Exposure**:
+   * `GEMINI_API_KEY` is loaded exclusively inside `server.impl.ts`. No secret keys exist in client bundles.
+   * Clean separation between live model responses and resilient offline heuristic fallbacks.
+5. **Strict Payment Disclosure**:
+   * Automated credit card charging is disabled across all storefronts.
+   * All orders are direct quote inquiries settled directly with the maker (cash on delivery, bank transfer QR, or local exchange).
+
+---
+
+## 🧪 Test Execution & Verification Results
+
+All tests, type checks, and builds are fully verified:
+
+| Test / Check | Command Executed | Result | Status |
+| :--- | :--- | :--- | :--- |
+| **MicroBiz Invariant Suite** | `npx tsx scripts/test-microbiz-invariants.ts` | **28 Passed / 0 Failed** | ✅ PASS |
+| **Hashing Invariants (HPK)** | `npx tsx scripts/test-hashing-invariants.ts` | **3 Passed / 0 Failed** | ✅ PASS |
+| **Secret Scan Audit** | `node scripts/audit-secret-scan.cjs` | **0 secrets across 68 files** | ✅ PASS |
+| **TypeScript Typecheck** | `npm run lint` (`tsc --noEmit`) | **0 errors (Clean)** | ✅ PASS |
+| **Full Production Build** | `npm run build` | **`dist/`, `build/`, `.next/` populated** | ✅ PASS |
+
+---
+
+## 🚀 Getting Started
 
 ### Prerequisites
-- Node.js 20+ or 22+
-- npm 10+
+* **Node.js**: `20.x` or `22.x`
+* **npm**: `10.x` or higher
 
-### Installation
+### Installation & Local Setup
+
 ```bash
-# Clone the repository
-git clone https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/28080870/showcase.git
-cd showcase
+# 1. Clone the repository
+git clone https://github.com/Zenieverse/Dr.-T.git
+cd Dr.-T
 
-# Install dependencies
+# 2. Install dependencies
 npm install
 
-# Start development server
+# 3. Configure environment variables (optional, for live Gemini features)
+cp .env.example .env
+# Set GEMINI_API_KEY=your_key_here
+
+# 4. Start full-stack development server
 npm run dev
 ```
 
-Visit `http://localhost:3000` to launch the experience.
+The app will launch at `http://localhost:3000`.
+
+### Scripts
+
+```bash
+npm run dev                  # Start Express full-stack dev server with Vite middleware
+npm run build                # Run production Vite build, esbuild server bundle, and artifact sync
+npm run lint                 # Type check with tsc --noEmit
+npx tsx scripts/test-microbiz-invariants.ts  # Run MicroBiz audit invariant suite
+npx tsx scripts/test-hashing-invariants.ts   # Run Hedera hashing invariant suite
+node scripts/audit-secret-scan.cjs           # Run repository secret scan
+```
 
 ---
 
-## 📦 Project Structure
+## 📂 Project Architecture
 
 ```
-├── docs/
-│   ├── ARCHITECTURE.md          # Technical design & audio pipeline
-│   ├── CHALLENGE.md             # The Independent Pianist Ultimate Test
-│   ├── DEMO.md                  # Deterministic demo guide (60s Walk)
-│   ├── GEMMA.md                 # Gemma prompt schemas & provider integration
-│   ├── OUTDOOR-MISSIONS.md      # Mission library & pedagogical milestones
-│   ├── PRIVACY.md               # Privacy constitution & audio lifecycle
-│   └── SHOWCASE_ONBOARDING.md   # Original GitLab Transcend onboarding instructions
+├── .env.example                               # Environment template (zero secrets)
+├── firebase-applet-config.json                # Firebase client configuration
+├── firestore.rules                            # Firestore RBAC and ownership security rules
+├── package.json                               # Dependencies & build scripts
+├── server.impl.ts                             # Express server & Gemini API proxy routes
+├── server.ts                                  # Full-stack server entry point
+├── scripts/
+│   ├── audit-secret-scan.cjs                  # Secret scanning utility
+│   ├── test-microbiz-invariants.ts            # MicroBiz automated verification suite
+│   ├── test-hashing-invariants.ts             # Cryptographic canonical serialization test
+│   └── prepare-build-artifacts.cjs            # Multi-target build bundler
 ├── src/
+│   ├── App.tsx                                # Main application orchestrator & navigation
+│   ├── main.tsx                               # React DOM entry point
+│   ├── services/
+│   │   └── firebase.ts                        # Firebase SDK & Auth helpers
 │   ├── components/
-│   │   ├── pianist/
-│   │   │   ├── touchgrass/      # Touch Grass outdoor core
-│   │   │   │   ├── ai/          # AIProvider, GemmaLocal & GemmaCloud
-│   │   │   │   ├── audio/       # Web Audio AnalyserNode feature extractor
-│   │   │   │   └── TouchGrassStudio.tsx
-│   │   │   ├── audio/           # Web Audio additive piano synthesizer
-│   │   │   └── components/      # Interactive keyboard & notation staves
-├── CONTRIBUTING.md
-├── LICENSE
-├── README.md
-└── SECURITY.md
+│   │   ├── layout/
+│   │   │   ├── Navbar.tsx                     # Top primary navigation bar
+│   │   │   └── CommandPalette.tsx             # Cmd+K quick navigation palette
+│   │   ├── microbiz/                          # Dr. T MicroBiz platform
+│   │   │   ├── MicroBizApp.tsx                # MicroBiz central container & subtab state
+│   │   │   ├── components/
+│   │   │   │   ├── MicroBizNavbar.tsx         # Secondary subtab ribbon & live Auth chip
+│   │   │   │   ├── DiscoveryFeed.tsx          # Community updates & craft stories
+│   │   │   │   ├── CoursePlatformView.tsx     # Courses, quizzes & completion certificates
+│   │   │   │   ├── CommunityGroupsView.tsx    # Artisan groups & collaborative projects
+│   │   │   │   ├── MarketplaceView.tsx        # Fair-trade storefronts & maker inquiries
+│   │   │   │   ├── OperationsView.tsx         # Bookkeeping ledger & quote/invoice tool
+│   │   │   │   ├── DocScannerView.tsx         # Receipt OCR extractor (Gemini + Regex)
+│   │   │   │   ├── AiStudioView.tsx           # AI curriculum, copy, and business canvas
+│   │   │   │   └── TrustAdminView.tsx         # Trust & community governance queue
+│   │   │   ├── services/
+│   │   │   │   └── microbizService.ts         # Firestore persistence & guest sandbox
+│   │   │   ├── types/
+│   │   │   │   └── microbizTypes.ts           # MicroBiz TypeScript schema definitions
+│   │   │   └── data/
+│   │   │       └── initialMicroBizData.ts     # Offline seed datasets & guest profiles
+│   │   ├── pianist/                           # Adaptive Piano & Touch Grass core
+│   │   │   ├── GrandPianoKeyboard.tsx         # 88-key physical modeling grand piano
+│   │   │   ├── grandpiano/components/         # Classical repertoire play-along player
+│   │   │   └── touchgrass/                    # Outdoor sound-to-music audio engine
+│   │   ├── drt/                               # Socratic clinical wellness engine
+│   │   ├── informatics/                       # FHIR R4 clinical informatics
+│   │   └── settings/                          # User settings, language & personality
+│   └── modules/
+│       └── hedera/                            # Hedera Commons & HPK consensus tools
 ```
 
 ---
 
-## 🔒 Privacy & Data Flow
-See [`docs/PRIVACY.md`](docs/PRIVACY.md) for our full security and acoustic privacy policy.
-- No continuous audio streaming.
-- No persistent GPS coordinates stored.
-- Local feature extraction runs completely inside the browser client.
+## 🔄 GitHub Synchronization
+
+To synchronize this codebase with the connected GitHub repository [`https://github.com/Zenieverse/Dr.-T`](https://github.com/Zenieverse/Dr.-T):
+
+1. Click the **GitHub** button in the upper-right corner of the **Google AI Studio** interface.
+2. Ensure the connected repository is `Zenieverse/Dr.-T` and branch is `main` (or your feature branch).
+3. Review staged changes:
+   * Updated `README.md` with complete platform documentation, architecture, and verification results.
+   * `src/components/microbiz/` hardened components, services, and live auth state.
+   * `server.impl.ts` safe JSON parse fixes on AI endpoints.
+   * `firestore.rules` security rules.
+   * `scripts/test-microbiz-invariants.ts` verification suite.
+4. Commit with message:
+   ```
+   docs(readme): update repository documentation with Dr. T platform architecture, MicroBiz hardening, and verification results
+   ```
+5. Click **Commit & Push** to complete synchronization.
 
 ---
 
-## 🤝 Contributing
-Contributions are warmly welcomed! Please read [`CONTRIBUTING.md`](CONTRIBUTING.md) and [`SECURITY.md`](SECURITY.md) before submitting pull requests.
+## 📄 License & Medical Disclaimer
 
----
-
-## 📄 License
-This project is licensed under the [MIT License](LICENSE).
+* **License**: Licensed under the [MIT License](LICENSE).
+* **Mandatory Medical Notice**: Dr. T is an educational wellness and clinical decision-support AI platform. It is NOT a replacement for a licensed healthcare professional, formal diagnosis, or medical treatment.
