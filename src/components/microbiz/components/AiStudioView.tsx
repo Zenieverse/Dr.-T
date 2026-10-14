@@ -69,6 +69,8 @@ export const AiStudioView: FC<AiStudioViewProps> = ({
   const [generatedPlan, setGeneratedPlan] = useState<any>(null);
   const [planAiMeta, setPlanAiMeta] = useState<AiMeta | null>(null);
 
+  const [selectedProvider, setSelectedProvider] = useState<'gemma' | 'gemini'>('gemma');
+
   // 1. Generate Course
   const handleGenerateCourse = async () => {
     if (!courseTopic.trim()) return;
@@ -83,7 +85,8 @@ export const AiStudioView: FC<AiStudioViewProps> = ({
           topic: courseTopic,
           skillLevel: courseLevel,
           category: courseCategory,
-          language: currentLanguage
+          language: currentLanguage,
+          provider: selectedProvider
         })
       });
 
@@ -93,7 +96,7 @@ export const AiStudioView: FC<AiStudioViewProps> = ({
         setCourseAiMeta({
           isGenuineAi: !!data.isGenuineAi,
           isHeuristicFallback: !!data.isHeuristicFallback,
-          provider: data.provider || (data.isGenuineAi ? 'gemini-2.5-flash' : 'microbiz-heuristic-engine'),
+          provider: data.provider || (data.isGenuineAi ? (selectedProvider === 'gemini' ? 'gemini-2.5-flash' : 'gemma-4-26b-a4b-it') : 'microbiz-heuristic-engine'),
           fallbackNotice: data.fallbackNotice
         });
       }
@@ -178,7 +181,8 @@ export const AiStudioView: FC<AiStudioViewProps> = ({
           category: productCategory,
           details: productDetails,
           targetAudience,
-          language: currentLanguage
+          language: currentLanguage,
+          provider: selectedProvider
         })
       });
 
@@ -188,7 +192,7 @@ export const AiStudioView: FC<AiStudioViewProps> = ({
         setCopyAiMeta({
           isGenuineAi: !!data.isGenuineAi,
           isHeuristicFallback: !!data.isHeuristicFallback,
-          provider: data.provider || (data.isGenuineAi ? 'gemini-2.5-flash' : 'microbiz-heuristic-engine'),
+          provider: data.provider || (data.isGenuineAi ? (selectedProvider === 'gemini' ? 'gemini-2.5-flash' : 'gemma-4-26b-a4b-it') : 'microbiz-heuristic-engine'),
           fallbackNotice: data.fallbackNotice
         });
       }
@@ -212,7 +216,8 @@ export const AiStudioView: FC<AiStudioViewProps> = ({
           businessName: bizName,
           ideaSummary: bizIdea,
           location: bizLocation,
-          language: currentLanguage
+          language: currentLanguage,
+          provider: selectedProvider
         })
       });
 
@@ -222,7 +227,7 @@ export const AiStudioView: FC<AiStudioViewProps> = ({
         setPlanAiMeta({
           isGenuineAi: !!data.isGenuineAi,
           isHeuristicFallback: !!data.isHeuristicFallback,
-          provider: data.provider || (data.isGenuineAi ? 'gemini-2.5-flash' : 'microbiz-heuristic-engine'),
+          provider: data.provider || (data.isGenuineAi ? (selectedProvider === 'gemini' ? 'gemini-2.5-flash' : 'gemma-4-26b-a4b-it') : 'microbiz-heuristic-engine'),
           fallbackNotice: data.fallbackNotice
         });
       }
@@ -237,17 +242,50 @@ export const AiStudioView: FC<AiStudioViewProps> = ({
     <div className="space-y-6">
       {/* Header Banner */}
       <div className="bg-gradient-to-r from-emerald-900 via-teal-900 to-slate-900 rounded-3xl p-6 sm:p-8 text-white shadow-lg space-y-4">
-        <div className="flex items-center space-x-2 text-emerald-400 font-mono text-xs uppercase tracking-wider">
-          <Bot className="w-4 h-4" />
-          <span>MICROBIZ CREATOR INTELLIGENCE</span>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center space-x-2 text-emerald-400 font-mono text-xs uppercase tracking-wider">
+            <Bot className="w-4 h-4" />
+            <span>MICROBIZ CREATOR INTELLIGENCE</span>
+          </div>
+
+          {/* Model Provider Selector */}
+          <div className="flex items-center space-x-1.5 bg-slate-950/60 p-1.5 rounded-2xl border border-slate-700/80">
+            <span className="text-[10px] text-slate-300 font-mono px-2 uppercase tracking-wide">
+              {isVi ? 'Mô hình:' : 'Model:'}
+            </span>
+            <button
+              type="button"
+              onClick={() => setSelectedProvider('gemma')}
+              className={`px-3 py-1 rounded-xl text-[11px] font-mono transition flex items-center space-x-1.5 cursor-pointer ${
+                selectedProvider === 'gemma'
+                  ? 'bg-emerald-500 text-slate-950 font-bold shadow-xs'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              <Sparkles className="w-3 h-3" />
+              <span>Gemma 4 (Open-Weight)</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setSelectedProvider('gemini')}
+              className={`px-3 py-1 rounded-xl text-[11px] font-mono transition flex items-center space-x-1.5 cursor-pointer ${
+                selectedProvider === 'gemini'
+                  ? 'bg-teal-400 text-slate-950 font-bold shadow-xs'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              <span>Gemini 2.5 Flash</span>
+            </button>
+          </div>
         </div>
+
         <h2 className="text-2xl sm:text-3xl font-black font-serif">
           {isVi ? 'Trợ Lý AI Đồng Hành Sáng Tạo & Khởi Nghiệp' : 'AI Companion for Micro-Entrepreneurs'}
         </h2>
         <p className="text-slate-300 text-xs sm:text-sm max-w-2xl font-sans leading-relaxed">
           {isVi
             ? 'Bộ công cụ trợ lý AI được thiết kế đặc thù cho các hộ sản xuất nhỏ, nghệ nhân và người học cộng đồng. Không dùng thuật ngữ phức tạp—tập trung vào tính thực tế, trung thực và bền vững.'
-            : 'Plain-language AI assistants tailored for neighborhood makers, artisan producers, and practical learners. No corporate fluff—just actionable curricula, transparent copywriting, and lean business plans.'}
+            : 'Plain-language AI assistants tailored for neighborhood makers, artisan producers, and practical learners. Powered by open-weight Gemma with verifiable provenance.'}
         </p>
 
         {/* Identity & Persistence Notice */}
@@ -264,7 +302,7 @@ export const AiStudioView: FC<AiStudioViewProps> = ({
             </div>
           )}
           <span className="text-slate-400">
-            • Server-Side Gemini API Proxy with Resilient Offline Fallback
+            • Server-Side Gemma / Gemini Inference Proxy with Resilient Offline Fallback
           </span>
         </div>
       </div>

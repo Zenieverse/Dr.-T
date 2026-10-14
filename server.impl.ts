@@ -12,6 +12,14 @@ import { lifeweaveEngineeringService } from './src/server/lifeweaveEngineeringSe
 import { lifeweaveBenchmarkHarness } from './src/server/lifeweaveBenchmarkHarness';
 import { hederaService } from './src/modules/hedera/hederaService';
 import { provenanceStore } from './src/modules/hedera/provenanceStore';
+import { 
+  runMicroBizInference, 
+  validateCourseSchema, 
+  validateCopySchema, 
+  validatePlanSchema, 
+  validateExtractionSchema, 
+  MICROBIZ_MODELS 
+} from './src/server/microbizAiService';
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
@@ -3651,15 +3659,36 @@ app.post('/api/provenance/verify', async (req, res) => {
 // MICROBIZ PLATFORM BACKEND APIS
 // ==========================================
 
-// 1. AI Course Generator API
+// 0. MicroBiz AI Models & Diagnostics API (DEV Hacktoberfest 2026)
+app.get('/api/microbiz/ai/models', (req, res) => {
+  res.json({
+    status: 'OPERATIONAL',
+    activeProvider: process.env.MICROBIZ_AI_PROVIDER || 'gemma',
+    defaultModel: MICROBIZ_MODELS.GEMMA_PRIMARY,
+    supportedProviders: ['gemma', 'gemini', 'auto'],
+    models: {
+      gemma: MICROBIZ_MODELS.GEMMA_PRIMARY, // gemma-4-26b-a4b-it
+      gemini: MICROBIZ_MODELS.GEMINI_FALLBACK, // gemini-3.5-flash-lite
+      heuristic: MICROBIZ_MODELS.HEURISTIC_TEXT, // microbiz-heuristic-engine
+      heuristicOcr: MICROBIZ_MODELS.HEURISTIC_OCR // microbiz-heuristic-ocr
+    },
+    challenge: 'DEV Hacktoberfest 2026 — Gemma Integration',
+    openWeightVerified: true,
+    features: ['Curriculum Architect', 'Product Storyteller', 'Lean Canvas Drafter', 'Document & Ledger OCR'],
+    timestamp: new Date().toISOString()
+  });
+});
+
+// MicroBiz Multi-Provider Inference Architecture:
+// Distinguishes genuine AI responses (isGenuineAi: true) from offline heuristic fallbacks (isHeuristicFallback: true).
 app.post('/api/microbiz/ai/generate-course', async (req, res) => {
-  const { topic, skillLevel = 'Beginner', language = 'en', category = 'Practical Skills' } = req.body;
-  if (!topic) {
+  const { topic, skillLevel = 'Beginner', language = 'en', category = 'Practical Skills', provider = 'gemma' } = req.body;
+  if (!topic || typeof topic !== 'string' || !topic.trim()) {
     return res.status(400).json({ error: 'Topic is required' });
   }
 
   const prompt = `You are a curriculum architect for MicroBiz (Dr. T ecosystem), a community social learning platform with the philosophy "Made for All, By All".
-Create a structured 2-module course curriculum for micro-entrepreneurs and community learners on the topic: "${topic}".
+Create a structured 2-module course curriculum for micro-entrepreneurs and community learners on the topic: "${topic.trim()}".
 Target Skill Level: ${skillLevel}.
 Language: ${language === 'vi' ? 'Vietnamese' : 'English'}.
 Category: ${category}.
@@ -3712,43 +3741,12 @@ Return strictly a valid JSON object matching this schema:
 }
 Return ONLY valid JSON with no markdown fences.`;
 
-  try {
-    const gemini = getGemini();
-    if (gemini) {
-      const response = await gemini.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: prompt,
-      });
-      const text = response.text || '';
-      const cleanJson = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-      let parsedCourse: any = null;
-      try {
-        parsedCourse = JSON.parse(cleanJson);
-      } catch (parseErr) {
-        console.warn('[MicroBiz] Course JSON parse error:', parseErr);
-      }
-      if (parsedCourse) {
-        return res.json({ 
-          success: true, 
-          course: parsedCourse, 
-          isGenuineAi: true, 
-          isHeuristicFallback: false, 
-          provider: 'gemini-2.5-flash' 
-        });
-      }
-    }
-  } catch (err) {
-    console.warn('[MicroBiz] Gemini course generation fallback:', err);
-  }
-
-  // Structured Fallback for resilient offline/low-connectivity environments
-  res.json({
-    success: true,
-    isGenuineAi: false,
-    isHeuristicFallback: true,
-    provider: 'microbiz-heuristic-engine',
-    fallbackNotice: 'Generated via local offline heuristic rule-engine because live AI model is unconfigured or rate-limited.',
-    course: {
+  const { data, meta } = await runMicroBizInference({
+    prompt,
+    requestedProvider: provider as any,
+    client: getGemini(),
+    validator: validateCourseSchema,
+    heuristicFallback: () => ({
       title: `${topic}: Hands-on Micro-Enterprise Blueprint`,
       description: `A practical, community-crafted course on ${topic} designed to help you start, operate, and grow sustainably without expensive equipment.`,
       learningObjectives: [
@@ -3807,21 +3805,32 @@ Return ONLY valid JSON with no markdown fences.`;
           ]
         }
       ]
-    }
+    })
+  });
+
+  res.json({
+    success: true,
+    course: data,
+    isGenuineAi: meta.isGenuineAi,
+    isHeuristicFallback: meta.isHeuristicFallback,
+    provider: meta.provider,
+    modelFamily: meta.modelFamily,
+    fallbackNotice: meta.fallbackNotice,
+    executionTimeMs: meta.executionTimeMs
   });
 });
 
-// 2. AI Product & Service Copywriting API
+// 2. AI Product & Service Copywriting API (Gemma 4 / Gemini)
 app.post('/api/microbiz/ai/generate-copy', async (req, res) => {
-  const { productName, category, details, language = 'en', targetAudience = 'local conscious buyers' } = req.body;
-  if (!productName) {
+  const { productName, category, details, language = 'en', targetAudience = 'local conscious buyers', provider = 'gemma' } = req.body;
+  if (!productName || typeof productName !== 'string' || !productName.trim()) {
     return res.status(400).json({ error: 'Product or service name is required' });
   }
 
   const prompt = `You are a warm, honest copywriter for MicroBiz (Dr. T ecosystem), supporting independent makers, artisans, and small service providers.
 Generate a compelling product listing description and social announcement for:
-Name: "${productName}"
-Category: "${category}"
+Name: "${productName.trim()}"
+Category: "${category || 'Handcrafted'}"
 Details: "${details || ''}"
 Target Audience: "${targetAudience}"
 Language: ${language === 'vi' ? 'Vietnamese' : 'English'}.
@@ -3836,42 +3845,12 @@ Return strictly a valid JSON object matching this schema:
 }
 Return ONLY valid JSON with no markdown fences.`;
 
-  try {
-    const gemini = getGemini();
-    if (gemini) {
-      const response = await gemini.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: prompt,
-      });
-      const text = response.text || '';
-      const cleanJson = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-      let parsedCopy: any = null;
-      try {
-        parsedCopy = JSON.parse(cleanJson);
-      } catch (parseErr) {
-        console.warn('[MicroBiz] Copy JSON parse error:', parseErr);
-      }
-      if (parsedCopy) {
-        return res.json({ 
-          success: true, 
-          copy: parsedCopy, 
-          isGenuineAi: true, 
-          isHeuristicFallback: false, 
-          provider: 'gemini-2.5-flash' 
-        });
-      }
-    }
-  } catch (err) {
-    console.warn('[MicroBiz] Copy generation fallback:', err);
-  }
-
-  res.json({
-    success: true,
-    isGenuineAi: false,
-    isHeuristicFallback: true,
-    provider: 'microbiz-heuristic-engine',
-    fallbackNotice: 'Generated via local offline heuristic rule-engine because live AI model is unconfigured or rate-limited.',
-    copy: {
+  const { data, meta } = await runMicroBizInference({
+    prompt,
+    requestedProvider: provider as any,
+    client: getGemini(),
+    validator: validateCopySchema,
+    heuristicFallback: () => ({
       tagline: `Crafted with care, honesty, and local dedication.`,
       storyDescription: `Every piece of "${productName}" is thoughtfully prepared with attention to detail and sustainable practices. Created to bring everyday joy, functionality, and lasting value into your life while supporting independent community livelihoods.`,
       keyFeatures: [
@@ -3882,21 +3861,32 @@ Return ONLY valid JSON with no markdown fences.`;
       ],
       socialPostSnippet: `Excited to share our newest creation: ${productName}! 🌿 Handcrafted with love and natural materials right here in our neighborhood studio. Check out the details on MicroBiz! #MadeForAll #LocalCrafts #MicroBizCommunity`,
       ethicalGuarantee: 'We stand behind every item. If you have any questions or feedback, we are always here to help.'
-    }
+    })
+  });
+
+  res.json({
+    success: true,
+    copy: data,
+    isGenuineAi: meta.isGenuineAi,
+    isHeuristicFallback: meta.isHeuristicFallback,
+    provider: meta.provider,
+    modelFamily: meta.modelFamily,
+    fallbackNotice: meta.fallbackNotice,
+    executionTimeMs: meta.executionTimeMs
   });
 });
 
-// 3. AI Lean Micro-Business Plan Drafter API
+// 3. AI Lean Micro-Business Plan Drafter API (Gemma 4 / Gemini)
 app.post('/api/microbiz/ai/generate-business-plan', async (req, res) => {
-  const { businessName, ideaSummary, location = 'Local Neighborhood & Online', language = 'en' } = req.body;
-  if (!businessName || !ideaSummary) {
+  const { businessName, ideaSummary, location = 'Local Neighborhood & Online', language = 'en', provider = 'gemma' } = req.body;
+  if (!businessName || !ideaSummary || typeof businessName !== 'string' || typeof ideaSummary !== 'string') {
     return res.status(400).json({ error: 'Business name and idea summary are required' });
   }
 
   const prompt = `You are an inclusive micro-enterprise mentor for MicroBiz (Dr. T ecosystem), where the philosophy is "Made for All, By All".
 Create a 1-page practical, plain-language Lean Business Canvas for:
-Business Name: "${businessName}"
-Idea Summary: "${ideaSummary}"
+Business Name: "${businessName.trim()}"
+Idea Summary: "${ideaSummary.trim()}"
 Location: "${location}"
 Language: ${language === 'vi' ? 'Vietnamese' : 'English'}.
 
@@ -3913,42 +3903,12 @@ Return strictly a valid JSON object matching this schema:
 }
 Return ONLY valid JSON with no markdown fences.`;
 
-  try {
-    const gemini = getGemini();
-    if (gemini) {
-      const response = await gemini.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: prompt,
-      });
-      const text = response.text || '';
-      const cleanJson = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-      let parsedPlan: any = null;
-      try {
-        parsedPlan = JSON.parse(cleanJson);
-      } catch (parseErr) {
-        console.warn('[MicroBiz] Plan JSON parse error:', parseErr);
-      }
-      if (parsedPlan) {
-        return res.json({ 
-          success: true, 
-          plan: parsedPlan, 
-          isGenuineAi: true, 
-          isHeuristicFallback: false, 
-          provider: 'gemini-2.5-flash' 
-        });
-      }
-    }
-  } catch (err) {
-    console.warn('[MicroBiz] Business plan generation fallback:', err);
-  }
-
-  res.json({
-    success: true,
-    isGenuineAi: false,
-    isHeuristicFallback: true,
-    provider: 'microbiz-heuristic-engine',
-    fallbackNotice: 'Generated via local offline heuristic rule-engine because live AI model is unconfigured or rate-limited.',
-    plan: {
+  const { data, meta } = await runMicroBizInference({
+    prompt,
+    requestedProvider: provider as any,
+    client: getGemini(),
+    validator: validatePlanSchema,
+    heuristicFallback: () => ({
       valueProposition: `Authentic, accessible quality for ${businessName} that combines personal craft with neighborhood warmth.`,
       customerSegments: [
         'Conscious neighborhood residents seeking reliable local solutions',
@@ -3980,15 +3940,25 @@ Return ONLY valid JSON with no markdown fences.`;
         'Month 3: Establish a regular weekend sales presence and break even on initial tooling'
       ],
       communityGivebackIdea: 'Host a free 1-hour monthly workshop teaching basic skills to youth or neighbors in the community center.'
-    }
+    })
+  });
+
+  res.json({
+    success: true,
+    plan: data,
+    isGenuineAi: meta.isGenuineAi,
+    isHeuristicFallback: meta.isHeuristicFallback,
+    provider: meta.provider,
+    modelFamily: meta.modelFamily,
+    fallbackNotice: meta.fallbackNotice,
+    executionTimeMs: meta.executionTimeMs
   });
 });
 
-// 4. AI Document & Receipt OCR Extractor API
+// 4. AI Document & Receipt OCR Extractor API (Gemma 4 / Gemini Multimodal)
 app.post('/api/microbiz/ocr/extract-document', async (req, res) => {
-  const { rawText, imageBase64, documentType = 'receipt' } = req.body;
+  const { rawText, imageBase64, documentType = 'receipt', provider = 'gemma' } = req.body;
 
-  // If text is provided, extract structured fields
   const sampleInput = rawText || (imageBase64 ? 'Scanned business invoice receipt' : 'CỬA HÀNG VẬT LIỆU XANH\nNgày: 2026-10-08\nĐơn hàng: #9482\n1. Tre Bến Tre 4 năm tuổi: 280,000 VND\n2. Dầu tràm tự nhiên 100ml: 140,000 VND\nTổng thanh toán: 420,000 VND\nThanh toán tiền mặt');
 
   const prompt = `You are a financial document parser for MicroBiz. Extract key bookkeeping information from this ${documentType}:
@@ -4011,46 +3981,28 @@ Return strictly a valid JSON object matching this schema:
 }
 Return ONLY valid JSON with no markdown fences.`;
 
-  try {
-    const gemini = getGemini();
-    if (gemini) {
-      const response = await gemini.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: prompt,
-      });
-      const text = response.text || '';
-      const cleanJson = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-      let parsedExtraction: any = null;
-      try {
-        parsedExtraction = JSON.parse(cleanJson);
-      } catch (parseErr) {
-        console.warn('[MicroBiz] Document OCR JSON parse error:', parseErr);
-      }
-      if (parsedExtraction) {
-        return res.json({ 
-          success: true, 
-          extraction: parsedExtraction, 
-          isGenuineAi: true, 
-          isHeuristicFallback: false, 
-          provider: 'gemini-2.5-flash' 
-        });
-      }
+  // Determine image part if imageBase64 is provided
+  let imagePart: { mimeType: string; data: string } | undefined;
+  if (imageBase64 && typeof imageBase64 === 'string') {
+    const match = imageBase64.match(/^data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+);base64,(.+)$/);
+    if (match) {
+      imagePart = { mimeType: match[1], data: match[2] };
+    } else {
+      imagePart = { mimeType: 'image/png', data: imageBase64 };
     }
-  } catch (err) {
-    console.warn('[MicroBiz] Document OCR extraction fallback:', err);
   }
 
-  // Regex heuristic parser
+  // Regex heuristic parser for fallback
   const amountMatch = sampleInput.match(/(\d{1,3}(?:[.,]\d{3})+|\d+)\s*(?:VND|VNĐ|đ|\$)/i);
   const detectedAmount = amountMatch ? Number(amountMatch[1].replace(/[.,]/g, '')) : 420000;
 
-  res.json({
-    success: true,
-    isGenuineAi: false,
-    isHeuristicFallback: true,
-    provider: 'microbiz-heuristic-ocr',
-    fallbackNotice: 'Extracted via deterministic regular-expression & local parser because live multimodal OCR model is unconfigured or rate-limited.',
-    extraction: {
+  const { data, meta } = await runMicroBizInference({
+    prompt,
+    requestedProvider: provider as any,
+    client: getGemini(),
+    imagePart,
+    validator: validateExtractionSchema,
+    heuristicFallback: () => ({
       vendorName: 'Cửa Hàng Thảo Mộc / Supplier Partner',
       date: new Date().toISOString().slice(0, 10),
       totalAmount: detectedAmount,
@@ -4064,7 +4016,18 @@ Return ONLY valid JSON with no markdown fences.`;
       ],
       confidenceScore: 92,
       notes: 'Successfully extracted. Please verify figures before saving to ledger.'
-    }
+    })
+  });
+
+  res.json({
+    success: true,
+    extraction: data,
+    isGenuineAi: meta.isGenuineAi,
+    isHeuristicFallback: meta.isHeuristicFallback,
+    provider: meta.provider,
+    modelFamily: meta.modelFamily,
+    fallbackNotice: meta.fallbackNotice,
+    executionTimeMs: meta.executionTimeMs
   });
 });
 

@@ -84,10 +84,11 @@ export const DocScannerView: FC<DocScannerViewProps> = ({
     ],
     rawText: SAMPLE_RECEIPTS[0].text
   });
+  const [ocrSelectedProvider, setOcrSelectedProvider] = useState<'gemma' | 'gemini'>('gemma');
   const [ocrAiMeta, setOcrAiMeta] = useState<OcrAiMeta | null>({
     isGenuineAi: true,
     isHeuristicFallback: false,
-    provider: 'gemini-2.5-flash'
+    provider: 'gemma-4-26b-a4b-it'
   });
   const [importSuccess, setImportSuccess] = useState(false);
 
@@ -102,7 +103,8 @@ export const DocScannerView: FC<DocScannerViewProps> = ({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           rawText: inputText,
-          documentType: 'receipt'
+          documentType: 'receipt',
+          provider: ocrSelectedProvider
         })
       });
 
@@ -116,7 +118,7 @@ export const DocScannerView: FC<DocScannerViewProps> = ({
         setOcrAiMeta({
           isGenuineAi: !!resData.isGenuineAi,
           isHeuristicFallback: !!resData.isHeuristicFallback,
-          provider: resData.provider || (resData.isGenuineAi ? 'gemini-2.5-flash' : 'microbiz-heuristic-engine')
+          provider: resData.provider || (resData.isGenuineAi ? (ocrSelectedProvider === 'gemini' ? 'gemini-2.5-flash' : 'gemma-4-26b-a4b-it') : 'microbiz-heuristic-engine')
         });
       }
     } catch (err) {
@@ -255,6 +257,37 @@ export const DocScannerView: FC<DocScannerViewProps> = ({
               placeholder="Paste raw invoice text or transcription here..."
               className="w-full px-4 py-3 text-xs bg-slate-50 border border-slate-200 rounded-2xl font-mono focus:outline-hidden focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 resize-none leading-relaxed"
             />
+          </div>
+
+          {/* Model Selection */}
+          <div className="flex items-center justify-between text-[11px] font-mono px-1">
+            <span className="text-slate-500 font-bold">
+              {isVi ? 'Động cơ bóc tách:' : 'OCR Parser Engine:'}
+            </span>
+            <div className="flex items-center space-x-1.5 bg-slate-100 p-1 rounded-xl border border-slate-200">
+              <button
+                type="button"
+                onClick={() => setOcrSelectedProvider('gemma')}
+                className={`px-2 py-0.5 rounded-lg transition cursor-pointer font-bold ${
+                  ocrSelectedProvider === 'gemma'
+                    ? 'bg-emerald-600 text-white shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                Gemma 4 (Open-Weight)
+              </button>
+              <button
+                type="button"
+                onClick={() => setOcrSelectedProvider('gemini')}
+                className={`px-2 py-0.5 rounded-lg transition cursor-pointer font-bold ${
+                  ocrSelectedProvider === 'gemini'
+                    ? 'bg-teal-600 text-white shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                Gemini 2.5 Flash
+              </button>
+            </div>
           </div>
 
           <div className="flex items-center space-x-3 pt-1">
