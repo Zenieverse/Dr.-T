@@ -75,15 +75,33 @@ async function testLiveFirestorePermissions() {
     assert(err.code === 'permission-denied', 'Unauthenticated read to /microbiz_finances strictly DENIED (permission-denied)');
   }
 
-  // 5. microbiz_posts unauthenticated write (MUST be DENIED)
+  // 5. healthRecords unauthenticated write (MUST be DENIED)
+  const probeHealthRef = doc(db, 'healthRecords', `__security_probe_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`);
   try {
-    await setDoc(doc(db, 'microbiz_posts', 'unauth_probe_doc'), { title: 'probe' });
+    await setDoc(probeHealthRef, { patientId: 'probe', test: 'probe' });
+    try {
+      const { deleteDoc } = await import('firebase/firestore');
+      await deleteDoc(probeHealthRef);
+    } catch {}
+    assert(false, 'Unauthenticated write to /healthRecords was allowed');
+  } catch (err: any) {
+    assert(err.code === 'permission-denied', 'Unauthenticated write to /healthRecords strictly DENIED (permission-denied)');
+  }
+
+  // 6. microbiz_posts unauthenticated write (MUST be DENIED)
+  const probePostRef = doc(db, 'microbiz_posts', `__security_probe_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`);
+  try {
+    await setDoc(probePostRef, { title: 'probe', __probe: true });
+    try {
+      const { deleteDoc } = await import('firebase/firestore');
+      await deleteDoc(probePostRef);
+    } catch {}
     assert(false, 'Unauthenticated write to /microbiz_posts was allowed');
   } catch (err: any) {
     assert(err.code === 'permission-denied', 'Unauthenticated write to /microbiz_posts strictly DENIED (permission-denied)');
   }
 
-  // 6. microbiz_posts public read (MUST be ALLOWED)
+  // 7. microbiz_posts public read (MUST be ALLOWED)
   try {
     await getDocs(collection(db, 'microbiz_posts'));
     assert(true, 'Public read to /microbiz_posts permitted for community discovery feed');
