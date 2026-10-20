@@ -60,6 +60,9 @@ import { CinemaContainer } from './cinema/CinemaContainer';
 import { HederaCommonsPage as HederaCommonsHome } from './modules/hedera/pages/HederaCommonsPage';
 import { PianistApp } from './components/pianist/PianistApp';
 import { MicroBizApp } from './components/microbiz/MicroBizApp';
+import { FutureHealthChallengeModule } from './components/health/FutureHealthChallengeModule';
+import { StCoolModule } from './components/stcool/StCoolModule';
+import { HealthAlertModule } from './components/healthalert/HealthAlertModule';
 import { SettingsPage } from './components/settings/SettingsPage';
 
 export function App() {
@@ -474,6 +477,18 @@ export function App() {
 
         {activeTab === 'microbiz' && (
           <MicroBizApp currentLanguage={currentLanguage} />
+        )}
+
+        {activeTab === 'futurehealth' && (
+          <FutureHealthChallengeModule setActiveTab={setActiveTab} />
+        )}
+
+        {activeTab === 'stcool' && (
+          <StCoolModule setActiveTab={setActiveTab} />
+        )}
+
+        {activeTab === 'healthalert' && (
+          <HealthAlertModule setActiveTab={setActiveTab} />
         )}
 
         {activeTab === 'gcp' && (

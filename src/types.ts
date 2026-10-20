@@ -26,6 +26,9 @@ export type NavTab =
   | 'deck'
   | 'lifeweave'
   | 'hedera'
+  | 'futurehealth'
+  | 'healthalert'
+  | 'stcool'
   | 'microbiz'
   | 'gcp'
   | 'settings';
@@ -471,4 +474,233 @@ export interface PatientMember360Profile {
     question: string;
   }>;
 }
+
+// ==========================================
+// FUTURE HEALTH DIGITAL INNOVATION CHALLENGE 2026
+// Track: Population Health — Anticipatory Health Systems
+// ==========================================
+
+export type FutureHealthRiskLevel = 
+  | 'ROUTINE_PREVENTION'   // Green (Low baseline risk)
+  | 'MODERATE_MONITORING'  // Yellow (Subclinical or borderline trends)
+  | 'ELEVATED_RISK'        // Orange (Requires timely clinical referral & HITL review)
+  | 'CRITICAL_ESCALATION'; // Red (Immediate urgent clinical evaluation)
+
+export interface FutureHealthBiomarkers {
+  bloodPressure?: string;
+  restingHeartRate?: number;
+  bmi?: number;
+  sleepAvgHours?: number;
+  ferritin?: number;
+  hba1c?: number;
+  egfr?: number;
+  ldl?: number;
+  crp?: number;
+  vitD?: number;
+}
+
+export interface FutureHealthScreeningRequest {
+  patientId?: string;
+  demographics: {
+    age: number;
+    gender: string;
+    ethnicity?: string;
+  };
+  biometrics: {
+    bloodPressure?: string;
+    restingHeartRate?: number;
+    bmi?: number;
+    sleepAvgHours?: number;
+  };
+  labs: {
+    ferritin?: number;
+    hba1c?: number;
+    egfr?: number;
+    ldl?: number;
+    crp?: number;
+    vitD?: number;
+  };
+  symptoms: string[];
+  consentGiven: boolean;
+  deIdentified: boolean;
+}
+
+export interface BiomarkerCausalityPoint {
+  biomarker: string;
+  observedValue: string | number;
+  referenceStandard: string;
+  guidelineSource: string; // e.g. "AHA 2024", "ADA Standards of Care", "KDIGO 2023"
+  impactWeight: number; // 0 to 1
+  clinicalRationale: string;
+}
+
+export interface FutureHealthSBARHandoff {
+  situation: string;
+  background: string;
+  assessment: string;
+  recommendation: string;
+  requiredPhysicianSpecialty: string;
+  targetReferralTimeframe: string;
+}
+
+export interface FutureHealthScreeningResponse {
+  success: boolean;
+  assessmentId: string;
+  timestamp: string;
+  riskLevel: FutureHealthRiskLevel;
+  riskScorePercent: number; // 0 to 100
+  anticipatoryDomain: 'Cardiometabolic' | 'Hematologic/Iron' | 'Renal/Metabolic' | 'Respiratory/Sleep' | 'Multi-Domain';
+  nonDiagnosticDisclaimer: string;
+  uncertaintyScore: number; // 0.00 to 1.00 (epistemic uncertainty)
+  uncertaintyRationale: string;
+  confidenceInterval: {
+    low: number;
+    high: number;
+  };
+  hitlRequired: boolean;
+  hitlReviewStatus: 'PENDING_CLINICIAN_REVIEW' | 'NOT_REQUIRED' | 'SIGNED_OFF';
+  evidenceCitations: Array<{
+    title: string;
+    organization: string;
+    gradeLevel: 'HIGH' | 'MODERATE' | 'LOW';
+    doiOrUrl?: string;
+  }>;
+  causalityBreakdown: BiomarkerCausalityPoint[];
+  sbarHandoff: FutureHealthSBARHandoff;
+  fhirRiskAssessment: Record<string, any>;
+  telemetry: {
+    executionTimeMs: number;
+    modelProvider: string;
+    anonymizationVerified: boolean;
+    demographicParityAudited: boolean;
+    projectedTimeToEvaluationDays: number; // Baseline ~42 days vs ~3.5 days
+  };
+}
+
+// ==========================================
+// ST COOL: SYMPTOM-TO-CARE CLINICAL ORIENTATION & LIAISON
+// Future Health Digital Innovation Challenge 2026 Production Tab
+// ==========================================
+
+export type StCoolTriageTier = 
+  | 'ROUTINE_WELLNESS'
+  | 'PLANNED_CLINICAL_ASSESSMENT'
+  | 'URGENT_EVALUATION'
+  | 'EMERGENT_ESCALATION';
+
+export interface StCoolIntakeData {
+  patientAlias?: string;
+  age: number;
+  gender: 'Female' | 'Male' | 'Other' | 'Prefer not to say';
+  primaryConcern: string;
+  durationDays: number;
+  severityScale: number; // 1 - 10
+  vitals: {
+    bloodPressure?: string;
+    restingHeartRate?: number;
+    temperatureC?: number;
+    spo2Percent?: number;
+  };
+  labs: {
+    ferritin?: number;
+    hba1c?: number;
+    egfr?: number;
+    crp?: number;
+    ldl?: number;
+    hemoglobin?: number;
+    tsh?: number;
+  };
+  symptoms: string[];
+  medications: string[];
+  allergies: string[];
+  consentGiven: boolean;
+  deIdentifiedConfirmed: boolean;
+  countryOrRegion?: string;
+}
+
+export interface StCoolEvidenceCitation {
+  id: string;
+  title: string;
+  source: string;
+  publicationYear: number;
+  gradeLevel: 'HIGH' | 'MODERATE' | 'LOW';
+  doiOrUrl: string;
+  relevance: string;
+}
+
+export interface StCoolClinicianQuestion {
+  id: string;
+  category: 'Diagnostic Confirmation' | 'Treatment & Safety' | 'Lifestyle & Monitoring';
+  question: string;
+  rationale: string;
+}
+
+export interface StCoolAnalysisResponse {
+  success: boolean;
+  sessionId: string;
+  timestamp: string;
+  triageTier: StCoolTriageTier;
+  triageTitle: string;
+  actionSummary: string;
+  urgencyTimeline: string;
+  riskScore: number; // 0 - 100
+  uncertainty: {
+    score: number; // 0.0 - 1.0
+    level: 'Low' | 'Moderate' | 'Elevated';
+    missingKeyFactors: string[];
+    explanation: string;
+    confidenceInterval: { low: number; high: number };
+  };
+  clinicalFindings: Array<{
+    category: 'Vitals & Biometrics' | 'Laboratory Biomarkers' | 'Reported Symptoms' | 'Interactions & History';
+    finding: string;
+    interpretation: string;
+    clinicalSignificance: 'Normal' | 'Borderline' | 'Elevated' | 'Critical Red-Flag';
+    guidelineRef?: string;
+  }>;
+  evidenceSources: StCoolEvidenceCitation[];
+  personalizedEducation: {
+    topic: string;
+    plainLanguageSummary: string;
+    mechanisticExplanation: string;
+    lifestyleCaveats: string[];
+  };
+  clinicianPreparation: {
+    sbarBrief: {
+      situation: string;
+      background: string;
+      assessment: string;
+      recommendation: string;
+    };
+    suggestedQuestions: StCoolClinicianQuestion[];
+    checklist: string[];
+  };
+  safetyNotice: {
+    disclaimer: string;
+    emergencyWarning: string;
+    humanClinicianRequired: boolean;
+  };
+  telemetry: {
+    providerUsed: string;
+    latencyMs: number;
+    heuristicFallbackEngaged: boolean;
+    anonymizationVerified: boolean;
+    fhirCompliant: boolean;
+  };
+  fhirRiskAssessment?: Record<string, any>;
+}
+
+// ==========================================
+// HEALTH ALERT: CLINICAL WARNING SENSING & TRIAGE LIAISON
+// Future Health Digital Innovation Challenge 2026 Production Tab
+// ==========================================
+
+export type HealthAlertTriageTier = StCoolTriageTier;
+export type HealthAlertIntakeData = StCoolIntakeData;
+export type HealthAlertEvidenceCitation = StCoolEvidenceCitation;
+export type HealthAlertClinicianQuestion = StCoolClinicianQuestion;
+export type HealthAlertAnalysisResponse = StCoolAnalysisResponse;
+
+
+
 

@@ -285,7 +285,7 @@ export const DocScannerView: FC<DocScannerViewProps> = ({
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
-                Gemini 2.5 Flash
+                Gemini 3.5 Flash Lite
               </button>
             </div>
           </div>

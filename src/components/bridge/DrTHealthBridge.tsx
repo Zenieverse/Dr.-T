@@ -323,6 +323,22 @@ export const DrTHealthBridge: React.FC<DrTHealthBridgeProps> = ({ setActiveTab }
 
             <div className="flex items-center space-x-2">
               <button
+                onClick={() => setActiveTab('stcool')}
+                className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-teal-500/20 to-indigo-500/20 hover:from-teal-500/30 hover:to-indigo-500/30 text-teal-200 text-xs font-bold border border-teal-500/40 transition flex items-center space-x-1.5 shadow-sm"
+                title="Open ST COOL — Symptom-to-Care Orientation Tab"
+              >
+                <span>✨ st cool</span>
+                <ChevronRight className="w-3.5 h-3.5 text-teal-300" />
+              </button>
+              <button
+                onClick={() => setActiveTab('futurehealth')}
+                className="px-3 py-1.5 rounded-xl bg-teal-500/20 hover:bg-teal-500/30 text-teal-200 text-xs font-bold border border-teal-500/40 transition flex items-center space-x-1.5 shadow-sm"
+                title="Open Abu Dhabi Future Health Digital Innovation Challenge 2026 Module"
+              >
+                <span>🏆 Future Health 2026</span>
+                <ChevronRight className="w-3.5 h-3.5 text-teal-300" />
+              </button>
+              <button
                 onClick={() => setActiveTab('deck')}
                 className="px-3 py-1.5 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 text-purple-200 text-xs font-bold border border-purple-500/40 transition flex items-center space-x-1.5"
                 title="View Executive Pitch Deck & 1-Slide Briefs"

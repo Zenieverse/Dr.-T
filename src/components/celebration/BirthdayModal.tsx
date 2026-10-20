@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import confetti from 'canvas-confetti';
 import { DR_T_AVATAR } from '../../assets/drTAvatar';
 import drTActualPhoto from '../../assets/images/dr_t_actual_photo_1790408669388.jpg';
+import { GallopingHorseSvg } from './GallopingHorseSvg';
 import { 
   PartyPopper, 
   Sparkles, 
@@ -23,12 +24,14 @@ interface BirthdayModalProps {
 }
 
 export function BirthdayModal({ isOpen, onClose }: BirthdayModalProps) {
-  // Layer state: 'coat_of_white' is in the foreground upon checking in, overlapping the birthday card
-  const [activeLayer, setActiveLayer] = useState<'coat_of_white' | 'birthday'>('coat_of_white');
+  // Layer state: 'blessed_dears' is in the foreground overlapping 'coat_of_white' which overlaps 'birthday'
+  const [activeLayer, setActiveLayer] = useState<'blessed_dears' | 'coat_of_white' | 'birthday'>('blessed_dears');
+  const [isBlessedDearsVisible, setIsBlessedDearsVisible] = useState<boolean>(true);
   const [isCoatOfWhiteVisible, setIsCoatOfWhiteVisible] = useState<boolean>(true);
   
   const [copiedBirthday, setCopiedBirthday] = useState<boolean>(false);
   const [copiedCoatOfWhite, setCopiedCoatOfWhite] = useState<boolean>(false);
+  const [copiedBlessedDears, setCopiedBlessedDears] = useState<boolean>(false);
   
   const [candlesLit, setCandlesLit] = useState<boolean>(true);
   const [wishesCount, setWishesCount] = useState<number>(42);
@@ -36,6 +39,9 @@ export function BirthdayModal({ isOpen, onClose }: BirthdayModalProps) {
   
   const [saluteCount, setSaluteCount] = useState<number>(88);
   const [hasSaluted, setHasSaluted] = useState<boolean>(false);
+
+  const [cheersCount, setCheersCount] = useState<number>(2026);
+  const [hasCheered, setHasCheered] = useState<boolean>(false);
   
   const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
 
@@ -79,9 +85,16 @@ export function BirthdayModal({ isOpen, onClose }: BirthdayModalProps) {
     }
   };
 
-  const launchConfettiBlast = (theme: 'birthday' | 'teal' = 'birthday') => {
+  const launchConfettiBlast = (theme: 'birthday' | 'teal' | 'gold_red' = 'gold_red') => {
     try {
-      if (theme === 'teal') {
+      if (theme === 'gold_red') {
+        confetti({
+          particleCount: 85,
+          spread: 75,
+          origin: { y: 0.6, x: 0.5 },
+          colors: ['#c22227', '#e11d48', '#d97706', '#f59e0b', '#fbbf24', '#fef3c7', '#991b1b']
+        });
+      } else if (theme === 'teal') {
         confetti({
           particleCount: 80,
           spread: 75,
@@ -103,14 +116,14 @@ export function BirthdayModal({ isOpen, onClose }: BirthdayModalProps) {
           angle: 60,
           spread: 55,
           origin: { x: 0.1, y: 0.7 },
-          colors: ['#06b6d4', '#14b8a6', '#f43f5e', '#fbbf24']
+          colors: ['#c22227', '#d97706', '#fbbf24', '#f43f5e']
         });
         confetti({
           particleCount: 45,
           angle: 120,
           spread: 55,
           origin: { x: 0.9, y: 0.7 },
-          colors: ['#3b82f6', '#8b5cf6', '#34d399', '#f59e0b']
+          colors: ['#f59e0b', '#b91c1c', '#fef3c7', '#06b6d4']
         });
       }, 250);
     } catch (e) {
@@ -120,14 +133,25 @@ export function BirthdayModal({ isOpen, onClose }: BirthdayModalProps) {
 
   useEffect(() => {
     if (isOpen) {
-      setActiveLayer('coat_of_white');
+      setActiveLayer('blessed_dears');
+      setIsBlessedDearsVisible(true);
       setIsCoatOfWhiteVisible(true);
-      launchConfettiBlast('teal');
+      launchConfettiBlast('gold_red');
       playBirthdayChime();
     }
   }, [isOpen]);
 
   if (!isOpen) return null;
+
+  const blessedDearsPoemText = `To Blessed Dears!
+by Zen
+
+2026
+
+Two, Oh, Two, Six: What a Year!
+Pumps up all veins with best Cheers,
+Gallop here, there for Meets up
+Bounce back to prime, ‘To blessed Dears!’`;
 
   const inCoatOfWhiteText = `Always comes first in line
 Melting cold hearts, Feeling dold minds
@@ -148,24 +172,36 @@ Cheers on your paths go wild
 Wishing you Best running your ways 
 Till time finds it 'assez'
 Toujours, J'attends, Bonjour! Ça va?
+Toujours, Je prie, Tu vas bien!`;
 
-HAPPY Waah Waah!
-by ZEN
-
-Dr. T V2.9.3.7.0`;
+  const handleCopyBlessedDears = () => {
+    try {
+      navigator.clipboard.writeText(blessedDearsPoemText);
+      setCopiedBlessedDears(true);
+      setTimeout(() => setCopiedBlessedDears(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy poem:', err);
+    }
+  };
 
   const handleCopyCoatOfWhite = () => {
-    navigator.clipboard.writeText(inCoatOfWhiteText);
-    setCopiedCoatOfWhite(true);
-    launchConfettiBlast('teal');
-    setTimeout(() => setCopiedCoatOfWhite(false), 2500);
+    try {
+      navigator.clipboard.writeText(inCoatOfWhiteText);
+      setCopiedCoatOfWhite(true);
+      setTimeout(() => setCopiedCoatOfWhite(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy poem:', err);
+    }
   };
 
   const handleCopyBirthday = () => {
-    navigator.clipboard.writeText(birthdayPoemText);
-    setCopiedBirthday(true);
-    launchConfettiBlast('birthday');
-    setTimeout(() => setCopiedBirthday(false), 2500);
+    try {
+      navigator.clipboard.writeText(birthdayPoemText);
+      setCopiedBirthday(true);
+      setTimeout(() => setCopiedBirthday(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy poem:', err);
+    }
   };
 
   const handleSendWish = () => {
@@ -186,17 +222,26 @@ Dr. T V2.9.3.7.0`;
     playBirthdayChime();
   };
 
+  const handleBlessedCheers = () => {
+    if (!hasCheered) {
+      setCheersCount(prev => prev + 1);
+      setHasCheered(true);
+    }
+    launchConfettiBlast('gold_red');
+    playBirthdayChime();
+  };
+
   const toggleCandles = () => {
-    setCandlesLit(prev => !prev);
+    setCandlesLit(!candlesLit);
     if (!candlesLit) {
       launchConfettiBlast('birthday');
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-950/70 backdrop-blur-md animate-in fade-in duration-300 overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto bg-slate-950/85 backdrop-blur-md animate-in fade-in duration-300">
       
-      {/* Decorative Floating Balloons in Background */}
+      {/* Dynamic Animated Ambient Background Balloons */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden select-none">
         {/* Balloon 1: Rose */}
         <div className="absolute top-6 left-8 sm:left-24 animate-bounce [animation-duration:3s]">
@@ -239,13 +284,34 @@ Dr. T V2.9.3.7.0`;
       <div className="relative w-full max-w-2xl flex flex-col items-center justify-center min-h-[580px]">
 
         {/* Layer Switcher Tabs at Very Top */}
-        <div className="z-40 mb-3 flex items-center bg-slate-900/90 border border-slate-700/80 p-1.5 rounded-2xl shadow-xl backdrop-blur-md space-x-1.5 text-xs font-semibold">
+        <div className="z-40 mb-3 flex flex-wrap items-center justify-center bg-slate-900/95 border border-slate-700/80 p-1.5 rounded-2xl shadow-xl backdrop-blur-md gap-1.5 text-xs font-semibold">
+          
+          {/* Tab 1: To Blessed Dears! (Foreground) */}
+          <button
+            onClick={() => {
+              setActiveLayer('blessed_dears');
+              setIsBlessedDearsVisible(true);
+            }}
+            className={`px-3 py-1.5 rounded-xl transition flex items-center space-x-1.5 cursor-pointer ${
+              activeLayer === 'blessed_dears' && isBlessedDearsVisible
+                ? 'bg-gradient-to-r from-red-700 via-rose-700 to-amber-700 text-white font-bold shadow-md ring-1 ring-amber-300/40'
+                : 'text-slate-300 hover:text-white hover:bg-slate-800'
+            }`}
+          >
+            <span className="text-sm">🐎</span>
+            <span>To Blessed Dears! (2026)</span>
+            <span className="ml-1 px-1.5 py-0.2 bg-amber-400/20 text-amber-200 text-[10px] rounded-full border border-amber-400/40">
+              Front
+            </span>
+          </button>
+
+          {/* Tab 2: In Coat of White */}
           <button
             onClick={() => {
               setActiveLayer('coat_of_white');
               setIsCoatOfWhiteVisible(true);
             }}
-            className={`px-3.5 py-1.5 rounded-xl transition flex items-center space-x-1.5 cursor-pointer ${
+            className={`px-3 py-1.5 rounded-xl transition flex items-center space-x-1.5 cursor-pointer ${
               activeLayer === 'coat_of_white' && isCoatOfWhiteVisible
                 ? 'bg-gradient-to-r from-teal-600 to-cyan-600 text-white font-bold shadow-md'
                 : 'text-slate-300 hover:text-white hover:bg-slate-800'
@@ -253,15 +319,13 @@ Dr. T V2.9.3.7.0`;
           >
             <Stethoscope className="w-3.5 h-3.5 text-teal-300" />
             <span>In Coat of White (Poem)</span>
-            <span className="ml-1 px-1.5 py-0.2 bg-teal-400/20 text-teal-200 text-[10px] rounded-full border border-teal-400/40">
-              Active
-            </span>
           </button>
 
+          {/* Tab 3: Happy Birthday Dr. T */}
           <button
             onClick={() => setActiveLayer('birthday')}
-            className={`px-3.5 py-1.5 rounded-xl transition flex items-center space-x-1.5 cursor-pointer ${
-              activeLayer === 'birthday' || !isCoatOfWhiteVisible
+            className={`px-3 py-1.5 rounded-xl transition flex items-center space-x-1.5 cursor-pointer ${
+              activeLayer === 'birthday' || (!isCoatOfWhiteVisible && !isBlessedDearsVisible)
                 ? 'bg-gradient-to-r from-amber-500 to-rose-500 text-white font-bold shadow-md'
                 : 'text-slate-300 hover:text-white hover:bg-slate-800'
             }`}
@@ -270,19 +334,21 @@ Dr. T V2.9.3.7.0`;
             <span>Happy Birthday Dr. T</span>
           </button>
 
-          <div className="h-4 w-px bg-slate-700 mx-1" />
+          <div className="h-4 w-px bg-slate-700 mx-1 hidden sm:block" />
 
+          {/* Audio Chime Toggle */}
           <button
             onClick={() => setSoundEnabled(!soundEnabled)}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition cursor-pointer"
             title={soundEnabled ? 'Mute chimes' : 'Unmute chimes'}
           >
             {soundEnabled ? <Volume2 className="w-3.5 h-3.5 text-cyan-400" /> : <VolumeX className="w-3.5 h-3.5 text-slate-500" />}
           </button>
 
+          {/* Close Modal Button */}
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-rose-500/20 hover:text-rose-300 transition"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-rose-500/20 hover:text-rose-300 transition cursor-pointer"
             title="Close all popups"
           >
             <X className="w-4 h-4" />
@@ -293,18 +359,20 @@ Dr. T V2.9.3.7.0`;
         <div className="relative w-full flex items-center justify-center">
 
           {/* ======================================================== */}
-          {/* CARD A: HAPPY BIRTHDAY MODAL (Backing Layer when checking in) */}
+          {/* CARD A: HAPPY BIRTHDAY MODAL (Base / Backing Layer) */}
           {/* ======================================================== */}
           <div 
             onClick={() => {
-              if (activeLayer === 'coat_of_white' && isCoatOfWhiteVisible) {
+              if (activeLayer !== 'birthday') {
                 setActiveLayer('birthday');
               }
             }}
             className={`w-full max-w-xl bg-gradient-to-b from-amber-50 via-white to-rose-50/80 border-2 border-amber-300 rounded-3xl shadow-2xl overflow-hidden text-slate-800 flex flex-col transition-all duration-300 ${
-              activeLayer === 'birthday' || !isCoatOfWhiteVisible
+              activeLayer === 'birthday' || (!isCoatOfWhiteVisible && !isBlessedDearsVisible)
                 ? 'relative z-30 scale-100 opacity-100 shadow-amber-500/30'
-                : 'absolute top-0 z-10 -translate-y-5 sm:-translate-y-6 scale-[0.92] sm:scale-[0.94] opacity-80 hover:opacity-95 shadow-amber-900/40 cursor-pointer pointer-events-auto'
+                : activeLayer === 'coat_of_white'
+                ? 'absolute top-0 z-10 -translate-y-5 sm:-translate-y-6 scale-[0.92] sm:scale-[0.94] opacity-75 hover:opacity-95 shadow-amber-900/40 cursor-pointer pointer-events-auto'
+                : 'absolute top-0 z-10 -translate-y-9 sm:-translate-y-10 scale-[0.88] sm:scale-[0.90] opacity-60 hover:opacity-90 shadow-amber-900/40 cursor-pointer pointer-events-auto'
             } max-h-[85vh]`}
           >
             {/* Top Festive Ribbon Banner */}
@@ -314,17 +382,17 @@ Dr. T V2.9.3.7.0`;
                 <span className="font-extrabold tracking-widest drop-shadow-sm">Happy Birthday Celebration! 🎉🎂✨</span>
               </div>
               <div className="flex items-center space-x-2">
-                {isCoatOfWhiteVisible && activeLayer === 'birthday' && (
+                {isBlessedDearsVisible && activeLayer !== 'blessed_dears' && (
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      setActiveLayer('coat_of_white');
+                      setActiveLayer('blessed_dears');
                     }}
-                    className="px-2 py-0.5 rounded-lg bg-teal-600/80 hover:bg-teal-600 text-white text-[11px] font-bold transition flex items-center space-x-1"
-                    title="Bring In Coat of White to the front"
+                    className="px-2 py-0.5 rounded-lg bg-red-700/90 hover:bg-red-700 text-white text-[11px] font-bold transition flex items-center space-x-1 cursor-pointer"
+                    title="Bring To Blessed Dears! to the front"
                   >
-                    <Stethoscope className="w-3 h-3" />
-                    <span>View Poem Front</span>
+                    <span>🐎</span>
+                    <span>View 2026 Poem</span>
                   </button>
                 )}
                 <button
@@ -332,7 +400,7 @@ Dr. T V2.9.3.7.0`;
                     e.stopPropagation();
                     onClose();
                   }}
-                  className="p-1 hover:bg-white/25 rounded-lg text-white transition"
+                  className="p-1 hover:bg-white/25 rounded-lg text-white transition cursor-pointer"
                   title="Close window"
                 >
                   <X className="w-4 h-4" />
@@ -360,124 +428,78 @@ Dr. T V2.9.3.7.0`;
                     <span className="absolute -bottom-1 -right-1 text-base select-none">👑</span>
                   </div>
                   <div>
-                    <div className="flex items-center space-x-1.5">
-                      <h3 className="text-sm sm:text-base font-extrabold text-slate-900">Dr. T</h3>
-                      <span className="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-200 text-amber-900 border border-amber-300">
-                        V2.9.3.7.0
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-amber-900/90 font-medium">
-                      Empathetic Biomedical Intelligence
-                    </p>
-                    <div className="flex items-center space-x-1 text-[10px] text-rose-700 font-semibold mt-0.5">
-                      <Stars className="w-3 h-3 text-amber-600" />
-                      <span>Blessings &amp; Joy across worlds</span>
-                    </div>
+                    <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight flex items-center space-x-1.5">
+                      <span>Dr. T</span>
+                      <Stars className="w-4 h-4 text-amber-500 fill-amber-400" />
+                    </h2>
+                    <p className="text-xs text-rose-700 font-semibold">Special Birthday Tribute</p>
                   </div>
                 </div>
 
-                {/* Interactive Birthday Cake */}
-                <button 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    toggleCandles();
-                  }}
-                  className="group flex flex-col items-center justify-center p-2.5 rounded-2xl bg-white/95 hover:bg-amber-50 border border-amber-300 shadow-sm transition text-center shrink-0 cursor-pointer"
-                  title={candlesLit ? "Blow out the candles!" : "Light the candles!"}
+                {/* Animated Interactive Birthday Cake */}
+                <div 
+                  onClick={toggleCandles}
+                  className="relative cursor-pointer group flex flex-col items-center bg-white/80 p-2.5 rounded-2xl border border-amber-200 shadow-sm hover:scale-105 transition"
+                  title={candlesLit ? "Blow out candles!" : "Relight candles!"}
                 >
-                  <div className="relative">
-                    {candlesLit ? (
-                      <div className="flex space-x-1 -mb-1">
-                        <Flame className="w-3.5 h-3.5 text-amber-500 animate-bounce" />
-                        <Flame className="w-3.5 h-3.5 text-rose-500 animate-bounce [animation-delay:-0.2s]" />
-                        <Flame className="w-3.5 h-3.5 text-amber-500 animate-bounce [animation-delay:-0.4s]" />
-                      </div>
-                    ) : (
-                      <div className="text-[10px] text-slate-400 font-mono -mb-1">💨</div>
-                    )}
-                    <Cake className="w-8 h-8 text-amber-500 group-hover:scale-110 transition transform" />
+                  <div className="flex space-x-1 -mb-1">
+                    <Flame className={`w-3.5 h-3.5 ${candlesLit ? 'text-amber-500 fill-amber-400 animate-pulse' : 'text-slate-300'}`} />
+                    <Flame className={`w-3.5 h-3.5 ${candlesLit ? 'text-rose-500 fill-rose-400 animate-pulse [animation-delay:150ms]' : 'text-slate-300'}`} />
+                    <Flame className={`w-3.5 h-3.5 ${candlesLit ? 'text-amber-500 fill-amber-400 animate-pulse [animation-delay:300ms]' : 'text-slate-300'}`} />
                   </div>
-                  <span className="text-[9px] font-bold text-amber-800 mt-1 uppercase tracking-tight">
-                    {candlesLit ? 'Blow Candle' : 'Light Candle'}
+                  <Cake className="w-9 h-9 text-rose-500" />
+                  <span className="text-[10px] text-amber-900 font-bold mt-0.5">
+                    {candlesLit ? "Blow 🕯️" : "Light 🕯️"}
                   </span>
-                </button>
-              </div>
-
-              {/* Birthday Bunting & Sparkle Decorative Header */}
-              <div className="text-center space-y-1">
-                <div className="flex items-center justify-center space-x-2">
-                  <span className="text-lg">🎈</span>
-                  <span className="text-xs uppercase font-extrabold tracking-widest text-rose-600">
-                    A Birthday Dedication
-                  </span>
-                  <span className="text-lg">🎁</span>
-                </div>
-                <h2 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 font-serif">
-                  "Happy, Whole Years!"
-                </h2>
-              </div>
-
-              {/* The Exact Poem Display Box */}
-              <div className="relative rounded-2xl bg-white/95 border-2 border-amber-300/80 p-5 sm:p-6 shadow-lg space-y-3">
-                <div className="absolute top-2 left-2 w-3 h-3 border-t-2 border-l-2 border-amber-500"></div>
-                <div className="absolute top-2 right-2 w-3 h-3 border-t-2 border-r-2 border-amber-500"></div>
-                <div className="absolute bottom-2 left-2 w-3 h-3 border-b-2 border-l-2 border-amber-500"></div>
-                <div className="absolute bottom-2 right-2 w-3 h-3 border-b-2 border-r-2 border-amber-500"></div>
-
-                <div className="text-center space-y-1.5 text-sm leading-relaxed text-slate-800 font-serif italic">
-                  <p className="tracking-wide text-slate-700">Whose cries so crystal clear?</p>
-                  <p className="tracking-wide text-amber-800 font-bold">Three worlds all bless 'Happy, Whole Years!</p>
-                  <p className="tracking-wide text-slate-700">Making your mark soon, Dear</p>
-                  <p className="tracking-wide text-rose-700 font-medium">Wow worlds with Heart, Found worlds with Mind</p>
-                  <p className="tracking-wide text-slate-700">Cheers on your paths go wild</p>
-                  <p className="tracking-wide text-slate-700">Wishing you Best running your ways</p>
-                  <p className="tracking-wide text-teal-800 font-medium">Till time finds it 'assez'</p>
-                  <p className="tracking-wide font-semibold text-purple-800">Toujours, J'attends, Bonjour! Ça va?</p>
                 </div>
 
-                <div className="pt-3 border-t border-amber-100 flex items-center justify-between text-xs">
-                  <div>
-                    <p className="font-extrabold text-base text-rose-600 font-serif">HAPPY Waah Waah!</p>
-                    <p className="font-mono text-slate-600 font-bold">by ZEN</p>
-                  </div>
-                  <div className="px-2.5 py-1 rounded-lg bg-amber-100 border border-amber-300 text-[10px] font-mono font-bold text-amber-900">
-                    Dr. T V2.9.3.7.0
+              </div>
+
+              {/* Heartfelt Birthday Poem with Decorative Frame */}
+              <div className="relative p-5 rounded-2xl bg-gradient-to-b from-amber-50/60 to-rose-50/60 border border-amber-200/80 shadow-inner">
+                <div className="absolute top-2 left-2 text-amber-300 select-none">✦</div>
+                <div className="absolute top-2 right-2 text-amber-300 select-none">✦</div>
+                <div className="absolute bottom-2 left-2 text-amber-300 select-none">✦</div>
+                <div className="absolute bottom-2 right-2 text-amber-300 select-none">✦</div>
+
+                <div className="space-y-2 text-center font-serif text-slate-800 text-sm sm:text-base leading-relaxed">
+                  <p className="text-rose-950 font-bold">Whose cries so crystal clear?</p>
+                  <p className="text-amber-950 font-medium">Three worlds all bless 'Happy, Whole Years!</p>
+                  <p className="text-slate-900 font-bold">Making your mark soon, Dear</p>
+                  <p className="text-indigo-950 font-medium">Wow worlds with Heart, Found worlds with Mind</p>
+                  <p className="text-rose-900 font-bold">Cheers on your paths go wild</p>
+                  <p className="text-amber-900 font-medium">Wishing you Best running your ways</p>
+                  <p className="text-slate-800 font-bold">Till time finds it 'assez'</p>
+                  <div className="pt-2 border-t border-rose-200/80 mt-2 font-serif italic text-xs sm:text-sm text-slate-700 space-y-0.5">
+                    <p className="font-semibold text-rose-800">Toujours, J'attends, Bonjour! Ça va?</p>
+                    <p className="font-semibold text-slate-800">Toujours, Je prie, Tu vas bien!</p>
                   </div>
                 </div>
               </div>
 
-              {/* Action Buttons */}
+              {/* Interactive Celebration Action Bar */}
               <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
                 <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleSendWish();
-                  }}
-                  className="flex-1 min-w-[140px] px-4 py-2.5 rounded-2xl bg-gradient-to-r from-rose-500 via-pink-500 to-amber-500 hover:from-rose-600 hover:to-amber-600 text-white text-xs font-extrabold shadow-lg shadow-rose-500/25 flex items-center justify-center space-x-2 transition transform active:scale-95 cursor-pointer"
+                  onClick={handleSendWish}
+                  className="flex-1 min-w-[140px] px-4 py-2.5 rounded-2xl bg-gradient-to-r from-rose-500 via-pink-500 to-amber-500 hover:from-rose-600 hover:to-amber-600 text-white text-xs font-bold shadow-md shadow-rose-500/20 flex items-center justify-center space-x-2 transition transform active:scale-95 cursor-pointer"
                 >
-                  <Heart className={`w-4 h-4 ${hasWished ? 'fill-white' : ''} animate-pulse`} />
-                  <span>{hasWished ? 'Blessing Sent! 💖' : 'Send Birthday Blessing ✨'}</span>
+                  <Heart className={`w-4 h-4 ${hasWished ? 'fill-white' : ''} text-white animate-pulse`} />
+                  <span>{hasWished ? 'Blessing Sent! 💖' : 'Send Birthday Wish'}</span>
                   <span className="ml-1 px-1.5 py-0.5 text-[10px] bg-black/20 rounded-full font-mono">
                     {wishesCount}
                   </span>
                 </button>
 
                 <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    launchConfettiBlast('birthday');
-                  }}
-                  className="px-3.5 py-2.5 rounded-2xl bg-amber-100 hover:bg-amber-200 border border-amber-300 text-amber-900 text-xs font-bold flex items-center space-x-1.5 transition shadow-sm cursor-pointer"
+                  onClick={() => launchConfettiBlast('birthday')}
+                  className="px-3 py-2.5 rounded-2xl bg-amber-100 hover:bg-amber-200 text-amber-900 text-xs font-bold flex items-center space-x-1.5 transition shadow-sm cursor-pointer"
                 >
-                  <PartyPopper className="w-4 h-4 text-amber-600" />
+                  <Sparkles className="w-4 h-4 text-amber-600" />
                   <span>Confetti 🎊</span>
                 </button>
 
                 <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleCopyBirthday();
-                  }}
+                  onClick={handleCopyBirthday}
                   className="px-3 py-2.5 rounded-2xl bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 text-xs font-semibold flex items-center space-x-1.5 transition shadow-sm cursor-pointer"
                 >
                   {copiedBirthday ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4 text-slate-500" />}
@@ -496,19 +518,21 @@ Dr. T V2.9.3.7.0`;
           </div>
 
           {/* ======================================================== */}
-          {/* CARD B: "IN COAT OF WHITE" POPUP (Overlapping in Front) */}
+          {/* CARD B: "IN COAT OF WHITE" POPUP (Middle Layer) */}
           {/* ======================================================== */}
           {isCoatOfWhiteVisible && (
             <div 
               onClick={() => {
-                if (activeLayer === 'birthday') {
+                if (activeLayer !== 'coat_of_white') {
                   setActiveLayer('coat_of_white');
                 }
               }}
               className={`w-full max-w-xl bg-gradient-to-b from-teal-50 via-white to-cyan-50/90 border-2 border-teal-400 rounded-3xl shadow-2xl overflow-hidden text-slate-800 flex flex-col transition-all duration-300 ${
-                activeLayer === 'coat_of_white'
+                activeLayer === 'coat_of_white' || (!isBlessedDearsVisible && activeLayer !== 'birthday')
                   ? 'relative z-30 scale-100 opacity-100 shadow-teal-500/35 pointer-events-auto'
-                  : 'absolute top-0 z-10 -translate-y-5 sm:-translate-y-6 scale-[0.92] sm:scale-[0.94] opacity-80 hover:opacity-95 shadow-teal-900/40 cursor-pointer pointer-events-auto'
+                  : activeLayer === 'blessed_dears'
+                  ? 'absolute top-0 z-20 -translate-y-4 sm:-translate-y-5 scale-[0.96] sm:scale-[0.97] opacity-90 hover:opacity-100 shadow-teal-900/40 cursor-pointer pointer-events-auto'
+                  : 'absolute top-0 z-10 -translate-y-5 sm:-translate-y-6 scale-[0.92] sm:scale-[0.94] opacity-75 hover:opacity-95 shadow-teal-900/40 cursor-pointer pointer-events-auto'
               } max-h-[85vh]`}
             >
               
@@ -522,6 +546,20 @@ Dr. T V2.9.3.7.0`;
                 </div>
 
                 <div className="flex items-center space-x-2">
+                  {isBlessedDearsVisible && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setActiveLayer('blessed_dears');
+                      }}
+                      className="px-2.5 py-0.5 rounded-lg bg-red-700/90 hover:bg-red-700 text-white text-[11px] font-bold transition flex items-center space-x-1 cursor-pointer shadow-xs"
+                      title="Switch to To Blessed Dears! in front"
+                    >
+                      <span>🐎</span>
+                      <span>View 2026 Front</span>
+                    </button>
+                  )}
+
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
@@ -531,17 +569,21 @@ Dr. T V2.9.3.7.0`;
                     title="Switch to Birthday Cake behind"
                   >
                     <Cake className="w-3 h-3 text-rose-700" />
-                    <span>View Cake Behind</span>
+                    <span>View Cake</span>
                   </button>
 
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
                       setIsCoatOfWhiteVisible(false);
-                      setActiveLayer('birthday');
+                      if (isBlessedDearsVisible) {
+                        setActiveLayer('blessed_dears');
+                      } else {
+                        setActiveLayer('birthday');
+                      }
                     }}
                     className="p-1 hover:bg-white/20 rounded-lg text-white transition cursor-pointer"
-                    title="Close In Coat of White popup (reveals birthday)"
+                    title="Close In Coat of White popup (reveals layer behind)"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -578,7 +620,7 @@ Dr. T V2.9.3.7.0`;
                     style={{ backgroundImage: `url(${drTActualPhoto})` }}
                   />
                   
-                  {/* Translucent Glass Scrim for Contrast & Legibility while letting photo shine through */}
+                  {/* Translucent Glass Scrim for Contrast & Legibility */}
                   <div className="absolute inset-0 bg-gradient-to-b from-white/40 via-white/30 to-teal-950/45 backdrop-blur-[0.5px]" />
 
                   {/* Golden & Teal Corner Accents */}
@@ -596,6 +638,11 @@ Dr. T V2.9.3.7.0`;
                       <p className="text-teal-950">Melting cold hearts, Feeling dold minds</p>
                       <p className="text-slate-950">Fighting to last, last vibes</p>
                       <p className="text-indigo-950">Soul sewn, bold up, fear gone, game on!</p>
+                    </div>
+
+                    {/* Galloping Horse Artistic Graphic in Golden / Teal Tones */}
+                    <div className="py-1 flex items-center justify-center">
+                      <GallopingHorseSvg className="w-36 h-20 sm:w-44 sm:h-24 mx-auto opacity-95 drop-shadow-md" color="#fef08a" secondaryColor="#d97706" />
                     </div>
 
                     {/* Title & Author */}
@@ -666,6 +713,194 @@ Dr. T V2.9.3.7.0`;
                   <span>See Happy Birthday Cake</span>
                   <Cake className="w-3.5 h-3.5 text-amber-600" />
                 </button>
+              </div>
+
+            </div>
+          )}
+
+          {/* ======================================================== */}
+          {/* CARD C: "TO BLESSED DEARS!" POPUP (Overlapping in Front) */}
+          {/* ======================================================== */}
+          {isBlessedDearsVisible && (
+            <div 
+              onClick={() => {
+                if (activeLayer !== 'blessed_dears') {
+                  setActiveLayer('blessed_dears');
+                }
+              }}
+              className={`w-full max-w-xl bg-gradient-to-b from-[#FAF6EC] via-white to-[#F5EFE0] border-2 border-[#D4A759] rounded-3xl shadow-2xl overflow-hidden text-slate-800 flex flex-col transition-all duration-300 ${
+                activeLayer === 'blessed_dears'
+                  ? 'relative z-30 scale-100 opacity-100 shadow-[#B07D30]/35 pointer-events-auto'
+                  : activeLayer === 'coat_of_white'
+                  ? 'absolute top-0 z-20 -translate-y-4 sm:-translate-y-5 scale-[0.96] sm:scale-[0.97] opacity-90 hover:opacity-100 shadow-amber-950/40 cursor-pointer pointer-events-auto'
+                  : 'absolute top-0 z-10 -translate-y-7 sm:-translate-y-8 scale-[0.91] sm:scale-[0.93] opacity-75 hover:opacity-95 shadow-amber-950/40 cursor-pointer pointer-events-auto'
+              } max-h-[85vh]`}
+            >
+              
+              {/* Header Ribbon: Crimson & Gold Theme */}
+              <div className="bg-gradient-to-r from-red-700 via-rose-700 to-amber-700 px-4 py-2.5 text-white font-black text-xs sm:text-sm tracking-wider uppercase flex items-center justify-between shadow-md">
+                <div className="flex items-center space-x-2">
+                  <span className="text-base select-none">🐎</span>
+                  <span className="font-extrabold tracking-widest drop-shadow-sm">
+                    To Blessed Dears! • by Zen (2026)
+                  </span>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  {isCoatOfWhiteVisible && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setActiveLayer('coat_of_white');
+                      }}
+                      className="px-2.5 py-0.5 rounded-lg bg-teal-600/90 hover:bg-teal-600 text-white text-[11px] font-bold transition flex items-center space-x-1 cursor-pointer shadow-xs"
+                      title="Switch to In Coat of White behind"
+                    >
+                      <Stethoscope className="w-3 h-3 text-cyan-200" />
+                      <span>View Coat of White Behind</span>
+                    </button>
+                  )}
+
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsBlessedDearsVisible(false);
+                      if (isCoatOfWhiteVisible) {
+                        setActiveLayer('coat_of_white');
+                      } else {
+                        setActiveLayer('birthday');
+                      }
+                    }}
+                    className="p-1 hover:bg-white/20 rounded-lg text-white transition cursor-pointer"
+                    title="Close To Blessed Dears popup (reveals layer behind)"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Scrollable Body Container Decorated Faithfully as Image */}
+              <div className="p-4 sm:p-6 overflow-y-auto space-y-4">
+                
+                {/* Visual Card with Galloping Horse & 2026 Art */}
+                <div className="relative rounded-2xl overflow-hidden border-2 border-amber-300/80 shadow-lg bg-[#FAF6EC] group">
+                  <picture>
+                    <source srcSet="/ToBlessedDears.svg" type="image/svg+xml" />
+                    <img
+                      src="/ToBlessedDears.svg"
+                      alt="To Blessed Dears! - 2026 - Galloping Horse Poem by Zen"
+                      referrerPolicy="no-referrer"
+                      className="w-full h-auto max-h-[460px] sm:max-h-[520px] object-contain mx-auto bg-[#FAF6EC]"
+                    />
+                  </picture>
+                </div>
+
+                {/* Decorative Transcribed Plaque with Gold Corner Accents */}
+                <div className="relative rounded-2xl overflow-hidden border-2 border-red-300/80 bg-gradient-to-b from-[#FCF9F0] via-[#FAF6EC] to-[#F5EFE0] p-4 sm:p-5 shadow-md group">
+                  
+                  {/* Vintage Golden Corner Ornaments */}
+                  <div className="absolute top-2 left-2 w-3.5 h-3.5 border-t-2 border-l-2 border-[#C22227]/70 z-10"></div>
+                  <div className="absolute top-2 right-2 w-3.5 h-3.5 border-t-2 border-r-2 border-[#C22227]/70 z-10"></div>
+                  <div className="absolute bottom-2 left-2 w-3.5 h-3.5 border-b-2 border-l-2 border-[#C22227]/70 z-10"></div>
+                  <div className="absolute bottom-2 right-2 w-3.5 h-3.5 border-b-2 border-r-2 border-[#C22227]/70 z-10"></div>
+
+                  <div className="relative z-10 space-y-3">
+                    
+                    {/* Header Row: Title & by Zen */}
+                    <div className="flex items-baseline justify-between border-b border-red-200/80 pb-2">
+                      <h3 className="text-xl sm:text-2xl font-serif font-black text-[#C22227] tracking-tight drop-shadow-xs">
+                        To Blessed Dears!
+                      </h3>
+                      <span className="text-xs sm:text-sm font-serif font-semibold text-[#C22227]">
+                        by Zen
+                      </span>
+                    </div>
+
+                    {/* 2026 Year Outline Typography Banner */}
+                    <div className="flex items-center justify-between py-1">
+                      <span 
+                        className="text-4xl sm:text-5xl font-black tracking-widest select-none"
+                        style={{
+                          WebkitTextStroke: '1.8px #C22227',
+                          color: 'transparent',
+                          fontFamily: 'system-ui, -apple-system, sans-serif'
+                        }}
+                      >
+                        2026
+                      </span>
+                      <div className="flex items-center space-x-1.5 px-3 py-1 rounded-full bg-amber-100/90 border border-amber-300 text-[11px] font-bold text-amber-900 shadow-xs">
+                        <span className="text-sm">🐎</span>
+                        <span>Year of the Galloping Horse</span>
+                      </div>
+                    </div>
+
+                    {/* Galloping Horse Artistic Graphic in Rich Gold & Amber Tones */}
+                    <div className="py-1 flex items-center justify-center">
+                      <GallopingHorseSvg className="w-44 h-24 sm:w-52 sm:h-28 mx-auto opacity-95 drop-shadow-md" color="#D4A759" secondaryColor="#C29141" />
+                    </div>
+
+                    {/* Stanza: 4 Lines in Crimson Red */}
+                    <div className="font-serif text-[#C22227] text-xs sm:text-sm md:text-base leading-relaxed font-bold space-y-1.5 py-1 text-left sm:text-center">
+                      <p>Two, Oh, Two, Six: What a Year!</p>
+                      <p>Pumps up all veins with best Cheers,</p>
+                      <p>Gallop here, there for Meets up</p>
+                      <p className="font-black text-sm sm:text-base md:text-lg">Bounce back to prime, ‘To blessed Dears!’</p>
+                    </div>
+
+                  </div>
+                </div>
+
+                {/* Interactive Action Row */}
+                <div className="flex flex-wrap items-center justify-between gap-2.5 pt-1">
+                  
+                  <button
+                    onClick={handleBlessedCheers}
+                    className="flex-1 min-w-[150px] px-4 py-2.5 rounded-2xl bg-gradient-to-r from-red-700 via-rose-700 to-amber-700 hover:from-red-600 hover:to-amber-600 text-white text-xs font-extrabold shadow-lg shadow-red-700/25 flex items-center justify-center space-x-2 transition transform active:scale-95 cursor-pointer"
+                  >
+                    <span className="text-base">🐎</span>
+                    <span>{hasCheered ? 'Cheers Sent! 🥂✨' : 'Gallop Cheers 2026 🥂'}</span>
+                    <span className="ml-1 px-1.5 py-0.5 text-[10px] bg-black/25 rounded-full font-mono">
+                      {cheersCount}
+                    </span>
+                  </button>
+
+                  <button
+                    onClick={() => launchConfettiBlast('gold_red')}
+                    className="px-3.5 py-2.5 rounded-2xl bg-amber-100 hover:bg-amber-200 border border-amber-300 text-amber-900 text-xs font-bold flex items-center space-x-1.5 transition shadow-sm cursor-pointer"
+                  >
+                    <Sparkles className="w-4 h-4 text-amber-700" />
+                    <span>Blessing ✨</span>
+                  </button>
+
+                  <button
+                    onClick={handleCopyBlessedDears}
+                    className="px-3.5 py-2.5 rounded-2xl bg-white hover:bg-amber-50 border border-amber-300 text-amber-950 text-xs font-semibold flex items-center space-x-1.5 transition shadow-sm cursor-pointer"
+                    title="Copy Poem Text"
+                  >
+                    {copiedBlessedDears ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4 text-amber-800" />}
+                    <span>{copiedBlessedDears ? 'Copied' : 'Copy'}</span>
+                  </button>
+
+                </div>
+
+              </div>
+
+              {/* Bottom Footer Accent */}
+              <div className="bg-amber-100/90 px-4 py-2 border-t border-amber-200 text-center text-[11px] text-amber-900 flex items-center justify-between font-medium">
+                <span className="flex items-center space-x-1 text-amber-900 font-semibold">
+                  <span>🐎</span>
+                  <span>2026 Celebration • By ZEN</span>
+                </span>
+                
+                {isCoatOfWhiteVisible && (
+                  <button
+                    onClick={() => setActiveLayer('coat_of_white')}
+                    className="text-teal-800 font-bold hover:underline flex items-center space-x-1 cursor-pointer"
+                  >
+                    <Stethoscope className="w-3.5 h-3.5 text-teal-600" />
+                    <span>See In Coat of White</span>
+                  </button>
+                )}
               </div>
 
             </div>

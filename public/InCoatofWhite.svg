@@ -37,6 +37,14 @@
       <stop offset="60%" stop-color="#e6fffa" stop-opacity="0.15" />
       <stop offset="100%" stop-color="#55c0ab" stop-opacity="0" />
     </radialGradient>
+
+    <!-- Golden Galloping Horse Gradient -->
+    <linearGradient id="horseGold" x1="0%" y1="0%" x2="100%" y2="50%">
+      <stop offset="0%" stop-color="#fef08a" />
+      <stop offset="40%" stop-color="#facc15" />
+      <stop offset="80%" stop-color="#d97706" />
+      <stop offset="100%" stop-color="#b45309" />
+    </linearGradient>
   </defs>
 
   <!-- Background Base -->
@@ -60,6 +68,72 @@
     <text x="600" y="138">Melting cold hearts, Feeling dold minds</text>
     <text x="600" y="218">Fighting to last, last vibes</text>
     <text x="600" y="298">Soul sewn, bold up, fear gone, game on!</text>
+  </g>
+
+  <!-- ========================================== -->
+  <!-- GALLOPING HORSE ILLUSTRATION (Hatched Gold in Center) -->
+  <!-- ========================================== -->
+  <g transform="translate(680, 440) scale(0.85)" stroke="url(#horseGold)" stroke-linecap="round">
+    <!-- Flowing Mane & Forelock -->
+    <g stroke-width="2.8" opacity="0.95">
+      <path d="M 120,-35 Q 180,-40 250,-10 M 110,-24 Q 175,-30 265,5 M 100,-12 Q 170,-20 280,20 M 92,0 Q 165,-10 295,38" />
+      <path d="M 82,12 Q 155,2 310,55 M 74,24 Q 148,15 320,72 M 66,36 Q 138,28 325,90 M 58,48 Q 130,40 315,108" />
+      <path d="M 52,60 Q 120,52 300,125 M 46,72 Q 110,65 280,140 M 42,84 Q 100,78 260,152" />
+    </g>
+
+    <!-- Head, Ears & Crest of Neck -->
+    <g stroke-width="2.4" opacity="0.95">
+      <line x1="72" y1="-12" x2="95" y2="-45" />
+      <line x1="78" y1="-10" x2="100" y2="-42" />
+      <line x1="84" y1="-8" x2="105" y2="-38" />
+      <path d="M 55,-6 Q 42,-18 25,-12" />
+      <path d="M 50,6 Q 38,-6 20,0" />
+      <path d="M 44,18 Q 32,6 15,10" />
+      <line x1="22" y1="24" x2="-22" y2="44" />
+      <line x1="26" y1="30" x2="-18" y2="50" />
+      <line x1="24" y1="38" x2="-14" y2="58" />
+      <line x1="20" y1="46" x2="-10" y2="66" />
+      <line x1="16" y1="68" x2="28" y2="86" />
+      <line x1="26" y1="74" x2="44" y2="88" />
+      <line x1="38" y1="78" x2="60" y2="90" />
+    </g>
+
+    <!-- Powerful Muscular Neck & Chest -->
+    <g stroke-width="2.8" opacity="0.92">
+      <line x1="55" y1="88" x2="130" y2="98" />
+      <line x1="50" y1="98" x2="145" y2="108" />
+      <line x1="45" y1="108" x2="160" y2="118" />
+      <line x1="52" y1="128" x2="190" y2="138" />
+      <line x1="60" y1="138" x2="205" y2="148" />
+      <line x1="70" y1="148" x2="220" y2="158" />
+    </g>
+
+    <!-- Leaping Front Forelegs -->
+    <g stroke-width="2.6" opacity="0.95">
+      <path d="M 45,118 L 18,145 L 22,185 L 20,225" />
+      <path d="M 50,123 L 25,148 L 28,187 L 26,227" />
+      <line x1="16" y1="225" x2="34" y2="230" stroke-width="4.5" />
+      <path d="M -12,102 L -40,108 L -68,102" />
+      <path d="M -10,110 L -36,116 L -65,110" />
+    </g>
+
+    <!-- Muscular Shoulder & Barrel -->
+    <g stroke-width="2.5" opacity="0.9">
+      <line x1="145" y1="112" x2="295" y2="128" />
+      <line x1="160" y1="122" x2="320" y2="138" />
+      <line x1="180" y1="135" x2="345" y2="150" />
+      <line x1="200" y1="148" x2="370" y2="165" />
+      <line x1="225" y1="160" x2="400" y2="180" />
+      <line x1="250" y1="172" x2="425" y2="192" />
+    </g>
+
+    <!-- Hindquarters & Streamlined Galloping Tail -->
+    <g stroke-width="2.7" opacity="0.92">
+      <path d="M 340,148 Q 400,155 465,175" />
+      <path d="M 360,160 Q 420,168 485,190" />
+      <path d="M 465,175 Q 520,180 580,195 M 470,185 Q 530,190 590,205 M 475,195 Q 540,200 600,218" />
+      <path d="M 465,205 Q 535,210 590,228" />
+    </g>
   </g>
 
   <!-- ========================================== -->

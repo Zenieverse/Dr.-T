@@ -143,47 +143,71 @@ export async function runMicroBizInference({
   }
 
   for (const { modelId, family } of modelsToTry) {
-    try {
-      const contentsPayload = imagePart
-        ? [
-            {
-              role: 'user',
-              parts: [
-                { inlineData: { mimeType: imagePart.mimeType, data: imagePart.data } },
-                { text: prompt },
-              ],
-            },
-          ]
-        : prompt;
+    const maxAttempts = family === 'gemma' ? 2 : 1;
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        const contentsPayload = imagePart
+          ? [
+              {
+                role: 'user',
+                parts: [
+                  { inlineData: { mimeType: imagePart.mimeType, data: imagePart.data } },
+                  { text: prompt },
+                ],
+              },
+            ]
+          : prompt;
 
-      const response = await client.models.generateContent({
-        model: modelId,
-        contents: contentsPayload,
-        config: {
-          responseMimeType: 'application/json',
-          temperature: 0.3,
-        },
-      });
-
-      const responseText = response.text || '';
-      const parsed = sanitizeAndParseJson(responseText);
-
-      if (parsed && validator(parsed)) {
-        return {
-          data: parsed,
-          meta: {
-            isGenuineAi: true,
-            isHeuristicFallback: false,
-            provider: modelId,
-            modelFamily: family,
-            executionTimeMs: Date.now() - startTime,
+        const response = await client.models.generateContent({
+          model: modelId,
+          contents: contentsPayload,
+          config: {
+            responseMimeType: 'application/json',
+            temperature: 0.3,
           },
-        };
-      } else {
-        console.warn(`[MicroBiz AI] Model ${modelId} returned response that failed schema validation.`);
+        });
+
+        const responseText = response.text || '';
+        const parsed = sanitizeAndParseJson(responseText);
+
+        if (parsed && validator(parsed)) {
+          return {
+            data: parsed,
+            meta: {
+              isGenuineAi: true,
+              isHeuristicFallback: false,
+              provider: modelId,
+              modelFamily: family,
+              executionTimeMs: Date.now() - startTime,
+            },
+          };
+        } else {
+          console.warn(`[MicroBiz AI] Model ${modelId} returned response that failed schema validation.`);
+        }
+      } catch (err: any) {
+        console.warn(`[MicroBiz AI] Inference attempt ${attempt}/${maxAttempts} with ${modelId} failed:`, err?.message || err);
+        const errorMsg = typeof err?.message === 'string' ? err.message : '';
+        const isTransient = 
+          err?.status === 500 || 
+          err?.status === 503 || 
+          err?.status === 429 || 
+          err?.code === 500 || 
+          err?.code === 503 || 
+          err?.code === 429 || 
+          errorMsg.includes('500') || 
+          errorMsg.includes('503') || 
+          errorMsg.includes('429') || 
+          errorMsg.includes('fetch failed') ||
+          errorMsg.includes('INTERNAL');
+
+        if (attempt < maxAttempts && isTransient) {
+          // Bounded 800ms backoff before retry on transient server error
+          await new Promise(resolve => setTimeout(resolve, 800));
+        } else {
+          // Non-transient error or max attempts reached: do not retry needlessly
+          break;
+        }
       }
-    } catch (err: any) {
-      console.warn(`[MicroBiz AI] Inference attempt with ${modelId} failed:`, err?.message || err);
     }
   }
 

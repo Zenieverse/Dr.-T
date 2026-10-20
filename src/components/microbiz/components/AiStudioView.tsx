@@ -274,7 +274,7 @@ export const AiStudioView: FC<AiStudioViewProps> = ({
                   : 'text-slate-400 hover:text-white'
               }`}
             >
-              <span>Gemini 2.5 Flash</span>
+              <span>Gemini 3.5 Flash Lite</span>
             </button>
           </div>
         </div>

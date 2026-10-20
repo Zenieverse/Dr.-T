@@ -60,9 +60,10 @@ async function runGemmaTestSuite() {
     assert.strictEqual(body.success, true);
     assert.ok(body.course, 'Expected course payload');
     assert.ok(validateCourseSchema(body.course), 'Expected course to satisfy validation schema');
-    assert.ok(typeof body.isGenuineAi === 'boolean');
-    assert.ok(typeof body.isHeuristicFallback === 'boolean');
-    assert.ok(body.provider, 'Expected provider string');
+    assert.strictEqual(body.isGenuineAi, true, 'Expected genuine AI generation, not fallback');
+    assert.strictEqual(body.isHeuristicFallback, false, 'Expected no heuristic fallback');
+    assert.strictEqual(body.provider, MICROBIZ_MODELS.GEMMA_PRIMARY, `Expected provider ${MICROBIZ_MODELS.GEMMA_PRIMARY}`);
+    assert.strictEqual(body.modelFamily, 'gemma', 'Expected modelFamily gemma');
     console.log(`       Provider: ${body.provider} (Genuine AI: ${body.isGenuineAi}, Latency: ${body.executionTimeMs}ms)`);
   });
 
@@ -85,6 +86,8 @@ async function runGemmaTestSuite() {
     assert.strictEqual(body.success, true);
     assert.ok(body.copy, 'Expected copy payload');
     assert.ok(validateCopySchema(body.copy), 'Expected copy to satisfy validation schema');
+    assert.strictEqual(body.isGenuineAi, true, 'Expected genuine AI generation');
+    assert.strictEqual(body.provider, MICROBIZ_MODELS.GEMMA_PRIMARY, `Expected provider ${MICROBIZ_MODELS.GEMMA_PRIMARY}`);
     console.log(`       Tagline: "${body.copy.tagline}" (Provider: ${body.provider})`);
   });
 
@@ -106,6 +109,8 @@ async function runGemmaTestSuite() {
     assert.strictEqual(body.success, true);
     assert.ok(body.plan, 'Expected plan payload');
     assert.ok(validatePlanSchema(body.plan), 'Expected plan to satisfy validation schema');
+    assert.strictEqual(body.isGenuineAi, true, 'Expected genuine AI generation');
+    assert.strictEqual(body.provider, MICROBIZ_MODELS.GEMMA_PRIMARY, `Expected provider ${MICROBIZ_MODELS.GEMMA_PRIMARY}`);
     console.log(`       Value Prop: "${body.plan.valueProposition.slice(0, 70)}..."`);
   });
 
@@ -133,6 +138,8 @@ Thanh toán: Tiền mặt`;
     assert.strictEqual(body.success, true);
     assert.ok(body.extraction, 'Expected extraction payload');
     assert.ok(validateExtractionSchema(body.extraction), 'Expected valid extraction schema');
+    assert.strictEqual(body.isGenuineAi, true, 'Expected genuine AI generation');
+    assert.strictEqual(body.provider, MICROBIZ_MODELS.GEMMA_PRIMARY, `Expected provider ${MICROBIZ_MODELS.GEMMA_PRIMARY}`);
     assert.ok(body.extraction.totalAmount > 0, 'Expected positive total amount');
     console.log(`       Vendor: ${body.extraction.vendorName}, Amount: ${body.extraction.totalAmount} ${body.extraction.currency}`);
   });
@@ -188,8 +195,36 @@ Thanh toán: Tiền mặt`;
     const body = await res.json();
     assert.strictEqual(body.success, true);
     assert.ok(body.copy, 'Expected copy payload');
-    assert.ok(body.provider.includes('gemini') || body.provider.includes('heuristic'));
+    assert.strictEqual(body.isGenuineAi, true, 'Expected genuine AI generation with Gemini');
+    assert.strictEqual(body.provider, MICROBIZ_MODELS.GEMINI_FALLBACK, `Expected provider ${MICROBIZ_MODELS.GEMINI_FALLBACK}`);
+    assert.strictEqual(body.modelFamily, 'gemini', 'Expected modelFamily gemini');
     console.log(`       Provider used: ${body.provider} (Requested: gemini)`);
+  });
+
+  // 10. Verify Resilient Offline Heuristic Fallback & Honest Attribution
+  await test('Resilience Engine: Offline fallback returns valid schema and never mislabels output as Gemma', async () => {
+    const { runMicroBizInference } = await import('../src/server/microbizAiService');
+    const result = await runMicroBizInference({
+      prompt: 'dummy prompt',
+      requestedProvider: 'gemma',
+      client: null, // simulates no API key or disconnected environment
+      validator: validateCopySchema,
+      heuristicFallback: () => ({
+        tagline: 'Crafted with care, honesty, and local dedication.',
+        storyDescription: 'Authentic local product description generated offline.',
+        keyFeatures: ['Feature 1', 'Feature 2'],
+        socialPostSnippet: 'Authentic announcement #MadeForAll',
+        ethicalGuarantee: 'Guaranteed local quality'
+      })
+    });
+
+    assert.strictEqual(result.meta.isGenuineAi, false, 'Expected isGenuineAi: false for heuristic');
+    assert.strictEqual(result.meta.isHeuristicFallback, true, 'Expected isHeuristicFallback: true');
+    assert.strictEqual(result.meta.provider, MICROBIZ_MODELS.HEURISTIC_TEXT);
+    assert.strictEqual(result.meta.modelFamily, 'heuristic');
+    assert.ok(result.meta.fallbackNotice, 'Expected truthful fallback notice');
+    assert.ok(validateCopySchema(result.data), 'Expected heuristic fallback to satisfy schema');
+    console.log(`       Fallback Provider: ${result.meta.provider} (Genuine AI: ${result.meta.isGenuineAi})`);
   });
 
   console.log('\n====================================================');
