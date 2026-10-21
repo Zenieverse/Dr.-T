@@ -172343,12 +172343,19 @@ Requirements:
 2. Outline specific questions for the patient to ask their physician.
 3. Explicitly state the non-diagnostic decision-support nature of this tool.
 Output concise, clinically accurate bullet points.`;
-      const response = await geminiClient.models.generateContent({
-        model: "gemini-2.5-flash",
-        contents: prompt
+      const timeoutPromise = new Promise((_2, reject) => {
+        const timer = setTimeout(() => reject(new Error("AI enrichment timed out (2500ms limit)")), 2500);
+        if (typeof timer.unref === "function") timer.unref();
       });
+      const response = await Promise.race([
+        geminiClient.models.generateContent({
+          model: "gemini-3.8-flash",
+          contents: prompt
+        }),
+        timeoutPromise
+      ]);
       if (response && response.text) {
-        modelProvider = "gemini-2.5-flash (AI-Enriched Decision Support)";
+        modelProvider = "gemini-3.8-flash (AI-Enriched Decision Support)";
       }
     } catch (aiErr) {
       console.warn("Gemini optional enrichment skipped, utilizing verified heuristic output:", aiErr);
@@ -172825,12 +172832,19 @@ Instructions:
 2. Explicitly note that this is non-diagnostic decision support.
 3. Suggest 3 personalized questions for the patient to ask their doctor.
 Output concise text.`;
-      const aiResponse = await geminiClient.models.generateContent({
-        model: "gemini-2.5-flash",
-        contents: prompt
+      const timeoutPromise = new Promise((_2, reject) => {
+        const timer = setTimeout(() => reject(new Error("AI enrichment timed out (2500ms limit)")), 2500);
+        if (typeof timer.unref === "function") timer.unref();
       });
+      const aiResponse = await Promise.race([
+        geminiClient.models.generateContent({
+          model: "gemini-3.8-flash",
+          contents: prompt
+        }),
+        timeoutPromise
+      ]);
       if (aiResponse && aiResponse.text) {
-        providerUsed = "gemini-2.5-flash (AI-Enriched Decision Support)";
+        providerUsed = "gemini-3.8-flash (AI-Enriched Decision Support)";
       }
     } catch (aiErr) {
       console.warn("Gemini optional enrichment skipped; falling back cleanly to deterministic engine:", aiErr);
@@ -172941,12 +172955,19 @@ Instructions:
 2. Explicitly note that this is non-diagnostic decision support.
 3. Suggest 3 personalized questions for the patient to ask their doctor.
 Output concise text.`;
-      const aiResponse = await geminiClient.models.generateContent({
-        model: "gemini-2.5-flash",
-        contents: prompt
+      const timeoutPromise = new Promise((_2, reject) => {
+        const timer = setTimeout(() => reject(new Error("AI enrichment timed out (2500ms limit)")), 2500);
+        if (typeof timer.unref === "function") timer.unref();
       });
+      const aiResponse = await Promise.race([
+        geminiClient.models.generateContent({
+          model: "gemini-3.8-flash",
+          contents: prompt
+        }),
+        timeoutPromise
+      ]);
       if (aiResponse && aiResponse.text) {
-        providerUsed = "gemini-2.5-flash (AI-Enriched Decision Support)";
+        providerUsed = "gemini-3.8-flash (AI-Enriched Decision Support)";
       }
     } catch (aiErr) {
       console.warn("Gemini optional enrichment skipped; falling back cleanly to deterministic Health Alert engine:", aiErr);

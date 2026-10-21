@@ -571,13 +571,21 @@ Instructions:
 3. Suggest 3 personalized questions for the patient to ask their doctor.
 Output concise text.`;
 
-      const aiResponse = await geminiClient.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: prompt
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        const timer = setTimeout(() => reject(new Error('AI enrichment timed out (2500ms limit)')), 2500);
+        if (typeof timer.unref === 'function') timer.unref();
       });
 
+      const aiResponse = await Promise.race([
+        geminiClient.models.generateContent({
+          model: 'gemini-3.8-flash',
+          contents: prompt
+        }),
+        timeoutPromise
+      ]);
+
       if (aiResponse && aiResponse.text) {
-        providerUsed = 'gemini-2.5-flash (AI-Enriched Decision Support)';
+        providerUsed = 'gemini-3.8-flash (AI-Enriched Decision Support)';
       }
     } catch (aiErr) {
       console.warn('Gemini optional enrichment skipped; falling back cleanly to deterministic engine:', aiErr);

@@ -118,7 +118,7 @@ export const DocScannerView: FC<DocScannerViewProps> = ({
         setOcrAiMeta({
           isGenuineAi: !!resData.isGenuineAi,
           isHeuristicFallback: !!resData.isHeuristicFallback,
-          provider: resData.provider || (resData.isGenuineAi ? (ocrSelectedProvider === 'gemini' ? 'gemini-2.5-flash' : 'gemma-4-26b-a4b-it') : 'microbiz-heuristic-engine')
+          provider: resData.provider || (resData.isGenuineAi ? (ocrSelectedProvider === 'gemini' ? 'gemini-3.8-flash' : 'gemma-4-26b-a4b-it') : 'microbiz-heuristic-engine')
         });
       }
     } catch (err) {

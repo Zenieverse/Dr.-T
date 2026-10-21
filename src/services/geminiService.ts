@@ -51,7 +51,7 @@ ${skinContext ? `Current User Skin Context: ${skinContext}` : ''}`;
   if (client) {
     try {
       const response = await client.models.generateContent({
-        model: 'gemini-2.5-flash',
+        model: 'gemini-3.8-flash',
         contents: userQuery,
         config: {
           systemInstruction,

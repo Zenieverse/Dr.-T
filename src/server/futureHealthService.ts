@@ -505,13 +505,21 @@ Requirements:
 3. Explicitly state the non-diagnostic decision-support nature of this tool.
 Output concise, clinically accurate bullet points.`;
 
-      const response = await geminiClient.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: prompt,
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        const timer = setTimeout(() => reject(new Error('AI enrichment timed out (2500ms limit)')), 2500);
+        if (typeof timer.unref === 'function') timer.unref();
       });
 
+      const response = await Promise.race([
+        geminiClient.models.generateContent({
+          model: 'gemini-3.8-flash',
+          contents: prompt,
+        }),
+        timeoutPromise
+      ]);
+
       if (response && response.text) {
-        modelProvider = 'gemini-2.5-flash (AI-Enriched Decision Support)';
+        modelProvider = 'gemini-3.8-flash (AI-Enriched Decision Support)';
       }
     } catch (aiErr) {
       console.warn('Gemini optional enrichment skipped, utilizing verified heuristic output:', aiErr);

@@ -96,7 +96,7 @@ export const AiStudioView: FC<AiStudioViewProps> = ({
         setCourseAiMeta({
           isGenuineAi: !!data.isGenuineAi,
           isHeuristicFallback: !!data.isHeuristicFallback,
-          provider: data.provider || (data.isGenuineAi ? (selectedProvider === 'gemini' ? 'gemini-2.5-flash' : 'gemma-4-26b-a4b-it') : 'microbiz-heuristic-engine'),
+          provider: data.provider || (data.isGenuineAi ? (selectedProvider === 'gemini' ? 'gemini-3.8-flash' : 'gemma-4-26b-a4b-it') : 'microbiz-heuristic-engine'),
           fallbackNotice: data.fallbackNotice
         });
       }
@@ -192,7 +192,7 @@ export const AiStudioView: FC<AiStudioViewProps> = ({
         setCopyAiMeta({
           isGenuineAi: !!data.isGenuineAi,
           isHeuristicFallback: !!data.isHeuristicFallback,
-          provider: data.provider || (data.isGenuineAi ? (selectedProvider === 'gemini' ? 'gemini-2.5-flash' : 'gemma-4-26b-a4b-it') : 'microbiz-heuristic-engine'),
+          provider: data.provider || (data.isGenuineAi ? (selectedProvider === 'gemini' ? 'gemini-3.8-flash' : 'gemma-4-26b-a4b-it') : 'microbiz-heuristic-engine'),
           fallbackNotice: data.fallbackNotice
         });
       }
@@ -227,7 +227,7 @@ export const AiStudioView: FC<AiStudioViewProps> = ({
         setPlanAiMeta({
           isGenuineAi: !!data.isGenuineAi,
           isHeuristicFallback: !!data.isHeuristicFallback,
-          provider: data.provider || (data.isGenuineAi ? (selectedProvider === 'gemini' ? 'gemini-2.5-flash' : 'gemma-4-26b-a4b-it') : 'microbiz-heuristic-engine'),
+          provider: data.provider || (data.isGenuineAi ? (selectedProvider === 'gemini' ? 'gemini-3.8-flash' : 'gemma-4-26b-a4b-it') : 'microbiz-heuristic-engine'),
           fallbackNotice: data.fallbackNotice
         });
       }

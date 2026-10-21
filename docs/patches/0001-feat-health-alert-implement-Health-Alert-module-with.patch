@@ -1,0 +1,370 @@
+From 70b66063ea2350694c6f77527ec4abc495579e22 Mon Sep 17 00:00:00 2001
+From: Zenieverse <zenieverse@gmail.com>
+Date: Wed, 21 Oct 2026 00:33:23 +0000
+Subject: [PATCH] feat(health-alert): complete release gate verification,
+ server lifecycle harness, and model upgrade
+
+---
+ scripts/verify-health-alert-release.ts        | 92 +++++++++++++++++--
+ server.cjs                                    | 45 ++++++---
+ .../microbiz/components/AiStudioView.tsx      |  6 +-
+ .../microbiz/components/DocScannerView.tsx    |  2 +-
+ src/server/futureHealthService.ts             | 16 +++-
+ src/server/healthAlertService.ts              | 16 +++-
+ src/server/stCoolService.ts                   | 16 +++-
+ src/services/geminiService.ts                 |  2 +-
+ 8 files changed, 157 insertions(+), 38 deletions(-)
+
+diff --git a/scripts/verify-health-alert-release.ts b/scripts/verify-health-alert-release.ts
+index f846923..973b352 100644
+--- a/scripts/verify-health-alert-release.ts
++++ b/scripts/verify-health-alert-release.ts
+@@ -1,8 +1,4 @@
+-/**
+- * HEALTH ALERT: Comprehensive Live API Verification & Invariant Harness
+- * Future Health Digital Innovation Challenge 2026
+- * Verifies live HTTP endpoints, edge cases, error modes, and clinical safety
+- */
++import { spawn, ChildProcess } from 'child_process';
+ 
+ interface VerificationCheck {
+   id: string;
+@@ -13,6 +9,7 @@ interface VerificationCheck {
+ }
+ 
+ const checks: VerificationCheck[] = [];
++let spawnedServer: ChildProcess | null = null;
+ 
+ function record(category: string, name: string, passed: boolean, notes?: string) {
+   checks.push({ id: `CHK-${checks.length + 1}`, category, name, passed, notes });
+@@ -23,11 +20,77 @@ function record(category: string, name: string, passed: boolean, notes?: string)
+   }
+ }
+ 
++async function isServerReady(url: string): Promise<boolean> {
++  try {
++    const res = await fetch(`${url}/api/health-alert/presets`, { signal: AbortSignal.timeout(1500) });
++    return res.status === 200;
++  } catch {
++    return false;
++  }
++}
++
++async function ensureServerRunning(targetBaseUrl: string): Promise<{ baseUrl: string; shouldCleanup: boolean }> {
++  if (await isServerReady(targetBaseUrl)) {
++    console.log(`📡 Existing server detected on ${targetBaseUrl}, proceeding with verification.`);
++    return { baseUrl: targetBaseUrl, shouldCleanup: false };
++  }
++
++  // If remote URL, don't attempt to spawn locally
++  if (targetBaseUrl.startsWith('https://') || !targetBaseUrl.includes('localhost')) {
++    console.log(`🌐 Target is remote deployment (${targetBaseUrl}), proceeding with direct verification.`);
++    return { baseUrl: targetBaseUrl, shouldCleanup: false };
++  }
++
++  const urlObj = new URL(targetBaseUrl);
++  const port = urlObj.port || '3000';
++  console.log(`🚀 Starting Dr. T application server on port ${port} for test verification...`);
++
++  spawnedServer = spawn(process.execPath, ['./node_modules/tsx/dist/cli.mjs', 'server.ts'], {
++    env: { ...process.env, PORT: port },
++    stdio: 'pipe'
++  });
++
++  const startTime = Date.now();
++  const maxWaitMs = 25000;
++  while (Date.now() - startTime < maxWaitMs) {
++    if (await isServerReady(targetBaseUrl)) {
++      console.log(`✅ Application server ready on ${targetBaseUrl} (${Date.now() - startTime}ms)\n`);
++      return { baseUrl: targetBaseUrl, shouldCleanup: true };
++    }
++    await new Promise((r) => setTimeout(r, 600));
++  }
++
++  throw new Error(`Timed out waiting for server to start on ${targetBaseUrl} after ${maxWaitMs}ms`);
++}
++
++function shutdownServer() {
++  if (spawnedServer && !spawnedServer.killed) {
++    console.log('\n🛑 Shutting down spawned verification server...');
++    try {
++      spawnedServer.kill('SIGTERM');
++    } catch {
++      // ignore
++    }
++    spawnedServer = null;
++  }
++}
++
++process.on('SIGINT', () => { shutdownServer(); process.exit(130); });
++process.on('SIGTERM', () => { shutdownServer(); process.exit(143); });
++process.on('exit', () => { shutdownServer(); });
++
+ async function runLiveVerification() {
+-  const baseUrl = 'http://localhost:3000';
+-  console.log('========================================================');
+-  console.log('🩺 RUNNING HEALTH ALERT LIVE API & EDGE-CASE AUDIT');
+-  console.log('========================================================\n');
++  const targetBaseUrl = process.env.TARGET_URL || process.env.BASE_URL || 'http://localhost:3000';
++  let shouldCleanup = false;
++
++  try {
++    const readyInfo = await ensureServerRunning(targetBaseUrl);
++    const baseUrl = readyInfo.baseUrl;
++    shouldCleanup = readyInfo.shouldCleanup;
++
++    console.log('========================================================');
++    console.log(`🩺 RUNNING HEALTH ALERT LIVE API & EDGE-CASE AUDIT against ${baseUrl}`);
++    console.log('========================================================\n');
+ 
+   // Check 1: GET /api/health-alert/presets
+   try {
+@@ -417,11 +480,22 @@ async function runLiveVerification() {
+ 
+   if (passedCount === totalCount) {
+     console.log('🎉 ALL LIVE API & CLINICAL SAFETY CHECKS PASSED!\n');
++    if (shouldCleanup) {
++      shutdownServer();
++    }
+     process.exit(0);
+   } else {
+     console.error('❌ SOME CHECKS FAILED!\n');
++    if (shouldCleanup) {
++      shutdownServer();
++    }
+     process.exit(1);
+   }
++  } finally {
++    if (shouldCleanup) {
++      shutdownServer();
++    }
++  }
+ }
+ 
+ runLiveVerification();
+diff --git a/server.cjs b/server.cjs
+index c04bf6c..c794268 100644
+--- a/server.cjs
++++ b/server.cjs
+@@ -172343,12 +172343,19 @@ Requirements:
+ 2. Outline specific questions for the patient to ask their physician.
+ 3. Explicitly state the non-diagnostic decision-support nature of this tool.
+ Output concise, clinically accurate bullet points.`;
+-      const response = await geminiClient.models.generateContent({
+-        model: "gemini-2.5-flash",
+-        contents: prompt
++      const timeoutPromise = new Promise((_2, reject) => {
++        const timer = setTimeout(() => reject(new Error("AI enrichment timed out (2500ms limit)")), 2500);
++        if (typeof timer.unref === "function") timer.unref();
+       });
++      const response = await Promise.race([
++        geminiClient.models.generateContent({
++          model: "gemini-3.8-flash",
++          contents: prompt
++        }),
++        timeoutPromise
++      ]);
+       if (response && response.text) {
+-        modelProvider = "gemini-2.5-flash (AI-Enriched Decision Support)";
++        modelProvider = "gemini-3.8-flash (AI-Enriched Decision Support)";
+       }
+     } catch (aiErr) {
+       console.warn("Gemini optional enrichment skipped, utilizing verified heuristic output:", aiErr);
+@@ -172825,12 +172832,19 @@ Instructions:
+ 2. Explicitly note that this is non-diagnostic decision support.
+ 3. Suggest 3 personalized questions for the patient to ask their doctor.
+ Output concise text.`;
+-      const aiResponse = await geminiClient.models.generateContent({
+-        model: "gemini-2.5-flash",
+-        contents: prompt
++      const timeoutPromise = new Promise((_2, reject) => {
++        const timer = setTimeout(() => reject(new Error("AI enrichment timed out (2500ms limit)")), 2500);
++        if (typeof timer.unref === "function") timer.unref();
+       });
++      const aiResponse = await Promise.race([
++        geminiClient.models.generateContent({
++          model: "gemini-3.8-flash",
++          contents: prompt
++        }),
++        timeoutPromise
++      ]);
+       if (aiResponse && aiResponse.text) {
+-        providerUsed = "gemini-2.5-flash (AI-Enriched Decision Support)";
++        providerUsed = "gemini-3.8-flash (AI-Enriched Decision Support)";
+       }
+     } catch (aiErr) {
+       console.warn("Gemini optional enrichment skipped; falling back cleanly to deterministic engine:", aiErr);
+@@ -172941,12 +172955,19 @@ Instructions:
+ 2. Explicitly note that this is non-diagnostic decision support.
+ 3. Suggest 3 personalized questions for the patient to ask their doctor.
+ Output concise text.`;
+-      const aiResponse = await geminiClient.models.generateContent({
+-        model: "gemini-2.5-flash",
+-        contents: prompt
++      const timeoutPromise = new Promise((_2, reject) => {
++        const timer = setTimeout(() => reject(new Error("AI enrichment timed out (2500ms limit)")), 2500);
++        if (typeof timer.unref === "function") timer.unref();
+       });
++      const aiResponse = await Promise.race([
++        geminiClient.models.generateContent({
++          model: "gemini-3.8-flash",
++          contents: prompt
++        }),
++        timeoutPromise
++      ]);
+       if (aiResponse && aiResponse.text) {
+-        providerUsed = "gemini-2.5-flash (AI-Enriched Decision Support)";
++        providerUsed = "gemini-3.8-flash (AI-Enriched Decision Support)";
+       }
+     } catch (aiErr) {
+       console.warn("Gemini optional enrichment skipped; falling back cleanly to deterministic Health Alert engine:", aiErr);
+diff --git a/src/components/microbiz/components/AiStudioView.tsx b/src/components/microbiz/components/AiStudioView.tsx
+index d38f949..87eaf81 100644
+--- a/src/components/microbiz/components/AiStudioView.tsx
++++ b/src/components/microbiz/components/AiStudioView.tsx
+@@ -96,7 +96,7 @@ export const AiStudioView: FC<AiStudioViewProps> = ({
+         setCourseAiMeta({
+           isGenuineAi: !!data.isGenuineAi,
+           isHeuristicFallback: !!data.isHeuristicFallback,
+-          provider: data.provider || (data.isGenuineAi ? (selectedProvider === 'gemini' ? 'gemini-2.5-flash' : 'gemma-4-26b-a4b-it') : 'microbiz-heuristic-engine'),
++          provider: data.provider || (data.isGenuineAi ? (selectedProvider === 'gemini' ? 'gemini-3.8-flash' : 'gemma-4-26b-a4b-it') : 'microbiz-heuristic-engine'),
+           fallbackNotice: data.fallbackNotice
+         });
+       }
+@@ -192,7 +192,7 @@ export const AiStudioView: FC<AiStudioViewProps> = ({
+         setCopyAiMeta({
+           isGenuineAi: !!data.isGenuineAi,
+           isHeuristicFallback: !!data.isHeuristicFallback,
+-          provider: data.provider || (data.isGenuineAi ? (selectedProvider === 'gemini' ? 'gemini-2.5-flash' : 'gemma-4-26b-a4b-it') : 'microbiz-heuristic-engine'),
++          provider: data.provider || (data.isGenuineAi ? (selectedProvider === 'gemini' ? 'gemini-3.8-flash' : 'gemma-4-26b-a4b-it') : 'microbiz-heuristic-engine'),
+           fallbackNotice: data.fallbackNotice
+         });
+       }
+@@ -227,7 +227,7 @@ export const AiStudioView: FC<AiStudioViewProps> = ({
+         setPlanAiMeta({
+           isGenuineAi: !!data.isGenuineAi,
+           isHeuristicFallback: !!data.isHeuristicFallback,
+-          provider: data.provider || (data.isGenuineAi ? (selectedProvider === 'gemini' ? 'gemini-2.5-flash' : 'gemma-4-26b-a4b-it') : 'microbiz-heuristic-engine'),
++          provider: data.provider || (data.isGenuineAi ? (selectedProvider === 'gemini' ? 'gemini-3.8-flash' : 'gemma-4-26b-a4b-it') : 'microbiz-heuristic-engine'),
+           fallbackNotice: data.fallbackNotice
+         });
+       }
+diff --git a/src/components/microbiz/components/DocScannerView.tsx b/src/components/microbiz/components/DocScannerView.tsx
+index 1cc9502..735c26e 100644
+--- a/src/components/microbiz/components/DocScannerView.tsx
++++ b/src/components/microbiz/components/DocScannerView.tsx
+@@ -118,7 +118,7 @@ export const DocScannerView: FC<DocScannerViewProps> = ({
+         setOcrAiMeta({
+           isGenuineAi: !!resData.isGenuineAi,
+           isHeuristicFallback: !!resData.isHeuristicFallback,
+-          provider: resData.provider || (resData.isGenuineAi ? (ocrSelectedProvider === 'gemini' ? 'gemini-2.5-flash' : 'gemma-4-26b-a4b-it') : 'microbiz-heuristic-engine')
++          provider: resData.provider || (resData.isGenuineAi ? (ocrSelectedProvider === 'gemini' ? 'gemini-3.8-flash' : 'gemma-4-26b-a4b-it') : 'microbiz-heuristic-engine')
+         });
+       }
+     } catch (err) {
+diff --git a/src/server/futureHealthService.ts b/src/server/futureHealthService.ts
+index 72b9dd3..70c4183 100644
+--- a/src/server/futureHealthService.ts
++++ b/src/server/futureHealthService.ts
+@@ -505,13 +505,21 @@ Requirements:
+ 3. Explicitly state the non-diagnostic decision-support nature of this tool.
+ Output concise, clinically accurate bullet points.`;
+ 
+-      const response = await geminiClient.models.generateContent({
+-        model: 'gemini-2.5-flash',
+-        contents: prompt,
++      const timeoutPromise = new Promise<never>((_, reject) => {
++        const timer = setTimeout(() => reject(new Error('AI enrichment timed out (2500ms limit)')), 2500);
++        if (typeof timer.unref === 'function') timer.unref();
+       });
+ 
++      const response = await Promise.race([
++        geminiClient.models.generateContent({
++          model: 'gemini-3.8-flash',
++          contents: prompt,
++        }),
++        timeoutPromise
++      ]);
++
+       if (response && response.text) {
+-        modelProvider = 'gemini-2.5-flash (AI-Enriched Decision Support)';
++        modelProvider = 'gemini-3.8-flash (AI-Enriched Decision Support)';
+       }
+     } catch (aiErr) {
+       console.warn('Gemini optional enrichment skipped, utilizing verified heuristic output:', aiErr);
+diff --git a/src/server/healthAlertService.ts b/src/server/healthAlertService.ts
+index 8462f6c..3900561 100644
+--- a/src/server/healthAlertService.ts
++++ b/src/server/healthAlertService.ts
+@@ -87,13 +87,21 @@ Instructions:
+ 3. Suggest 3 personalized questions for the patient to ask their doctor.
+ Output concise text.`;
+ 
+-      const aiResponse = await geminiClient.models.generateContent({
+-        model: 'gemini-2.5-flash',
+-        contents: prompt
++      const timeoutPromise = new Promise<never>((_, reject) => {
++        const timer = setTimeout(() => reject(new Error('AI enrichment timed out (2500ms limit)')), 2500);
++        if (typeof timer.unref === 'function') timer.unref();
+       });
+ 
++      const aiResponse = await Promise.race([
++        geminiClient.models.generateContent({
++          model: 'gemini-3.8-flash',
++          contents: prompt
++        }),
++        timeoutPromise
++      ]);
++
+       if (aiResponse && aiResponse.text) {
+-        providerUsed = 'gemini-2.5-flash (AI-Enriched Decision Support)';
++        providerUsed = 'gemini-3.8-flash (AI-Enriched Decision Support)';
+       }
+     } catch (aiErr) {
+       console.warn('Gemini optional enrichment skipped; falling back cleanly to deterministic Health Alert engine:', aiErr);
+diff --git a/src/server/stCoolService.ts b/src/server/stCoolService.ts
+index 2e803eb..4bdd9b0 100644
+--- a/src/server/stCoolService.ts
++++ b/src/server/stCoolService.ts
+@@ -571,13 +571,21 @@ Instructions:
+ 3. Suggest 3 personalized questions for the patient to ask their doctor.
+ Output concise text.`;
+ 
+-      const aiResponse = await geminiClient.models.generateContent({
+-        model: 'gemini-2.5-flash',
+-        contents: prompt
++      const timeoutPromise = new Promise<never>((_, reject) => {
++        const timer = setTimeout(() => reject(new Error('AI enrichment timed out (2500ms limit)')), 2500);
++        if (typeof timer.unref === 'function') timer.unref();
+       });
+ 
++      const aiResponse = await Promise.race([
++        geminiClient.models.generateContent({
++          model: 'gemini-3.8-flash',
++          contents: prompt
++        }),
++        timeoutPromise
++      ]);
++
+       if (aiResponse && aiResponse.text) {
+-        providerUsed = 'gemini-2.5-flash (AI-Enriched Decision Support)';
++        providerUsed = 'gemini-3.8-flash (AI-Enriched Decision Support)';
+       }
+     } catch (aiErr) {
+       console.warn('Gemini optional enrichment skipped; falling back cleanly to deterministic engine:', aiErr);
+diff --git a/src/services/geminiService.ts b/src/services/geminiService.ts
+index ddde6cc..774933e 100644
+--- a/src/services/geminiService.ts
++++ b/src/services/geminiService.ts
+@@ -51,7 +51,7 @@ ${skinContext ? `Current User Skin Context: ${skinContext}` : ''}`;
+   if (client) {
+     try {
+       const response = await client.models.generateContent({
+-        model: 'gemini-2.5-flash',
++        model: 'gemini-3.8-flash',
+         contents: userQuery,
+         config: {
+           systemInstruction,
+-- 
+2.34.1
+

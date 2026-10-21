@@ -1,8 +1,4 @@
-/**
- * HEALTH ALERT: Comprehensive Live API Verification & Invariant Harness
- * Future Health Digital Innovation Challenge 2026
- * Verifies live HTTP endpoints, edge cases, error modes, and clinical safety
- */
+import { spawn, ChildProcess } from 'child_process';
 
 interface VerificationCheck {
   id: string;
@@ -13,6 +9,7 @@ interface VerificationCheck {
 }
 
 const checks: VerificationCheck[] = [];
+let spawnedServer: ChildProcess | null = null;
 
 function record(category: string, name: string, passed: boolean, notes?: string) {
   checks.push({ id: `CHK-${checks.length + 1}`, category, name, passed, notes });
@@ -23,11 +20,77 @@ function record(category: string, name: string, passed: boolean, notes?: string)
   }
 }
 
+async function isServerReady(url: string): Promise<boolean> {
+  try {
+    const res = await fetch(`${url}/api/health-alert/presets`, { signal: AbortSignal.timeout(1500) });
+    return res.status === 200;
+  } catch {
+    return false;
+  }
+}
+
+async function ensureServerRunning(targetBaseUrl: string): Promise<{ baseUrl: string; shouldCleanup: boolean }> {
+  if (await isServerReady(targetBaseUrl)) {
+    console.log(`📡 Existing server detected on ${targetBaseUrl}, proceeding with verification.`);
+    return { baseUrl: targetBaseUrl, shouldCleanup: false };
+  }
+
+  // If remote URL, don't attempt to spawn locally
+  if (targetBaseUrl.startsWith('https://') || !targetBaseUrl.includes('localhost')) {
+    console.log(`🌐 Target is remote deployment (${targetBaseUrl}), proceeding with direct verification.`);
+    return { baseUrl: targetBaseUrl, shouldCleanup: false };
+  }
+
+  const urlObj = new URL(targetBaseUrl);
+  const port = urlObj.port || '3000';
+  console.log(`🚀 Starting Dr. T application server on port ${port} for test verification...`);
+
+  spawnedServer = spawn(process.execPath, ['./node_modules/tsx/dist/cli.mjs', 'server.ts'], {
+    env: { ...process.env, PORT: port },
+    stdio: 'pipe'
+  });
+
+  const startTime = Date.now();
+  const maxWaitMs = 25000;
+  while (Date.now() - startTime < maxWaitMs) {
+    if (await isServerReady(targetBaseUrl)) {
+      console.log(`✅ Application server ready on ${targetBaseUrl} (${Date.now() - startTime}ms)\n`);
+      return { baseUrl: targetBaseUrl, shouldCleanup: true };
+    }
+    await new Promise((r) => setTimeout(r, 600));
+  }
+
+  throw new Error(`Timed out waiting for server to start on ${targetBaseUrl} after ${maxWaitMs}ms`);
+}
+
+function shutdownServer() {
+  if (spawnedServer && !spawnedServer.killed) {
+    console.log('\n🛑 Shutting down spawned verification server...');
+    try {
+      spawnedServer.kill('SIGTERM');
+    } catch {
+      // ignore
+    }
+    spawnedServer = null;
+  }
+}
+
+process.on('SIGINT', () => { shutdownServer(); process.exit(130); });
+process.on('SIGTERM', () => { shutdownServer(); process.exit(143); });
+process.on('exit', () => { shutdownServer(); });
+
 async function runLiveVerification() {
-  const baseUrl = 'http://localhost:3000';
-  console.log('========================================================');
-  console.log('🩺 RUNNING HEALTH ALERT LIVE API & EDGE-CASE AUDIT');
-  console.log('========================================================\n');
+  const targetBaseUrl = process.env.TARGET_URL || process.env.BASE_URL || 'http://localhost:3000';
+  let shouldCleanup = false;
+
+  try {
+    const readyInfo = await ensureServerRunning(targetBaseUrl);
+    const baseUrl = readyInfo.baseUrl;
+    shouldCleanup = readyInfo.shouldCleanup;
+
+    console.log('========================================================');
+    console.log(`🩺 RUNNING HEALTH ALERT LIVE API & EDGE-CASE AUDIT against ${baseUrl}`);
+    console.log('========================================================\n');
 
   // Check 1: GET /api/health-alert/presets
   try {
@@ -417,10 +480,21 @@ async function runLiveVerification() {
 
   if (passedCount === totalCount) {
     console.log('🎉 ALL LIVE API & CLINICAL SAFETY CHECKS PASSED!\n');
+    if (shouldCleanup) {
+      shutdownServer();
+    }
     process.exit(0);
   } else {
     console.error('❌ SOME CHECKS FAILED!\n');
+    if (shouldCleanup) {
+      shutdownServer();
+    }
     process.exit(1);
+  }
+  } finally {
+    if (shouldCleanup) {
+      shutdownServer();
+    }
   }
 }
 
