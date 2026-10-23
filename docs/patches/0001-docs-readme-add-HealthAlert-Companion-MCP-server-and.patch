@@ -1,0 +1,119 @@
+From de1592485dd15a754114745dedc91cac75b363e5 Mon Sep 17 00:00:00 2001
+From: Zenieverse <zenieverse@gmail.com>
+Date: Fri, 23 Oct 2026 00:54:17 +0000
+Subject: [PATCH] docs(readme): add HealthAlert Companion MCP server and judge
+ testing guide
+
+---
+ README.md | 70 +++++++++++++++++++++++++++++++++++++++++++++++++++----
+ 1 file changed, 66 insertions(+), 4 deletions(-)
+
+diff --git a/README.md b/README.md
+index 10e2c4c..079da2a 100644
+--- a/README.md
++++ b/README.md
+@@ -58,7 +58,27 @@ An inclusive social learning and sustainable livelihood platform designed for ev
+ 
+ ---
+ 
+-### 2. 🩺 Biomedical Intelligence & Clinical Decision Support
++### 2. 🔔 HealthAlert Companion & Amazon Developer Hackathon 2026 (Alexa+ Track)
++An authoritative, evidence-grounded health monitoring, triage, and physician-handoff agent:
++
++* **Dual-Mode Clinical Interface (`HealthAlertCompanionModule.tsx`)**:
++  * **Alexa+ Conversational Agent Mode**: Interactive voice-enabled health dialogue with browser speech recognition, live audio visualizer, transparent multi-tool execution telemetry, and localized emergency dispatch routing (Vietnam 115, UAE 998, UK 999, US 911, Europe 112).
++  * **Guided Clinical Intake Workflow**: 4-step intake analyzing presenting concerns, vitals, and lab measurements against AHA, ADA, and WHO clinical guidelines, generating valid HL7 FHIR Release 4 `RiskAssessment` resources and SBAR clinician handoff reports.
++* **Deterministic Emergency Safety Layer**:
++  * Critical red-flag symptoms (crushing chest pain, left arm pain, severe dyspnea, stroke indicators) and hypertensive crisis ($BP \ge 180/120$ mmHg) deterministically trigger immediate ambulance escalation, strictly superseding AI model output.
++  * Cardiometabolic findings such as Stage 1 Hypertension (138/88 mmHg) with elevated HbA1c (6.1%) strictly stratify to outpatient primary care follow-up (2–4 weeks).
++* **Model Context Protocol (MCP) Server**:
++  * **Protocols Supported**: `2025-11-25` (Latest) and `2024-11-05` (Backward-Compatible negotiation).
++  * **Transports**: Streamable HTTP Server-Sent Events (`GET /api/mcp/sse`) and HTTP JSON-RPC 2.0 (`POST /api/mcp`).
++  * **Tools Exposed**:
++    1. `check_safety_escalation`: Hardcoded clinical rules verifying emergency indicators.
++    2. `explain_health_alert`: Factual biomarker explanation with epistemic uncertainty bounds.
++    3. `prepare_follow_up_questions`: Clinician visit question generator and pre-appointment checklist.
++  * **Agent Orchestrator (`POST /api/health-alert/agent`)**: Multi-tool sequential agent pipeline with transparent latency and provider telemetry (`gemini-3.8-flash` with deterministic verified fallback).
++
++---
++
++### 3. 🩺 Biomedical Intelligence & Clinical Decision Support
+ * **Socratic Consultation (`DrTHome.tsx`)**: Longitudinal health dialogue analyzing wearable telemetry, metabolic blood markers, and circadian sleep phases.
+ * **Clinical Informatics (`ClinicalInformatics.tsx`)**: FHIR R4 interoperability, LOINC/SNOMED CT structured data, and automated SOAP clinical summary generation.
+ * **Health Bridge (`DrTHealthBridge.tsx`)**: 11 clinical pillars for health record migration and wellness coordination.
+@@ -67,20 +87,20 @@ An inclusive social learning and sustainable livelihood platform designed for ev
+ 
+ ---
+ 
+-### 3. 🎹 PIANIST & Touch Grass 🌿
++### 4. 🎹 PIANIST & Touch Grass 🌿
+ * **Adaptive Grand Piano (`GrandPianoWorkspace.tsx`)**: Physical modeling acoustic piano synthesizer utilizing additive synthesis, realistic overtones, hammer strike transients, and damper pedal simulation.
+ * **88-Key Repertoire Player (`ClassicalTrackPlayer.tsx`)**: Full interactive guided play-along for classical works, including **Richard Clayderman's "Always"**, Chopin, and Bach, with note-by-note synchronization, pedal hints, and measure annotations.
+ * **Touch Grass Outdoor Sound-to-Music (`TouchGrassStudio.tsx`)**: Converts real-world acoustic feature extraction (spectral centroid, RMS energy, and onset detection via Web Audio API `AnalyserNode`) into melodic contours and piano missions.
+ 
+ ---
+ 
+-### 4. 🛡️ Hedera Commons & Hedera Provenance Kit (HPK)
++### 5. 🛡️ Hedera Commons & Hedera Provenance Kit (HPK)
+ * **Consensus Service Integration (`HederaCommonsPage.tsx`)**: Submits cryptographically canonical JSON hashes to Hedera Consensus Service (HCS) topics for immutable audit records.
+ * **Cryptographic Invariants (`provenanceStore.ts`)**: RFC 8785 canonical JSON serialization with SHA-256 fingerprinting.
+ 
+ ---
+ 
+-### 5. 🕸️ LIFEWEAVE Studio, x402 & Multimodal Extensions
++### 6. 🕸️ LIFEWEAVE Studio, x402 & Multimodal Extensions
+ * **LIFEWEAVE (`LifeWeaveStudio.tsx`)**: Multi-agent software engineering orchestration workspace.
+ * **x402 Pay-Per-Request Studio (`X402PayPerRequestStudio.tsx`)**: Decentralized machine-to-machine micropayment bazaar and challenge verification.
+ * **Dr. T Cinema & Trib-House (`CinemaContainer.tsx`, `TribHouseContainer.tsx`)**: Multimodal biomedical media and living library commons.
+@@ -236,6 +256,48 @@ To synchronize this codebase with the connected GitHub repository [`https://gith
+    ```
+ 5. Click **Commit & Push** to complete synchronization.
+ 
++## 🧪 Hackathon Judge Testing & Verification Guide
++
++### 1. Model Context Protocol (MCP) Verification
++```bash
++# Discovery manifest & Streamable HTTP discovery
++curl -s http://localhost:3000/api/mcp | jq .
++
++# Streamable HTTP Server-Sent Events endpoint
++curl -s -N -H "Accept: text/event-stream" http://localhost:3000/api/mcp/sse
++
++# Protocol negotiation (2025-11-25)
++curl -s -X POST http://localhost:3000/api/mcp -H "Content-Type: application/json" \
++  -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-11-25"}}' | jq .
++
++# List registered tools
++curl -s -X POST http://localhost:3000/api/mcp -H "Content-Type: application/json" \
++  -d '{"jsonrpc":"2.0","id":2,"method":"tools/list"}' | jq .
++```
++
++### 2. Conversational Agent Pipeline
++```bash
++# Non-emergency cardiometabolic alert (strictly stratifies to outpatient 2-4 weeks)
++curl -s -X POST http://localhost:3000/api/health-alert/agent -H "Content-Type: application/json" \
++  -d '{"query":"My blood pressure is 138/88 and my fasting HbA1c is 6.1%","region":"Vietnam"}' | jq .
++
++# Acute emergency chest pain (strictly escalates to immediate ambulance dispatch)
++curl -s -X POST http://localhost:3000/api/health-alert/agent -H "Content-Type: application/json" \
++  -d '{"query":"Crushing chest pain radiating to left arm with shortness of breath","region":"UAE"}' | jq .
++```
++
++### 3. Full Automated Test Suite Execution
++```bash
++# Runs all 7 test suites (208+ assertions)
++npm test
++
++# Verify type safety
++npm run lint
++
++# Production build
++npm run build
++```
++
+ ---
+ 
+ ## 📄 License & Medical Disclaimer
+-- 
+2.34.1
+
