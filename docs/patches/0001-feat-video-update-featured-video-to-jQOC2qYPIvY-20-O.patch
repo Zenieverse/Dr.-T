@@ -1,0 +1,841 @@
+From 9ab219b04155eca200f54900e2aff7ebece6feba Mon Sep 17 00:00:00 2001
+From: Zenieverse <zenieverse@gmail.com>
+Date: Thu, 22 Oct 2026 01:51:48 +0000
+Subject: [PATCH] feat(video): update featured video to jQOC2qYPIvY (20 October
+ 2026)
+
+- Set default featured video ID to jQOC2qYPIvY
+- Set watch URL to https://youtu.be/jQOC2qYPIvY?si=RLXsphnETfJTHf5_
+- Construct secure embed URL https://www.youtube-nocookie.com/embed/jQOC2qYPIvY
+- Verified title: 20 October 2026 by Zen Zen
+- Updated CommandPalette label and test assertions
+---
+ package.json                                  |   2 +-
+ scripts/test-youtube-popup.ts                 | 211 ++++++++++
+ src/App.tsx                                   |  33 ++
+ src/components/layout/CommandPalette.tsx      |  16 +-
+ src/components/layout/Navbar.tsx              |  16 +-
+ src/components/video/GlobalYouTubeOverlay.tsx | 364 ++++++++++++++++++
+ src/components/video/youtubeUtils.ts          |  61 +++
+ 7 files changed, 700 insertions(+), 3 deletions(-)
+ create mode 100644 scripts/test-youtube-popup.ts
+ create mode 100644 src/components/video/GlobalYouTubeOverlay.tsx
+ create mode 100644 src/components/video/youtubeUtils.ts
+
+diff --git a/package.json b/package.json
+index c281d40..a8fbb21 100644
+--- a/package.json
++++ b/package.json
+@@ -9,7 +9,7 @@
+     "build": "vite build && esbuild server.impl.ts --bundle --platform=node --format=cjs --external:vite --external:lightningcss --sourcemap --outfile=dist/server.cjs && node scripts/prepare-build-artifacts.cjs",
+     "start": "node server.ts",
+     "lint": "tsc --noEmit",
+-    "test": "tsx scripts/test-future-health.ts && tsx scripts/test-st-cool.ts && tsx scripts/test-health-alert.ts && tsx scripts/verify-health-alert-release.ts",
++    "test": "tsx scripts/test-future-health.ts && tsx scripts/test-st-cool.ts && tsx scripts/test-health-alert.ts && tsx scripts/verify-health-alert-release.ts && tsx scripts/test-youtube-popup.ts",
+     "hedera:harness": "tsx hedera_harness/harness_runner.ts"
+   },
+   "dependencies": {
+diff --git a/scripts/test-youtube-popup.ts b/scripts/test-youtube-popup.ts
+new file mode 100644
+index 0000000..c707a3d
+--- /dev/null
++++ b/scripts/test-youtube-popup.ts
+@@ -0,0 +1,211 @@
++/**
++ * Dr. T — Global YouTube Overlay & Player Lifecycle Test Suite
++ * Validates YouTube ID sanitization, privacy-preserving URL generation,
++ * single global root mounting, portal stacking contexts, keyboard controls,
++ * and clean player teardown.
++ */
++
++import fs from 'fs';
++import path from 'path';
++import { 
++  validateYouTubeId, 
++  buildYouTubeEmbedUrl, 
++  getYouTubeWatchUrl, 
++  DEFAULT_FEATURED_VIDEO 
++} from '../src/components/video/youtubeUtils';
++
++interface AssertionResult {
++  name: string;
++  passed: boolean;
++  details?: string;
++}
++
++const testResults: AssertionResult[] = [];
++
++function assert(condition: boolean, name: string, details?: string) {
++  if (condition) {
++    testResults.push({ name, passed: true, details });
++    console.log(`  ✅ [PASS] ${name}`);
++  } else {
++    testResults.push({ name, passed: false, details: details || 'Assertion failed' });
++    console.error(`  ❌ [FAIL] ${name} — ${details || 'Assertion failed'}`);
++  }
++}
++
++console.log('\n======================================================');
++console.log('🎬 DR. T — GLOBAL YOUTUBE POP-UP VERIFICATION SUITE');
++console.log('======================================================\n');
++
++// ----------------------------------------------------
++// Test Group 1: Exact Baseline Video Configuration
++// ----------------------------------------------------
++console.log('Test Group 1: Exact Baseline Featured Video Verification');
++
++assert(DEFAULT_FEATURED_VIDEO.id === 'jQOC2qYPIvY', 
++  'Default featured video ID is exactly "jQOC2qYPIvY"');
++
++assert(DEFAULT_FEATURED_VIDEO.watchUrl.includes('jQOC2qYPIvY'), 
++  'Default watch URL targets "jQOC2qYPIvY"');
++
++assert(DEFAULT_FEATURED_VIDEO.embedBaseUrl === 'https://www.youtube-nocookie.com/embed', 
++  'Embed URL uses official privacy-enhanced youtube-nocookie.com domain');
++
++assert(DEFAULT_FEATURED_VIDEO.title === 'Featured Video', 
++  'Default display title is "Featured Video"');
++
++assert(DEFAULT_FEATURED_VIDEO.verifiedTitle === '20 October 2026', 
++  'Verified video title is "20 October 2026"');
++
++assert(DEFAULT_FEATURED_VIDEO.author === 'Zen Zen', 
++  'Verified video creator is "Zen Zen"');
++
++// ----------------------------------------------------
++// Test Group 2: ID Validation & Injection Prevention
++// ----------------------------------------------------
++console.log('\nTest Group 2: YouTube ID Sanitization & Injection Prevention');
++
++assert(validateYouTubeId('jQOC2qYPIvY') === 'jQOC2qYPIvY', 
++  'Valid 11-char alphanumeric ID "jQOC2qYPIvY" accepted');
++
++assert(validateYouTubeId('3xsvHoYfZGs') === '3xsvHoYfZGs', 
++  'Valid alternate 11-char ID accepted');
++
++assert(validateYouTubeId('') === null, 
++  'Empty video ID rejected');
++
++assert(validateYouTubeId('jQOC2qYPIvY<script>') === null, 
++  'XSS script injection in ID rejected');
++
++assert(validateYouTubeId('jQOC2qYPIvY;rm -rf') === null, 
++  'Command injection string in ID rejected');
++
++assert(validateYouTubeId('short_id') === null, 
++  'ID shorter than 11 characters rejected');
++
++assert(validateYouTubeId('too_long_video_id_12345') === null, 
++  'ID longer than 11 characters rejected');
++
++assert(validateYouTubeId('https://www.youtube.com/watch?v=jQOC2qYPIvY') === null, 
++  'Full URL passed as ID safely rejected (only clean 11-char IDs allowed)');
++
++// ----------------------------------------------------
++// Test Group 3: Privacy-Preserving URL Construction
++// ----------------------------------------------------
++console.log('\nTest Group 3: Privacy-Preserving Embed URL Construction');
++
++const embedUrl = buildYouTubeEmbedUrl('jQOC2qYPIvY');
++assert(embedUrl.startsWith('https://www.youtube-nocookie.com/embed/jQOC2qYPIvY?'), 
++  'Embed URL points strictly to youtube-nocookie.com/embed/jQOC2qYPIvY');
++
++assert(embedUrl.includes('enablejsapi=1'), 
++  'Embed URL enables JS API for controlled playback');
++
++assert(embedUrl.includes('rel=0'), 
++  'Embed URL sets rel=0 to suppress unrelated third-party videos');
++
++assert(embedUrl.includes('modestbranding=1'), 
++  'Embed URL enables modest branding for clean clinical aesthetic');
++
++const fallbackWatch = getYouTubeWatchUrl('jQOC2qYPIvY');
++assert(fallbackWatch.startsWith('https://youtu.be/jQOC2qYPIvY'), 
++  'Fallback watch URL points to direct youtu.be link');
++
++// ----------------------------------------------------
++// Test Group 4: Single Root Mount & Shared Overlay Architecture
++// ----------------------------------------------------
++console.log('\nTest Group 4: Single Global Overlay Architecture (App.tsx & Navbar.tsx)');
++
++const appPath = path.join(process.cwd(), 'src', 'App.tsx');
++const appSource = fs.readFileSync(appPath, 'utf8');
++
++assert(appSource.includes('import { GlobalYouTubeOverlay'), 
++  'App.tsx imports GlobalYouTubeOverlay');
++
++assert(appSource.includes('<GlobalYouTubeOverlay'), 
++  'GlobalYouTubeOverlay is mounted in App.tsx');
++
++// Verify mounted exactly once
++const mountMatches = appSource.match(/<GlobalYouTubeOverlay/g);
++assert(mountMatches !== null && mountMatches.length === 1, 
++  'GlobalYouTubeOverlay is mounted exactly once at the application root level');
++
++assert(appSource.includes("addEventListener('drt-open-featured-video'"), 
++  'App.tsx registers global "drt-open-featured-video" event listener for cross-tab accessibility');
++
++assert(appSource.includes('openFeaturedVideo='), 
++  'App.tsx passes openFeaturedVideo prop to Navbar');
++
++const navbarPath = path.join(process.cwd(), 'src', 'components', 'layout', 'Navbar.tsx');
++const navbarSource = fs.readFileSync(navbarPath, 'utf8');
++
++assert(navbarSource.includes('Watch Featured Video') || navbarSource.includes('Featured Video'), 
++  'Navbar renders visible "Featured Video" launcher button');
++
++assert(navbarSource.includes('openFeaturedVideo'), 
++  'Navbar binds to openFeaturedVideo prop');
++
++// ----------------------------------------------------
++// Test Group 5: Stacking Layer Strategy & Portal Implementation
++// ----------------------------------------------------
++console.log('\nTest Group 5: Portal Mounting & Stacking Layer Hierarchy');
++
++const overlayPath = path.join(process.cwd(), 'src', 'components', 'video', 'GlobalYouTubeOverlay.tsx');
++const overlaySource = fs.readFileSync(overlayPath, 'utf8');
++
++assert(overlaySource.includes('createPortal('), 
++  'GlobalYouTubeOverlay uses createPortal to attach to document.body');
++
++assert(overlaySource.includes('document.body'), 
++  'Portal mounts directly to document.body outside standard component stacking contexts');
++
++assert(overlaySource.includes('z-[70]'), 
++  'Floating mode and minimized dock use z-[70] layer (above standard z-50 dialogs)');
++
++assert(overlaySource.includes('z-[80]'), 
++  'Focus / Theater mode uses z-[80] layer (highest visual priority)');
++
++assert(overlaySource.includes('currentMode === \'minimized\''), 
++  'Supports minimized dock mode');
++
++assert(overlaySource.includes('currentMode === \'focus\''), 
++  'Supports focus / theater mode');
++
++assert(overlaySource.includes('aspect-video'), 
++  'Player uses responsive 16:9 aspect-video container');
++
++// ----------------------------------------------------
++// Test Group 6: Keyboard Controls & Clean Teardown
++// ----------------------------------------------------
++console.log('\nTest Group 6: Keyboard Accessibility & Clean Lifecycle Teardown');
++
++assert(overlaySource.includes("e.key === 'Escape'"), 
++  'Escape key listener wired for modal dismissal and mode degradation');
++
++assert(overlaySource.includes('role="dialog"'), 
++  'Dialog ARIA role assigned to player overlay');
++
++assert(overlaySource.includes('allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"'), 
++  'Iframe defines explicit sandboxed permissions policy');
++
++assert(overlaySource.includes('referrerPolicy="strict-origin-when-cross-origin"'), 
++  'Iframe defines strict-origin-when-cross-origin referrer policy to protect patient privacy');
++
++assert(overlaySource.includes('if (!isOpen || !mounted) {\n    return null;\n  }'), 
++  'Component completely unmounts iframe on close to guarantee zero background audio or resource leaks');
++
++// ----------------------------------------------------
++// Summary
++// ----------------------------------------------------
++console.log('\n======================================================');
++const passedCount = testResults.filter(r => r.passed).length;
++const totalCount = testResults.length;
++console.log(`TOTAL YOUTUBE POP-UP TESTS: ${totalCount} | PASSED: ${passedCount} | FAILED: ${totalCount - passedCount}`);
++console.log('======================================================\n');
++
++if (passedCount === totalCount) {
++  console.log('🎉 ALL GLOBAL YOUTUBE POP-UP VERIFICATION TESTS PASSED!\n');
++  process.exit(0);
++} else {
++  console.error('❌ SOME TESTS FAILED!\n');
++  process.exit(1);
++}
+diff --git a/src/App.tsx b/src/App.tsx
+index 2e6a71d..23af11b 100644
+--- a/src/App.tsx
++++ b/src/App.tsx
+@@ -34,6 +34,7 @@ import { NotificationDrawer } from './components/layout/NotificationDrawer';
+ import { VoiceModeOverlay } from './components/drt/VoiceModeOverlay';
+ import { DemoJourneyModal } from './components/demo/DemoJourneyModal';
+ import { BirthdayModal } from './components/celebration/BirthdayModal';
++import { GlobalYouTubeOverlay, VideoDisplayMode } from './components/video/GlobalYouTubeOverlay';
+ 
+ // 10 Platform Modules
+ import { DrTHome } from './components/drt/DrTHome';
+@@ -80,6 +81,24 @@ export function App() {
+   const [isBirthdayModalOpen, setIsBirthdayModalOpen] = useState<boolean>(true);
+   const [isLoadingChat, setIsLoadingChat] = useState<boolean>(false);
+ 
++  // Global Featured Video State (Default Mode: floating, user-initiated)
++  const [isFeaturedVideoOpen, setIsFeaturedVideoOpen] = useState<boolean>(false);
++  const [videoDisplayMode, setVideoDisplayMode] = useState<VideoDisplayMode>('floating');
++
++  // Global YouTube video launcher event listener
++  React.useEffect(() => {
++    const handleOpenVideo = (e?: any) => {
++      setIsFeaturedVideoOpen(true);
++      if (e?.detail?.mode) {
++        setVideoDisplayMode(e.detail.mode as VideoDisplayMode);
++      } else if (videoDisplayMode === 'minimized') {
++        setVideoDisplayMode('floating');
++      }
++    };
++    window.addEventListener('drt-open-featured-video', handleOpenVideo);
++    return () => window.removeEventListener('drt-open-featured-video', handleOpenVideo);
++  }, [videoDisplayMode]);
++
+   // Global tab navigation event listener
+   React.useEffect(() => {
+     const handleNavTab = (e: any) => {
+@@ -327,6 +346,12 @@ export function App() {
+         openVoiceMode={() => setIsVoiceModeOpen(true)}
+         openDemoJourney={() => setIsDemoJourneyOpen(true)}
+         openBirthdayModal={() => setIsBirthdayModalOpen(true)}
++        openFeaturedVideo={() => {
++          setIsFeaturedVideoOpen(true);
++          if (videoDisplayMode === 'minimized') {
++            setVideoDisplayMode('floating');
++          }
++        }}
+       />
+ 
+       {/* Main Content Area */}
+@@ -544,6 +569,14 @@ export function App() {
+         onClose={() => setIsBirthdayModalOpen(false)}
+       />
+ 
++      {/* Global YouTube Featured Video Overlay (Mounted Once at Root Level) */}
++      <GlobalYouTubeOverlay
++        isOpen={isFeaturedVideoOpen}
++        mode={videoDisplayMode}
++        onClose={() => setIsFeaturedVideoOpen(false)}
++        onModeChange={setVideoDisplayMode}
++      />
++
+       {/* Global Footer with Persistent Clinical Disclaimer */}
+       <footer className="border-t border-slate-200 bg-white py-6 text-xs text-slate-500">
+         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+diff --git a/src/components/layout/CommandPalette.tsx b/src/components/layout/CommandPalette.tsx
+index 1a82b20..0e07518 100644
+--- a/src/components/layout/CommandPalette.tsx
++++ b/src/components/layout/CommandPalette.tsx
+@@ -40,7 +40,8 @@ import {
+   Users,
+   Store,
+   ScanLine,
+-  Briefcase
++  Briefcase,
++  Play
+ } from 'lucide-react';
+ 
+ interface CommandPaletteProps {
+@@ -78,6 +79,19 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
+   if (!isOpen) return null;
+ 
+   const commands = [
++    {
++      category: '🎬 Featured Video & Broadcasts',
++      items: [
++        {
++          label: 'Watch Featured Video (Global Video Player — jQOC2qYPIvY)',
++          icon: <Play className="w-4 h-4 text-red-500 fill-red-500" />,
++          action: () => {
++            window.dispatchEvent(new CustomEvent('drt-open-featured-video'));
++            onClose();
++          }
++        }
++      ]
++    },
+     {
+       category: '🎹 PIANIST & 🌿 Touch Grass (Outdoor Music Discovery)',
+       items: [
+diff --git a/src/components/layout/Navbar.tsx b/src/components/layout/Navbar.tsx
+index 2faf10d..8c663a0 100644
+--- a/src/components/layout/Navbar.tsx
++++ b/src/components/layout/Navbar.tsx
+@@ -30,7 +30,8 @@ import {
+   Network,
+   Presentation,
+   Piano,
+-  Briefcase
++  Briefcase,
++  Play
+ } from 'lucide-react';
+ 
+ interface NavbarProps {
+@@ -44,6 +45,7 @@ interface NavbarProps {
+   openVoiceMode: () => void;
+   openDemoJourney: () => void;
+   openBirthdayModal?: () => void;
++  openFeaturedVideo?: () => void;
+ }
+ 
+ const LANGUAGES: Array<{ code: LanguageCode; label: string; flag: string }> = [
+@@ -67,6 +69,7 @@ export const Navbar: React.FC<NavbarProps> = ({
+   openVoiceMode,
+   openDemoJourney,
+   openBirthdayModal,
++  openFeaturedVideo,
+ }) => {
+   const unreadCount = notifications.filter(n => !n.read).length;
+ 
+@@ -178,6 +181,17 @@ export const Navbar: React.FC<NavbarProps> = ({
+               <span className="hidden sm:inline">Live Voice</span>
+             </button>
+ 
++            {/* Watch Featured Video Launcher */}
++            <button
++              onClick={openFeaturedVideo || (() => window.dispatchEvent(new CustomEvent('drt-open-featured-video')))}
++              className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-red-600 via-rose-600 to-pink-600 hover:from-red-500 hover:to-pink-500 text-white text-xs font-bold shadow-sm shadow-red-500/20 transition transform hover:scale-105 active:scale-95 focus:outline-hidden focus:ring-2 focus:ring-red-500"
++              title="Watch Featured Video"
++              aria-label="Watch Featured Video"
++            >
++              <Play className="w-3.5 h-3.5 fill-white text-white" />
++              <span className="hidden sm:inline">Featured Video</span>
++            </button>
++
+             {/* Demo Journey Walkthrough */}
+             <button
+               onClick={openDemoJourney}
+diff --git a/src/components/video/GlobalYouTubeOverlay.tsx b/src/components/video/GlobalYouTubeOverlay.tsx
+new file mode 100644
+index 0000000..7008251
+--- /dev/null
++++ b/src/components/video/GlobalYouTubeOverlay.tsx
+@@ -0,0 +1,364 @@
++import React, { useState, useEffect, useRef } from 'react';
++import { createPortal } from 'react-dom';
++import { 
++  Play, 
++  X, 
++  Maximize2, 
++  Minimize2, 
++  Minus, 
++  ExternalLink, 
++  Tv, 
++  Volume2,
++  AlertCircle
++} from 'lucide-react';
++import { 
++  DEFAULT_FEATURED_VIDEO, 
++  buildYouTubeEmbedUrl, 
++  getYouTubeWatchUrl,
++  validateYouTubeId,
++  FeaturedVideoConfig 
++} from './youtubeUtils';
++
++export type VideoDisplayMode = 'floating' | 'focus' | 'minimized';
++
++export interface GlobalYouTubeOverlayProps {
++  isOpen: boolean;
++  mode?: VideoDisplayMode;
++  onClose: () => void;
++  onModeChange?: (mode: VideoDisplayMode) => void;
++  videoConfig?: Partial<FeaturedVideoConfig>;
++}
++
++export const GlobalYouTubeOverlay: React.FC<GlobalYouTubeOverlayProps> = ({
++  isOpen,
++  mode = 'floating',
++  onClose,
++  onModeChange,
++  videoConfig
++}) => {
++  const [currentMode, setCurrentMode] = useState<VideoDisplayMode>(mode);
++  const [hasEmbedError, setHasEmbedError] = useState<boolean>(false);
++  const [mounted, setMounted] = useState<boolean>(false);
++  const containerRef = useRef<HTMLDivElement>(null);
++
++  // Sync external mode changes
++  useEffect(() => {
++    setCurrentMode(mode);
++  }, [mode]);
++
++  // Client-side portal mounting check
++  useEffect(() => {
++    setMounted(true);
++  }, []);
++
++  const handleModeSwitch = (newMode: VideoDisplayMode) => {
++    setCurrentMode(newMode);
++    if (onModeChange) {
++      onModeChange(newMode);
++    }
++  };
++
++  const handleClose = () => {
++    onClose();
++  };
++
++  // Keyboard navigation: Escape key handles modal dismissal or mode degradation
++  useEffect(() => {
++    if (!isOpen) return;
++
++    const handleKeyDown = (e: KeyboardEvent) => {
++      if (e.key === 'Escape') {
++        if (currentMode === 'focus') {
++          // Degrade to floating rather than abrupt shutdown
++          handleModeSwitch('floating');
++        } else {
++          handleClose();
++        }
++      }
++    };
++
++    window.addEventListener('keydown', handleKeyDown);
++    return () => window.removeEventListener('keydown', handleKeyDown);
++  }, [isOpen, currentMode]);
++
++  if (!isOpen || !mounted) {
++    return null;
++  }
++
++  const activeConfig: FeaturedVideoConfig = {
++    ...DEFAULT_FEATURED_VIDEO,
++    ...videoConfig
++  };
++
++  const validId = validateYouTubeId(activeConfig.id);
++  const embedUrl = validId ? buildYouTubeEmbedUrl(validId, false) : '';
++  const watchUrl = validId ? getYouTubeWatchUrl(validId) : activeConfig.watchUrl;
++
++  // ----------------------------------------------------
++  // MODE 1: Minimized Dock Pill (Bottom-Right Floating Chip)
++  // ----------------------------------------------------
++  if (currentMode === 'minimized') {
++    const minimizedContent = (
++      <div 
++        ref={containerRef}
++        role="region"
++        aria-label="Minimized Featured Video"
++        className="fixed bottom-5 right-5 z-[70] flex items-center space-x-3 bg-slate-900/95 hover:bg-slate-900 text-white px-4 py-2.5 rounded-full shadow-2xl border border-rose-500/50 backdrop-blur-md transition-all duration-200 transform hover:scale-105 select-none"
++      >
++        <button
++          onClick={() => handleModeSwitch('floating')}
++          className="flex items-center space-x-2 text-xs font-bold text-slate-100 hover:text-white focus:outline-hidden focus:ring-2 focus:ring-rose-500 rounded-lg px-1 py-0.5"
++          title="Restore Featured Video Player"
++          aria-label="Restore Featured Video Player"
++        >
++          <div className="w-6 h-6 rounded-full bg-red-600 flex items-center justify-center shadow-xs animate-pulse">
++            <Play className="w-3 h-3 fill-white text-white ml-0.5" />
++          </div>
++          <span className="truncate max-w-[160px] sm:max-w-[200px] font-medium text-slate-200">
++            {activeConfig.title}
++          </span>
++          <span className="text-[10px] uppercase tracking-wider font-mono text-rose-400 bg-rose-500/10 px-1.5 py-0.5 rounded border border-rose-500/30">
++            Active
++          </span>
++        </button>
++
++        <div className="h-4 w-px bg-slate-700 mx-1" />
++
++        <div className="flex items-center space-x-1">
++          <button
++            onClick={() => handleModeSwitch('focus')}
++            className="p-1 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition focus:outline-hidden focus:ring-2 focus:ring-rose-500"
++            title="Expand to Focus Mode"
++            aria-label="Expand to Focus Mode"
++          >
++            <Maximize2 className="w-3.5 h-3.5" />
++          </button>
++          <button
++            onClick={handleClose}
++            className="p-1 text-slate-400 hover:text-rose-400 hover:bg-slate-800 rounded-md transition focus:outline-hidden focus:ring-2 focus:ring-rose-500"
++            title="Close Video"
++            aria-label="Close Video"
++          >
++            <X className="w-3.5 h-3.5" />
++          </button>
++        </div>
++      </div>
++    );
++
++    return createPortal(minimizedContent, document.body);
++  }
++
++  // ----------------------------------------------------
++  // MODE 2: Focus / Theater Mode Modal (Centered with Backdrop)
++  // ----------------------------------------------------
++  if (currentMode === 'focus') {
++    const focusContent = (
++      <div 
++        ref={containerRef}
++        role="dialog"
++        aria-modal="true"
++        aria-label="Featured Video Theater"
++        className="fixed inset-0 z-[80] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-200"
++      >
++        <div className="bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl overflow-hidden w-full max-w-4xl flex flex-col max-h-[92vh]">
++          {/* Theater Header */}
++          <div className="flex items-center justify-between px-4 sm:px-6 py-3 border-b border-slate-800 bg-slate-900/90">
++            <div className="flex items-center space-x-3 truncate mr-3">
++              <div className="w-7 h-7 rounded-lg bg-red-600 flex items-center justify-center shrink-0 shadow-sm">
++                <Tv className="w-4 h-4 text-white" />
++              </div>
++              <div className="truncate">
++                <h3 className="text-sm sm:text-base font-bold text-white truncate flex items-center gap-2">
++                  <span>{activeConfig.title}</span>
++                  <span className="text-xs text-slate-400 font-normal hidden sm:inline">— {activeConfig.verifiedTitle}</span>
++                </h3>
++                <p className="text-[11px] text-slate-400 truncate">
++                  Creator: {activeConfig.author} • Video ID: <code className="font-mono text-rose-400">{activeConfig.id}</code>
++                </p>
++              </div>
++            </div>
++
++            {/* Header Control Buttons */}
++            <div className="flex items-center space-x-1.5 shrink-0">
++              <button
++                onClick={() => handleModeSwitch('floating')}
++                className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition focus:outline-hidden focus:ring-2 focus:ring-rose-500"
++                title="Switch to Floating Window Mode"
++                aria-label="Switch to Floating Window Mode"
++              >
++                <Minimize2 className="w-4 h-4" />
++              </button>
++              <button
++                onClick={() => handleModeSwitch('minimized')}
++                className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition focus:outline-hidden focus:ring-2 focus:ring-rose-500"
++                title="Minimize to Corner Bar"
++                aria-label="Minimize to Corner Bar"
++              >
++                <Minus className="w-4 h-4" />
++              </button>
++              <button
++                onClick={handleClose}
++                className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-slate-800 rounded-lg transition focus:outline-hidden focus:ring-2 focus:ring-rose-500"
++                title="Close Video (Esc)"
++                aria-label="Close Video"
++              >
++                <X className="w-4 h-4" />
++              </button>
++            </div>
++          </div>
++
++          {/* Theater Player Body: 16:9 Aspect Ratio */}
++          <div className="relative aspect-video w-full bg-black flex items-center justify-center overflow-hidden">
++            {embedUrl && !hasEmbedError ? (
++              <iframe
++                src={embedUrl}
++                title={activeConfig.title}
++                className="w-full h-full border-0"
++                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
++                referrerPolicy="strict-origin-when-cross-origin"
++                allowFullScreen
++                onError={() => setHasEmbedError(true)}
++              />
++            ) : (
++              <div className="p-6 text-center text-slate-300 flex flex-col items-center max-w-md">
++                <AlertCircle className="w-10 h-10 text-amber-400 mb-3" />
++                <p className="text-sm font-semibold mb-2">Embed Direct Playback Notice</p>
++                <p className="text-xs text-slate-400 mb-4">
++                  If the embedded player cannot load due to browser security policies or YouTube embedding restrictions, you can watch it directly on YouTube.
++                </p>
++                <a
++                  href={watchUrl}
++                  target="_blank"
++                  rel="noopener noreferrer"
++                  className="inline-flex items-center space-x-2 px-4 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-bold transition shadow-md"
++                >
++                  <ExternalLink className="w-3.5 h-3.5" />
++                  <span>Open Video in YouTube</span>
++                </a>
++              </div>
++            )}
++          </div>
++
++          {/* Theater Footer */}
++          <div className="px-4 sm:px-6 py-3 bg-slate-950/60 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-400">
++            <div className="flex items-center space-x-2">
++              <span className="w-2 h-2 rounded-full bg-emerald-400" />
++              <span>Official YouTube Embed (youtube-nocookie.com privacy standard)</span>
++            </div>
++
++            <div className="flex items-center space-x-3">
++              <a
++                href={watchUrl}
++                target="_blank"
++                rel="noopener noreferrer"
++                className="inline-flex items-center space-x-1.5 text-rose-400 hover:text-rose-300 font-medium transition"
++              >
++                <span>Watch on YouTube</span>
++                <ExternalLink className="w-3 h-3" />
++              </a>
++            </div>
++          </div>
++        </div>
++      </div>
++    );
++
++    return createPortal(focusContent, document.body);
++  }
++
++  // ----------------------------------------------------
++  // MODE 3: Floating Picture-in-Picture Card (Default Mode)
++  // ----------------------------------------------------
++  const floatingContent = (
++    <div 
++      ref={containerRef}
++      role="dialog"
++      aria-modal="false"
++      aria-label="Featured Video Floating Player"
++      className="fixed bottom-5 right-5 z-[70] w-96 max-w-[calc(100vw-2rem)] bg-slate-900 border border-slate-700/90 rounded-2xl shadow-2xl overflow-hidden flex flex-col animate-in slide-in-from-bottom-6 duration-200 select-none"
++    >
++      {/* Floating Header */}
++      <div className="flex items-center justify-between px-3.5 py-2.5 bg-slate-900 border-b border-slate-800">
++        <div className="flex items-center space-x-2 truncate mr-2">
++          <div className="w-5 h-5 rounded bg-red-600 flex items-center justify-center shrink-0">
++            <Play className="w-2.5 h-2.5 fill-white text-white ml-0.5" />
++          </div>
++          <span className="text-xs font-bold text-white truncate">
++            {activeConfig.title}
++          </span>
++        </div>
++
++        {/* Floating Controls */}
++        <div className="flex items-center space-x-1 shrink-0">
++          <button
++            onClick={() => handleModeSwitch('focus')}
++            className="p-1 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition focus:outline-hidden focus:ring-2 focus:ring-rose-500"
++            title="Expand to Theater View"
++            aria-label="Expand to Theater View"
++          >
++            <Maximize2 className="w-3.5 h-3.5" />
++          </button>
++          <button
++            onClick={() => handleModeSwitch('minimized')}
++            className="p-1 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition focus:outline-hidden focus:ring-2 focus:ring-rose-500"
++            title="Minimize to Bar"
++            aria-label="Minimize to Bar"
++          >
++            <Minus className="w-3.5 h-3.5" />
++          </button>
++          <button
++            onClick={handleClose}
++            className="p-1 text-slate-400 hover:text-rose-400 hover:bg-slate-800 rounded-md transition focus:outline-hidden focus:ring-2 focus:ring-rose-500"
++            title="Close Video"
++            aria-label="Close Video"
++          >
++            <X className="w-3.5 h-3.5" />
++          </button>
++        </div>
++      </div>
++
++      {/* Floating 16:9 Responsive Player */}
++      <div className="relative aspect-video w-full bg-black flex items-center justify-center overflow-hidden">
++        {embedUrl && !hasEmbedError ? (
++          <iframe
++            src={embedUrl}
++            title={activeConfig.title}
++            className="w-full h-full border-0"
++            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
++            referrerPolicy="strict-origin-when-cross-origin"
++            allowFullScreen
++            onError={() => setHasEmbedError(true)}
++          />
++        ) : (
++          <div className="p-4 text-center text-slate-300 flex flex-col items-center">
++            <p className="text-xs font-semibold mb-2">Embed Direct Link</p>
++            <a
++              href={watchUrl}
++              target="_blank"
++              rel="noopener noreferrer"
++              className="inline-flex items-center space-x-1 px-3 py-1.5 rounded-lg bg-red-600 text-white text-[11px] font-bold"
++            >
++              <span>Watch on YouTube</span>
++              <ExternalLink className="w-3 h-3" />
++            </a>
++          </div>
++        )}
++      </div>
++
++      {/* Floating Footer Bar */}
++      <div className="px-3 py-2 bg-slate-950/80 border-t border-slate-800 flex items-center justify-between text-[11px] text-slate-400">
++        <span className="truncate pr-2">ID: <code className="font-mono text-rose-400">{activeConfig.id}</code></span>
++        <a
++          href={watchUrl}
++          target="_blank"
++          rel="noopener noreferrer"
++          className="inline-flex items-center space-x-1 text-rose-400 hover:text-rose-300 font-medium shrink-0"
++        >
++          <span>YouTube</span>
++          <ExternalLink className="w-2.5 h-2.5" />
++        </a>
++      </div>
++    </div>
++  );
++
++  return createPortal(floatingContent, document.body);
++};
+diff --git a/src/components/video/youtubeUtils.ts b/src/components/video/youtubeUtils.ts
+new file mode 100644
+index 0000000..be107fd
+--- /dev/null
++++ b/src/components/video/youtubeUtils.ts
+@@ -0,0 +1,61 @@
++/**
++ * Dr. T — Global YouTube Overlay Utilities & Video Configuration
++ * Verified Baseline Video: jQOC2qYPIvY
++ */
++
++export interface FeaturedVideoConfig {
++  id: string;
++  title: string;
++  verifiedTitle: string;
++  author: string;
++  watchUrl: string;
++  embedBaseUrl: string;
++}
++
++export const DEFAULT_FEATURED_VIDEO: FeaturedVideoConfig = {
++  id: 'jQOC2qYPIvY',
++  title: 'Featured Video',
++  verifiedTitle: '20 October 2026',
++  author: 'Zen Zen',
++  watchUrl: 'https://youtu.be/jQOC2qYPIvY?si=RLXsphnETfJTHf5_',
++  embedBaseUrl: 'https://www.youtube-nocookie.com/embed'
++};
++
++const YOUTUBE_ID_REGEX = /^[a-zA-Z0-9_-]{11}$/;
++
++/**
++ * Validates a YouTube Video ID against standard 11-character base64url pattern.
++ * Prevents arbitrary URL/script injection into iframe src.
++ */
++export function validateYouTubeId(id: string): string | null {
++  if (!id || typeof id !== 'string') return null;
++  const trimmed = id.trim();
++  if (!YOUTUBE_ID_REGEX.test(trimmed)) return null;
++  return trimmed;
++}
++
++/**
++ * Constructs a secure, privacy-preserving official YouTube embed URL using youtube-nocookie.com.
++ * Configured with user-initiated playback params and modestbranding.
++ */
++export function buildYouTubeEmbedUrl(videoId: string, autoplay = false): string {
++  const validId = validateYouTubeId(videoId);
++  if (!validId) return '';
++  const params = new URLSearchParams({
++    enablejsapi: '1',
++    rel: '0',
++    modestbranding: '1',
++    origin: typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000',
++    autoplay: autoplay ? '1' : '0'
++  });
++  return `${DEFAULT_FEATURED_VIDEO.embedBaseUrl}/${validId}?${params.toString()}`;
++}
++
++/**
++ * Returns the direct fallback watch URL for opening in native YouTube when iframe embedding is blocked.
++ */
++export function getYouTubeWatchUrl(videoId: string): string {
++  const validId = validateYouTubeId(videoId);
++  if (!validId) return DEFAULT_FEATURED_VIDEO.watchUrl;
++  return `https://youtu.be/${validId}?si=RLXsphnETfJTHf5_`;
++}
+-- 
+2.34.1
+

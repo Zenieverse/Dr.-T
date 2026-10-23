@@ -34,6 +34,7 @@ import { NotificationDrawer } from './components/layout/NotificationDrawer';
 import { VoiceModeOverlay } from './components/drt/VoiceModeOverlay';
 import { DemoJourneyModal } from './components/demo/DemoJourneyModal';
 import { BirthdayModal } from './components/celebration/BirthdayModal';
+import { GlobalYouTubeOverlay, VideoDisplayMode } from './components/video/GlobalYouTubeOverlay';
 
 // 10 Platform Modules
 import { DrTHome } from './components/drt/DrTHome';
@@ -61,6 +62,7 @@ import { HederaCommonsPage as HederaCommonsHome } from './modules/hedera/pages/H
 import { PianistApp } from './components/pianist/PianistApp';
 import { MicroBizApp } from './components/microbiz/MicroBizApp';
 import { FutureHealthChallengeModule } from './components/health/FutureHealthChallengeModule';
+import { HealthAlertCompanionModule } from './components/healthalert/HealthAlertCompanionModule';
 import { StCoolModule } from './components/stcool/StCoolModule';
 import { HealthAlertModule } from './components/healthalert/HealthAlertModule';
 import { SettingsPage } from './components/settings/SettingsPage';
@@ -79,6 +81,24 @@ export function App() {
   const [isDemoJourneyOpen, setIsDemoJourneyOpen] = useState<boolean>(false);
   const [isBirthdayModalOpen, setIsBirthdayModalOpen] = useState<boolean>(true);
   const [isLoadingChat, setIsLoadingChat] = useState<boolean>(false);
+
+  // Global Featured Video State (Default Mode: floating, user-initiated)
+  const [isFeaturedVideoOpen, setIsFeaturedVideoOpen] = useState<boolean>(false);
+  const [videoDisplayMode, setVideoDisplayMode] = useState<VideoDisplayMode>('floating');
+
+  // Global YouTube video launcher event listener
+  React.useEffect(() => {
+    const handleOpenVideo = (e?: any) => {
+      setIsFeaturedVideoOpen(true);
+      if (e?.detail?.mode) {
+        setVideoDisplayMode(e.detail.mode as VideoDisplayMode);
+      } else if (videoDisplayMode === 'minimized') {
+        setVideoDisplayMode('floating');
+      }
+    };
+    window.addEventListener('drt-open-featured-video', handleOpenVideo);
+    return () => window.removeEventListener('drt-open-featured-video', handleOpenVideo);
+  }, [videoDisplayMode]);
 
   // Global tab navigation event listener
   React.useEffect(() => {
@@ -327,6 +347,12 @@ export function App() {
         openVoiceMode={() => setIsVoiceModeOpen(true)}
         openDemoJourney={() => setIsDemoJourneyOpen(true)}
         openBirthdayModal={() => setIsBirthdayModalOpen(true)}
+        openFeaturedVideo={() => {
+          setIsFeaturedVideoOpen(true);
+          if (videoDisplayMode === 'minimized') {
+            setVideoDisplayMode('floating');
+          }
+        }}
       />
 
       {/* Main Content Area */}
@@ -484,11 +510,11 @@ export function App() {
         )}
 
         {activeTab === 'stcool' && (
-          <StCoolModule setActiveTab={setActiveTab} />
+          <HealthAlertCompanionModule setActiveTab={setActiveTab} />
         )}
 
         {activeTab === 'healthalert' && (
-          <HealthAlertModule setActiveTab={setActiveTab} />
+          <HealthAlertCompanionModule setActiveTab={setActiveTab} />
         )}
 
         {activeTab === 'gcp' && (
@@ -542,6 +568,14 @@ export function App() {
       <BirthdayModal
         isOpen={isBirthdayModalOpen}
         onClose={() => setIsBirthdayModalOpen(false)}
+      />
+
+      {/* Global YouTube Featured Video Overlay (Mounted Once at Root Level) */}
+      <GlobalYouTubeOverlay
+        isOpen={isFeaturedVideoOpen}
+        mode={videoDisplayMode}
+        onClose={() => setIsFeaturedVideoOpen(false)}
+        onModeChange={setVideoDisplayMode}
       />
 
       {/* Global Footer with Persistent Clinical Disclaimer */}

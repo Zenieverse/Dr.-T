@@ -1,0 +1,599 @@
+From 962fc360329a111e647ef2854cba64e7a266e12c Mon Sep 17 00:00:00 2001
+From: Zenieverse <zenieverse@gmail.com>
+Date: Fri, 23 Oct 2026 00:30:03 +0000
+Subject: [PATCH] build: bundle MCP endpoints and agent orchestration into
+ server.cjs
+
+---
+ server.cjs | 561 +++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 561 insertions(+)
+
+diff --git a/server.cjs b/server.cjs
+index badaecf..f22417a 100644
+--- a/server.cjs
++++ b/server.cjs
+@@ -172393,6 +172393,42 @@ Output concise, clinically accurate bullet points.`;
+ // src/server/stCoolService.ts
+ var ST_COOL_DISCLAIMER = "DISCLAIMER: Non-Diagnostic Clinical Decision Support. HealthAlert Companion is an assistive health navigation and early warning screening engine designed to help people recognize warning signs and prepare for professional medical assessment. It does NOT provide formal medical diagnosis, prescribe treatments, or serve as an emergency response service. Always seek the advice of a qualified healthcare professional.";
+ var ST_COOL_EMERGENCY_NOTICE = "EMERGENCY DIRECTIVE: If you or someone you are assisting is experiencing severe chest pain, sudden numbness/weakness, severe shortness of breath, loss of consciousness, or other life-threatening symptoms, call 911 or your local emergency number immediately (in Vietnam, call 115 for Emergency Medical Service; in Europe, call 112; in the UAE, call 998/999).";
++function getEmergencyGuidanceByRegion(region) {
++  const reg = (region || "").toLowerCase();
++  if (reg.includes("vietnam") || reg.includes("vn") || reg === "vi") {
++    return {
++      ambulanceNumber: "115",
++      regionalTitle: "Vietnam Emergency Medical Dispatch (C\u1EA5p c\u1EE9u Y t\u1EBF 115)",
++      emergencyInstructions: "T\u1EA1i Vi\u1EC7t Nam, g\u1ECDi ngay s\u1ED1 115 (C\u1EA5p c\u1EE9u y t\u1EBF) ho\u1EB7c 114 (C\u1EE9u n\u1EA1n c\u1EE9u h\u1ED9) n\u1EBFu c\xF3 d\u1EA5u hi\u1EC7u c\u1EA5p c\u1EE9u nguy k\u1ECBch (\u0111au t\u1EE9c ng\u1EF1c, \u0111\u1ED9t qu\u1EF5 m\xE9o mi\u1EC7ng/y\u1EBFu li\u1EC7t, kh\xF3 th\u1EDF c\u1EA5p t\xEDnh, ng\u1EA5t x\u1EC9u), ho\u1EB7c \u0111\u1EBFn khoa c\u1EA5p c\u1EE9u b\u1EC7nh vi\u1EC7n g\u1EA7n nh\u1EA5t."
++    };
++  }
++  if (reg.includes("uae") || reg.includes("abu dhabi") || reg.includes("dubai")) {
++    return {
++      ambulanceNumber: "998",
++      regionalTitle: "UAE National Ambulance (998)",
++      emergencyInstructions: "In the UAE, dial 998 for National Ambulance or 999 for emergency services, or proceed to the nearest emergency department immediately."
++    };
++  }
++  if (reg.includes("uk") || reg.includes("united kingdom") || reg.includes("britain")) {
++    return {
++      ambulanceNumber: "999",
++      regionalTitle: "UK Emergency Services (999)",
++      emergencyInstructions: "In the UK, dial 999 or proceed to the nearest Accident & Emergency (A&E) department immediately."
++    };
++  }
++  if (reg.includes("europe") || reg.includes("eu")) {
++    return {
++      ambulanceNumber: "112",
++      regionalTitle: "European Emergency Services (112)",
++      emergencyInstructions: "In Europe, dial 112 or proceed to the nearest emergency medical department immediately."
++    };
++  }
++  return {
++    ambulanceNumber: "911",
++    regionalTitle: "Emergency Medical Services (911 / 115)",
++    emergencyInstructions: "Call 911 in the US/Canada, 115 in Vietnam, 112 in Europe, or contact your local emergency medical service immediately."
++  };
++}
+ var ST_COOL_EVIDENCE_REGISTRY = [
+   {
+     id: "ev-aha-htn-2024",
+@@ -173028,6 +173064,410 @@ Output concise text.`;
+   };
+ }
+ 
++// src/server/healthAlertMcpServer.ts
++var HEALTH_ALERT_MCP_TOOLS = [
++  {
++    name: "check_safety_escalation",
++    description: "Evaluates emergency red-flag warning signs (chest pain, stroke signs, respiratory distress) using deterministic rules independent of AI generation. Safety rules strictly supersede all AI output.",
++    inputSchema: {
++      type: "object",
++      properties: {
++        symptoms: {
++          type: "array",
++          items: { type: "string" },
++          description: "Observed patient symptoms and sensations (e.g. chest pain, shortness of breath, fatigue)."
++        },
++        bloodPressure: {
++          type: "string",
++          description: "Blood pressure in systolic/diastolic format (e.g. 138/88 or 185/110)."
++        },
++        heartRate: {
++          type: "number",
++          description: "Resting heart rate in beats per minute."
++        },
++        region: {
++          type: "string",
++          description: "User country/region for localized emergency dispatch (e.g. Vietnam, UAE, UK, Europe, US)."
++        }
++      },
++      required: ["symptoms"]
++    }
++  },
++  {
++    name: "explain_health_alert",
++    description: "Explains health observations, wearable biometrics, or lab findings in plain language with epistemic uncertainty bounds. Distinguishes supplied facts from interpretations without hallucinating missing context.",
++    inputSchema: {
++      type: "object",
++      properties: {
++        alert: {
++          type: "string",
++          description: "User-provided observation, alert text, or health concern."
++        },
++        measurement: {
++          type: "number",
++          description: "Optional numeric measurement value."
++        },
++        unit: {
++          type: "string",
++          description: "Optional unit of measurement (e.g. ng/mL, mmHg, %, mg/dL)."
++        },
++        referenceRange: {
++          type: "string",
++          description: "Optional normal clinical reference range if known."
++        },
++        symptoms: {
++          type: "array",
++          items: { type: "string" },
++          description: "Associated patient symptoms."
++        },
++        context: {
++          type: "string",
++          description: "Clinical context or lifestyle factors (e.g. marathon runner, sedentary office worker)."
++        }
++      },
++      required: ["alert"]
++    }
++  },
++  {
++    name: "prepare_follow_up_questions",
++    description: "Generates concise, non-diagnostic physician consultation questions and a pre-appointment checklist based on supplied health signals.",
++    inputSchema: {
++      type: "object",
++      properties: {
++        primaryConcern: {
++          type: "string",
++          description: "Main health question or symptom."
++        },
++        triageTier: {
++          type: "string",
++          enum: ["ROUTINE_WELLNESS", "PLANNED_CLINICAL_ASSESSMENT", "URGENT_EVALUATION", "EMERGENT_ESCALATION"],
++          description: "Evaluated triage tier."
++        },
++        findings: {
++          type: "array",
++          items: { type: "string" },
++          description: "Key clinical or biometric findings identified."
++        }
++      },
++      required: ["primaryConcern"]
++    }
++  }
++];
++function executeCheckSafetyEscalation(args) {
++  const symptoms = Array.isArray(args.symptoms) ? args.symptoms : [];
++  const bloodPressure = args.bloodPressure || "";
++  const heartRate = typeof args.heartRate === "number" ? args.heartRate : void 0;
++  const region = args.region || "Vietnam";
++  const triggeredRules = [];
++  let isEmergency = false;
++  let triageTier = "ROUTINE_WELLNESS";
++  let actionSummary = "Routine health orientation and preventative wellness.";
++  let urgencyTimeline = "Routine annual check-up or non-urgent outpatient review.";
++  const lowerSymptoms = symptoms.map((s30) => s30.toLowerCase());
++  const redFlags = [
++    "crushing chest pain",
++    "chest pain",
++    "chest pressure",
++    "radiating to left arm",
++    "left arm pain",
++    "stroke",
++    "facial droop",
++    "arm weakness",
++    "slurred speech",
++    "loss of consciousness",
++    "syncope",
++    "severe shortness of breath",
++    "respiratory distress",
++    "diaphoresis"
++  ];
++  const matchedRedFlags = redFlags.filter((rf) => lowerSymptoms.some((s30) => s30.includes(rf)));
++  if (matchedRedFlags.length > 0) {
++    isEmergency = true;
++    triageTier = "EMERGENT_ESCALATION";
++    actionSummary = `CRITICAL WARNING: Acute red-flag warning signs detected (${matchedRedFlags.join(", ")}). Immediate emergency evaluation is required.`;
++    urgencyTimeline = "IMMEDIATE \u2014 Call emergency medical dispatch now. Do not delay.";
++    triggeredRules.push(`CRITICAL_RED_FLAG_SYMPTOM: ${matchedRedFlags.join(", ")}`);
++  }
++  if (bloodPressure) {
++    const parts = bloodPressure.split("/").map((p5) => parseInt(p5.trim(), 10));
++    if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
++      const [sys, dia] = parts;
++      if (sys >= 180 || dia >= 120) {
++        isEmergency = true;
++        triageTier = "EMERGENT_ESCALATION";
++        actionSummary = `HYPERTENSIVE CRISIS INVARIANT: Blood pressure ${sys}/${dia} mmHg meets AHA criteria for hypertensive emergency.`;
++        urgencyTimeline = "IMMEDIATE \u2014 Urgent emergency department evaluation.";
++        triggeredRules.push(`AHA_HYPERTENSIVE_CRISIS: ${sys}/${dia} mmHg`);
++      } else if (!isEmergency && (sys >= 140 || dia >= 90)) {
++        triageTier = "URGENT_EVALUATION";
++        actionSummary = `Stage 2 Hypertension detected (${sys}/${dia} mmHg). Clinical evaluation recommended within 24-48 hours.`;
++        urgencyTimeline = "Within 24 to 48 hours with a primary healthcare provider.";
++        triggeredRules.push(`AHA_STAGE_2_HTN: ${sys}/${dia} mmHg`);
++      } else if (!isEmergency && (sys >= 130 || dia >= 80)) {
++        triageTier = "PLANNED_CLINICAL_ASSESSMENT";
++        actionSummary = `Stage 1 Hypertension / Vascular strain (${sys}/${dia} mmHg). Schedule non-emergency outpatient review.`;
++        urgencyTimeline = "Within 2 to 4 weeks with a primary care clinician.";
++        triggeredRules.push(`AHA_STAGE_1_HTN_OUTPATIENT: ${sys}/${dia} mmHg`);
++      }
++    }
++  }
++  const localizedEmergency = getEmergencyGuidanceByRegion(region);
++  const emergencyDirective = isEmergency ? `EMERGENCY ESCALATION: Seek emergency medical services immediately. In ${region}, call ${localizedEmergency.ambulanceNumber} (${localizedEmergency.regionalTitle}).` : `In the event of acute chest pain, severe breathing difficulty, or sudden weakness, contact emergency services (${localizedEmergency.ambulanceNumber}).`;
++  return {
++    isEmergency,
++    triageTier,
++    actionSummary,
++    urgencyTimeline,
++    emergencyDirective,
++    localizedEmergency,
++    triggeredRules
++  };
++}
++function executeExplainHealthAlert(args, geminiClient) {
++  return new Promise(async (resolve) => {
++    const startTime = Date.now();
++    const alert = String(args.alert || "Health Alert Observation");
++    const measurement = args.measurement;
++    const unit = args.unit;
++    const referenceRange = args.referenceRange;
++    const symptoms = Array.isArray(args.symptoms) ? args.symptoms : [];
++    const context = args.context || "General health self-monitoring";
++    const factsSupplied = { alert, symptoms, context };
++    if (measurement !== void 0) factsSupplied.measurement = measurement;
++    if (unit) factsSupplied.unit = unit;
++    if (referenceRange) factsSupplied.referenceRange = referenceRange;
++    const missingInformation = [];
++    if (measurement !== void 0 && !unit) {
++      missingInformation.push("Measurement unit not specified (e.g. mg/dL, ng/mL, mmHg).");
++    }
++    if (!referenceRange) {
++      missingInformation.push("Lab assay standard reference range not provided; ranges vary by testing laboratory.");
++    }
++    if (symptoms.length === 0) {
++      missingInformation.push("No functional clinical symptoms reported (e.g. fatigue, shortness of breath, dizziness).");
++    }
++    const interpretations = [];
++    const recommendedNextSteps = [
++      "Document your home readings or lab reports chronologically.",
++      "Schedule a formal review with your primary care physician to contextualize these findings.",
++      "Do not start or modify prescription medications or high-dose supplements without medical oversight."
++    ];
++    let urgency = "PLANNED_CLINICAL_ASSESSMENT";
++    const lowerAlert = alert.toLowerCase();
++    if (lowerAlert.includes("ferritin") || unit && unit.toLowerCase().includes("ng/ml") && measurement && measurement < 30) {
++      interpretations.push(
++        "Possible subclinical iron depletion without overt anemia. Ferritin represents intracellular iron stores essential for mitochondrial cellular respiration.",
++        "Low iron stores can impair energy metabolism even when hemoglobin concentration is preserved."
++      );
++      recommendedNextSteps.unshift("Discuss a complete iron panel (Serum Iron, TIBC, Transferrin Saturation) with your physician.");
++    } else if (lowerAlert.includes("blood pressure") || lowerAlert.includes("hba1c") || lowerAlert.includes("glucose")) {
++      interpretations.push(
++        "Cardiometabolic vascular and glycemic strain. Mild elevations in blood pressure and HbA1c interact synergistically on endothelial health.",
++        "Early lifestyle adjustments (aerobic activity, sodium moderation, sleep hygiene) produce significant restorative benefits."
++      );
++      recommendedNextSteps.unshift("Track home morning and evening resting blood pressure in a structured 7-day log.");
++    } else {
++      interpretations.push(
++        `Observation '${alert}' warrants standard clinical contextualization alongside comprehensive physical examination.`,
++        "Biometric findings require interpretation against personal health history, family history, and medication review."
++      );
++    }
++    let summary = `Evaluation of '${alert}': Informational clinical orientation grounded in evidence guidelines.`;
++    let providerUsed = "healthalert-mcp-deterministic-engine";
++    let heuristicFallbackEngaged = false;
++    if (geminiClient) {
++      try {
++        const prompt = `You are HealthAlert Companion, an evidence-grounded clinical decision-support agent within Dr. T for the Amazon Developer Hackathon 2026.
++Explain this health observation clearly and empathetically at a Grade 7 reading level:
++- Alert/Observation: ${alert}
++- Measurement: ${measurement ? `${measurement} ${unit || ""}` : "Not provided"}
++- Context: ${context}
++- Symptoms: ${symptoms.join(", ") || "None reported"}
++
++Instructions:
++1. Provide a 2-3 sentence plain-language explanation of what this marker represents physiologically.
++2. Clearly distinguish what facts were provided from what is still unconfirmed.
++3. Explicitly state this is non-diagnostic information.
++Do not invent missing numbers, medical history, or diagnostic claims.`;
++        const timeoutPromise = new Promise((_2, reject) => {
++          const timer = setTimeout(() => reject(new Error("AI enrichment timed out (2500ms limit)")), 2500);
++          if (typeof timer.unref === "function") timer.unref();
++        });
++        const aiRes = await Promise.race([
++          geminiClient.models.generateContent({
++            model: "gemini-3.8-flash",
++            contents: prompt
++          }),
++          timeoutPromise
++        ]);
++        if (aiRes && aiRes.text) {
++          summary = aiRes.text.trim();
++          providerUsed = "gemini-3.8-flash (AI-Enriched MCP Tool)";
++        }
++      } catch (err) {
++        providerUsed = "healthalert-mcp-deterministic-engine (Verified Fallback)";
++        heuristicFallbackEngaged = true;
++      }
++    } else {
++      providerUsed = "healthalert-mcp-deterministic-engine (Verified Engine)";
++      heuristicFallbackEngaged = true;
++    }
++    const latencyMs = Date.now() - startTime;
++    resolve({
++      summary,
++      factsSupplied,
++      missingInformation,
++      interpretations,
++      recommendedNextSteps,
++      urgency,
++      telemetry: {
++        providerUsed,
++        latencyMs,
++        heuristicFallbackEngaged
++      }
++    });
++  });
++}
++function executePrepareFollowUpQuestions(args) {
++  const primaryConcern = String(args.primaryConcern || "Health review");
++  const triageTier = args.triageTier || "PLANNED_CLINICAL_ASSESSMENT";
++  const findings = Array.isArray(args.findings) ? args.findings : [];
++  const questions = [
++    {
++      id: "q-1",
++      question: `Given my reported concern regarding ${primaryConcern}, what confirmatory diagnostic tests or blood panels do you recommend?`,
++      category: "Diagnostic Clarification",
++      rationale: "Establishes an objective medical evaluation plan."
++    },
++    {
++      id: "q-2",
++      question: "Are there specific red-flag symptoms or vital sign thresholds that should prompt me to seek urgent medical care?",
++      category: "Safety & Escalation",
++      rationale: "Provides explicit patient safety boundaries between appointments."
++    },
++    {
++      id: "q-3",
++      question: "What evidence-based lifestyle, nutrition, or physical activity modifications would best support my recovery and long-term health?",
++      category: "Preventative Management",
++      rationale: "Aligns clinical strategy with actionable personal habits."
++    }
++  ];
++  const checklist = [
++    "Bring copies of recent laboratory results or diagnostic imaging.",
++    "Maintain a 7-day diary of symptoms, blood pressure readings, or relevant biometrics.",
++    "Prepare an up-to-date list of all prescription medications, over-the-counter drugs, and dietary supplements.",
++    "Note any changes in sleep, stress, or diet over the past 30 days."
++  ];
++  const missingContextNoted = [
++    "Personal baseline vitals when feeling healthy.",
++    "Family medical history regarding cardiometabolic or hematological conditions.",
++    "Current medication dosages and adherence frequency."
++  ];
++  return { questions, checklist, missingContextNoted };
++}
++async function runAgentOrchestration(userQuery, region = "Vietnam", geminiClient) {
++  const overallStart = Date.now();
++  const sessionId = `HAC-AGENT-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
++  const toolExecutionTrace = [];
++  const lowerQuery = userQuery.toLowerCase();
++  const extractedSymptoms = [];
++  if (lowerQuery.includes("chest pain") || lowerQuery.includes("chest pressure")) extractedSymptoms.push("Chest pain / pressure");
++  if (lowerQuery.includes("arm pain")) extractedSymptoms.push("Left arm pain");
++  if (lowerQuery.includes("shortness of breath") || lowerQuery.includes("breathless")) extractedSymptoms.push("Shortness of breath");
++  if (lowerQuery.includes("fatigue") || lowerQuery.includes("tired")) extractedSymptoms.push("Fatigue");
++  if (lowerQuery.includes("headache")) extractedSymptoms.push("Headache");
++  if (lowerQuery.includes("dizziness")) extractedSymptoms.push("Dizziness");
++  let extractedBp = "";
++  const bpMatch = userQuery.match(/\b(1\d\d|2\d\d)\s*\/\s*(\d\d|1\d\d)\b/);
++  if (bpMatch) {
++    extractedBp = `${bpMatch[1]}/${bpMatch[2]}`;
++  }
++  let extractedFerritin;
++  const ferritinMatch = userQuery.match(/ferritin\D*(\d+)/i);
++  if (ferritinMatch) {
++    extractedFerritin = parseFloat(ferritinMatch[1]);
++  }
++  const t0 = Date.now();
++  const safetyResult = executeCheckSafetyEscalation({
++    symptoms: extractedSymptoms.length > 0 ? extractedSymptoms : [userQuery],
++    bloodPressure: extractedBp,
++    region
++  });
++  toolExecutionTrace.push({
++    toolName: "check_safety_escalation",
++    input: { symptoms: extractedSymptoms, bloodPressure: extractedBp, region },
++    output: safetyResult,
++    executionTimeMs: Date.now() - t0,
++    status: safetyResult.isEmergency ? "escalated" : "success"
++  });
++  const t1 = Date.now();
++  const explainResult = await executeExplainHealthAlert({
++    alert: userQuery,
++    measurement: extractedFerritin,
++    unit: extractedFerritin !== void 0 ? "ng/mL" : void 0,
++    symptoms: extractedSymptoms,
++    context: `User reported via HealthAlert Companion conversational interface (${region})`
++  }, geminiClient);
++  toolExecutionTrace.push({
++    toolName: "explain_health_alert",
++    input: { alert: userQuery, measurement: extractedFerritin, symptoms: extractedSymptoms },
++    output: explainResult,
++    executionTimeMs: Date.now() - t1,
++    status: explainResult.telemetry.heuristicFallbackEngaged ? "fallback" : "success"
++  });
++  const t210 = Date.now();
++  const questionsResult = executePrepareFollowUpQuestions({
++    primaryConcern: userQuery,
++    triageTier: safetyResult.isEmergency ? safetyResult.triageTier : explainResult.urgency,
++    findings: safetyResult.triggeredRules.concat(explainResult.interpretations)
++  });
++  toolExecutionTrace.push({
++    toolName: "prepare_follow_up_questions",
++    input: { primaryConcern: userQuery, triageTier: safetyResult.triageTier },
++    output: questionsResult,
++    executionTimeMs: Date.now() - t210,
++    status: "success"
++  });
++  let agentResponse = "";
++  if (safetyResult.isEmergency) {
++    agentResponse = `\u{1F6A8} **EMERGENCY WARNING DETECTED**
++
++${safetyResult.actionSummary}
++
++**Action Required:** ${safetyResult.emergencyDirective}
++
++*Emergency instructions for ${safetyResult.localizedEmergency.regionalTitle}:* Call **${safetyResult.localizedEmergency.ambulanceNumber}** immediately. Do not drive yourself.`;
++  } else {
++    agentResponse = `**HealthAlert Companion Assessment:**
++
++${explainResult.summary}
++
++**Clinical Timeline:** ${safetyResult.urgencyTimeline}
++
++**Next Steps:**
++${explainResult.recommendedNextSteps.map((s30) => `\u2022 ${s30}`).join("\n")}
++
++**Questions for Your Healthcare Provider:**
++${questionsResult.questions.map((q) => `\u2022 "${q.question}" (*${q.category}*)`).join("\n")}`;
++  }
++  const totalLatencyMs = Date.now() - overallStart;
++  return {
++    success: true,
++    sessionId,
++    userQuery,
++    toolExecutionTrace,
++    agentResponse,
++    safetySummary: safetyResult,
++    urgencyTier: safetyResult.triageTier,
++    disclaimer: ST_COOL_DISCLAIMER,
++    telemetry: {
++      totalLatencyMs,
++      providerUsed: explainResult.telemetry.providerUsed,
++      toolsExecuted: toolExecutionTrace.length
++    }
++  };
++}
++
+ // server.impl.ts
+ var app = (0, import_express.default)();
+ var PORT = Number(process.env.PORT) || 3e3;
+@@ -176904,6 +177344,127 @@ app.get("/api/health-alert/presets", (req, res) => {
+     ]
+   });
+ });
++app.get("/api/mcp", (req, res) => {
++  res.json({
++    name: "healthalert-companion-mcp",
++    description: "Dr. T HealthAlert Companion MCP Server for Amazon Developer Hackathon 2026 (Alexa+ Track)",
++    protocolVersion: "2024-11-05",
++    version: "1.0.0",
++    capabilities: {
++      tools: {
++        listChanged: false
++      }
++    },
++    tools: HEALTH_ALERT_MCP_TOOLS
++  });
++});
++app.post("/api/mcp", async (req, res) => {
++  try {
++    const { jsonrpc, id, method, params } = req.body || {};
++    if (jsonrpc !== "2.0" || !method) {
++      return res.status(400).json({
++        jsonrpc: "2.0",
++        id: id || null,
++        error: { code: -32600, message: 'Invalid Request: jsonrpc must be "2.0" and method is required.' }
++      });
++    }
++    if (method === "initialize") {
++      return res.json({
++        jsonrpc: "2.0",
++        id,
++        result: {
++          protocolVersion: "2024-11-05",
++          capabilities: { tools: {} },
++          serverInfo: {
++            name: "healthalert-companion-mcp",
++            version: "1.0.0"
++          }
++        }
++      });
++    }
++    if (method === "tools/list") {
++      return res.json({
++        jsonrpc: "2.0",
++        id,
++        result: {
++          tools: HEALTH_ALERT_MCP_TOOLS
++        }
++      });
++    }
++    if (method === "tools/call") {
++      const toolName = params?.name;
++      const args = params?.arguments || {};
++      const gemini = getGemini();
++      if (toolName === "check_safety_escalation") {
++        const result = executeCheckSafetyEscalation(args);
++        return res.json({
++          jsonrpc: "2.0",
++          id,
++          result: {
++            content: [{ type: "text", text: JSON.stringify(result, null, 2) }]
++          }
++        });
++      }
++      if (toolName === "explain_health_alert") {
++        const result = await executeExplainHealthAlert(args, gemini);
++        return res.json({
++          jsonrpc: "2.0",
++          id,
++          result: {
++            content: [{ type: "text", text: JSON.stringify(result, null, 2) }]
++          }
++        });
++      }
++      if (toolName === "prepare_follow_up_questions") {
++        const result = executePrepareFollowUpQuestions(args);
++        return res.json({
++          jsonrpc: "2.0",
++          id,
++          result: {
++            content: [{ type: "text", text: JSON.stringify(result, null, 2) }]
++          }
++        });
++      }
++      return res.status(404).json({
++        jsonrpc: "2.0",
++        id,
++        error: { code: -32601, message: `Method or tool not found: ${toolName}` }
++      });
++    }
++    return res.status(404).json({
++      jsonrpc: "2.0",
++      id,
++      error: { code: -32601, message: `Unsupported MCP method: ${method}` }
++    });
++  } catch (err) {
++    console.error("MCP Server Error:", err);
++    return res.status(500).json({
++      jsonrpc: "2.0",
++      id: req.body?.id || null,
++      error: { code: -32603, message: err.message || "Internal MCP server error" }
++    });
++  }
++});
++app.post("/api/health-alert/agent", async (req, res) => {
++  try {
++    const { query, region } = req.body || {};
++    if (!query || typeof query !== "string" || query.trim().length === 0) {
++      return res.status(400).json({
++        success: false,
++        error: "Query parameter is required and cannot be empty."
++      });
++    }
++    const gemini = getGemini();
++    const result = await runAgentOrchestration(query.trim(), region || "Vietnam", gemini);
++    return res.json(result);
++  } catch (err) {
++    console.error("HealthAlert Agent Orchestrator Error:", err);
++    return res.status(500).json({
++      success: false,
++      error: err.message || "HealthAlert Agent Orchestrator encountered an internal error."
++    });
++  }
++});
+ async function setupApp() {
+   const distPath = import_path3.default.join(process.cwd(), "dist");
+   const hasDist = import_fs5.default.existsSync(import_path3.default.join(distPath, "index.html"));
+-- 
+2.34.1
+

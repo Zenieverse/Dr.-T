@@ -38,6 +38,15 @@ import {
   HEALTH_ALERT_DISCLAIMER,
   HEALTH_ALERT_EVIDENCE_REGISTRY
 } from './src/server/healthAlertService';
+import {
+  HEALTH_ALERT_MCP_TOOLS,
+  SUPPORTED_MCP_PROTOCOL_VERSIONS,
+  DEFAULT_MCP_PROTOCOL_VERSION,
+  executeCheckSafetyEscalation,
+  executeExplainHealthAlert,
+  executePrepareFollowUpQuestions,
+  runAgentOrchestration
+} from './src/server/healthAlertMcpServer';
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
@@ -4188,7 +4197,7 @@ app.post('/api/st-cool/analyze', async (req, res) => {
 app.get('/api/st-cool/evidence', (req, res) => {
   res.json({
     success: true,
-    feature: 'ST COOL — Symptom-to-Care Orientation',
+    feature: 'HealthAlert Companion — Symptom-to-Care Orientation',
     challenge: 'Future Health Digital Innovation Challenge 2026',
     registry: ST_COOL_EVIDENCE_REGISTRY,
     disclaimer: ST_COOL_DISCLAIMER
@@ -4304,7 +4313,7 @@ app.post('/api/health-alert/analyze', async (req, res) => {
 app.get('/api/health-alert/evidence', (req, res) => {
   res.json({
     success: true,
-    feature: 'Health Alert — Early Warning & Clinical Navigation',
+    feature: 'HealthAlert Companion — Early Warning & Clinical Navigation',
     challenge: 'Future Health Digital Innovation Challenge 2026',
     registry: HEALTH_ALERT_EVIDENCE_REGISTRY,
     disclaimer: HEALTH_ALERT_DISCLAIMER
@@ -4377,6 +4386,264 @@ app.get('/api/health-alert/presets', (req, res) => {
       }
     ]
   });
+});
+
+// ==========================================
+// HEALTHALERT COMPANION: AMAZON DEVELOPER HACKATHON 2026 (ALEXA+ TRACK)
+// Model Context Protocol (MCP) Server & Conversational Agent API
+// ==========================================
+
+// MCP Active Streamable HTTP / Server-Sent Events sessions
+const mcpSseSessions = new Map<string, { res: express.Response; createdAt: number }>();
+
+function handleMcpSseStream(req: express.Request, res: express.Response) {
+  const sessionId = 'mcp-session-' + Date.now().toString(36) + '-' + Math.random().toString(36).substring(2, 8);
+  res.writeHead(200, {
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache, no-transform',
+    'Connection': 'keep-alive',
+    'Access-Control-Allow-Origin': '*',
+    'X-Accel-Buffering': 'no'
+  });
+
+  // Emit standard MCP SSE endpoint event
+  res.write(`event: endpoint\r\ndata: /api/mcp?sessionId=${sessionId}\r\n\r\n`);
+  mcpSseSessions.set(sessionId, { res, createdAt: Date.now() });
+
+  const pingTimer = setInterval(() => {
+    try {
+      res.write(': ping\n\n');
+    } catch {
+      clearInterval(pingTimer);
+    }
+  }, 15000);
+
+  req.on('close', () => {
+    clearInterval(pingTimer);
+    mcpSseSessions.delete(sessionId);
+  });
+}
+
+// 1. MCP Manifest Discovery & SSE Transport
+app.get('/api/mcp', (req, res) => {
+  const acceptHeader = req.headers.accept || '';
+  if (acceptHeader.includes('text/event-stream')) {
+    return handleMcpSseStream(req, res);
+  }
+
+  res.json({
+    name: 'healthalert-companion-mcp',
+    description: 'Dr. T HealthAlert Companion MCP Server for Amazon Developer Hackathon 2026 (Alexa+ Track)',
+    protocolVersion: DEFAULT_MCP_PROTOCOL_VERSION,
+    supportedProtocolVersions: SUPPORTED_MCP_PROTOCOL_VERSIONS,
+    transports: ['streamable-http', 'sse', 'http-jsonrpc'],
+    version: '1.0.0',
+    capabilities: {
+      tools: {
+        listChanged: false
+      },
+      logging: {},
+      resources: {},
+      prompts: {}
+    },
+    endpoints: {
+      discovery: '/api/mcp',
+      message: '/api/mcp',
+      sse: '/api/mcp/sse',
+      agent: '/api/health-alert/agent'
+    },
+    tools: HEALTH_ALERT_MCP_TOOLS
+  });
+});
+
+// Dedicated SSE Streamable HTTP route
+app.get('/api/mcp/sse', (req, res) => {
+  return handleMcpSseStream(req, res);
+});
+
+// 2. Standard MCP JSON-RPC 2.0 Handler
+app.post('/api/mcp', async (req, res) => {
+  try {
+    const body = req.body;
+    if (!body || typeof body !== 'object') {
+      return res.status(400).json({
+        jsonrpc: '2.0',
+        id: null,
+        error: { code: -32700, message: 'Parse error: Request body must be a valid JSON object.' }
+      });
+    }
+
+    const { jsonrpc, id, method, params } = body;
+    
+    // JSON-RPC 2.0 Envelope Validation
+    if (jsonrpc !== '2.0' || !method) {
+      return res.status(400).json({
+        jsonrpc: '2.0',
+        id: id || null,
+        error: { code: -32600, message: 'Invalid Request: jsonrpc must be "2.0" and method is required.' }
+      });
+    }
+
+    // Notifications (no id)
+    if (id === undefined || id === null) {
+      if (method === 'notifications/initialized' || method.startsWith('notifications/')) {
+        return res.status(204).end();
+      }
+    }
+
+    // Ping
+    if (method === 'ping') {
+      return res.json({
+        jsonrpc: '2.0',
+        id,
+        result: {}
+      });
+    }
+
+    // Method: initialize
+    if (method === 'initialize') {
+      const clientRequestedVersion = params?.protocolVersion;
+      const negotiatedVersion = (clientRequestedVersion && SUPPORTED_MCP_PROTOCOL_VERSIONS.includes(clientRequestedVersion))
+        ? clientRequestedVersion
+        : DEFAULT_MCP_PROTOCOL_VERSION;
+
+      return res.json({
+        jsonrpc: '2.0',
+        id,
+        result: {
+          protocolVersion: negotiatedVersion,
+          capabilities: {
+            tools: { listChanged: false },
+            logging: {},
+            resources: {},
+            prompts: {}
+          },
+          serverInfo: {
+            name: 'healthalert-companion-mcp',
+            version: '1.0.0'
+          }
+        }
+      });
+    }
+
+    // Method: tools/list
+    if (method === 'tools/list') {
+      return res.json({
+        jsonrpc: '2.0',
+        id,
+        result: {
+          tools: HEALTH_ALERT_MCP_TOOLS
+        }
+      });
+    }
+
+    // Method: tools/call
+    if (method === 'tools/call') {
+      const toolName = params?.name;
+      const args = params?.arguments || {};
+      const gemini = getGemini();
+
+      const toolDef = HEALTH_ALERT_MCP_TOOLS.find(t => t.name === toolName);
+      if (!toolDef) {
+        return res.status(404).json({
+          jsonrpc: '2.0',
+          id,
+          error: { code: -32601, message: `Tool not found: ${toolName}` }
+        });
+      }
+
+      // Input parameter strict schema validation
+      if (toolName === 'check_safety_escalation') {
+        if (!args || (!Array.isArray(args.symptoms) && typeof args.symptoms !== 'string')) {
+          return res.status(400).json({
+            jsonrpc: '2.0',
+            id,
+            error: { code: -32602, message: 'Invalid params: "symptoms" array or non-empty string is required.' }
+          });
+        }
+        const result = executeCheckSafetyEscalation(args);
+        return res.json({
+          jsonrpc: '2.0',
+          id,
+          result: {
+            content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+          }
+        });
+      }
+
+      if (toolName === 'explain_health_alert') {
+        if (!args || typeof args.alert !== 'string' || args.alert.trim().length === 0) {
+          return res.status(400).json({
+            jsonrpc: '2.0',
+            id,
+            error: { code: -32602, message: 'Invalid params: "alert" must be a non-empty string.' }
+          });
+        }
+        const result = await executeExplainHealthAlert(args, gemini);
+        return res.json({
+          jsonrpc: '2.0',
+          id,
+          result: {
+            content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+          }
+        });
+      }
+
+      if (toolName === 'prepare_follow_up_questions') {
+        if (!args || typeof args.primaryConcern !== 'string' || args.primaryConcern.trim().length === 0) {
+          return res.status(400).json({
+            jsonrpc: '2.0',
+            id,
+            error: { code: -32602, message: 'Invalid params: "primaryConcern" must be a non-empty string.' }
+          });
+        }
+        const result = executePrepareFollowUpQuestions(args);
+        return res.json({
+          jsonrpc: '2.0',
+          id,
+          result: {
+            content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+          }
+        });
+      }
+    }
+
+    return res.status(404).json({
+      jsonrpc: '2.0',
+      id,
+      error: { code: -32601, message: `Unsupported MCP method: ${method}` }
+    });
+  } catch (err: any) {
+    console.error('MCP Server Error:', err);
+    return res.status(500).json({
+      jsonrpc: '2.0',
+      id: req.body?.id || null,
+      error: { code: -32603, message: err.message || 'Internal MCP server error' }
+    });
+  }
+});
+
+// 3. Conversational Agent Orchestration Endpoint (Alexa+-style workflow)
+app.post('/api/health-alert/agent', async (req, res) => {
+  try {
+    const { query, region } = req.body || {};
+    if (!query || typeof query !== 'string' || query.trim().length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'Query parameter is required and cannot be empty.'
+      });
+    }
+
+    const gemini = getGemini();
+    const result = await runAgentOrchestration(query.trim(), region || 'Vietnam', gemini);
+    return res.json(result);
+  } catch (err: any) {
+    console.error('HealthAlert Agent Orchestrator Error:', err);
+    return res.status(500).json({
+      success: false,
+      error: err.message || 'HealthAlert Agent Orchestrator encountered an internal error.'
+    });
+  }
 });
 
 // Setup Vite or Static serving

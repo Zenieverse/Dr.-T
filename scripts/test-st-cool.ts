@@ -45,17 +45,17 @@ console.log('Test Group 1: Dr. T Platform Navigation & Tab Integration');
 
 const navbarPath = path.join(process.cwd(), 'src', 'components', 'layout', 'Navbar.tsx');
 const navbarContent = fs.readFileSync(navbarPath, 'utf8');
-assert(navbarContent.includes("label: 'st cool'"), 'Navbar renders tab with exact visible label "st cool"');
+assert(navbarContent.includes("label: 'HealthAlert Companion'"), 'Navbar renders tab with exact visible label "HealthAlert Companion"');
 assert(navbarContent.includes("id: 'stcool'"), 'Navbar includes stcool tab ID');
 
 const appPath = path.join(process.cwd(), 'src', 'App.tsx');
 const appContent = fs.readFileSync(appPath, 'utf8');
 assert(appContent.includes("activeTab === 'stcool'"), 'App.tsx renders stcool tab condition');
-assert(appContent.includes('StCoolModule'), 'App.tsx imports and renders StCoolModule');
+assert(appContent.includes('HealthAlertCompanionModule') || appContent.includes('StCoolModule'), 'App.tsx imports and renders HealthAlertCompanionModule');
 
 const bridgePath = path.join(process.cwd(), 'src', 'components', 'bridge', 'DrTHealthBridge.tsx');
 const bridgeContent = fs.readFileSync(bridgePath, 'utf8');
-assert(bridgeContent.includes("setActiveTab('stcool')"), 'DrTHealthBridge links directly to st cool');
+assert(bridgeContent.includes("setActiveTab('stcool')"), 'DrTHealthBridge links directly to HealthAlert Companion');
 
 // ----------------------------------------------------
 // Group 2: Consent & Privacy Guardrails

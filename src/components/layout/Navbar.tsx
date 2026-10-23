@@ -30,7 +30,8 @@ import {
   Network,
   Presentation,
   Piano,
-  Briefcase
+  Briefcase,
+  Play
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -44,6 +45,7 @@ interface NavbarProps {
   openVoiceMode: () => void;
   openDemoJourney: () => void;
   openBirthdayModal?: () => void;
+  openFeaturedVideo?: () => void;
 }
 
 const LANGUAGES: Array<{ code: LanguageCode; label: string; flag: string }> = [
@@ -67,6 +69,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   openVoiceMode,
   openDemoJourney,
   openBirthdayModal,
+  openFeaturedVideo,
 }) => {
   const unreadCount = notifications.filter(n => !n.read).length;
 
@@ -83,8 +86,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: 'pianist', label: '🎹 Pianist', icon: <Piano className="w-4 h-4 text-teal-400" />, badge: 'Adaptive' },
     { id: 'touchgrass', label: '🌿 Touch Grass', icon: <Trees className="w-4 h-4 text-emerald-400" />, badge: 'Outdoor' },
     { id: 'bridge', label: 'Health Bridge', icon: <Stethoscope className="w-4 h-4 text-rose-500" />, badge: '11 Pillars' },
-    { id: 'healthalert', label: 'Health Alert', icon: <BellRing className="w-4 h-4 text-rose-500" />, badge: 'Alerts' },
-    { id: 'stcool', label: 'st cool', icon: <Activity className="w-4 h-4 text-emerald-500" />, badge: 'Orientation' },
+    { id: 'stcool', label: 'HealthAlert Companion', icon: <BellRing className="w-4 h-4 text-rose-500" />, badge: 'Companion' },
     { id: 'futurehealth', label: 'Future Health', icon: <HeartPulse className="w-4 h-4 text-teal-500" />, badge: 'Challenge 2026' },
     { id: 'deck', label: 'Executive Deck', icon: <Presentation className="w-4 h-4 text-purple-600" />, badge: 'MVP Brief' },
     { id: 'cinema', label: '🎬 Cinema', icon: <Clapperboard className="w-4 h-4 text-amber-500" />, badge: 'Studio' },
@@ -178,6 +180,17 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span className="hidden sm:inline">Live Voice</span>
             </button>
 
+            {/* Watch Featured Video Launcher */}
+            <button
+              onClick={openFeaturedVideo || (() => window.dispatchEvent(new CustomEvent('drt-open-featured-video')))}
+              className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-red-600 via-rose-600 to-pink-600 hover:from-red-500 hover:to-pink-500 text-white text-xs font-bold shadow-sm shadow-red-500/20 transition transform hover:scale-105 active:scale-95 focus:outline-hidden focus:ring-2 focus:ring-red-500"
+              title="Watch Featured Video"
+              aria-label="Watch Featured Video"
+            >
+              <Play className="w-3.5 h-3.5 fill-white text-white" />
+              <span className="hidden sm:inline">Featured Video</span>
+            </button>
+
             {/* Demo Journey Walkthrough */}
             <button
               onClick={openDemoJourney}
@@ -230,13 +243,16 @@ export const Navbar: React.FC<NavbarProps> = ({
         {/* Primary Tab Navigation Ribbon */}
         <nav className="flex space-x-1.5 overflow-x-auto scrollbar-none py-1.5 border-t border-slate-100">
           {navItems.map((item) => {
-            const isActive = activeTab === item.id;
+            const isActive = activeTab === item.id || (item.id === 'stcool' && (activeTab as string) === 'healthalert');
             
             // Dynamic bright active styles
             const getActiveStyle = (id: NavTab) => {
               switch (id) {
                 case 'drt':
                   return 'bg-gradient-to-r from-rose-500 via-purple-500 to-pink-500 text-white shadow-md shadow-rose-500/25 ring-1 ring-rose-300/40';
+                case 'stcool':
+                case 'healthalert':
+                  return 'bg-gradient-to-r from-rose-500 to-pink-600 text-white shadow-md shadow-rose-500/25 ring-1 ring-rose-300/40';
                 case 'tribhouse':
                   return 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-600/25 ring-1 ring-emerald-400/40';
                 case 'petwhisperer':

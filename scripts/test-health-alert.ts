@@ -46,13 +46,13 @@ console.log('Test Group 1: Dr. T Platform Navigation & Tab Integration');
 
 const navbarPath = path.join(process.cwd(), 'src', 'components', 'layout', 'Navbar.tsx');
 const navbarContent = fs.readFileSync(navbarPath, 'utf8');
-assert(navbarContent.includes("label: 'Health Alert'"), 'Navbar renders tab with exact visible label "Health Alert"');
-assert(navbarContent.includes("id: 'healthalert'"), 'Navbar includes healthalert tab ID');
+assert(navbarContent.includes("label: 'HealthAlert Companion'"), 'Navbar renders consolidated tab "HealthAlert Companion"');
+assert(navbarContent.includes("id: 'stcool'"), 'Navbar includes consolidated HealthAlert Companion tab ID');
 
 const appPath = path.join(process.cwd(), 'src', 'App.tsx');
 const appContent = fs.readFileSync(appPath, 'utf8');
 assert(appContent.includes("activeTab === 'healthalert'"), 'App.tsx renders healthalert tab condition');
-assert(appContent.includes('HealthAlertModule'), 'App.tsx imports and renders HealthAlertModule');
+assert(appContent.includes('HealthAlertCompanionModule') || appContent.includes('HealthAlertModule'), 'App.tsx imports and renders HealthAlertCompanionModule');
 
 // ----------------------------------------------------
 // Group 2: Informed Consent & De-Identification

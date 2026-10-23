@@ -40,7 +40,9 @@ import {
   Users,
   Store,
   ScanLine,
-  Briefcase
+  Briefcase,
+  Play,
+  BellRing
 } from 'lucide-react';
 
 interface CommandPaletteProps {
@@ -78,6 +80,32 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
   if (!isOpen) return null;
 
   const commands = [
+    {
+      category: '🎬 Featured Video & Broadcasts',
+      items: [
+        {
+          label: 'Watch Featured Video (Global Video Player — jQOC2qYPIvY)',
+          icon: <Play className="w-4 h-4 text-red-500 fill-red-500" />,
+          action: () => {
+            window.dispatchEvent(new CustomEvent('drt-open-featured-video'));
+            onClose();
+          }
+        }
+      ]
+    },
+    {
+      category: '🔔 HealthAlert Companion (Symptom-to-Care Orientation)',
+      items: [
+        {
+          label: 'HealthAlert Companion — Early Warning & Clinical Navigation',
+          icon: <BellRing className="w-4 h-4 text-rose-500" />,
+          action: () => {
+            setActiveTab('stcool');
+            onClose();
+          }
+        }
+      ]
+    },
     {
       category: '🎹 PIANIST & 🌿 Touch Grass (Outdoor Music Discovery)',
       items: [

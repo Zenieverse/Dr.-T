@@ -8,7 +8,7 @@ import {
 } from '../types';
 
 export const ST_COOL_DISCLAIMER = 
-  "DISCLAIMER: Non-Diagnostic Clinical Decision Support. ST COOL is an assistive health navigation and literacy engine designed to help people prepare for professional medical assessment. It does NOT provide formal medical diagnosis, prescribe treatments, or serve as an emergency response service. Always seek the advice of a qualified healthcare professional.";
+  "DISCLAIMER: Non-Diagnostic Clinical Decision Support. HealthAlert Companion is an assistive health navigation and early warning screening engine designed to help people recognize warning signs and prepare for professional medical assessment. It does NOT provide formal medical diagnosis, prescribe treatments, or serve as an emergency response service. Always seek the advice of a qualified healthcare professional.";
 
 export const ST_COOL_EMERGENCY_NOTICE = 
   "EMERGENCY DIRECTIVE: If you or someone you are assisting is experiencing severe chest pain, sudden numbness/weakness, severe shortness of breath, loss of consciousness, or other life-threatening symptoms, call 911 or your local emergency number immediately (in Vietnam, call 115 for Emergency Medical Service; in Europe, call 112; in the UAE, call 998/999).";
