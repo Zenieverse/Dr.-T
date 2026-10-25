@@ -1,0 +1,76 @@
+From 2e5daed43913c66a10d0be189ecdf80885556254 Mon Sep 17 00:00:00 2001
+From: Zen <197696675+Zenieverse@users.noreply.github.com>
+Date: Sun, 25 Oct 2026 03:21:34 +0000
+Subject: [PATCH] docs(readme): update badges, MCP 2025-11-25 specifications,
+ and judge verification guide
+
+---
+ README.md | 39 +++++++++++++++++++++++++++------------
+ 1 file changed, 27 insertions(+), 12 deletions(-)
+
+diff --git a/README.md b/README.md
+index 079da2a..6ca2875 100644
+--- a/README.md
++++ b/README.md
+@@ -4,11 +4,13 @@
+ [![React](https://img.shields.io/badge/React-18.3-61dafb.svg?logo=react)](https://react.dev/)
+ [![Vite](https://img.shields.io/badge/Vite-6.1-646CFF.svg?logo=vite)](https://vitejs.dev/)
+ [![Firebase](https://img.shields.io/badge/Firebase-Firestore%20%26%20Auth-FFCA28.svg?logo=firebase)](https://firebase.google.com/)
+-[![Gemini](https://img.shields.io/badge/Google%20GenAI-Gemini%202.5%20Flash-8E75B2.svg?logo=google)](https://ai.google.dev/)
++[![Gemini](https://img.shields.io/badge/Google%20GenAI-Gemini%203.8%20Flash-8E75B2.svg?logo=google)](https://ai.google.dev/)
++[![MCP](https://img.shields.io/badge/MCP-2025--11--25%20Streamable%20HTTP-00A4A6.svg)](https://modelcontextprotocol.io/)
++[![Amazon Alexa+](https://img.shields.io/badge/Amazon%20Developer%20Hackathon-Alexa%2B%20Track%202026-FF9900.svg?logo=amazonalexa)](https://amazonappdev2026.devpost.com/)
+ [![Hedera](https://img.shields.io/badge/Hedera-HCS%20Provenance-222222.svg)](https://hedera.com/)
+ [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+ 
+-> **Dr. T** is a multi-dimensional AI ecosystem unifying clinical informatics, Socratic health intelligence, outdoor acoustics, cryptographically verifiable provenance, and grassroots economic empowerment (**MicroBiz: Made for All, By All**).
++> **Dr. T** is a multi-dimensional AI ecosystem unifying clinical informatics, Socratic health intelligence, outdoor acoustics, cryptographically verifiable provenance, and grassroots economic empowerment (**MicroBiz: Made for All, By All**), featuring the **HealthAlert Companion** with Model Context Protocol (MCP 2025-11-25) and Alexa+ Conversational Agent.
+ 
+ ---
+ 
+@@ -242,19 +244,32 @@ node scripts/audit-secret-scan.cjs           # Run repository secret scan
+ 
+ To synchronize this codebase with the connected GitHub repository [`https://github.com/Zenieverse/Dr.-T`](https://github.com/Zenieverse/Dr.-T):
+ 
++### Option 1: AI Studio UI (1-Click Sync)
+ 1. Click the **GitHub** button in the upper-right corner of the **Google AI Studio** interface.
+-2. Ensure the connected repository is `Zenieverse/Dr.-T` and branch is `main` (or your feature branch).
+-3. Review staged changes:
+-   * Updated `README.md` with complete platform documentation, architecture, and verification results.
+-   * `src/components/microbiz/` hardened components, services, and live auth state.
+-   * `server.impl.ts` safe JSON parse fixes on AI endpoints.
+-   * `firestore.rules` security rules.
+-   * `scripts/test-microbiz-invariants.ts` verification suite.
+-4. Commit with message:
++2. Select repository `Zenieverse/Dr.-T` and branch `main` (or your feature branch `feat/healthalert-companion-mcp`).
++3. Commit with message:
+    ```
+-   docs(readme): update repository documentation with Dr. T platform architecture, MicroBiz hardening, and verification results
++   docs(readme): update badges, MCP 2025-11-25 specifications, and judge verification guide
+    ```
+-5. Click **Commit & Push** to complete synchronization.
++4. Click **Commit & Push** to publish directly to GitHub.
++
++### Option 2: Local Git CLI (From Authenticated Terminal)
++```bash
++# Fetch latest remote references
++git fetch origin
++
++# Check out and sync main
++git checkout main
++git pull origin main
++
++# Apply the latest patch series (if syncing from local workspace)
++git am docs/patches/*.patch
++
++# Push to GitHub
++git push origin main
++```
++
++---
+ 
+ ## 🧪 Hackathon Judge Testing & Verification Guide
+ 
+-- 
+2.34.1
+
