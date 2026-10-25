@@ -65,6 +65,7 @@ import { FutureHealthChallengeModule } from './components/health/FutureHealthCha
 import { HealthAlertCompanionModule } from './components/healthalert/HealthAlertCompanionModule';
 import { StCoolModule } from './components/stcool/StCoolModule';
 import { HealthAlertModule } from './components/healthalert/HealthAlertModule';
+import { BuildWithAiModule } from './components/buildwithai/BuildWithAiModule';
 import { SettingsPage } from './components/settings/SettingsPage';
 
 export function App() {
@@ -515,6 +516,10 @@ export function App() {
 
         {activeTab === 'healthalert' && (
           <HealthAlertCompanionModule setActiveTab={setActiveTab} />
+        )}
+
+        {activeTab === 'buildwithai' && (
+          <BuildWithAiModule setActiveTab={setActiveTab} />
         )}
 
         {activeTab === 'gcp' && (

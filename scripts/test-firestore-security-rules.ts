@@ -149,7 +149,16 @@ function runFirestoreSecurityTests() {
     'Enrollments strictly isolated to student owner'
   );
 
-  // TEST 14: Overlapping catch-all wildcard checked (no accidental open permissions)
+  // TEST 14: Build With AI projects user isolation and ownership preservation
+  const buildAiBlock = rules.match(/match\s+\/buildwithai_projects\/\{projectId\}\s*\{([\s\S]*?)\}/)?.[1] || '';
+  assert(
+    buildAiBlock.includes('resource.data.userId == request.auth.uid') &&
+    buildAiBlock.includes('request.resource.data.userId == request.auth.uid') &&
+    buildAiBlock.includes('request.resource.data.userId == resource.data.userId'),
+    'Build With AI projects strictly isolated to authenticated owner and prevents userId modification'
+  );
+
+  // TEST 15: Overlapping catch-all wildcard checked (no accidental open permissions)
   const catchAllMatch = rules.match(/match\s+\/\{.*?=\*\*\}/);
   assert(!catchAllMatch, 'No recursive catch-all wildcard ({document=**}) bypassing collection rules');
 

@@ -7,6 +7,7 @@
 [![Gemini](https://img.shields.io/badge/Google%20GenAI-Gemini%203.8%20Flash-8E75B2.svg?logo=google)](https://ai.google.dev/)
 [![MCP](https://img.shields.io/badge/MCP-2025--11--25%20Streamable%20HTTP-00A4A6.svg)](https://modelcontextprotocol.io/)
 [![Amazon Alexa+](https://img.shields.io/badge/Amazon%20Developer%20Hackathon-Alexa%2B%20Track%202026-FF9900.svg?logo=amazonalexa)](https://amazonappdev2026.devpost.com/)
+[![Devpost](https://img.shields.io/badge/Devpost-Learn%20AI%20Basics%202026-003E54.svg?logo=devpost)](https://learn-ai-basics.devpost.com/)
 [![Hedera](https://img.shields.io/badge/Hedera-HCS%20Provenance-222222.svg)](https://hedera.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
@@ -106,6 +107,38 @@ An authoritative, evidence-grounded health monitoring, triage, and physician-han
 * **LIFEWEAVE (`LifeWeaveStudio.tsx`)**: Multi-agent software engineering orchestration workspace.
 * **x402 Pay-Per-Request Studio (`X402PayPerRequestStudio.tsx`)**: Decentralized machine-to-machine micropayment bazaar and challenge verification.
 * **Dr. T Cinema & Trib-House (`CinemaContainer.tsx`, `TribHouseContainer.tsx`)**: Multimodal biomedical media and living library commons.
+
+---
+
+### 7. 🛠️ Build With AI — Devpost Learn AI Basics Challenge Companion
+Official Challenge: [Devpost Learn AI Basics](https://learn-ai-basics.devpost.com/) | Navigation Tab: `Build With AI` (`buildwithai`)
+
+A dedicated AI project scoping, planning, implementation, testing, and submission companion designed for hackathons and software build competitions:
+
+* **8-Stage Project Lifecycle**:
+  * `Discover`: Problem space exploration and opportunity assessment.
+  * `Scope`: Defining non-negotiable boundaries, personas, and out-of-scope guardrails (`scope.md`).
+  * `Plan`: Product requirements document (`prd.md`) with prioritized user stories and release milestones.
+  * `Specify`: Architecture specification (`spec.md`) with data models, API schemas, security constraints, and error budgets.
+  * `Build`: Kanban execution board with 6 sprint states (Backlog, Ready, In Progress, Testing, Done, Blocked) and AI code assistance.
+  * `Test`: Test matrix mapping unit, integration, safety, and edge-case test suites.
+  * `Document`: Challenge `README.md` generator with badges, live demo links, setup steps, and architectural diagrams.
+  * `Publish`: Submission readiness gate verifying Devpost criteria and Learn Skill Pack requirements.
+* **Document Validation & Cross-Consistency Engine**:
+  * Real-time section completeness validation enforcing mandatory headers across `scope.md`, `prd.md`, `spec.md`, and `README.md`.
+  * Multi-document mutual consistency analyzer detecting vocabulary alignment, persona-to-spec coverage, and risk mitigation matching.
+  * In-browser `.md` single-file download and one-click JSON project bundle manifest export.
+* **Coding Assistant & Review Engine**:
+  * Code snippet security and defect analyzer with suggested unit tests and plain-language logic explanations.
+  * Coding agent prompt generator creating structured instructions for external coding agents.
+* **Devpost Challenge Center & Learn Skill Pack Guide**:
+  * 14-point verifiable readiness checklist ensuring submission eligibility.
+  * Learn Skill Pack workflow instructions with one-click terminal command copy (clarifying Dr. T does not claim to run local CLI skills in-browser).
+  * Synthetic reference project **HealthAlert Mini** included as an interactive, fully compliant template.
+* **Server AI Proxy & Safety Fallbacks**:
+  * Dedicated backend endpoints (`/api/build-with-ai/brief`, `/api/build-with-ai/draft-doc`, `/api/build-with-ai/code-assist`) powered by `@google/genai` (model `gemini-3.8-flash`) with a 2,500ms race timeout and deterministic heuristic fallbacks.
+* **User Isolation & Firestore Security**:
+  * Firestore collection `buildwithai_projects` isolated per user (`userId == request.auth.uid`), preventing unauthenticated access or tampering.
 
 ---
 

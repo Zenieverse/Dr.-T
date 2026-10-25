@@ -9,7 +9,7 @@
     "build": "vite build && esbuild server.impl.ts --bundle --platform=node --format=cjs --external:vite --external:lightningcss --sourcemap --outfile=dist/server.cjs && node scripts/prepare-build-artifacts.cjs",
     "start": "node server.ts",
     "lint": "tsc --noEmit",
-    "test": "tsx scripts/test-future-health.ts && tsx scripts/test-st-cool.ts && tsx scripts/test-health-alert.ts && tsx scripts/verify-health-alert-release.ts && tsx scripts/test-youtube-popup.ts && tsx scripts/test-mcp-agent.ts && tsx scripts/test-firestore-security-rules.ts",
+    "test": "tsx scripts/test-future-health.ts && tsx scripts/test-st-cool.ts && tsx scripts/test-health-alert.ts && tsx scripts/verify-health-alert-release.ts && tsx scripts/test-youtube-popup.ts && tsx scripts/test-mcp-agent.ts && tsx scripts/test-firestore-security-rules.ts && tsx scripts/test-build-with-ai.ts",
     "hedera:harness": "tsx hedera_harness/harness_runner.ts"
   },
   "dependencies": {

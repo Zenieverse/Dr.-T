@@ -42,7 +42,8 @@ import {
   ScanLine,
   Briefcase,
   Play,
-  BellRing
+  BellRing,
+  Hammer
 } from 'lucide-react';
 
 interface CommandPaletteProps {
@@ -101,6 +102,35 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
           icon: <BellRing className="w-4 h-4 text-rose-500" />,
           action: () => {
             setActiveTab('stcool');
+            onClose();
+          }
+        }
+      ]
+    },
+    {
+      category: '🛠️ Build With AI (Devpost Learn AI Basics Workspace)',
+      items: [
+        {
+          label: 'Build With AI — Idea to Tested, Documented AI Project',
+          icon: <Hammer className="w-4 h-4 text-indigo-600" />,
+          action: () => {
+            setActiveTab('buildwithai');
+            onClose();
+          }
+        },
+        {
+          label: 'Build With AI — Draft & Validate scope.md, prd.md, spec.md',
+          icon: <FileText className="w-4 h-4 text-teal-600" />,
+          action: () => {
+            setActiveTab('buildwithai');
+            onClose();
+          }
+        },
+        {
+          label: 'Build With AI — Devpost Learn AI Basics Submission Checklist',
+          icon: <Trophy className="w-4 h-4 text-amber-500" />,
+          action: () => {
+            setActiveTab('buildwithai');
             onClose();
           }
         }

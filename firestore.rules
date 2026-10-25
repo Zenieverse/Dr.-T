@@ -211,5 +211,20 @@ service cloud.firestore {
       allow update: if isAuthenticated() && (request.auth.uid == profileId || isAdmin());
       allow delete: if isAdmin();
     }
+
+    // ----------------------------------------------------
+    // BUILD WITH AI — DEVPOST LEARN AI BASICS CHALLENGE PROJECTS
+    // User-isolated project workspaces with administrator audit
+    // ----------------------------------------------------
+    match /buildwithai_projects/{projectId} {
+      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      allow update: if isAuthenticated() && (
+        (resource.data.userId == request.auth.uid && request.resource.data.userId == resource.data.userId) ||
+        isAdmin()
+      );
+      allow delete: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+    }
   }
 }
+

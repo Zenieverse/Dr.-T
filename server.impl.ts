@@ -47,6 +47,7 @@ import {
   executePrepareFollowUpQuestions,
   runAgentOrchestration
 } from './src/server/healthAlertMcpServer';
+import { BuildWithAiServerService } from './src/server/buildWithAiServerService';
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
@@ -4642,6 +4643,111 @@ app.post('/api/health-alert/agent', async (req, res) => {
     return res.status(500).json({
       success: false,
       error: err.message || 'HealthAlert Agent Orchestrator encountered an internal error.'
+    });
+  }
+});
+
+// ==========================================
+// 4. BUILD WITH AI — DEVPOST LEARN AI BASICS ENDPOINTS
+// ==========================================
+
+// A. Project Brief Generator
+app.post('/api/build-with-ai/brief', async (req, res) => {
+  try {
+    const intake = req.body || {};
+    if (!intake.name && !intake.problemStatement) {
+      return res.status(400).json({
+        success: false,
+        error: 'Project name or problem statement is required.'
+      });
+    }
+
+    const result = await BuildWithAiServerService.generateBrief({
+      name: intake.name || 'Untitled AI Project',
+      description: intake.description || '',
+      targetAudience: intake.targetAudience || 'General Audience',
+      problemStatement: intake.problemStatement || 'Operational inefficiency',
+      proposedSolution: intake.proposedSolution || 'AI-assisted automation',
+      keyFeatures: Array.isArray(intake.keyFeatures) ? intake.keyFeatures : [],
+      workflow: intake.workflow || 'Intake -> Triage -> Review -> Export',
+      constraints: intake.constraints || 'Standard cloud constraints',
+      privacyConsiderations: intake.privacyConsiderations || 'Client-side sanitization',
+      successCriteria: intake.successCriteria || 'Passing acceptance tests'
+    });
+
+    return res.json({
+      success: true,
+      brief: result.brief,
+      telemetry: result.telemetry
+    });
+  } catch (err: any) {
+    console.error('[BuildWithAi Server Error] Brief:', err);
+    return res.status(500).json({
+      success: false,
+      error: err.message || 'Failed to generate project brief.'
+    });
+  }
+});
+
+// B. Document Drafting (scope.md, prd.md, spec.md, README.md)
+app.post('/api/build-with-ai/draft-doc', async (req, res) => {
+  try {
+    const { docType, projectName, brief } = req.body || {};
+    if (!docType || !['scope.md', 'prd.md', 'spec.md', 'README.md'].includes(docType)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid docType. Must be scope.md, prd.md, spec.md, or README.md.'
+      });
+    }
+
+    const result = await BuildWithAiServerService.draftDocument({
+      docType,
+      projectName: projectName || 'AI Project',
+      brief: brief || {}
+    });
+
+    return res.json({
+      success: true,
+      docType,
+      content: result.content,
+      telemetry: result.telemetry
+    });
+  } catch (err: any) {
+    console.error('[BuildWithAi Server Error] Draft Doc:', err);
+    return res.status(500).json({
+      success: false,
+      error: err.message || 'Failed to draft document.'
+    });
+  }
+});
+
+// C. Code Review & Implementation Assistant
+app.post('/api/build-with-ai/code-assist', async (req, res) => {
+  try {
+    const { filename, codeSnippet, taskDescription } = req.body || {};
+    if (!codeSnippet || typeof codeSnippet !== 'string') {
+      return res.status(400).json({
+        success: false,
+        error: 'codeSnippet is required.'
+      });
+    }
+
+    const result = await BuildWithAiServerService.reviewCode({
+      filename: filename || 'snippet.ts',
+      codeSnippet: codeSnippet.slice(0, 10000), // bounded input
+      taskDescription
+    });
+
+    return res.json({
+      success: true,
+      review: result.review,
+      telemetry: result.telemetry
+    });
+  } catch (err: any) {
+    console.error('[BuildWithAi Server Error] Code Assist:', err);
+    return res.status(500).json({
+      success: false,
+      error: err.message || 'Failed to analyze code snippet.'
     });
   }
 });

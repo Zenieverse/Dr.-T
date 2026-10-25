@@ -30,6 +30,7 @@ export type NavTab =
   | 'healthalert'
   | 'stcool'
   | 'microbiz'
+  | 'buildwithai'
   | 'gcp'
   | 'settings';
 
