@@ -291,37 +291,6 @@ node scripts/audit-secret-scan.cjs           # Run repository secret scan
 
 ---
 
-## 🔄 GitHub Synchronization
-
-To synchronize this codebase with the connected GitHub repository [`https://github.com/Zenieverse/Dr.-T`](https://github.com/Zenieverse/Dr.-T):
-
-### Option 1: AI Studio UI (1-Click Sync)
-1. Click the **GitHub** button in the upper-right corner of the **Google AI Studio** interface.
-2. Select repository `Zenieverse/Dr.-T` and branch `main` (or your feature branch `feat/healthalert-companion-mcp`).
-3. Commit with message:
-   ```
-   docs(readme): update badges, MCP 2025-11-25 specifications, and judge verification guide
-   ```
-4. Click **Commit & Push** to publish directly to GitHub.
-
-### Option 2: Local Git CLI (From Authenticated Terminal)
-```bash
-# Fetch latest remote references
-git fetch origin
-
-# Check out and sync main
-git checkout main
-git pull origin main
-
-# Apply the latest patch series (if syncing from local workspace)
-git am docs/patches/*.patch
-
-# Push to GitHub
-git push origin main
-```
-
----
-
 ## 🧪 Hackathon Judge Testing & Verification Guide
 
 ### 1. Model Context Protocol (MCP) Verification
