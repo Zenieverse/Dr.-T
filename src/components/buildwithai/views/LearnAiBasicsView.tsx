@@ -14,7 +14,8 @@ import {
   Link,
   Video,
   FileCode,
-  Sparkles
+  Sparkles,
+  ShieldCheck
 } from 'lucide-react';
 
 interface LearnAiBasicsViewProps {
@@ -84,90 +85,79 @@ export const LearnAiBasicsView: React.FC<LearnAiBasicsViewProps> = ({
     setTimeout(() => setCopiedCli(null), 2000);
   };
 
-  const skillPackCommand = `# 1. Create a dedicated project directory for your challenge entry
+  const skillPackCommand = `# 1. Project Directory Initialization
 mkdir my-ai-project && cd my-ai-project
 git init
 
-# 2. Execute the official Learn Skill Pack workflow with your coding agent
-# (e.g., in Claude Code, Cursor, or Gemini Code Assist)
-# Run the skill pack commands to scope, generate PRD, specify, build, and test.
+# 2. Planning Artifacts Integration
+# Copy approved scope.md, prd.md, and spec.md from Dr. T into your project root.
 
-# 3. Import approved planning documents from Dr. T Build With AI:
-# Copy scope.md, prd.md, and spec.md into your project root.
+# 3. Agent Execution & Implementation
+# Point your coding agent (Claude Code, Cursor, Gemini CLI) to spec.md to generate components and tests.
+npm install && npm test
 `;
 
   return (
     <div className="space-y-8">
-      {/* Challenge Hero & Source of Truth */}
-      <div className="p-6 rounded-3xl bg-gradient-to-br from-amber-500/10 via-purple-500/10 to-indigo-500/10 border border-amber-300/40 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+      {/* Project Quality & Release Audit Banner */}
+      <div className="p-6 rounded-3xl bg-gradient-to-br from-emerald-500/10 via-teal-500/10 to-indigo-500/10 border border-emerald-300/40 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-6">
         <div className="space-y-2 max-w-2xl">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-amber-500 text-white shadow-2xs flex items-center space-x-1">
-              <Trophy className="w-3.5 h-3.5" />
-              <span>Official Devpost Challenge</span>
+            <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-600 text-white shadow-2xs flex items-center space-x-1">
+              <ShieldCheck className="w-3.5 h-3.5" />
+              <span>Quality & Release Audit</span>
             </span>
             <span className="text-xs font-mono text-slate-500">
-              Verified: {checklist.lastVerifiedDate}
+              Last Verified: {checklist.lastVerifiedDate}
             </span>
           </div>
           <h2 className="text-2xl font-black text-slate-900 font-display">
-            Devpost Learn AI Basics Submission Readiness
+            Project Quality & Release Readiness
           </h2>
           <p className="text-xs text-slate-700 leading-relaxed">
-            Prepare, validate, and verify your submission against the official rules. Dr. T guides your project definition, generates required planning artifacts (<code>scope.md</code>, <code>prd.md</code>, <code>spec.md</code>), and equips you to run the official Learn Skill Pack workflow in your separate submission repository.
+            Audit, track, and verify critical software engineering criteria for your AI project. Dr. T guides your project definition, generates required planning artifacts (<code>scope.md</code>, <code>prd.md</code>, <code>spec.md</code>), validates deterministic safety fallbacks, and prepares verifiable repository and demonstration assets.
           </p>
-          <div className="pt-1 flex items-center space-x-3 text-xs font-bold">
-            <a
-              href="https://learn-ai-basics.devpost.com/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-amber-800 hover:text-amber-950 flex items-center space-x-1 underline"
-            >
-              <span>Visit Official Devpost Challenge Page</span>
-              <ExternalLink className="w-3.5 h-3.5" />
-            </a>
-          </div>
         </div>
 
         {/* Readiness Circular / Pill Metric */}
-        <div className="p-5 rounded-2xl bg-white border border-amber-200/80 text-center shrink-0 shadow-sm space-y-1 min-w-[180px]">
+        <div className="p-5 rounded-2xl bg-white border border-emerald-200/80 text-center shrink-0 shadow-sm space-y-1 min-w-[180px]">
           <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
             Readiness Score
           </span>
-          <div className="text-3xl font-black text-amber-600 font-display">
+          <div className="text-3xl font-black text-emerald-600 font-display">
             {progressPct}%
           </div>
           <span className="text-xs font-medium text-slate-600 block">
-            {completedCount} of {totalCount} rules met
+            {completedCount} of {totalCount} criteria met
           </span>
           <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden mt-2">
             <div
-              className="bg-amber-500 h-full rounded-full transition-all duration-500"
+              className="bg-emerald-500 h-full rounded-full transition-all duration-500"
               style={{ width: `${progressPct}%` }}
             />
           </div>
         </div>
       </div>
 
-      {/* Critical Compliance Notice: Learn Skill Pack Workflow */}
+      {/* AI Coding Agent & Skill Pack Workflow */}
       <div className="p-6 rounded-3xl bg-slate-900 text-white border border-slate-800 shadow-md space-y-4">
         <div className="flex items-start justify-between">
           <div className="flex items-center space-x-2.5">
-            <div className="p-2.5 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30">
+            <div className="p-2.5 rounded-xl bg-teal-500/20 text-teal-400 border border-teal-500/30">
               <Terminal className="w-5 h-5" />
             </div>
             <div>
               <h3 className="text-sm font-bold text-white">
-                Official Compliance Requirement: Learn Skill Pack Workflow
+                AI Coding Agent & Skill Pack Workflow
               </h3>
               <p className="text-xs text-slate-400">
-                How Dr. T integrates with the required Devpost coding agent workflow
+                Recommended command workflow for AI coding tools (Claude Code, Cursor, Gemini CLI)
               </p>
             </div>
           </div>
           <button
             onClick={() => copyToClipboard(skillPackCommand, 'skillpack')}
-            className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-mono font-bold transition flex items-center space-x-1 border border-white/10"
+            className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-mono font-bold transition flex items-center space-x-1 border border-white/10 cursor-pointer"
           >
             {copiedCli === 'skillpack' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
             <span>{copiedCli === 'skillpack' ? 'Copied Commands!' : 'Copy Workflow Script'}</span>
@@ -175,33 +165,30 @@ git init
         </div>
 
         <div className="p-4 rounded-2xl bg-black/50 border border-slate-800 text-xs font-mono text-slate-300 space-y-2 overflow-x-auto leading-relaxed">
-          <p className="text-amber-400 font-bold">
-            # Official Challenge Compliance Rule:
+          <p className="text-teal-400 font-bold">
+            # Structured Agent Workflow:
           </p>
           <p>
-            The official Devpost Learn AI Basics challenge requires participants to execute its prescribed <strong>Learn Skill Pack</strong> with an AI coding agent (e.g. Cursor, Claude Code, GitHub Copilot) in a separate, dedicated project directory.
-          </p>
-          <p className="text-teal-300">
-            Dr. T Build With AI provides the complete strategic planning layer: drafting, consistency-checking, and exporting your verified <code>scope.md</code>, <code>prd.md</code>, and <code>spec.md</code> for immediate execution.
+            AI development works best when guided by rigorous planning specifications. Dr. T Build With AI creates, verifies, and exports your complete <code>scope.md</code>, <code>prd.md</code>, and <code>spec.md</code> to direct your coding agent's implementation sprints.
           </p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
           <div className="p-3 rounded-xl bg-white/5 border border-white/10 space-y-1">
-            <span className="text-[10px] uppercase font-bold text-slate-400 block">1. Draft in Dr. T</span>
+            <span className="text-[10px] uppercase font-bold text-slate-400 block">1. Define in Dr. T</span>
             <span className="text-slate-200">Prepare scope, PRD, and architecture with AI guidance.</span>
           </div>
           <div className="p-3 rounded-xl bg-white/5 border border-white/10 space-y-1">
             <span className="text-[10px] uppercase font-bold text-slate-400 block">2. Export Artifacts</span>
-            <span className="text-slate-200">Download Markdown files into your separate project repo.</span>
+            <span className="text-slate-200">Save Markdown files into your workspace project root.</span>
           </div>
           <div className="p-3 rounded-xl bg-white/5 border border-white/10 space-y-1">
-            <span className="text-[10px] uppercase font-bold text-slate-400 block">3. Run Skill Pack</span>
-            <span className="text-slate-200">Execute official coding agent skills to build and test.</span>
+            <span className="text-[10px] uppercase font-bold text-slate-400 block">3. Agent Execution</span>
+            <span className="text-slate-200">Prompt coding agents with specs to build and test.</span>
           </div>
           <div className="p-3 rounded-xl bg-white/5 border border-white/10 space-y-1">
-            <span className="text-[10px] uppercase font-bold text-slate-400 block">4. Submit & Verify</span>
-            <span className="text-slate-200">Supply public repository and demo video links on Devpost.</span>
+            <span className="text-[10px] uppercase font-bold text-slate-400 block">4. Quality & Release</span>
+            <span className="text-slate-200">Verify automated tests, zero secrets, and production build.</span>
           </div>
         </div>
       </div>
@@ -257,7 +244,7 @@ git init
       {/* Detailed 14-Point Readiness Checklist */}
       <div className="p-6 rounded-3xl bg-white border border-slate-200/80 shadow-xs space-y-4">
         <h3 className="text-sm font-bold text-slate-900">
-          Official Submission Checklist & Criteria Breakdown
+          14-Point Quality, Testing & Release Readiness Checklist
         </h3>
 
         <div className="space-y-3">

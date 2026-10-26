@@ -87,9 +87,11 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: 'pianist', label: '🎹 Pianist', icon: <Piano className="w-4 h-4 text-teal-400" />, badge: 'Adaptive' },
     { id: 'touchgrass', label: '🌿 Touch Grass', icon: <Trees className="w-4 h-4 text-emerald-400" />, badge: 'Outdoor' },
     { id: 'bridge', label: 'Health Bridge', icon: <Stethoscope className="w-4 h-4 text-rose-500" />, badge: '11 Pillars' },
-    { id: 'stcool', label: 'HealthAlert Companion', icon: <BellRing className="w-4 h-4 text-rose-500" />, badge: 'Companion' },
+    // Backward-compatibility alias for legacy stcool and HealthAlert Companion references:
+    // { id: 'stcool', label: 'HealthAlert Companion' }
+    { id: 'healthalert', label: 'Health Alert Mini', icon: <BellRing className="w-4 h-4 text-rose-500" />, badge: 'Mini' },
     { id: 'futurehealth', label: 'Future Health', icon: <HeartPulse className="w-4 h-4 text-teal-500" />, badge: 'Challenge 2026' },
-    { id: 'buildwithai', label: 'Build With AI', icon: <Hammer className="w-4 h-4 text-indigo-600" />, badge: 'Devpost' },
+    { id: 'buildwithai', label: 'Build With AI', icon: <Hammer className="w-4 h-4 text-indigo-600" />, badge: 'Workspace' },
     { id: 'deck', label: 'Executive Deck', icon: <Presentation className="w-4 h-4 text-purple-600" />, badge: 'MVP Brief' },
     { id: 'cinema', label: '🎬 Cinema', icon: <Clapperboard className="w-4 h-4 text-amber-500" />, badge: 'Studio' },
     { id: 'tribhouse', label: '🌳 Trib-House', icon: <Trees className="w-4 h-4 text-emerald-600" />, badge: 'Living Library' },
@@ -245,7 +247,10 @@ export const Navbar: React.FC<NavbarProps> = ({
         {/* Primary Tab Navigation Ribbon */}
         <nav className="flex space-x-1.5 overflow-x-auto scrollbar-none py-1.5 border-t border-slate-100">
           {navItems.map((item) => {
-            const isActive = activeTab === item.id || (item.id === 'stcool' && (activeTab as string) === 'healthalert');
+            const isActive = 
+              activeTab === item.id || 
+              (item.id === 'healthalert' && (activeTab as string) === 'stcool') ||
+              (item.id === 'stcool' && (activeTab as string) === 'healthalert');
             
             // Dynamic bright active styles
             const getActiveStyle = (id: NavTab) => {

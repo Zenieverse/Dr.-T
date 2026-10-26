@@ -58,7 +58,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <span className="px-2 py-0.5 rounded-full bg-amber-200 text-amber-900 font-mono text-[10px] font-bold">Read-Only Template</span>
             </div>
             <p className="text-amber-800/90 leading-relaxed">
-              This is a synthetic reference project demonstrating an approved <code>scope.md</code>, <code>prd.md</code>, and <code>spec.md</code> for the Devpost Learn AI Basics challenge. You can review its architecture, duplicate it as a starting point, or create your own project anew.
+              This is a reference project demonstrating verified <code>scope.md</code>, <code>prd.md</code>, and <code>spec.md</code> planning specifications. You can review its architecture, duplicate it as a starting point, or create your own project anew.
             </p>
           </div>
         </div>
@@ -77,8 +77,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <Bot className="w-3.5 h-3.5 text-teal-400" />
                 <span>{project.modelPreference}</span>
               </span>
-              <span className="px-3 py-1 rounded-full text-xs font-medium bg-indigo-500/20 text-indigo-200 border border-indigo-400/30">
-                Devpost Learn AI Basics
+              <span className="px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/20 text-emerald-200 border border-emerald-400/30">
+                AI Engineering Workspace
               </span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-black text-white font-display tracking-tight">
@@ -116,7 +116,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <span className="text-[10px] text-slate-400">{taskProgressPct}% sprint</span>
             </div>
             <div className="p-4 rounded-2xl bg-white/5 border border-white/10 text-center space-y-1">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Devpost Ready</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Release Ready</span>
               <div className="text-2xl font-black text-purple-300 font-display">
                 {checklistProgressPct}%
               </div>
@@ -285,11 +285,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <span className="font-medium">Code Assist</span>
               </button>
               <button 
-                onClick={() => setActiveSubtab('devpost')}
+                onClick={() => setActiveSubtab('readiness')}
                 className="p-2.5 rounded-xl border border-slate-200 hover:border-slate-300 bg-slate-50 text-slate-700 hover:bg-white transition flex items-center space-x-2 col-span-2"
               >
-                <Trophy className="w-3.5 h-3.5 text-amber-600" />
-                <span className="font-medium">Devpost Learn AI Basics Checklist</span>
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                <span className="font-medium">Project Quality & Release Readiness</span>
               </button>
             </div>
           </div>

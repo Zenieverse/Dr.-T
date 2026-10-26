@@ -27,7 +27,8 @@ import {
   ExternalLink,
   Flame,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  ShieldCheck
 } from 'lucide-react';
 
 interface BuildWithAiModuleProps {
@@ -134,7 +135,7 @@ export const BuildWithAiModule: React.FC<BuildWithAiModuleProps> = ({ setActiveT
     { id: 'editor', label: 'Document Editor', icon: <FileText className="w-4 h-4 text-blue-600" />, badge: 'scope/prd/spec' },
     { id: 'tasks', label: 'Task Board', icon: <Kanban className="w-4 h-4 text-amber-600" /> },
     { id: 'assistant', label: 'Coding Assistant', icon: <Code2 className="w-4 h-4 text-emerald-600" /> },
-    { id: 'devpost', label: 'Devpost Learn AI Basics', icon: <Trophy className="w-4 h-4 text-amber-500" />, badge: 'Challenge' }
+    { id: 'readiness', label: 'Quality & Readiness', icon: <ShieldCheck className="w-4 h-4 text-emerald-600" />, badge: 'Release' }
   ];
 
   return (
@@ -154,7 +155,7 @@ export const BuildWithAiModule: React.FC<BuildWithAiModuleProps> = ({ setActiveT
                     Build With AI
                   </h1>
                   <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
-                    Devpost Learn AI Basics
+                    AI Engineering Workspace
                   </span>
                 </div>
                 <p className="text-xs text-slate-500">
@@ -288,7 +289,7 @@ export const BuildWithAiModule: React.FC<BuildWithAiModuleProps> = ({ setActiveT
           />
         )}
 
-        {activeSubtab === 'devpost' && (
+        {(activeSubtab === 'readiness' || activeSubtab === 'devpost') && (
           <LearnAiBasicsView
             project={activeProject}
             onUpdateProject={handleUpdateProject}

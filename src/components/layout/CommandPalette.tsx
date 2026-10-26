@@ -43,7 +43,8 @@ import {
   Briefcase,
   Play,
   BellRing,
-  Hammer
+  Hammer,
+  CheckCircle2
 } from 'lucide-react';
 
 interface CommandPaletteProps {
@@ -95,20 +96,20 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       ]
     },
     {
-      category: '🔔 HealthAlert Companion (Symptom-to-Care Orientation)',
+      category: '🔔 Health Alert Mini (Symptom-to-Care Orientation)',
       items: [
         {
-          label: 'HealthAlert Companion — Early Warning & Clinical Navigation',
+          label: 'Health Alert Mini — Early Warning & Clinical Navigation',
           icon: <BellRing className="w-4 h-4 text-rose-500" />,
           action: () => {
-            setActiveTab('stcool');
+            setActiveTab('healthalert');
             onClose();
           }
         }
       ]
     },
     {
-      category: '🛠️ Build With AI (Devpost Learn AI Basics Workspace)',
+      category: '🛠️ Build With AI (AI Engineering Workspace)',
       items: [
         {
           label: 'Build With AI — Idea to Tested, Documented AI Project',
@@ -127,8 +128,8 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
           }
         },
         {
-          label: 'Build With AI — Devpost Learn AI Basics Submission Checklist',
-          icon: <Trophy className="w-4 h-4 text-amber-500" />,
+          label: 'Build With AI — Project Quality & Release Readiness Checklist',
+          icon: <CheckCircle2 className="w-4 h-4 text-emerald-600" />,
           action: () => {
             setActiveTab('buildwithai');
             onClose();

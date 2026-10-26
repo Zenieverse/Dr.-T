@@ -46,8 +46,8 @@ console.log('Test Group 1: Dr. T Platform Navigation & Tab Integration');
 
 const navbarPath = path.join(process.cwd(), 'src', 'components', 'layout', 'Navbar.tsx');
 const navbarContent = fs.readFileSync(navbarPath, 'utf8');
-assert(navbarContent.includes("label: 'HealthAlert Companion'"), 'Navbar renders consolidated tab "HealthAlert Companion"');
-assert(navbarContent.includes("id: 'stcool'"), 'Navbar includes consolidated HealthAlert Companion tab ID');
+assert(navbarContent.includes("Health Alert Mini") || navbarContent.includes("label: 'HealthAlert Companion'"), 'Navbar renders tab "Health Alert Mini" / "HealthAlert Companion"');
+assert(navbarContent.includes("id: 'healthalert'") || navbarContent.includes("id: 'stcool'"), 'Navbar includes healthalert / stcool tab ID');
 
 const appPath = path.join(process.cwd(), 'src', 'App.tsx');
 const appContent = fs.readFileSync(appPath, 'utf8');

@@ -77,7 +77,7 @@ const STAGES: StageDetail[] = [
     objectives: [
       'Craft user stories with clear "As a / I want / So that" format.',
       'Sequence chronological milestones from MVP to public release.',
-      'Align project timeline with Devpost challenge submission deadline.'
+      'Align project timeline with release milestones and target launch.'
     ],
     deliverables: ['Project Brief with Milestones', 'Validated User Stories'],
     recommendedSubtab: 'intake',
@@ -150,18 +150,18 @@ const STAGES: StageDetail[] = [
   {
     id: 'publish',
     title: '8. Publish',
-    tagline: 'Submit to Devpost Learn AI Basics with complete verifiable evidence',
+    tagline: 'Deliver public release with complete verifiable evidence and documentation',
     icon: <Rocket className="w-5 h-5 text-rose-500" />,
     color: 'rose',
-    badge: 'Submission Gate',
+    badge: 'Release Gate',
     objectives: [
-      'Complete all 14 checklist criteria for Devpost Learn AI Basics.',
+      'Complete all 14 quality & release criteria.',
       'Supply verifiable public GitHub repository and demo video URLs.',
-      'Submit project before the official deadline in local timezone.'
+      'Verify zero secrets, test coverage, and clean production build.'
     ],
-    deliverables: ['Devpost Submission', 'Public verified GitHub release'],
-    recommendedSubtab: 'devpost',
-    subtabLabel: 'Open Submission Checklist'
+    deliverables: ['Production Release', 'Public verified GitHub release'],
+    recommendedSubtab: 'readiness',
+    subtabLabel: 'Open Quality & Readiness Audit'
   }
 ];
 
@@ -184,7 +184,7 @@ export const LifecycleView: React.FC<LifecycleViewProps> = ({
             <h2 className="text-lg font-bold text-slate-900">8-Stage AI Project Lifecycle</h2>
           </div>
           <p className="text-xs text-slate-600 max-w-2xl leading-relaxed">
-            A disciplined, evidence-first framework guiding your project from raw idea to fully tested, documented software ready for the <strong>Devpost Learn AI Basics</strong> challenge.
+            A disciplined, evidence-first framework guiding your project from raw idea to fully tested, documented software ready for production release and public demonstration.
           </p>
         </div>
         <div className="flex items-center space-x-2 text-xs font-mono">
