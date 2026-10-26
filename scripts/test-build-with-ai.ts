@@ -113,6 +113,97 @@ async function runBuildWithAiTests() {
   assert(rulesContent.includes('/buildwithai_projects/{projectId}'), "firestore.rules protects 'buildwithai_projects' collection");
   assert(rulesContent.includes('resource.data.userId == request.auth.uid'), "buildwithai_projects enforces user ownership on read");
 
+  // Group 6: Root Devpost Planning Documents & Submission Checklist
+  console.log('\nTest Group 6: Root Devpost Planning Documents & Submission Checklist');
+  const rootScopeExists = fs.existsSync(path.resolve('scope.md'));
+  assert(rootScopeExists, 'Root scope.md exists in repository root');
+  if (rootScopeExists) {
+    const scopeDoc = {
+      id: 'root_scope',
+      filename: 'scope.md' as const,
+      title: 'Project Scope',
+      content: fs.readFileSync(path.resolve('scope.md'), 'utf-8'),
+      status: 'approved' as const,
+      lastUpdated: new Date().toISOString(),
+      isApproved: true,
+      sourceOfTruth: 'human_authored' as const,
+      requiredSections: [
+        '1. Problem Statement',
+        '2. Target Users',
+        '3. Goals and Objectives',
+        '4. Scope Boundaries',
+        '5. Exclusions',
+        '6. Constraints',
+        '7. Acceptance Criteria'
+      ],
+      validationErrors: []
+    };
+    const errors = BuildWithAiService.validateDocumentSections(scopeDoc);
+    assert(errors.length === 0, 'Root scope.md passes all 7 section validation checks');
+  }
+
+  const rootPrdExists = fs.existsSync(path.resolve('prd.md'));
+  assert(rootPrdExists, 'Root prd.md exists in repository root');
+  if (rootPrdExists) {
+    const prdDoc = {
+      id: 'root_prd',
+      filename: 'prd.md' as const,
+      title: 'Product Requirements Document',
+      content: fs.readFileSync(path.resolve('prd.md'), 'utf-8'),
+      status: 'approved' as const,
+      lastUpdated: new Date().toISOString(),
+      isApproved: true,
+      sourceOfTruth: 'human_authored' as const,
+      requiredSections: [
+        '1. Product Vision',
+        '2. User Personas and Stories',
+        '3. Feature Requirements',
+        '4. Prioritization',
+        '5. User Experience & Flows',
+        '6. Non-Functional Requirements',
+        '7. Success Metrics'
+      ],
+      validationErrors: []
+    };
+    const errors = BuildWithAiService.validateDocumentSections(prdDoc);
+    assert(errors.length === 0, 'Root prd.md passes all 7 section validation checks');
+  }
+
+  const rootSpecExists = fs.existsSync(path.resolve('spec.md'));
+  assert(rootSpecExists, 'Root spec.md exists in repository root');
+  if (rootSpecExists) {
+    const specDoc = {
+      id: 'root_spec',
+      filename: 'spec.md' as const,
+      title: 'Technical Specification',
+      content: fs.readFileSync(path.resolve('spec.md'), 'utf-8'),
+      status: 'approved' as const,
+      lastUpdated: new Date().toISOString(),
+      isApproved: true,
+      sourceOfTruth: 'human_authored' as const,
+      requiredSections: [
+        '1. System Architecture',
+        '2. Component Design',
+        '3. Data Models and Contracts',
+        '4. Error Handling and Resilience',
+        '5. Security and Privacy Architecture',
+        '6. Test Plan',
+        '7. Deployment and Operations'
+      ],
+      validationErrors: []
+    };
+    const errors = BuildWithAiService.validateDocumentSections(specDoc);
+    assert(errors.length === 0, 'Root spec.md passes all 7 section validation checks');
+  }
+
+  const checklistExists = fs.existsSync(path.resolve('docs/learn-ai-basics-submission-checklist.md'));
+  assert(checklistExists, 'docs/learn-ai-basics-submission-checklist.md exists');
+  if (checklistExists) {
+    const checklistContent = fs.readFileSync(path.resolve('docs/learn-ai-basics-submission-checklist.md'), 'utf-8');
+    assert(checklistContent.includes('https://learn-ai-basics.devpost.com/'), 'Checklist references official Devpost challenge URL');
+    assert(checklistContent.includes('https://github.com/Zenieverse/Dr.-T'), 'Checklist references public GitHub repository');
+  }
+
   console.log('\n======================================================');
   console.log(`TOTAL BUILD WITH AI TESTS: ${passed + failed} | PASSED: ${passed} | FAILED: ${failed}`);
   console.log('======================================================');

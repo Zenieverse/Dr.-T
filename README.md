@@ -113,32 +113,35 @@ An authoritative, evidence-grounded health monitoring, triage, and physician-han
 ### 7. 🛠️ Build With AI — Devpost Learn AI Basics Challenge Companion
 Official Challenge: [Devpost Learn AI Basics](https://learn-ai-basics.devpost.com/) | Navigation Tab: `Build With AI` (`buildwithai`)
 
-A dedicated AI project scoping, planning, implementation, testing, and submission companion designed for hackathons and software build competitions:
+#### The Problem & Intended Users
+* **The Problem**: Developers entering AI competitions often encounter severe friction moving from high-level ideas to disciplined software architecture. Projects frequently suffer from missing required challenge artifacts (`scope.md`, `prd.md`, `spec.md`), mismatched terminology across documents, unprioritized task execution, and unverified AI prompts.
+* **Intended Users**: Hackathon builders, first-time AI developers participating in the Devpost Learn AI Basics challenge, and technical architects who need a structured, verifiable path from ideation to submission.
 
-* **8-Stage Project Lifecycle**:
-  * `Discover`: Problem space exploration and opportunity assessment.
-  * `Scope`: Defining non-negotiable boundaries, personas, and out-of-scope guardrails (`scope.md`).
-  * `Plan`: Product requirements document (`prd.md`) with prioritized user stories and release milestones.
-  * `Specify`: Architecture specification (`spec.md`) with data models, API schemas, security constraints, and error budgets.
-  * `Build`: Kanban execution board with 6 sprint states (Backlog, Ready, In Progress, Testing, Done, Blocked) and AI code assistance.
-  * `Test`: Test matrix mapping unit, integration, safety, and edge-case test suites.
-  * `Document`: Challenge `README.md` generator with badges, live demo links, setup steps, and architectural diagrams.
-  * `Publish`: Submission readiness gate verifying Devpost criteria and Learn Skill Pack requirements.
-* **Document Validation & Cross-Consistency Engine**:
-  * Real-time section completeness validation enforcing mandatory headers across `scope.md`, `prd.md`, `spec.md`, and `README.md`.
-  * Multi-document mutual consistency analyzer detecting vocabulary alignment, persona-to-spec coverage, and risk mitigation matching.
-  * In-browser `.md` single-file download and one-click JSON project bundle manifest export.
-* **Coding Assistant & Review Engine**:
-  * Code snippet security and defect analyzer with suggested unit tests and plain-language logic explanations.
-  * Coding agent prompt generator creating structured instructions for external coding agents.
-* **Devpost Challenge Center & Learn Skill Pack Guide**:
-  * 14-point verifiable readiness checklist ensuring submission eligibility.
-  * Learn Skill Pack workflow instructions with one-click terminal command copy (clarifying Dr. T does not claim to run local CLI skills in-browser).
-  * Synthetic reference project **HealthAlert Mini** included as an interactive, fully compliant template.
-* **Server AI Proxy & Safety Fallbacks**:
-  * Dedicated backend endpoints (`/api/build-with-ai/brief`, `/api/build-with-ai/draft-doc`, `/api/build-with-ai/code-assist`) powered by `@google/genai` (model `gemini-3.8-flash`) with a 2,500ms race timeout and deterministic heuristic fallbacks.
-* **User Isolation & Firestore Security**:
-  * Firestore collection `buildwithai_projects` isolated per user (`userId == request.auth.uid`), preventing unauthenticated access or tampering.
+#### What Build With AI Does Today
+* **8-Stage Project Lifecycle**: An interactive visual stepper guiding builders through `Discover` ➔ `Scope` ➔ `Plan` ➔ `Specify` ➔ `Build` ➔ `Test` ➔ `Document` ➔ `Publish`.
+* **Guided Project Intake & Gemini Synthesis**: A structured questionnaire capturing problem statement, audience, proposed solution, features, and constraints, synthesized by `gemini-3.8-flash` into personas, user stories, and technical risks.
+* **Document Studio with Section Validation**: A live Markdown authoring workbench for `scope.md`, `prd.md`, `spec.md`, and `README.md` with real-time completeness checks enforcing all 7 mandatory sections per document type.
+* **Cross-Document Mutual Consistency Engine**: Analyzes terminology, persona traceability, and technical boundary alignment across documents to eliminate requirements drift.
+* **Sprint Task Board (Kanban)**: 6 sprint stages (Backlog, Ready, In Progress, Testing, Done, Blocked) with acceptance criteria, time estimates, and direct links to code review.
+* **Coding Assistant & Prompt Generator**: Code review workbench analyzing security flaws, edge cases, unit test coverage, and plain-language logic explanations, plus structured prompt formatting for external coding agents.
+* **Devpost Compliance Center**: 14-point verifiable checklist mapped to official submission criteria, with one-click `.md` download and complete `.json` project bundle manifest export.
+* **Reference Demonstration Template**: Includes **HealthAlert Mini**, a fully compliant pre-populated project (explicitly labeled as an educational, non-diagnostic template).
+
+#### Architecture & Model Usage
+* **Frontend**: React 18 SPA with TypeScript 5.7 and Tailwind CSS 4 (`src/components/buildwithai/`).
+* **Backend Proxy**: Express 5 on Node.js 22 (`src/server/buildWithAiServerService.ts`).
+* **GenAI Model**: `@google/genai` using model `gemini-3.8-flash`. Deprecated models are strictly prohibited.
+* **Resilience & Timeout Budget**: All Gemini API calls enforce a strict 2,500ms `Promise.race` timeout, gracefully falling back to deterministic heuristic generation if the AI service times out or is unconfigured.
+* **Persistence & Security**: Authenticated projects persist to Firebase Firestore collection `/buildwithai_projects/{projectId}` with ownership isolation (`userId == request.auth.uid`). Unauthenticated guests use an isolated browser `localStorage` sandbox.
+
+#### Truthful Disclosures & Known Limitations
+1. **Platform Integration**: Build With AI is natively integrated into the existing Dr. T platform and reuses its Express backend, Firebase authentication, and Cloud Run infrastructure. It preserves all existing Dr. T tabs (HealthAlert Companion, MicroBiz, PIANIST, Hedera Commons).
+2. **Learn Skill Pack Execution**: The Dr. T application runs in a secure browser sandbox and **does NOT claim to execute local terminal CLI skill packs inside the browser**. The application provides official instructions and copyable commands for builders to execute in their local terminal:
+   ```bash
+   npx @devpost/learn-skill-pack init
+   ```
+3. **Collaboration**: Real-time collaborative multi-cursor document editing is currently deferred to post-hackathon releases.
+4. **Non-Diagnostic**: The HealthAlert Mini template project is provided solely for educational reference and demonstration purposes.
 
 ---
 
@@ -222,13 +225,21 @@ node scripts/audit-secret-scan.cjs           # Run repository secret scan
 ## 📂 Project Architecture
 
 ```
+├── scope.md                                   # Devpost challenge project scope
+├── prd.md                                     # Devpost challenge product requirements
+├── spec.md                                    # Devpost challenge technical architecture
+├── docs/
+│   ├── learn-ai-basics-submission-checklist.md# 14-point submission readiness checklist
+│   └── patches/                               # Complete Git patch series
 ├── .env.example                               # Environment template (zero secrets)
 ├── firebase-applet-config.json                # Firebase client configuration
-├── firestore.rules                            # Firestore RBAC and ownership security rules
+├── firestore.rules                            # Firestore RBAC, ownership & project rules
 ├── package.json                               # Dependencies & build scripts
-├── server.impl.ts                             # Express server & Gemini API proxy routes
+├── server.impl.ts                             # Express server, Gemini & MCP routes
 ├── server.ts                                  # Full-stack server entry point
 ├── scripts/
+│   ├── test-build-with-ai.ts                  # Build With AI test suite (31+ tests)
+│   ├── test-firestore-security-rules.ts       # Security rules test suite (24 tests)
 │   ├── audit-secret-scan.cjs                  # Secret scanning utility
 │   ├── test-microbiz-invariants.ts            # MicroBiz automated verification suite
 │   ├── test-hashing-invariants.ts             # Cryptographic canonical serialization test
@@ -236,12 +247,19 @@ node scripts/audit-secret-scan.cjs           # Run repository secret scan
 ├── src/
 │   ├── App.tsx                                # Main application orchestrator & navigation
 │   ├── main.tsx                               # React DOM entry point
+│   ├── server/
+│   │   └── buildWithAiServerService.ts        # Server-side GenAI service with timeout & fallbacks
 │   ├── services/
 │   │   └── firebase.ts                        # Firebase SDK & Auth helpers
 │   ├── components/
 │   │   ├── layout/
 │   │   │   ├── Navbar.tsx                     # Top primary navigation bar
 │   │   │   └── CommandPalette.tsx             # Cmd+K quick navigation palette
+│   │   ├── buildwithai/                       # Build With AI companion workspace
+│   │   │   ├── BuildWithAiModule.tsx          # Central tab shell & project manager
+│   │   │   ├── types.ts                       # Project & document data contracts
+│   │   │   ├── data/templateProject.ts        # HealthAlert Mini reference template
+│   │   │   ├── services/buildWithAiService.ts # Local & Firestore sync, validation engines
 │   │   ├── microbiz/                          # Dr. T MicroBiz platform
 │   │   │   ├── MicroBizApp.tsx                # MicroBiz central container & subtab state
 │   │   │   ├── components/
@@ -336,7 +354,7 @@ curl -s -X POST http://localhost:3000/api/health-alert/agent -H "Content-Type: a
 
 ### 3. Full Automated Test Suite Execution
 ```bash
-# Runs all 7 test suites (208+ assertions)
+# Runs all 8 test suites (239+ assertions)
 npm test
 
 # Verify type safety
@@ -344,6 +362,24 @@ npm run lint
 
 # Production build
 npm run build
+```
+
+### 4. Build With AI Verification (Devpost Learn AI Basics)
+```bash
+# Direct execution of Build With AI test suite (35+ assertions)
+npx tsx scripts/test-build-with-ai.ts
+
+# Test Project Brief generation endpoint (server Gemini 3.8 Flash proxy with fallback)
+curl -s -X POST http://localhost:3000/api/build-with-ai/brief -H "Content-Type: application/json" \
+  -d '{"name":"EcoTracker","description":"Solar home energy monitor","targetAudience":"Homeowners","problemStatement":"High peak energy costs"}' | jq .
+
+# Test Document Drafting endpoint
+curl -s -X POST http://localhost:3000/api/build-with-ai/draft-doc -H "Content-Type: application/json" \
+  -d '{"docType":"scope.md","projectName":"EcoTracker","brief":{"problemStatement":"High energy costs"}}' | jq .
+
+# Test Code Assist & Review endpoint
+curl -s -X POST http://localhost:3000/api/build-with-ai/code-assist -H "Content-Type: application/json" \
+  -d '{"filename":"src/solar.ts","codeSnippet":"export function isPeak(hour: number) { return hour >= 16 && hour <= 21; }"}' | jq .
 ```
 
 ---
