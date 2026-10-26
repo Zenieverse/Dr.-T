@@ -48,6 +48,7 @@ import {
   runAgentOrchestration
 } from './src/server/healthAlertMcpServer';
 import { BuildWithAiServerService } from './src/server/buildWithAiServerService';
+import { VisionAlertServerService } from './src/server/visionAlertServerService';
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
@@ -4645,6 +4646,48 @@ app.post('/api/health-alert/agent', async (req, res) => {
       error: err.message || 'HealthAlert Agent Orchestrator encountered an internal error.'
     });
   }
+});
+
+// ==========================================
+// DR. T VISION ALERT — OPENCV 5 & AWS ENDPOINTS
+// OpenCV AI Competition 2026 (Powered by AWS)
+// ==========================================
+
+app.post('/api/vision-alert/process', async (req, res) => {
+  try {
+    const { imageBase64, deviceTypeHint } = req.body || {};
+    if (!imageBase64) {
+      return res.status(400).json({ success: false, error: 'imageBase64 parameter is required.' });
+    }
+    const gemini = getGemini();
+    const result = await VisionAlertServerService.processImage(imageBase64, deviceTypeHint, gemini);
+    return res.json(result);
+  } catch (err: any) {
+    console.error('Vision Alert Process Error:', err);
+    return res.status(400).json({
+      success: false,
+      error: err.message || 'Vision Alert processing failed.'
+    });
+  }
+});
+
+app.post('/api/vision-alert/explain', async (req, res) => {
+  try {
+    const readings = req.body || {};
+    const gemini = getGemini();
+    const explanation = await VisionAlertServerService.explainReadings(readings, gemini);
+    return res.json(explanation);
+  } catch (err: any) {
+    console.error('Vision Alert Explain Error:', err);
+    return res.status(500).json({
+      success: false,
+      error: err.message || 'Vision Alert explanation failed.'
+    });
+  }
+});
+
+app.get('/api/vision-alert/health', (req, res) => {
+  return res.json(VisionAlertServerService.getHealthCheck());
 });
 
 // ==========================================

@@ -44,7 +44,8 @@ import {
   Play,
   BellRing,
   Hammer,
-  CheckCircle2
+  CheckCircle2,
+  Camera
 } from 'lucide-react';
 
 interface CommandPaletteProps {
@@ -101,6 +102,14 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         {
           label: 'Health Alert Mini — Early Warning & Clinical Navigation',
           icon: <BellRing className="w-4 h-4 text-rose-500" />,
+          action: () => {
+            setActiveTab('healthalert');
+            onClose();
+          }
+        },
+        {
+          label: 'Vision Alert — Physical Health Monitor Visual Reading Assistant (OpenCV 5 & AWS)',
+          icon: <Camera className="w-4 h-4 text-amber-500" />,
           action: () => {
             setActiveTab('healthalert');
             onClose();

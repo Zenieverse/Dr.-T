@@ -1,0 +1,221 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >
+  Dr. T Vision Alert - AWS Graviton ARM64 Serverless Infrastructure
+  OpenCV AI Competition 2026 (Powered by AWS)
+  Provisions Graviton-accelerated Lambda with Cloud-Optimized OpenCV Library (COOL),
+  ephemeral 1-day auto-purging S3 storage, API Gateway HTTP API, and least-privilege IAM.
+
+Parameters:
+  EnvironmentName:
+    Type: String
+    Default: production
+    AllowedValues: [development, staging, production]
+    Description: Deployment target environment.
+
+  LambdaMemorySize:
+    Type: Number
+    Default: 1024
+    AllowedValues: [512, 1024, 1536, 2048]
+    Description: Memory allocation in MB for Graviton ARM64 Lambda (higher memory grants more CPU cores for KleidiCV vectorization).
+
+  LogRetentionDays:
+    Type: Number
+    Default: 7
+    AllowedValues: [1, 3, 7, 14, 30]
+    Description: Retention period for CloudWatch application logs (privacy minimization).
+
+Resources:
+  # ---------------------------------------------------------------------------
+  # 1. Ephemeral S3 Quarantine Bucket (1-Day Automatic Expiration)
+  # ---------------------------------------------------------------------------
+  EphemeralProcessingBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub 'dr-t-vision-alert-ephemeral-${AWS::AccountId}-${AWS::Region}'
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      LifecycleConfiguration:
+        Rules:
+          - Id: PurgeDiagnosticArtifactsAfter24Hours
+            Status: Enabled
+            ExpirationInDays: 1
+            NoncurrentVersionExpirationInDays: 1
+            AbortIncompleteMultipartUpload:
+              DaysAfterInitiation: 1
+      Tags:
+        - Key: Project
+          Value: DrT-VisionAlert
+        - Key: Competition
+          Value: OpenCV-AI-Competition-2026
+        - Key: Compliance
+          Value: TransientProcessingOnly
+
+  # ---------------------------------------------------------------------------
+  # 2. Least-Privilege IAM Execution Role for Lambda
+  # ---------------------------------------------------------------------------
+  VisionAlertLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub 'dr-t-vision-alert-graviton-role-${AWS::Region}'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: EphemeralS3TransientAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:PutObject
+                  - s3:GetObject
+                Resource: !Sub '${EphemeralProcessingBucket.Arn}/*'
+        - PolicyName: CloudWatchMetricsLogging
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - cloudwatch:PutMetricData
+                Resource: '*'
+                Condition:
+                  StringEquals:
+                    cloudwatch:namespace: 'DrT/VisionAlert'
+
+  # ---------------------------------------------------------------------------
+  # 3. CloudWatch Log Group with Strict Retention Limit
+  # ---------------------------------------------------------------------------
+  VisionAlertLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/dr-t-vision-alert-${EnvironmentName}'
+      RetentionInDays: !Ref LogRetentionDays
+
+  # ---------------------------------------------------------------------------
+  # 4. AWS Graviton ARM64 Lambda Function (COOL / OpenCV 5)
+  # ---------------------------------------------------------------------------
+  VisionAlertGravitonFunction:
+    Type: AWS::Lambda::Function
+    DependsOn: VisionAlertLogGroup
+    Properties:
+      FunctionName: !Sub 'dr-t-vision-alert-${EnvironmentName}'
+      Description: 'OpenCV 5 COOL pipeline with Arm KleidiCV vectorization on AWS Graviton3/4'
+      Runtime: python3.11
+      Architectures:
+        - arm64
+      Handler: vision_alert_handler.lambda_handler
+      MemorySize: !Ref LambdaMemorySize
+      Timeout: 30
+      Role: !GetAtt VisionAlertLambdaExecutionRole.Arn
+      Code:
+        ZipFile: |
+          # Placeholder code deployed by CloudFormation.
+          # Production CI/CD packages aws/lambda/vision_alert_handler.py alongside opencv-python-headless
+          def lambda_handler(event, context):
+              return {
+                  "statusCode": 200,
+                  "body": '{"status":"ok","engine":"OpenCV 5 COOL (Cloud-Optimized OpenCV)","arch":"arm64-graviton"}'
+              }
+      Environment:
+        Variables:
+          ENVIRONMENT: !Ref EnvironmentName
+          EPHEMERAL_BUCKET: !Ref EphemeralProcessingBucket
+          LAPLACIAN_BLUR_THRESHOLD: '80.0'
+          GLARE_RATIO_THRESHOLD: '0.22'
+          RMS_CONTRAST_THRESHOLD: '14.0'
+          MAX_IMAGE_BYTES: '5242880'
+      Tags:
+        - Key: Project
+          Value: DrT-VisionAlert
+        - Key: Architecture
+          Value: AWS-Graviton-ARM64
+
+  # ---------------------------------------------------------------------------
+  # 5. Amazon API Gateway HTTP API (v2) with Strict CORS
+  # ---------------------------------------------------------------------------
+  VisionAlertHttpApi:
+    Type: AWS::ApiGatewayV2::Api
+    Properties:
+      Name: !Sub 'dr-t-vision-alert-api-${EnvironmentName}'
+      ProtocolType: HTTP
+      Description: 'HTTP API Gateway routing visual intake requests to Graviton ARM64 Lambda'
+      CorsConfiguration:
+        AllowOrigins:
+          - 'https://*'
+          - 'http://localhost:3000'
+        AllowMethods:
+          - GET
+          - POST
+          - OPTIONS
+        AllowHeaders:
+          - Content-Type
+          - Authorization
+          - X-Amz-Date
+          - X-Api-Key
+          - X-Amz-Security-Token
+        MaxAge: 3600
+
+  VisionAlertApiIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref VisionAlertHttpApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${VisionAlertGravitonFunction.Arn}/invocations'
+      PayloadFormatVersion: '2.0'
+
+  ProcessRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref VisionAlertHttpApi
+      RouteKey: 'POST /vision-alert/process'
+      Target: !Sub 'integrations/${VisionAlertApiIntegration}'
+
+  HealthRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref VisionAlertHttpApi
+      RouteKey: 'GET /vision-alert/health'
+      Target: !Sub 'integrations/${VisionAlertApiIntegration}'
+
+  ApiStage:
+    Type: AWS::ApiGatewayV2::Stage
+    Properties:
+      ApiId: !Ref VisionAlertHttpApi
+      StageName: !Ref EnvironmentName
+      AutoDeploy: true
+
+  LambdaApiPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref VisionAlertGravitonFunction
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${VisionAlertHttpApi}/*'
+
+Outputs:
+  ApiEndpointUrl:
+    Description: Base HTTP API Endpoint for Dr. T Vision Alert
+    Value: !Sub 'https://${VisionAlertHttpApi}.execute-api.${AWS::Region}.amazonaws.com/${EnvironmentName}'
+    Export:
+      Name: !Sub '${AWS::StackName}-ApiEndpoint'
+
+  LambdaFunctionArn:
+    Description: ARN of the Graviton ARM64 COOL Lambda Function
+    Value: !GetAtt VisionAlertGravitonFunction.Arn
+
+  EphemeralBucketName:
+    Description: Ephemeral S3 Bucket Name (1-Day Retention)
+    Value: !Ref EphemeralProcessingBucket

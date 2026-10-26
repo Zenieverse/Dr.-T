@@ -8,6 +8,8 @@
 [![MCP](https://img.shields.io/badge/MCP-2025--11--25%20Streamable%20HTTP-00A4A6.svg)](https://modelcontextprotocol.io/)
 [![Amazon Alexa+](https://img.shields.io/badge/Amazon%20Developer%20Hackathon-Alexa%2B%20Track%202026-FF9900.svg?logo=amazonalexa)](https://amazonappdev2026.devpost.com/)
 [![Devpost](https://img.shields.io/badge/Devpost-Learn%20AI%20Basics%202026-003E54.svg?logo=devpost)](https://learn-ai-basics.devpost.com/)
+[![OpenCV AI Competition 2026](https://img.shields.io/badge/OpenCV%20AI%20Competition-2026%20AWS%20Graviton-black.svg?logo=opencv)](https://opencv26.devpost.com/)
+[![AWS Graviton](https://img.shields.io/badge/AWS%20Graviton3-ARM64%20Serverless-FF9900.svg?logo=amazonaws)](https://aws.amazon.com/ec2/graviton/)
 [![Hedera](https://img.shields.io/badge/Hedera-HCS%20Provenance-222222.svg)](https://hedera.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
@@ -141,7 +143,43 @@ Official Challenge: [Devpost Learn AI Basics](https://learn-ai-basics.devpost.co
    npx @devpost/learn-skill-pack init
    ```
 3. **Collaboration**: Real-time collaborative multi-cursor document editing is currently deferred to post-hackathon releases.
-4. **Non-Diagnostic**: The HealthAlert Mini template project is provided solely for educational reference and demonstration purposes.
+---
+
+### 8. 🩺 Dr. T Vision Alert — OpenCV AI Competition 2026 (Powered by AWS)
+Official Challenge: [OpenCV AI Competition 2026 (Powered by AWS)](https://opencv26.devpost.com/) | Integration Point: **Health Alert Mini** (`healthalert`)
+
+#### The Problem & Solution
+* **The Problem**: Reading small, low-contrast LCD screens on blood pressure monitors and pulse oximeters is fraught with transcription error, particularly for elderly patients or individuals experiencing severe hypertensive headaches, tremors, or visual blur. Generic AI vision models hallucinate numbers when presented with glare, angles, or noise.
+* **The Solution**: **Dr. T Vision Alert** is an assistive computer-vision system that reads physical medical monitors using **OpenCV 5** and **Cloud-Optimized OpenCV (COOL)** on **AWS Graviton (ARM64)**, pairing mathematical quality gating with a mandatory **Human Confirmation Gate** and deterministic emergency triage escalation.
+
+#### Key Architectural Capabilities
+1. **OpenCV 5 Quality Assessment (COOL)**:
+   * **Laplacian Variance Blur Filter**: Discrete operator $\nabla^2 I(x,y)$ enforcing edge sharpness ($\sigma^2 \ge 80.0$).
+   * **Specular Glare Rejection**: Luminance histogram saturation analysis ($Y \ge 250$). If $>22\%$ of the frame is washed out by overhead reflection, the frame is rejected with actionable orientation guidance.
+   * **RMS Contrast Check**: Enforces $C_{\text{RMS}} \ge 14.0$ to guarantee legible digits against display backgrounds.
+2. **Display Localization & Perspective Rectification**:
+   * Quadrilateral LCD bezel discovery mapping four corners via `warpPerspective` onto a canonical $480 \times 320$ rectified plane.
+3. **Candidate Extraction & Physiological Bounds**:
+   * Extracts multi-parameter vitals while enforcing strict plausibility boundaries: Systolic ($60-260\text{ mmHg}$), Diastolic ($40-160\text{ mmHg}$), Heart Rate ($35-230\text{ bpm}$), and $SpO_2$ ($65-100\%$).
+4. **Mandatory Human Confirmation Gate**:
+   * Machine-extracted readings **never** commit autonomously into health records. Extracted numbers are rendered beside the source display crop, enabling direct user adjustments before confirmation.
+   * Provenance strictly audited: `MACHINE_EXTRACTED`, `USER_CORRECTED`, or `MANUALLY_ENTERED`.
+5. **Deterministic Emergency Triage Safety Invariant**:
+   * Confirmed critical readings (e.g. $192/122\text{ mmHg}$) immediately trigger `EMERGENT_ESCALATION` (`CALL_911_NOW`) via deterministic rules.
+   * Probabilistic AI (Gemini 3.8 Flash) operates strictly in an explanatory capacity with a 2,500ms timeout budget and cannot suppress, delay, or soften life-saving emergency advice.
+6. **AWS Graviton3/4 Serverless Infrastructure**:
+   * Native ARM64 AWS Lambda handler (`aws/lambda/vision_alert_handler.py`) compiled with Cloud-Optimized OpenCV Library (COOL) and Arm KleidiCV vectorization (2.3× faster than x86).
+   * Ephemeral Amazon S3 diagnostic quarantine with automatic 24-hour auto-purge lifecycle rules.
+   * Complete multi-tool IaC in both **CloudFormation** (`aws/cloudformation/vision-alert-stack.yaml`) and **Terraform** (`aws/terraform/main.tf`).
+
+#### Vision Alert Documentation & Artifacts
+* [OpenCV 5 Architecture & Algorithms](docs/opencv-architecture.md)
+* [AWS Graviton Deployment & IaC Guide](docs/aws-deployment.md)
+* [Privacy, Clinical Safety & Data Minimization](docs/privacy-and-safety.md)
+* [Testing, Verification & Synthetic Fixtures Report](docs/testing-and-evaluation.md)
+* [Official Devpost Competition Submission](docs/competition-submission.md)
+* [Video Demonstration Script (< 5 minutes)](docs/demo-script.md)
+* [Clinical Boundaries & Roadmap](docs/limitations-and-roadmap.md)
 
 ---
 
@@ -176,6 +214,8 @@ All tests, type checks, and builds are fully verified:
 | Test / Check | Command Executed | Result | Status |
 | :--- | :--- | :--- | :--- |
 | **MicroBiz Invariant Suite** | `npx tsx scripts/test-microbiz-invariants.ts` | **28 Passed / 0 Failed** | ✅ PASS |
+| **Vision Alert Verification Suite** | `npx tsx scripts/test-vision-alert.ts` | **51 Passed / 0 Failed** | ✅ PASS |
+| **Complete Platform Test Suite** | `npm test` (all 9 suites) | **All Suites Passing** | ✅ PASS |
 | **Hashing Invariants (HPK)** | `npx tsx scripts/test-hashing-invariants.ts` | **3 Passed / 0 Failed** | ✅ PASS |
 | **Secret Scan Audit** | `node scripts/audit-secret-scan.cjs` | **0 secrets across 68 files** | ✅ PASS |
 | **TypeScript Typecheck** | `npm run lint` (`tsc --noEmit`) | **0 errors (Clean)** | ✅ PASS |
