@@ -108,7 +108,7 @@ def lambda_handler(event, context):
                     },
                     'display': {'displayFound': False, 'rectifiedWidth': 0, 'rectifiedHeight': 0},
                     'measurements': [],
-                    'opencvVersion': cv2.__version__ + ' (COOL / Arm KleidiCV)',
+                    'opencvVersion': f'{cv2.__version__} (AWS Lambda ARM64)',
                     'processingTimeMs': processing_time_ms,
                     'cloudOptimizedCool': True,
                     'isConfirmed': False
@@ -241,7 +241,7 @@ def lambda_handler(event, context):
                     'rectifiedHeight': 320
                 },
                 'measurements': measurements,
-                'opencvVersion': cv2.__version__ + ' (COOL / Arm KleidiCV)',
+                'opencvVersion': f'{cv2.__version__} (AWS Lambda ARM64)',
                 'processingTimeMs': processing_time_ms,
                 'cloudOptimizedCool': True,
                 'isConfirmed': False

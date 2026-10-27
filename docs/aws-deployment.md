@@ -48,7 +48,7 @@ Both **AWS CloudFormation** and **HashiCorp Terraform** configurations are maint
 
 ### Key IaC Invariants:
 1. **Architectures:** Strictly set to `arm64` to enforce Graviton execution.
-2. **Ephemeral S3 Lifecycle:** Automatically purges all diagnostic uploads after 24 hours (`ExpirationInDays: 1`).
+2. **Ephemeral S3 Lifecycle:** Automatically schedules all diagnostic uploads for deletion after 1 day (`ExpirationInDays: 1`), with physical object cleanup processed asynchronously by AWS S3 within 24 to 48 hours.
 3. **Least Privilege IAM:** Execution role permits only S3 Put/Get on the ephemeral bucket and CloudWatch metrics publishing under namespace `DrT/VisionAlert`.
 
 ---

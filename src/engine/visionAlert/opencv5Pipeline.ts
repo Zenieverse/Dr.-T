@@ -15,7 +15,8 @@ import {
   BoundingBox
 } from './types';
 
-export const OPENCV_VERSION = '5.0.0-dev (COOL / Arm KleidiCV Optimized)';
+export const OPENCV_VERSION = 'OpenCV 5 Algorithmic Pipeline (TypeScript/Canvas Web Engine)';
+export const OPENCV_SPEC_REFERENCE = 'OpenCV 5.0.0-dev (COOL / KleidiCV Architectural Specification)';
 
 /**
  * Decodes raw RGBA pixel data from an image buffer or ImageData

@@ -16,7 +16,7 @@ Dr. T Vision Alert is built around three non-negotiable safety principles:
    When confirmed readings cross critical physiological boundaries (such as a Systolic blood pressure $\ge 180\text{ mmHg}$ or Diastolic $\ge 120\text{ mmHg}$), the deterministic rule engine immediately escalates the case to `EMERGENT_ESCALATION` (`CALL_911_NOW`). Probabilistic AI (e.g. Gemini) is *never* in the execution path of emergency triage and cannot override, delay, or soften an emergency warning.
 
 3. **Data Minimization & Ephemeral Image Processing:**  
-   Photographs of medical devices frequently contain accidental background details (faces, prescription pill bottles, family photos, room interiors). Dr. T implements a strict **zero-permanent-retention policy**. Images are processed in-memory. In cloud deployments, any diagnostic telemetry stored in Amazon S3 is permanently purged within 24 hours via automated lifecycle rules.
+   Photographs of medical devices frequently contain accidental background details (faces, prescription pill bottles, family photos, room interiors). Dr. T implements a strict **zero-permanent-retention policy**. Images are processed in-memory. In cloud deployments, any diagnostic telemetry stored in Amazon S3 is configured with an automated lifecycle expiration rule (`ExpirationInDays: 1`), where objects are scheduled for deletion after 1 day (with physical removal completed asynchronously by AWS S3 within 24 to 48 hours).
 
 ---
 

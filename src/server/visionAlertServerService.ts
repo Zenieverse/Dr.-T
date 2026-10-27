@@ -307,13 +307,15 @@ Return valid JSON with keys: topic, summary, mechanisticDetails, clinicalQuestio
   public static getHealthCheck() {
     return {
       status: 'HEALTHY',
-      service: 'Dr. T Vision Alert (OpenCV 5 & COOL Engine)',
+      service: 'Dr. T Vision Alert',
+      runtime: 'Node.js Express / TypeScript Canvas Engine',
+      algorithmSpecification: 'OpenCV 5 Quality Gating & Display Rectification',
       opencvVersion: OPENCV_VERSION,
-      cloudOptimizedCool: true,
+      nativeBindingsLoaded: false,
+      targetLambdaArchitecture: 'AWS Graviton ARM64 (Python 3.11 / opencv-python-headless)',
       supportedDevices: ['BLOOD_PRESSURE_MONITOR', 'PULSE_OXIMETER'],
       uptimeSeconds: Math.round(process.uptime()),
       memoryUsageMb: Math.round(process.memoryUsage().heapUsed / (1024 * 1024)),
-      awsGravitonCompatible: true,
       timestamp: new Date().toISOString()
     };
   }
