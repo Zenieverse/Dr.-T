@@ -173852,7 +173852,7 @@ Output JSON format:
 };
 
 // src/engine/visionAlert/opencv5Pipeline.ts
-var OPENCV_VERSION = "5.0.0-dev (COOL / Arm KleidiCV Optimized)";
+var OPENCV_VERSION = "OpenCV 5 Algorithmic Pipeline (TypeScript/Canvas Web Engine)";
 function assessImageQuality(pixels) {
   const { width, height, data } = pixels;
   const numPixels = width * height;
@@ -174314,13 +174314,15 @@ Return valid JSON with keys: topic, summary, mechanisticDetails, clinicalQuestio
   static getHealthCheck() {
     return {
       status: "HEALTHY",
-      service: "Dr. T Vision Alert (OpenCV 5 & COOL Engine)",
+      service: "Dr. T Vision Alert",
+      runtime: "Node.js Express / TypeScript Canvas Engine",
+      algorithmSpecification: "OpenCV 5 Quality Gating & Display Rectification",
       opencvVersion: OPENCV_VERSION,
-      cloudOptimizedCool: true,
+      nativeBindingsLoaded: false,
+      targetLambdaArchitecture: "AWS Graviton ARM64 (Python 3.11 / opencv-python-headless)",
       supportedDevices: ["BLOOD_PRESSURE_MONITOR", "PULSE_OXIMETER"],
       uptimeSeconds: Math.round(process.uptime()),
       memoryUsageMb: Math.round(process.memoryUsage().heapUsed / (1024 * 1024)),
-      awsGravitonCompatible: true,
       timestamp: (/* @__PURE__ */ new Date()).toISOString()
     };
   }

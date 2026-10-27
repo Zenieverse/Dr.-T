@@ -13,7 +13,7 @@
 [![Hedera](https://img.shields.io/badge/Hedera-HCS%20Provenance-222222.svg)](https://hedera.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-> **Dr. T** is a multi-dimensional AI ecosystem unifying clinical informatics, Socratic health intelligence, outdoor acoustics, cryptographically verifiable provenance, and grassroots economic empowerment (**MicroBiz: Made for All, By All**), featuring the **HealthAlert Companion** with Model Context Protocol (MCP 2025-11-25) and Alexa+ Conversational Agent.
+> **Dr. T** is a multi-dimensional AI ecosystem unifying clinical informatics, Socratic health intelligence, outdoor acoustics, cryptographically verifiable provenance, and grassroots economic empowerment (**MicroBiz: Made for All, By All**), featuring the **HealthAlert Companion** (MCP 2025-11-25 & Alexa+ Conversational Agent) and **Dr. T Vision Alert** (OpenCV 5 × AWS Graviton assistive computer vision).
 
 ---
 
@@ -39,7 +39,7 @@ Dr. T connects clinical medicine, creative discovery, and community livelihoods 
 │  • SOAP Notes     │  • Storefronts    │  • LIFEWEAVE Multi-Agent SWE   │
 │  • 360° Copilot   │  • Bookkeeping    │  • PetWhisperer & OpenWebOS    │
 │  • Health Bridge  │  • OCR Scanner    │  • x402 Pay-Per-Request Bazaar │
-│  • Research Lab   │  • Gemini AI Hub  │  • Trib-House & Dr. T Cinema   │
+│  • Vision Alert 👁️│  • Gemini AI Hub  │  • Trib-House & Dr. T Cinema   │
 └───────────────────┴───────────────────┴────────────────────────────────┘
 ```
 
@@ -153,24 +153,26 @@ Official Challenge: [OpenCV AI Competition 2026 (Powered by AWS)](https://opencv
 * **The Solution**: **Dr. T Vision Alert** is an assistive computer-vision system that reads physical medical monitors using **OpenCV 5** and **Cloud-Optimized OpenCV (COOL)** on **AWS Graviton (ARM64)**, pairing mathematical quality gating with a mandatory **Human Confirmation Gate** and deterministic emergency triage escalation.
 
 #### Key Architectural Capabilities
-1. **OpenCV 5 Quality Assessment (COOL)**:
-   * **Laplacian Variance Blur Filter**: Discrete operator $\nabla^2 I(x,y)$ enforcing edge sharpness ($\sigma^2 \ge 80.0$).
-   * **Specular Glare Rejection**: Luminance histogram saturation analysis ($Y \ge 250$). If $>22\%$ of the frame is washed out by overhead reflection, the frame is rejected with actionable orientation guidance.
-   * **RMS Contrast Check**: Enforces $C_{\text{RMS}} \ge 14.0$ to guarantee legible digits against display backgrounds.
+1. **OpenCV 5 Algorithmic Quality Gating**:
+   * **Discrete Laplacian Variance Blur Filter**: 2D discrete Laplacian convolution $\nabla^2 I(x,y)$ enforcing edge sharpness ($\sigma^2 \ge 80.0$).
+   * **Specular Glare Rejection**: 256-bin luminance histogram saturation analysis ($Y \ge 250$). If $>22\%$ of the frame is washed out by specular glare, the image is rejected with actionable real-time guidance.
+   * **RMS Contrast Validation**: Enforces root-mean-square contrast $C_{\text{RMS}} \ge 14.0$ to guarantee legible seven-segment digits against background pixels.
 2. **Display Localization & Perspective Rectification**:
-   * Quadrilateral LCD bezel discovery mapping four corners via `warpPerspective` onto a canonical $480 \times 320$ rectified plane.
+   * Quad bezel discovery mapping four LCD corners via projective transform onto a canonical $480 \times 320$ rectified plane.
 3. **Candidate Extraction & Physiological Bounds**:
-   * Extracts multi-parameter vitals while enforcing strict plausibility boundaries: Systolic ($60-260\text{ mmHg}$), Diastolic ($40-160\text{ mmHg}$), Heart Rate ($35-230\text{ bpm}$), and $SpO_2$ ($65-100\%$).
+   * Multi-parameter vital extraction strictly bounded by clinical plausibility: Systolic ($60-260\text{ mmHg}$), Diastolic ($40-160\text{ mmHg}$), Heart Rate ($35-230\text{ bpm}$), and $SpO_2$ ($65-100\%$).
 4. **Mandatory Human Confirmation Gate**:
-   * Machine-extracted readings **never** commit autonomously into health records. Extracted numbers are rendered beside the source display crop, enabling direct user adjustments before confirmation.
-   * Provenance strictly audited: `MACHINE_EXTRACTED`, `USER_CORRECTED`, or `MANUALLY_ENTERED`.
+   * Machine-extracted readings **never** commit autonomously to clinical records. Extracted numbers are rendered beside the source display crop, enabling direct user adjustments before confirmation.
+   * Provenance is cryptographically audited: `MACHINE_EXTRACTED`, `USER_CORRECTED`, or `MANUALLY_ENTERED`.
 5. **Deterministic Emergency Triage Safety Invariant**:
-   * Confirmed critical readings (e.g. $192/122\text{ mmHg}$) immediately trigger `EMERGENT_ESCALATION` (`CALL_911_NOW`) via deterministic rules.
-   * Probabilistic AI (Gemini 3.8 Flash) operates strictly in an explanatory capacity with a 2,500ms timeout budget and cannot suppress, delay, or soften life-saving emergency advice.
-6. **AWS Graviton3/4 Serverless Infrastructure**:
-   * Native ARM64 AWS Lambda handler (`aws/lambda/vision_alert_handler.py`) compiled with Cloud-Optimized OpenCV Library (COOL) and Arm KleidiCV vectorization (2.3× faster than x86).
-   * Ephemeral Amazon S3 diagnostic quarantine with automatic 24-hour auto-purge lifecycle rules.
-   * Complete multi-tool IaC in both **CloudFormation** (`aws/cloudformation/vision-alert-stack.yaml`) and **Terraform** (`aws/terraform/main.tf`).
+   * Critical readings (e.g., $192/122\text{ mmHg}$) immediately trigger `EMERGENT_ESCALATION` (`CALL_911_NOW`) via deterministic medical thresholding.
+   * Generative AI (Gemini 3.8 Flash) operates strictly in an explanatory capacity with a 2,500ms timeout budget and cannot suppress, delay, or soften life-saving emergency advice.
+6. **Dual Runtime & AWS Graviton3/4 Serverless Infrastructure**:
+   * **Web & Node.js Engine**: Pure TypeScript/Canvas implementation of OpenCV 5 algorithms (`src/engine/visionAlert/opencv5Pipeline.ts`), enabling zero-install instant client-side execution on any browser or edge device.
+   * **AWS Graviton Lambda Microservice**: Native Python 3.11 ARM64 handler (`aws/lambda/vision_alert_handler.py`) utilizing Cloud-Optimized OpenCV (`cv2`) with dynamic runtime version detection.
+   * *Benchmark Disclosure*: Arm KleidiCV vectorization (up to 2.3× speedup) is an external reference benchmark published by Arm and OpenCV on Neoverse-V2/Graviton architectures; local application performance is verified via `scripts/test-vision-alert.ts`.
+   * **Ephemeral S3 Quarantine**: Diagnostic images are quarantined under an automatic 1-day retention policy (`ExpirationInDays: 1`), subject to AWS S3's standard asynchronous 24–48 hour deletion lifecycle.
+   * **Infrastructure as Code (IaC)**: Complete deployment templates provided in both **AWS CloudFormation** (`aws/cloudformation/vision-alert-stack.yaml`) and **Terraform** (`aws/terraform/main.tf`).
 
 #### Vision Alert Documentation & Artifacts
 * [OpenCV 5 Architecture & Algorithms](docs/opencv-architecture.md)
@@ -252,9 +254,11 @@ The app will launch at `http://localhost:3000`.
 ### Scripts
 
 ```bash
-npm run dev                  # Start Express full-stack dev server with Vite middleware
-npm run build                # Run production Vite build, esbuild server bundle, and artifact sync
-npm run lint                 # Type check with tsc --noEmit
+npm run dev                                  # Start Express full-stack dev server with Vite middleware
+npm run build                                # Run production Vite build, esbuild server bundle, and artifact sync
+npm run lint                                 # Type check with tsc --noEmit
+npm test                                     # Run full platform automated test suites (all 9 suites)
+npx tsx scripts/test-vision-alert.ts         # Run Vision Alert 51-assertion verification suite
 npx tsx scripts/test-microbiz-invariants.ts  # Run MicroBiz audit invariant suite
 npx tsx scripts/test-hashing-invariants.ts   # Run Hedera hashing invariant suite
 node scripts/audit-secret-scan.cjs           # Run repository secret scan
@@ -268,16 +272,32 @@ node scripts/audit-secret-scan.cjs           # Run repository secret scan
 ├── scope.md                                   # Devpost challenge project scope
 ├── prd.md                                     # Devpost challenge product requirements
 ├── spec.md                                    # Devpost challenge technical architecture
+├── aws/                                       # AWS Serverless & Infrastructure as Code
+│   ├── lambda/
+│   │   ├── vision_alert_handler.py            # Python 3.11 ARM64 Graviton OpenCV Lambda
+│   │   └── requirements.txt                   # Lambda dependencies (opencv-python-headless)
+│   ├── cloudformation/
+│   │   └── vision-alert-stack.yaml            # CloudFormation template (Graviton, S3, API GW)
+│   └── terraform/
+│       └── main.tf                            # Terraform IaC specification
 ├── docs/
+│   ├── opencv-architecture.md                 # OpenCV 5 algorithm specification & equations
+│   ├── aws-deployment.md                      # AWS Graviton deployment guide & IAM policy
+│   ├── privacy-and-safety.md                  # Clinical safety & data minimization
+│   ├── testing-and-evaluation.md              # Test matrix & benchmark disclosures
+│   ├── competition-submission.md              # OpenCV AI Competition submission package
+│   ├── demo-script.md                         # 5-minute video demonstration script
+│   ├── limitations-and-roadmap.md             # Clinical boundaries & future roadmap
 │   ├── learn-ai-basics-submission-checklist.md# 14-point submission readiness checklist
 │   └── patches/                               # Complete Git patch series
 ├── .env.example                               # Environment template (zero secrets)
 ├── firebase-applet-config.json                # Firebase client configuration
 ├── firestore.rules                            # Firestore RBAC, ownership & project rules
 ├── package.json                               # Dependencies & build scripts
-├── server.impl.ts                             # Express server, Gemini & MCP routes
+├── server.impl.ts                             # Express server, Gemini, MCP & Vision Alert routes
 ├── server.ts                                  # Full-stack server entry point
 ├── scripts/
+│   ├── test-vision-alert.ts                   # Vision Alert automated verification suite (51 assertions)
 │   ├── test-build-with-ai.ts                  # Build With AI test suite (31+ tests)
 │   ├── test-firestore-security-rules.ts       # Security rules test suite (24 tests)
 │   ├── audit-secret-scan.cjs                  # Secret scanning utility
@@ -287,7 +307,12 @@ node scripts/audit-secret-scan.cjs           # Run repository secret scan
 ├── src/
 │   ├── App.tsx                                # Main application orchestrator & navigation
 │   ├── main.tsx                               # React DOM entry point
+│   ├── engine/
+│   │   └── visionAlert/
+│   │       ├── opencv5Pipeline.ts             # OpenCV 5 discrete blur, glare & perspective engine
+│   │       └── types.ts                       # Vital contracts & calibration types
 │   ├── server/
+│   │   ├── visionAlertServerService.ts        # Vision Alert server routes & synthetic generator
 │   │   └── buildWithAiServerService.ts        # Server-side GenAI service with timeout & fallbacks
 │   ├── services/
 │   │   └── firebase.ts                        # Firebase SDK & Auth helpers
@@ -295,11 +320,14 @@ node scripts/audit-secret-scan.cjs           # Run repository secret scan
 │   │   ├── layout/
 │   │   │   ├── Navbar.tsx                     # Top primary navigation bar
 │   │   │   └── CommandPalette.tsx             # Cmd+K quick navigation palette
+│   │   ├── healthalert/
+│   │   │   ├── HealthAlertCompanionModule.tsx # Alexa+ voice companion & clinical triage
+│   │   │   └── VisionAlertModule.tsx          # OpenCV 5 display localization & confirmation gate
 │   │   ├── buildwithai/                       # Build With AI companion workspace
 │   │   │   ├── BuildWithAiModule.tsx          # Central tab shell & project manager
 │   │   │   ├── types.ts                       # Project & document data contracts
 │   │   │   ├── data/templateProject.ts        # HealthAlert Mini reference template
-│   │   │   ├── services/buildWithAiService.ts # Local & Firestore sync, validation engines
+│   │   │   └── services/buildWithAiService.ts # Local & Firestore sync, validation engines
 │   │   ├── microbiz/                          # Dr. T MicroBiz platform
 │   │   │   ├── MicroBizApp.tsx                # MicroBiz central container & subtab state
 │   │   │   ├── components/
@@ -389,6 +417,20 @@ curl -s -X POST http://localhost:3000/api/build-with-ai/draft-doc -H "Content-Ty
 # Test Code Assist & Review endpoint
 curl -s -X POST http://localhost:3000/api/build-with-ai/code-assist -H "Content-Type: application/json" \
   -d '{"filename":"src/solar.ts","codeSnippet":"export function isPeak(hour: number) { return hour >= 16 && hour <= 21; }"}' | jq .
+```
+
+### 5. Dr. T Vision Alert Verification (OpenCV AI Competition 2026)
+```bash
+# 1. Run the 51-assertion automated Vision Alert verification suite
+npx tsx scripts/test-vision-alert.ts
+
+# 2. Query the Vision Alert runtime health and pipeline status
+curl -s http://localhost:3000/api/vision-alert/health | jq .
+
+# 3. Test vital extraction and safety triage with synthetic blood pressure image
+curl -s -X POST http://localhost:3000/api/vision-alert/extract \
+  -H "Content-Type: application/json" \
+  -d '{"image":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==","deviceType":"blood_pressure"}' | jq .
 ```
 
 ---
