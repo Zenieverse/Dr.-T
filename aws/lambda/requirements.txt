@@ -1,0 +1,4 @@
+# Dr. T Vision Alert - AWS Lambda (ARM64 / Graviton) Requirements
+# OpenCV AI Competition 2026 (Powered by AWS)
+numpy>=1.26.0
+opencv-python-headless>=4.10.0

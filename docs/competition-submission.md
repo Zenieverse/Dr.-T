@@ -51,3 +51,57 @@ Millions of patients manage chronic cardiovascular disease and respiratory condi
 * **100% Deterministic Safety Invariant:** AI is used for educational context and physician briefing, but emergency triage routing is 100% deterministic and provably isolated.
 * **Complete Automated Verification:** 51/51 automated assertions pass across OpenCV algorithms, synthetic fixtures, and AWS IaC.
 * **Real Clinical Utility:** Bridges the gap between standalone home medical monitors and structured clinician preparation.
+
+---
+
+## 6. Judge Setup & Local Reproduction Instructions
+
+Judges can verify the entire Vision Alert pipeline in under 2 minutes:
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/Zenieverse/Dr.-T.git
+cd Dr.-T
+
+# 2. Install dependencies
+npm install
+
+# 3. Run the automated Vision Alert test suite (51 assertions)
+npx tsx scripts/test-vision-alert.ts
+
+# 4. Run the full platform test suite (all 9 suites)
+npm test
+
+# 5. Launch the application
+npm run dev
+# Open http://localhost:3000 in your browser
+```
+
+### Navigating the Demo in the Browser
+1. In the top navigation bar, select **Health Alert** (or open the Command Palette with `Cmd+K` / `Ctrl+K` and type `Vision Alert`).
+2. Click the **Vision Alert (OpenCV 5 + AWS)** mode tab.
+3. Test with any of the 4 built-in mathematically defined synthetic presets:
+   * **Stage 1 HTN (Omron BP 138/88):** Tests 3-tier LCD extraction, unit preservation, and quality gating.
+   * **Pulse Oximeter Normal (98% SpO₂, 68 bpm):** Tests OLED layout and dual-parameter detection.
+   * **Critical Crisis (192/122 mmHg):** Tests immediate deterministic `EMERGENT_ESCALATION` (`CALL_911_NOW`).
+   * **Glare / Blur Rejection:** Tests automatic OpenCV 5 rejection with actionable user feedback.
+4. Experiment with the **Human Confirmation Gate**:
+   * Click any candidate number to edit it directly (provenance updates from `MACHINE_EXTRACTED` to `USER_CORRECTED`).
+   * Check the confirmation checkbox to enable the **Confirm & Import** button.
+
+---
+
+## 7. Verified Repositories & Live Deployments
+
+* **Public GitHub Repository:** https://github.com/Zenieverse/Dr.-T
+* **Live App (Google Cloud Run / Development):** https://ais-dev-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app
+* **Live App (Google Cloud Run / Preview):** https://ais-pre-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app
+
+---
+
+## 8. Truthful Disclosures & Readiness State
+
+* **OpenCV Execution:** Core mathematical computer vision algorithms execute in-engine in TypeScript/Canvas (`src/engine/visionAlert/opencv5Pipeline.ts`) and Node.js (`src/server/visionAlertServerService.ts`). The AWS Lambda ARM64 COOL handler is provided at `aws/lambda/vision_alert_handler.py`.
+* **AWS Cloud Deployment:** Fully specified via CloudFormation (`aws/cloudformation/vision-alert-stack.yaml`), Terraform (`aws/terraform/main.tf`), and Dockerfile (`aws/lambda/Dockerfile`). Live provisioning in a user AWS account requires providing AWS credentials.
+* **Demonstration Video:** Video walkthrough script is prepared in `docs/demo-script.md` (< 5 minutes). Recording and submitting the final MP4/YouTube link is pending user recording.
+* **Final Status:** **READY WITH DISCLOSED LIMITATIONS** (Code complete, tested, and verifiable; AWS deployment and video upload require external account credentials).
