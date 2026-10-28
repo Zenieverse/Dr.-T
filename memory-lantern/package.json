@@ -1,0 +1,47 @@
+{
+  "name": "memory-lantern",
+  "version": "1.0.0",
+  "description": "Memory Lantern — Stories That Stay. A peaceful digital sanctuary for preserving memories, family traditions, and living stories powered by open-weight Gemma AI.",
+  "license": "MIT",
+  "author": "Dr. T & Community Contributors",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx server.ts",
+    "build": "tsc && vite build",
+    "test": "tsx scripts/test-memory-lantern.ts",
+    "lint": "tsc --noEmit"
+  },
+  "dependencies": {
+    "clsx": "^2.1.1",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "firebase": "^12.18.0",
+    "lucide-react": "^0.475.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tailwind-merge": "^2.6.0"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/node": "^22.13.4",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "@vitejs/plugin-react": "^4.3.4",
+    "tailwindcss": "^4.0.0",
+    "tsx": "^4.23.12",
+    "typescript": "^5.7.3",
+    "vite": "^6.1.0"
+  },
+  "keywords": [
+    "hacktoberfest",
+    "hacktoberfest-2026",
+    "open-source-ai",
+    "gemma",
+    "gemma-2",
+    "ghost-in-the-machine",
+    "intergenerational",
+    "digital-garden",
+    "memory-preservation"
+  ]
+}

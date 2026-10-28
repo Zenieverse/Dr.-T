@@ -66,6 +66,7 @@ import { HealthAlertCompanionModule } from './components/healthalert/HealthAlert
 import { StCoolModule } from './components/stcool/StCoolModule';
 import { HealthAlertModule } from './components/healthalert/HealthAlertModule';
 import { BuildWithAiModule } from './components/buildwithai/BuildWithAiModule';
+import { MemoryLanternModule } from './components/memorylantern/MemoryLanternModule';
 import { SettingsPage } from './components/settings/SettingsPage';
 
 export function App() {
@@ -520,6 +521,10 @@ export function App() {
 
         {activeTab === 'buildwithai' && (
           <BuildWithAiModule setActiveTab={setActiveTab} />
+        )}
+
+        {activeTab === 'memorylantern' && (
+          <MemoryLanternModule />
         )}
 
         {activeTab === 'gcp' && (

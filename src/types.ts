@@ -31,6 +31,7 @@ export type NavTab =
   | 'stcool'
   | 'microbiz'
   | 'buildwithai'
+  | 'memorylantern'
   | 'gcp'
   | 'settings';
 

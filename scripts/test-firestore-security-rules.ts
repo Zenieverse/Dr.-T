@@ -158,7 +158,16 @@ function runFirestoreSecurityTests() {
     'Build With AI projects strictly isolated to authenticated owner and prevents userId modification'
   );
 
-  // TEST 15: Overlapping catch-all wildcard checked (no accidental open permissions)
+  // TEST 15: Memory Lantern user isolation and ownership preservation
+  const lanternBlock = rules.match(/match\s+\/memory_lantern_memories\/\{memoryId\}\s*\{([\s\S]*?)\}/)?.[1] || '';
+  assert(
+    lanternBlock.includes('resource.data.userId == request.auth.uid') &&
+    lanternBlock.includes('request.resource.data.userId == request.auth.uid') &&
+    lanternBlock.includes('request.resource.data.userId == resource.data.userId'),
+    'Memory Lantern memories strictly isolated to authenticated owner and prevents cross-user leak'
+  );
+
+  // TEST 16: Overlapping catch-all wildcard checked (no accidental open permissions)
   const catchAllMatch = rules.match(/match\s+\/\{.*?=\*\*\}/);
   assert(!catchAllMatch, 'No recursive catch-all wildcard ({document=**}) bypassing collection rules');
 

@@ -32,7 +32,8 @@ import {
   Piano,
   Briefcase,
   Play,
-  Hammer
+  Hammer,
+  Flame
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -92,6 +93,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: 'healthalert', label: 'Health Alert Mini', icon: <BellRing className="w-4 h-4 text-rose-500" />, badge: 'Mini' },
     { id: 'futurehealth', label: 'Future Health', icon: <HeartPulse className="w-4 h-4 text-teal-500" />, badge: 'Challenge 2026' },
     { id: 'buildwithai', label: 'Build With AI', icon: <Hammer className="w-4 h-4 text-indigo-600" />, badge: 'Workspace' },
+    { id: 'memorylantern', label: 'Memory Lantern', icon: <Flame className="w-4 h-4 text-amber-400" />, badge: 'Week 4' },
     { id: 'deck', label: 'Executive Deck', icon: <Presentation className="w-4 h-4 text-purple-600" />, badge: 'MVP Brief' },
     { id: 'cinema', label: '🎬 Cinema', icon: <Clapperboard className="w-4 h-4 text-amber-500" />, badge: 'Studio' },
     { id: 'tribhouse', label: '🌳 Trib-House', icon: <Trees className="w-4 h-4 text-emerald-600" />, badge: 'Living Library' },

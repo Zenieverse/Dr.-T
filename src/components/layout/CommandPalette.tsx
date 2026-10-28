@@ -45,7 +45,8 @@ import {
   BellRing,
   Hammer,
   CheckCircle2,
-  Camera
+  Camera,
+  Flame
 } from 'lucide-react';
 
 interface CommandPaletteProps {
@@ -141,6 +142,35 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
           icon: <CheckCircle2 className="w-4 h-4 text-emerald-600" />,
           action: () => {
             setActiveTab('buildwithai');
+            onClose();
+          }
+        }
+      ]
+    },
+    {
+      category: '🏮 Memory Lantern — Stories That Stay (Hacktoberfest Week 4)',
+      items: [
+        {
+          label: 'Memory Lantern — Open-Weight Gemma Narrative Sanctuary & Garden',
+          icon: <Flame className="w-4 h-4 text-amber-400" />,
+          action: () => {
+            setActiveTab('memorylantern');
+            onClose();
+          }
+        },
+        {
+          label: 'Memory Lantern — Compose Story with Gemma 2 Open AI',
+          icon: <Sparkles className="w-4 h-4 text-amber-300" />,
+          action: () => {
+            setActiveTab('memorylantern');
+            onClose();
+          }
+        },
+        {
+          label: 'Memory Lantern — Chronicle Timeline & Printable Tributes',
+          icon: <BookOpen className="w-4 h-4 text-amber-500" />,
+          action: () => {
+            setActiveTab('memorylantern');
             onClose();
           }
         }

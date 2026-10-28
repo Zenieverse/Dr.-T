@@ -49,6 +49,7 @@ import {
 } from './src/server/healthAlertMcpServer';
 import { BuildWithAiServerService } from './src/server/buildWithAiServerService';
 import { VisionAlertServerService } from './src/server/visionAlertServerService';
+import { MemoryLanternServerService } from './src/server/memoryLanternServerService';
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
@@ -4791,6 +4792,36 @@ app.post('/api/build-with-ai/code-assist', async (req, res) => {
     return res.status(500).json({
       success: false,
       error: err.message || 'Failed to analyze code snippet.'
+    });
+  }
+});
+
+// ==========================================
+// 5. MEMORY LANTERN — STORIES THAT STAY (HACKTOBERFEST WEEK 4)
+// ==========================================
+app.get('/api/memory-lantern/provider-status', async (req, res) => {
+  try {
+    const status = await MemoryLanternServerService.checkProviderStatus();
+    return res.json(status);
+  } catch (err: any) {
+    return res.status(500).json({
+      status: 'UNREACHABLE',
+      providerType: 'none',
+      error: err.message || 'Failed to verify provider status.'
+    });
+  }
+});
+
+app.post('/api/memory-lantern/generate-story', async (req, res) => {
+  try {
+    const storyRequest = req.body || {};
+    const isTestFixture = Boolean(req.query.testFixture === 'true' || storyRequest.isTestFixture);
+    const result = await MemoryLanternServerService.generateStory(storyRequest, { isTestFixture });
+    return res.json(result);
+  } catch (err: any) {
+    return res.status(400).json({
+      success: false,
+      error: err.message || 'Story generation failed.'
     });
   }
 });
