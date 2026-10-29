@@ -11,6 +11,7 @@
 [![OpenCV AI Competition 2026](https://img.shields.io/badge/OpenCV%20AI%20Competition-2026%20AWS%20Graviton-black.svg?logo=opencv)](https://opencv26.devpost.com/)
 [![AWS Graviton](https://img.shields.io/badge/AWS%20Graviton3-ARM64%20Serverless-FF9900.svg?logo=amazonaws)](https://aws.amazon.com/ec2/graviton/)
 [![Hedera](https://img.shields.io/badge/Hedera-HCS%20Provenance-222222.svg)](https://hedera.com/)
+[![Hacktoberfest 2026 Week 4](https://img.shields.io/badge/Hacktoberfest%202026-Week%204%20Memory%20Lantern-amber.svg)](memory-lantern/README.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 > **Dr. T** is a multi-dimensional AI ecosystem unifying clinical informatics, Socratic health intelligence, outdoor acoustics, cryptographically verifiable provenance, and grassroots economic empowerment (**MicroBiz: Made for All, By All**), featuring the **HealthAlert Companion** (MCP 2025-11-25 & Alexa+ Conversational Agent) and **Dr. T Vision Alert** (OpenCV 5 × AWS Graviton assistive computer vision).
@@ -209,17 +210,38 @@ Official Challenge: [OpenCV AI Competition 2026 (Powered by AWS)](https://opencv
 
 ---
 
+### 9. 🏮 Memory Lantern — Stories That Stay (DEV Hacktoberfest 2026 Week 4: "Ghost in the Machine")
+Official Challenge: [DEV Hacktoberfest Week 4 (October 26–31, 2026)](https://dev.to/challenges/hacktoberfest-week4-2026-10-26) | Direct Link: [Memory Lantern Directory](memory-lantern/README.md) | Web Applet Tab: `#memorylantern`
+
+* **Mission & Reimagined Theme**: In speculative fiction, the "Ghost in the Machine" is often portrayed as something uncanny—synthetic resurrection, creepy digital replicas, or AI trying to mimic the voice of someone who has passed away. Memory Lantern rejects that approach entirely. Rather than generating false replicas, Memory Lantern uses open-weight AI as a gentle, transparent lantern bearer: organizing real family memories, recipes, and traditions into editable living narratives without ever impersonating deceased loved ones.
+* **Core Functionality**:
+  * **Lantern Garden**: Interactive glowing night-garden interface displaying memory cards categorized by *Remembrance*, *Tradition*, *Milestone*, *Everyday Joy*, and *Wisdom*.
+  * **Lantern Stories (Gemma 2 Narrative Studio)**: 5 narrative modes (*A Story to Keep*, *A Tribute of Love*, *Family Storybook*, *Letters for the Future*, *Voices & Traditions*) and 4 styles (*Warm & Simple*, *Poetic*, *Reflective*, *Family Storytelling*).
+  * **Fact Separation**: Explicitly isolates *Supplied Facts Honored* (recipe ingredients, proverbs) from *Narrative Enhancements*.
+  * **Ethical Guardrails**: Strictly forbids speaking from the first-person voice of the deceased or claiming supernatural channeling.
+  * **Printable Remembrance Mode**: Typography formatted for quiet reading and one-click printing (`@media print`).
+  * **Chronicle Timeline**: Time-ordered visual chronicle mapping memories across decades.
+  * **Sanctuary & Privacy**: User-isolated Firestore persistence (`/memory_lantern_memories`) or isolated browser sandbox for guests, complete JSON/Markdown export, and permanent deletion.
+* **Architecture & Open AI**:
+  * **Open-Weight Gemma Adapter**: `src/server/memoryLanternServerService.ts` supports local Ollama (`gemma2:2b`, `gemma2:9b`) and hosted OpenAI-compatible Gemma endpoints (`google/gemma-2-9b-it`).
+  * **Truthful Status Reporting**: When no inference provider is running, reports `NOT_CONFIGURED` with copyable setup instructions; never falls back to closed models.
+  * **Dedicated Project Directory**: Self-contained package in `memory-lantern/` containing its own documentation, tests, setup guides, and privacy specification.
+
+---
+
 ## 🧪 Test Execution & Verification Results
 
 All tests, type checks, and builds are fully verified:
 
 | Test / Check | Command Executed | Result | Status |
 | :--- | :--- | :--- | :--- |
-| **MicroBiz Invariant Suite** | `npx tsx scripts/test-microbiz-invariants.ts` | **28 Passed / 0 Failed** | ✅ PASS |
+| **Complete Platform Test Suite** | `npm test` (all 10 test suites) | **345 Passed / 0 Failed** | ✅ PASS |
+| **Memory Lantern Verification Suite** | `npx tsx scripts/test-memory-lantern.ts` | **35 Passed / 0 Failed** | ✅ PASS |
+| **Memory Lantern Standalone Suite** | `npx tsx memory-lantern/test-memory-lantern.ts` | **15 Passed / 0 Failed** | ✅ PASS |
 | **Vision Alert Verification Suite** | `npx tsx scripts/test-vision-alert.ts` | **51 Passed / 0 Failed** | ✅ PASS |
-| **Complete Platform Test Suite** | `npm test` (all 9 suites) | **All Suites Passing** | ✅ PASS |
-| **Hashing Invariants (HPK)** | `npx tsx scripts/test-hashing-invariants.ts` | **3 Passed / 0 Failed** | ✅ PASS |
-| **Secret Scan Audit** | `node scripts/audit-secret-scan.cjs` | **0 secrets across 68 files** | ✅ PASS |
+| **Build With AI Suite** | `npx tsx scripts/test-build-with-ai.ts` | **40 Passed / 0 Failed** | ✅ PASS |
+| **Firestore Security Rules Suite** | `npx tsx scripts/test-firestore-security-rules.ts` | **25 Passed / 0 Failed** | ✅ PASS |
+| **Secret Scan Audit** | `node scripts/audit-secret-scan.cjs` | **0 secrets across all files** | ✅ PASS |
 | **TypeScript Typecheck** | `npm run lint` (`tsc --noEmit`) | **0 errors (Clean)** | ✅ PASS |
 | **Full Production Build** | `npm run build` | **`dist/`, `build/`, `.next/` populated** | ✅ PASS |
 

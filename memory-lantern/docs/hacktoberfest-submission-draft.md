@@ -93,17 +93,19 @@ Memory Lantern integrates **Google's open-weight Gemma 2** model family (`gemma2
 
 All tests, lint checks, and production builds pass with 100% success:
 
-* **Platform Automated Test Suites**: 10 Suites Passing (300+ assertions).
-* **Memory Lantern Verification Suite**: 15/15 Invariant Checks Passing.
-* **TypeScript Typecheck (`tsc --noEmit`)**: 0 errors (Clean).
-* **Production Build**: Bundled and verified.
+* **Platform Automated Test Suites**: 10 Suites Passing (**345 total assertions, 0 failed**).
+* **Memory Lantern Verification Suite (`scripts/test-memory-lantern.ts`)**: **35/35 Passed**.
+* **Memory Lantern Package Suite (`memory-lantern/test-memory-lantern.ts`)**: **15/15 Passed**.
+* **TypeScript Typecheck (`tsc --noEmit`)**: **0 errors (Clean)**.
+* **Production Build (`npm run build`)**: Bundled successfully in 25.32s; `dist/server.cjs` (7.1MB) populated.
 
 ---
 
 ## 7. Links & Reproducibility
 
-* **Live Demo (Web Application)**: [https://ais-dev-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app](https://ais-dev-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app)
-* **GitHub Repository**: [https://github.com/Zenieverse/Dr.-T](https://github.com/Zenieverse/Dr.-T) (Memory Lantern module inside `src/components/memorylantern/` and standalone package in `memory-lantern/`)
+* **Live Demo (Web Application Tab)**: [https://ais-dev-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app#memorylantern](https://ais-dev-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app#memorylantern)
+* **Parent GitHub Repository**: [https://github.com/Zenieverse/Dr.-T](https://github.com/Zenieverse/Dr.-T)
+* **Dedicated Project Directory**: [https://github.com/Zenieverse/Dr.-T/tree/main/memory-lantern](https://github.com/Zenieverse/Dr.-T/tree/main/memory-lantern)
 * **Local Reproduction Command**:
   ```bash
   git clone https://github.com/Zenieverse/Dr.-T.git

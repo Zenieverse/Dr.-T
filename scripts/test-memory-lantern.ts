@@ -215,6 +215,18 @@ async function runMemoryLanternVerification() {
     appContent.includes('<MemoryLanternModule'),
     'src/App.tsx renders MemoryLanternModule when tab is active'
   );
+  assert(
+    appContent.includes('getInitialTab') && appContent.includes('window.location.hash'),
+    'src/App.tsx supports direct deep link initialization and refresh via URL search/hash'
+  );
+  assert(
+    appContent.includes('replaceState') && appContent.includes('hashchange'),
+    'src/App.tsx synchronizes URL hash and handles browser back/forward navigation'
+  );
+  assert(
+    appContent.includes('<HealthAlertCompanionModule') || appContent.includes('<HealthAlertModule'),
+    'Regression check: HealthAlert Companion preserved intact in App.tsx'
+  );
 
   console.log('\n======================================================');
   console.log(`✨ TEST SUITE COMPLETE: ${passed} PASSED, ${failed} FAILED`);

@@ -126,25 +126,41 @@ npx tsx scripts/test-memory-lantern.ts
 
 ---
 
-## 📂 Project Structure
+## 📂 Project Structure & Parent-Repository Integration
 
+Memory Lantern is delivered as a first-class module within the **[Zenieverse/Dr.-T](https://github.com/Zenieverse/Dr.-T)** parent repository. It is accessible directly via the web applet deep link at `/#memorylantern`.
+
+### Dedicated Directory Layout (`memory-lantern/`):
 ```
 memory-lantern/
 ├── README.md                          # Project overview, mission & quickstart
 ├── ARCHITECTURE.md                    # Detailed architectural specification
 ├── OPEN_AI_SETUP.md                   # Guide to running Gemma via Ollama or hosted API
 ├── .env.example                       # Environment template (zero secrets)
-├── package.json                       # Standalone dependencies & scripts
+├── package.json                       # Package definition, scripts & dependencies
 ├── LICENSE                            # MIT License
+├── test-memory-lantern.ts             # Standalone test runner
 └── docs/
     ├── privacy-and-data-flow.md       # Privacy, Firestore rules & data minimization
     ├── demo-capture-checklist.md      # 2-minute judge demonstration flow
     └── hacktoberfest-submission-draft.md # Official DEV Week 4 article submission
 ```
 
+### Shared vs. Dedicated Components Matrix:
+* **Shared Infrastructure with Dr. T**:
+  * **Authentication**: Firebase Auth integration via `src/services/firebase.ts` (Google Sign-In, reactive user session listeners).
+  * **Server Runtime**: Express 5 on Node.js 22 with shared Vite middleware proxy (`server.impl.ts`).
+  * **Design System**: Global Tailwind CSS design tokens, fonts, responsive layout container, and `lucide-react` icons.
+* **Dedicated to Memory Lantern**:
+  * **Domain & UI**: `src/components/memorylantern/` (Garden, Timeline, Storybook, Privacy Sanctuary, modals, cards).
+  * **Gemma Narrative Engine**: `src/server/memoryLanternServerService.ts` (Ollama & hosted open-weight prompt builder, ethical invariants, provenance extraction).
+  * **Data Isolation**: Dedicated Firestore collection `/memory_lantern_memories/{memoryId}` with user-isolated security rules (`isOwner(userId)`).
+  * **Dedicated Test Suites**: `scripts/test-memory-lantern.ts` and `memory-lantern/test-memory-lantern.ts`.
+
 ---
 
 ## 📄 License & Attribution
 
+* **Primary Repository**: Hosted inside [https://github.com/Zenieverse/Dr.-T](https://github.com/Zenieverse/Dr.-T). Memory Lantern is delivered as a first-class feature of the Dr. T platform and does not require a separate repository.
 * **License**: Licensed under the [MIT License](LICENSE).
-* **Attribution**: Memory Lantern originated as a flagship module within the Dr. T healthcare and civic empowerment platform, reusing base design tokens, icon libraries (`lucide-react`), and Firebase configuration. All Memory Lantern components, Gemma prompting architectures, and narrative engines are original work created during October 26–31, 2026.
+* **Attribution**: Memory Lantern reuses shared Dr. T infrastructure (Firebase Auth, Express 5 skeleton, and Tailwind tokens). All Memory Lantern components, Gemma open-weight prompt engineering, and narrative engines are original work created during October 26–31, 2026 for DEV Hacktoberfest Week 4.

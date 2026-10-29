@@ -70,7 +70,24 @@ import { MemoryLanternModule } from './components/memorylantern/MemoryLanternMod
 import { SettingsPage } from './components/settings/SettingsPage';
 
 export function App() {
-  const [activeTab, setActiveTab] = useState<NavTab>('drt');
+  // Support direct deep link and refresh from URL parameter (?tab=...) or hash (#...)
+  const getInitialTab = (): NavTab => {
+    try {
+      if (typeof window !== 'undefined') {
+        const params = new URLSearchParams(window.location.search);
+        const queryTab = params.get('tab') as NavTab | null;
+        if (queryTab) return queryTab;
+
+        const hash = window.location.hash.replace('#', '') as NavTab;
+        if (hash) return hash;
+      }
+    } catch {
+      // Fallback to default
+    }
+    return 'drt';
+  };
+
+  const [activeTab, setActiveTab] = useState<NavTab>(getInitialTab);
   const [currentLanguage, setCurrentLanguage] = useState<LanguageCode>('en');
   const [personality, setPersonality] = useState<PersonalityMode>('Empathetic');
   const [patient, setPatient] = useState<PatientProfile>(MOCK_PATIENT);
@@ -87,6 +104,27 @@ export function App() {
   // Global Featured Video State (Default Mode: floating, user-initiated)
   const [isFeaturedVideoOpen, setIsFeaturedVideoOpen] = useState<boolean>(false);
   const [videoDisplayMode, setVideoDisplayMode] = useState<VideoDisplayMode>('floating');
+
+  // Deep-link URL hash synchronization for refresh and back-navigation
+  React.useEffect(() => {
+    if (typeof window !== 'undefined' && activeTab) {
+      const currentHash = window.location.hash.replace('#', '');
+      if (currentHash !== activeTab) {
+        window.history.replaceState(null, '', `#${activeTab}`);
+      }
+    }
+  }, [activeTab]);
+
+  React.useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.replace('#', '') as NavTab;
+      if (hash && hash !== activeTab) {
+        setActiveTab(hash);
+      }
+    };
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, [activeTab]);
 
   // Global YouTube video launcher event listener
   React.useEffect(() => {
