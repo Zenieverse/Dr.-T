@@ -6,6 +6,7 @@ import {
   BiomarkerCausalityPoint,
   FutureHealthSBARHandoff 
 } from '../types';
+import { GeminiCircuitBreaker } from './geminiCircuitBreaker';
 
 export const MANDATORY_NON_DIAGNOSTIC_DISCLAIMER = 
   "DISCLAIMER: Non-Diagnostic Clinical Decision Support. Dr. T Future Health Navigator is an assistive population screening algorithm designed for anticipatory risk stratification. It does NOT diagnose diseases, prescribe therapies, or replace formal medical evaluation. All findings require clinical correlation and licensed physician oversight.";
@@ -487,10 +488,9 @@ export async function runFutureHealthScreening(
 
   let modelProvider = 'dr-t-deterministic-heuristic-engine';
 
-  // 3. Optional AI Enrichment (if Gemini key is present)
-  if (geminiClient) {
-    try {
-      const prompt = `You are a clinical decision support system assisting human physicians in the Abu Dhabi Future Health Digital Innovation Challenge 2026.
+  // 3. Optional AI Enrichment (if Gemini key is present and circuit breaker not open)
+  if (geminiClient && !GeminiCircuitBreaker.isCircuitOpen('gemini-3.8-flash')) {
+    const prompt = `You are a clinical decision support system assisting human physicians in the Abu Dhabi Future Health Digital Innovation Challenge 2026.
 Perform an anticipatory population health screening summary.
 
 Patient Demographics: Age ${request.demographics.age}, ${request.demographics.gender}
@@ -505,24 +505,16 @@ Requirements:
 3. Explicitly state the non-diagnostic decision-support nature of this tool.
 Output concise, clinically accurate bullet points.`;
 
-      const timeoutPromise = new Promise<never>((_, reject) => {
-        const timer = setTimeout(() => reject(new Error('AI enrichment timed out (2500ms limit)')), 2500);
-        if (typeof timer.unref === 'function') timer.unref();
-      });
+    const aiText = await GeminiCircuitBreaker.executeWithFallback(
+      geminiClient,
+      'gemini-3.8-flash',
+      prompt,
+      2500
+    );
 
-      const response = await Promise.race([
-        geminiClient.models.generateContent({
-          model: 'gemini-3.8-flash',
-          contents: prompt,
-        }),
-        timeoutPromise
-      ]);
-
-      if (response && response.text) {
-        modelProvider = 'gemini-3.8-flash (AI-Enriched Decision Support)';
-      }
-    } catch (aiErr) {
-      console.warn('Gemini optional enrichment skipped, utilizing verified heuristic output:', aiErr);
+    if (aiText) {
+      modelProvider = 'gemini-3.8-flash (AI-Enriched Decision Support)';
+    } else {
       modelProvider = 'dr-t-deterministic-heuristic-engine (Verified Fallback)';
     }
   }

@@ -12,6 +12,7 @@ import {
   buildClinicianPrep,
   ST_COOL_EVIDENCE_REGISTRY 
 } from './stCoolService';
+import { GeminiCircuitBreaker } from './geminiCircuitBreaker';
 
 export const HEALTH_ALERT_DISCLAIMER = 
   "DISCLAIMER: Non-Diagnostic Clinical Decision Support. HealthAlert Companion is an assistive health navigation and early warning screening engine designed to help people recognize warning signs and prepare for professional medical assessment. It does NOT provide formal medical diagnosis, prescribe treatments, or serve as an emergency response service. Always seek the advice of a qualified healthcare professional.";
@@ -66,10 +67,9 @@ export async function runHealthAlertAnalysis(
   let providerUsed = 'health-alert-deterministic-heuristic-engine';
   let heuristicFallbackEngaged = false;
 
-  // 4. Optional AI Enrichment (if Gemini key configured)
-  if (geminiClient) {
-    try {
-      const prompt = `You are Health Alert, an empathetic and clinically cautious health intelligence engine within Dr. T for the Abu Dhabi Future Health Challenge 2026.
+  // 4. Optional AI Enrichment (if Gemini key configured and circuit breaker not open)
+  if (geminiClient && !GeminiCircuitBreaker.isCircuitOpen('gemini-3.8-flash')) {
+    const prompt = `You are Health Alert, an empathetic and clinically cautious health intelligence engine within Dr. T for the Abu Dhabi Future Health Challenge 2026.
 Synthesize a plain-language health orientation for a patient.
 
 User Intake:
@@ -87,24 +87,16 @@ Instructions:
 3. Suggest 3 personalized questions for the patient to ask their doctor.
 Output concise text.`;
 
-      const timeoutPromise = new Promise<never>((_, reject) => {
-        const timer = setTimeout(() => reject(new Error('AI enrichment timed out (2500ms limit)')), 2500);
-        if (typeof timer.unref === 'function') timer.unref();
-      });
+    const aiText = await GeminiCircuitBreaker.executeWithFallback(
+      geminiClient,
+      'gemini-3.8-flash',
+      prompt,
+      2500
+    );
 
-      const aiResponse = await Promise.race([
-        geminiClient.models.generateContent({
-          model: 'gemini-3.8-flash',
-          contents: prompt
-        }),
-        timeoutPromise
-      ]);
-
-      if (aiResponse && aiResponse.text) {
-        providerUsed = 'gemini-3.8-flash (AI-Enriched Decision Support)';
-      }
-    } catch (aiErr) {
-      console.warn('Gemini optional enrichment skipped; falling back cleanly to deterministic Health Alert engine:', aiErr);
+    if (aiText) {
+      providerUsed = 'gemini-3.8-flash (AI-Enriched Decision Support)';
+    } else {
       providerUsed = 'health-alert-deterministic-heuristic-engine (Verified Fallback)';
       heuristicFallbackEngaged = true;
     }

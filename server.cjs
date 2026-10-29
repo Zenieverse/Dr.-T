@@ -171941,6 +171941,83 @@ async function runMicroBizInference({
   };
 }
 
+// src/server/geminiCircuitBreaker.ts
+var circuitBreakers = /* @__PURE__ */ new Map();
+var GeminiCircuitBreaker = class {
+  /**
+   * Checks whether the circuit breaker is open (cooldown active after 429 quota exhaustion or timeouts).
+   */
+  static isCircuitOpen(model = "gemini-3.8-flash") {
+    const state = circuitBreakers.get(model);
+    if (!state || !state.isOpen) return false;
+    if (Date.now() >= state.cooldownUntil) {
+      state.isOpen = false;
+      return false;
+    }
+    return true;
+  }
+  /**
+   * Trips the circuit breaker for a given model.
+   */
+  static tripCircuit(model, reason, cooldownSeconds = 300) {
+    circuitBreakers.set(model, {
+      isOpen: true,
+      cooldownUntil: Date.now() + cooldownSeconds * 1e3,
+      lastReason: reason
+    });
+  }
+  /**
+   * Evaluates an error from Gemini and trips the circuit breaker if it is a quota or timeout issue.
+   */
+  static recordFailure(model, err) {
+    const errMsg = String(err?.message || err || "");
+    const is429 = errMsg.includes("429") || errMsg.includes("quota") || errMsg.includes("RESOURCE_EXHAUSTED") || err?.status === "RESOURCE_EXHAUSTED" || err?.code === 429;
+    const isTimeout = errMsg.includes("timed out") || errMsg.includes("timeout");
+    if (is429) {
+      let cooldown = 300;
+      try {
+        const match2 = errMsg.match(/retryDelay["']?\s*:\s*["']?(\d+)/i) || errMsg.match(/retry in\s+(\d+)m/i);
+        if (match2 && match2[1]) {
+          cooldown = Math.min(Math.max(parseInt(match2[1], 10), 60), 3600);
+        }
+      } catch {
+      }
+      this.tripCircuit(model, "Quota Limit Exceeded (429/RESOURCE_EXHAUSTED)", cooldown);
+    } else if (isTimeout) {
+      this.tripCircuit(model, "Inference Request Timeout", 60);
+    }
+  }
+  /**
+   * Executes a Gemini generateContent call with a timeout promise and circuit breaker.
+   * Returns generated text, or null if the circuit is open or call fails, without throwing.
+   */
+  static async executeWithFallback(geminiClient, model, contents, timeoutMs = 2500) {
+    if (!geminiClient || this.isCircuitOpen(model)) {
+      return null;
+    }
+    try {
+      const timeoutPromise = new Promise((_2, reject) => {
+        const timer = setTimeout(() => reject(new Error(`AI enrichment timed out (${timeoutMs}ms limit)`)), timeoutMs);
+        if (typeof timer.unref === "function") timer.unref();
+      });
+      const aiResponse = await Promise.race([
+        geminiClient.models.generateContent({
+          model,
+          contents
+        }),
+        timeoutPromise
+      ]);
+      if (aiResponse && aiResponse.text) {
+        return aiResponse.text.trim();
+      }
+      return null;
+    } catch (err) {
+      this.recordFailure(model, err);
+      return null;
+    }
+  }
+};
+
 // src/server/futureHealthService.ts
 var MANDATORY_NON_DIAGNOSTIC_DISCLAIMER = "DISCLAIMER: Non-Diagnostic Clinical Decision Support. Dr. T Future Health Navigator is an assistive population screening algorithm designed for anticipatory risk stratification. It does NOT diagnose diseases, prescribe therapies, or replace formal medical evaluation. All findings require clinical correlation and licensed physician oversight.";
 var CLINICAL_EVIDENCE_GUIDELINES = [
@@ -172327,9 +172404,8 @@ async function runFutureHealthScreening(request, geminiClient) {
     heuristic.sbarHandoff.assessment
   );
   let modelProvider = "dr-t-deterministic-heuristic-engine";
-  if (geminiClient) {
-    try {
-      const prompt = `You are a clinical decision support system assisting human physicians in the Abu Dhabi Future Health Digital Innovation Challenge 2026.
+  if (geminiClient && !GeminiCircuitBreaker.isCircuitOpen("gemini-3.8-flash")) {
+    const prompt = `You are a clinical decision support system assisting human physicians in the Abu Dhabi Future Health Digital Innovation Challenge 2026.
 Perform an anticipatory population health screening summary.
 
 Patient Demographics: Age ${request.demographics.age}, ${request.demographics.gender}
@@ -172343,22 +172419,15 @@ Requirements:
 2. Outline specific questions for the patient to ask their physician.
 3. Explicitly state the non-diagnostic decision-support nature of this tool.
 Output concise, clinically accurate bullet points.`;
-      const timeoutPromise = new Promise((_2, reject) => {
-        const timer = setTimeout(() => reject(new Error("AI enrichment timed out (2500ms limit)")), 2500);
-        if (typeof timer.unref === "function") timer.unref();
-      });
-      const response = await Promise.race([
-        geminiClient.models.generateContent({
-          model: "gemini-3.8-flash",
-          contents: prompt
-        }),
-        timeoutPromise
-      ]);
-      if (response && response.text) {
-        modelProvider = "gemini-3.8-flash (AI-Enriched Decision Support)";
-      }
-    } catch (aiErr) {
-      console.warn("Gemini optional enrichment skipped, utilizing verified heuristic output:", aiErr);
+    const aiText = await GeminiCircuitBreaker.executeWithFallback(
+      geminiClient,
+      "gemini-3.8-flash",
+      prompt,
+      2500
+    );
+    if (aiText) {
+      modelProvider = "gemini-3.8-flash (AI-Enriched Decision Support)";
+    } else {
       modelProvider = "dr-t-deterministic-heuristic-engine (Verified Fallback)";
     }
   }
@@ -172849,9 +172918,8 @@ async function runStCoolAnalysis(intake, geminiClient) {
   }
   let providerUsed = "st-cool-deterministic-heuristic-engine";
   let heuristicFallbackEngaged = false;
-  if (geminiClient) {
-    try {
-      const prompt = `You are ST COOL, an empathetic and clinically responsible health navigation engine within Dr. T for the Abu Dhabi Future Health Challenge 2026.
+  if (geminiClient && !GeminiCircuitBreaker.isCircuitOpen("gemini-3.8-flash")) {
+    const prompt = `You are ST COOL, an empathetic and clinically responsible health navigation engine within Dr. T for the Abu Dhabi Future Health Challenge 2026.
 Synthesize a plain-language health orientation for a patient.
 
 User Intake:
@@ -172868,22 +172936,15 @@ Instructions:
 2. Explicitly note that this is non-diagnostic decision support.
 3. Suggest 3 personalized questions for the patient to ask their doctor.
 Output concise text.`;
-      const timeoutPromise = new Promise((_2, reject) => {
-        const timer = setTimeout(() => reject(new Error("AI enrichment timed out (2500ms limit)")), 2500);
-        if (typeof timer.unref === "function") timer.unref();
-      });
-      const aiResponse = await Promise.race([
-        geminiClient.models.generateContent({
-          model: "gemini-3.8-flash",
-          contents: prompt
-        }),
-        timeoutPromise
-      ]);
-      if (aiResponse && aiResponse.text) {
-        providerUsed = "gemini-3.8-flash (AI-Enriched Decision Support)";
-      }
-    } catch (aiErr) {
-      console.warn("Gemini optional enrichment skipped; falling back cleanly to deterministic engine:", aiErr);
+    const aiText = await GeminiCircuitBreaker.executeWithFallback(
+      geminiClient,
+      "gemini-3.8-flash",
+      prompt,
+      2500
+    );
+    if (aiText) {
+      providerUsed = "gemini-3.8-flash (AI-Enriched Decision Support)";
+    } else {
       providerUsed = "st-cool-deterministic-heuristic-engine (Verified Fallback)";
       heuristicFallbackEngaged = true;
     }
@@ -172972,9 +173033,8 @@ async function runHealthAlertAnalysis(intake, geminiClient) {
   }
   let providerUsed = "health-alert-deterministic-heuristic-engine";
   let heuristicFallbackEngaged = false;
-  if (geminiClient) {
-    try {
-      const prompt = `You are Health Alert, an empathetic and clinically cautious health intelligence engine within Dr. T for the Abu Dhabi Future Health Challenge 2026.
+  if (geminiClient && !GeminiCircuitBreaker.isCircuitOpen("gemini-3.8-flash")) {
+    const prompt = `You are Health Alert, an empathetic and clinically cautious health intelligence engine within Dr. T for the Abu Dhabi Future Health Challenge 2026.
 Synthesize a plain-language health orientation for a patient.
 
 User Intake:
@@ -172991,22 +173051,15 @@ Instructions:
 2. Explicitly note that this is non-diagnostic decision support.
 3. Suggest 3 personalized questions for the patient to ask their doctor.
 Output concise text.`;
-      const timeoutPromise = new Promise((_2, reject) => {
-        const timer = setTimeout(() => reject(new Error("AI enrichment timed out (2500ms limit)")), 2500);
-        if (typeof timer.unref === "function") timer.unref();
-      });
-      const aiResponse = await Promise.race([
-        geminiClient.models.generateContent({
-          model: "gemini-3.8-flash",
-          contents: prompt
-        }),
-        timeoutPromise
-      ]);
-      if (aiResponse && aiResponse.text) {
-        providerUsed = "gemini-3.8-flash (AI-Enriched Decision Support)";
-      }
-    } catch (aiErr) {
-      console.warn("Gemini optional enrichment skipped; falling back cleanly to deterministic Health Alert engine:", aiErr);
+    const aiText = await GeminiCircuitBreaker.executeWithFallback(
+      geminiClient,
+      "gemini-3.8-flash",
+      prompt,
+      2500
+    );
+    if (aiText) {
+      providerUsed = "gemini-3.8-flash (AI-Enriched Decision Support)";
+    } else {
       providerUsed = "health-alert-deterministic-heuristic-engine (Verified Fallback)";
       heuristicFallbackEngaged = true;
     }
@@ -173277,9 +173330,8 @@ function executeExplainHealthAlert(args, geminiClient) {
     let summary = `Evaluation of '${alert}': Informational clinical orientation grounded in evidence guidelines.`;
     let providerUsed = "healthalert-mcp-deterministic-engine";
     let heuristicFallbackEngaged = false;
-    if (geminiClient) {
-      try {
-        const prompt = `You are HealthAlert Companion, an evidence-grounded clinical decision-support agent within Dr. T for the Amazon Developer Hackathon 2026.
+    if (geminiClient && !GeminiCircuitBreaker.isCircuitOpen("gemini-3.8-flash")) {
+      const prompt = `You are HealthAlert Companion, an evidence-grounded clinical decision-support agent within Dr. T for the Amazon Developer Hackathon 2026.
 Explain this health observation clearly and empathetically at a Grade 7 reading level:
 - Alert/Observation: ${alert}
 - Measurement: ${measurement ? `${measurement} ${unit || ""}` : "Not provided"}
@@ -173291,22 +173343,16 @@ Instructions:
 2. Clearly distinguish what facts were provided from what is still unconfirmed.
 3. Explicitly state this is non-diagnostic information.
 Do not invent missing numbers, medical history, or diagnostic claims.`;
-        const timeoutPromise = new Promise((_2, reject) => {
-          const timer = setTimeout(() => reject(new Error("AI enrichment timed out (2500ms limit)")), 2500);
-          if (typeof timer.unref === "function") timer.unref();
-        });
-        const aiRes = await Promise.race([
-          geminiClient.models.generateContent({
-            model: "gemini-3.8-flash",
-            contents: prompt
-          }),
-          timeoutPromise
-        ]);
-        if (aiRes && aiRes.text) {
-          summary = aiRes.text.trim();
-          providerUsed = "gemini-3.8-flash (AI-Enriched MCP Tool)";
-        }
-      } catch (err) {
+      const aiText = await GeminiCircuitBreaker.executeWithFallback(
+        geminiClient,
+        "gemini-3.8-flash",
+        prompt,
+        2500
+      );
+      if (aiText) {
+        summary = aiText;
+        providerUsed = "gemini-3.8-flash (AI-Enriched MCP Tool)";
+      } else {
         providerUsed = "healthalert-mcp-deterministic-engine (Verified Fallback)";
         heuristicFallbackEngaged = true;
       }

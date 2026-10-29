@@ -10,6 +10,7 @@ import {
   getEmergencyGuidanceByRegion, 
   ST_COOL_DISCLAIMER 
 } from './stCoolService';
+import { GeminiCircuitBreaker } from './geminiCircuitBreaker';
 
 export const SUPPORTED_MCP_PROTOCOL_VERSIONS = ['2025-11-25', '2024-11-05'];
 export const DEFAULT_MCP_PROTOCOL_VERSION = '2025-11-25';
@@ -285,9 +286,8 @@ export function executeExplainHealthAlert(
     let providerUsed = 'healthalert-mcp-deterministic-engine';
     let heuristicFallbackEngaged = false;
 
-    if (geminiClient) {
-      try {
-        const prompt = `You are HealthAlert Companion, an evidence-grounded clinical decision-support agent within Dr. T for the Amazon Developer Hackathon 2026.
+    if (geminiClient && !GeminiCircuitBreaker.isCircuitOpen('gemini-3.8-flash')) {
+      const prompt = `You are HealthAlert Companion, an evidence-grounded clinical decision-support agent within Dr. T for the Amazon Developer Hackathon 2026.
 Explain this health observation clearly and empathetically at a Grade 7 reading level:
 - Alert/Observation: ${alert}
 - Measurement: ${measurement ? `${measurement} ${unit || ''}` : 'Not provided'}
@@ -300,24 +300,17 @@ Instructions:
 3. Explicitly state this is non-diagnostic information.
 Do not invent missing numbers, medical history, or diagnostic claims.`;
 
-        const timeoutPromise = new Promise<never>((_, reject) => {
-          const timer = setTimeout(() => reject(new Error('AI enrichment timed out (2500ms limit)')), 2500);
-          if (typeof timer.unref === 'function') timer.unref();
-        });
+      const aiText = await GeminiCircuitBreaker.executeWithFallback(
+        geminiClient,
+        'gemini-3.8-flash',
+        prompt,
+        2500
+      );
 
-        const aiRes = await Promise.race([
-          geminiClient.models.generateContent({
-            model: 'gemini-3.8-flash',
-            contents: prompt
-          }),
-          timeoutPromise
-        ]);
-
-        if (aiRes && aiRes.text) {
-          summary = aiRes.text.trim();
-          providerUsed = 'gemini-3.8-flash (AI-Enriched MCP Tool)';
-        }
-      } catch (err) {
+      if (aiText) {
+        summary = aiText;
+        providerUsed = 'gemini-3.8-flash (AI-Enriched MCP Tool)';
+      } else {
         providerUsed = 'healthalert-mcp-deterministic-engine (Verified Fallback)';
         heuristicFallbackEngaged = true;
       }
