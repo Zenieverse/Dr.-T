@@ -50,6 +50,7 @@ import {
 import { BuildWithAiServerService } from './src/server/buildWithAiServerService';
 import { VisionAlertServerService } from './src/server/visionAlertServerService';
 import { MemoryLanternServerService } from './src/server/memoryLanternServerService';
+import { LanternKeeperServerService } from './src/server/lanternKeeperServerService';
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
@@ -4822,6 +4823,100 @@ app.post('/api/memory-lantern/generate-story', async (req, res) => {
     return res.status(400).json({
       success: false,
       error: err.message || 'Story generation failed.'
+    });
+  }
+});
+
+// ==========================================
+// 6. LANTERN KEEPER — A PERSONAL AI THAT REMEMBERS WITH PERMISSION
+// Nebius Token Factory × NVIDIA Nemotron Adapter & Evidence Retrieval
+// ==========================================
+
+// Nebius Token Factory provider status check
+app.get('/api/lantern-keeper/provider-status', async (req, res) => {
+  try {
+    const status = await LanternKeeperServerService.checkProviderStatus();
+    return res.json(status);
+  } catch (err: any) {
+    return res.status(500).json({
+      status: 'UNREACHABLE',
+      providerType: 'none',
+      error: err.message || 'Failed to verify Nebius provider status.'
+    });
+  }
+});
+
+// Evidence-backed memory retrieval Q&A
+app.post('/api/lantern-keeper/retrieve', async (req, res) => {
+  try {
+    const retrieveReq = req.body || {};
+    const isTestFixture = Boolean(req.query.testFixture === 'true' || retrieveReq.isTestFixture);
+    const result = await LanternKeeperServerService.retrieveEvidence(retrieveReq, { isTestFixture });
+    return res.json(result);
+  } catch (err: any) {
+    return res.status(400).json({
+      success: false,
+      error: err.message || 'Memory retrieval failed.'
+    });
+  }
+});
+
+// Reusable Personal Skills execution
+app.post('/api/lantern-keeper/execute-skill', async (req, res) => {
+  try {
+    const skillReq = req.body || {};
+    const result = await LanternKeeperServerService.executeSkill(skillReq);
+    return res.json(result);
+  } catch (err: any) {
+    return res.status(400).json({
+      success: false,
+      error: err.message || 'Skill execution failed.'
+    });
+  }
+});
+
+// Permission-controlled action gate & audit record
+app.post('/api/lantern-keeper/action-gate', (req, res) => {
+  try {
+    const { actionType, toolName, status, userId, memoryCount, summary } = req.body || {};
+    const record = LanternKeeperServerService.recordActionAudit(
+      actionType || 'execute_skill',
+      toolName || 'unknown_tool',
+      status || 'APPROVED',
+      userId || 'anonymous-user',
+      Number(memoryCount) || 0,
+      summary || 'Action gated by user permission.'
+    );
+    return res.json({ success: true, record });
+  } catch (err: any) {
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Audit records ledger inspection
+app.get('/api/lantern-keeper/audit-records', (req, res) => {
+  const userId = req.query.userId as string | undefined;
+  const records = LanternKeeperServerService.getAuditRecords(userId);
+  return res.json({ success: true, records });
+});
+
+// Three Hats Companion AI Reflection
+app.post('/api/three-hats/companion-reflect', async (req, res) => {
+  try {
+    const { roles, commitments, recentReflection, userQuery } = req.body || {};
+    const result = await LanternKeeperServerService.executeSkill({
+      skillName: 'three_hats_companion',
+      payload: { roles, commitments, recentReflection, userQuery },
+      userApproved: true
+    });
+    return res.json({
+      success: true,
+      insight: result.result
+    });
+  } catch (err: any) {
+    return res.status(400).json({
+      success: false,
+      error: err.message || 'Reflection generation failed.'
     });
   }
 });

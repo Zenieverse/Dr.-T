@@ -41,7 +41,8 @@ export const LanternCard: React.FC<LanternCardProps> = ({
     warm_gold: 'from-yellow-500/20 via-amber-500/10 to-transparent border-yellow-500/30 text-yellow-300',
     rose: 'from-rose-500/20 via-pink-500/10 to-transparent border-rose-500/30 text-rose-300',
     emerald: 'from-emerald-500/20 via-teal-500/10 to-transparent border-emerald-500/30 text-emerald-300',
-    indigo: 'from-indigo-500/20 via-purple-500/10 to-transparent border-indigo-500/30 text-indigo-300'
+    indigo: 'from-indigo-500/20 via-purple-500/10 to-transparent border-indigo-500/30 text-indigo-300',
+    violet: 'from-violet-500/20 via-purple-500/10 to-transparent border-violet-500/30 text-violet-300'
   };
 
   const activeColor = memory.lanternColor || 'amber';

@@ -1,14 +1,28 @@
+// ============================================================================
+// LANTERN KEEPER — A PERSONAL AI THAT REMEMBERS WITH PERMISSION
+// Upgraded Memory Lantern with Evidence-Backed Retrieval, Skills Engine,
+// Permission Gate, Memory Inspector, and Three Hats Integration
+// ============================================================================
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { 
   MemoryLanternItem, 
   GemmaProviderStatus, 
-  LanternPrivacyLevel 
+  LanternPrivacyLevel,
+  NebiusProviderStatus,
+  PermissionManifest,
+  ActionAuditRecord
 } from './types';
 import { MemoryLanternService } from './services/memoryLanternService';
 import { LanternCard } from './components/LanternCard';
 import { CreateMemoryModal } from './components/CreateMemoryModal';
 import { LanternStoriesModal } from './components/LanternStoriesModal';
 import { TributeReaderModal } from './components/TributeReaderModal';
+import { EvidenceQaPanel } from '../lanternkeeper/components/EvidenceQaPanel';
+import { PersonalSkillsPanel } from '../lanternkeeper/components/PersonalSkillsPanel';
+import { PermissionGateModal } from '../lanternkeeper/components/PermissionGateModal';
+import { MemoryInspectorModal } from '../lanternkeeper/components/MemoryInspectorModal';
+import { ThreeHatsModule } from '../threehats/ThreeHatsModule';
 import { auth } from '../../services/firebase';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { 
@@ -30,29 +44,68 @@ import {
   Globe,
   Info,
   CheckCircle,
-  HelpCircle
+  HelpCircle,
+  Compass,
+  Layers,
+  SearchCheck,
+  Bot
 } from 'lucide-react';
 
-export const MemoryLanternModule: React.FC = () => {
+interface MemoryLanternModuleProps {
+  setActiveTab?: (tab: any) => void;
+  initialSubTab?: 'personal_ai' | 'skills' | 'garden' | 'three_hats' | 'timeline' | 'storybook' | 'privacy';
+}
+
+export const MemoryLanternModule: React.FC<MemoryLanternModuleProps> = ({
+  setActiveTab: setPlatformTab,
+  initialSubTab
+}) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [memories, setMemories] = useState<MemoryLanternItem[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [activeCategory, setActiveCategory] = useState<string>('ALL');
-  const [activeTab, setActiveTab] = useState<'garden' | 'timeline' | 'storybook' | 'privacy'>('garden');
+  const [activeSubTab, setActiveSubTab] = useState<'personal_ai' | 'skills' | 'garden' | 'three_hats' | 'timeline' | 'storybook' | 'privacy'>(
+    initialSubTab || 'personal_ai'
+  );
   
-  // Selection for Gemma Storytelling
+  // Selection for Storytelling / Skills
   const [selectedMemoryIds, setSelectedMemoryIds] = useState<string[]>([]);
 
-  // Modals
+  // Modals state
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isStoriesModalOpen, setIsStoriesModalOpen] = useState(false);
   const [isTributeModalOpen, setIsTributeModalOpen] = useState(false);
   const [editingMemory, setEditingMemory] = useState<MemoryLanternItem | null>(null);
   const [readingMemory, setReadingMemory] = useState<MemoryLanternItem | null>(null);
 
-  // Open-weight Gemma provider status
-  const [providerStatus, setProviderStatus] = useState<GemmaProviderStatus>({
+  // Permission Gate State
+  const [isPermissionGateOpen, setIsPermissionGateOpen] = useState(false);
+  const [activeManifest, setActiveManifest] = useState<PermissionManifest | null>(null);
+  const [pendingApprovalAction, setPendingApprovalAction] = useState<(() => void) | null>(null);
+
+  // Memory Inspector State
+  const [isInspectorOpen, setIsInspectorOpen] = useState(false);
+  const [inspectedMemoryId, setInspectedMemoryId] = useState<string | null>(null);
+
+  // Audit trail state
+  const [auditRecords, setAuditRecords] = useState<ActionAuditRecord[]>([]);
+
+  // Provider status state (Nebius Token Factory & NVIDIA Nemotron)
+  const [nebiusStatus, setNebiusStatus] = useState<NebiusProviderStatus>({
+    status: 'NOT_CONFIGURED',
+    providerType: 'none',
+    modelId: 'nvidia/llama-3.1-nemotron-70b-instruct',
+    endpointUrl: 'https://api.tokenfactory.nebius.com/v1/chat/completions',
+    message: 'Checking Nebius Token Factory status...',
+    isLocal: false,
+    checkedAt: new Date().toISOString(),
+    supportedModels: ['nvidia/llama-3.1-nemotron-70b-instruct', 'nvidia/nemotron-mini-4b-instruct'],
+    reproductionCommand: 'export NEBIUS_API_KEY="your-token-factory-key"',
+    hasApiKey: false
+  });
+
+  const [gemmaStatus, setGemmaStatus] = useState<GemmaProviderStatus>({
     status: 'NOT_CONFIGURED',
     providerType: 'none',
     modelId: 'gemma-2-9b-it',
@@ -68,10 +121,10 @@ export const MemoryLanternModule: React.FC = () => {
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
-    setTimeout(() => setToastMessage(''), 3000);
+    setTimeout(() => setToastMessage(''), 3500);
   };
 
-  // 1. Listen for Auth State
+  // Listen for Auth State
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, user => {
       setCurrentUser(user);
@@ -79,10 +132,11 @@ export const MemoryLanternModule: React.FC = () => {
     return () => unsubscribe();
   }, []);
 
-  // 2. Load Memories on Mount / User Change
+  // Load Memories on Mount / User Change
   useEffect(() => {
     loadAllMemories();
-    checkGemmaProvider();
+    checkProviderStatus();
+    loadAuditRecords();
   }, [currentUser]);
 
   const loadAllMemories = async () => {
@@ -97,16 +151,99 @@ export const MemoryLanternModule: React.FC = () => {
     }
   };
 
-  const checkGemmaProvider = async () => {
-    const status = await MemoryLanternService.fetchProviderStatus();
-    setProviderStatus(status);
+  const checkProviderStatus = async () => {
+    try {
+      const res = await fetch('/api/lantern-keeper/provider-status');
+      if (res.ok) {
+        const data = await res.json();
+        setNebiusStatus(data);
+      }
+    } catch {
+      // Fallback status
+    }
+    try {
+      const gStatus = await MemoryLanternService.fetchProviderStatus();
+      setGemmaStatus(gStatus);
+    } catch {
+      // ignore
+    }
   };
 
-  // Actions
+  const loadAuditRecords = async () => {
+    try {
+      const res = await fetch('/api/lantern-keeper/audit-records');
+      if (res.ok) {
+        const data = await res.json();
+        setAuditRecords(data.records || []);
+      }
+    } catch {
+      // ignore
+    }
+  };
+
+  // Actions & Permission Handlers
+  const handleRequestActionApproval = (manifest: PermissionManifest, onApproved: () => void) => {
+    setActiveManifest(manifest);
+    setPendingApprovalAction(() => onApproved);
+    setIsPermissionGateOpen(true);
+  };
+
+  const handleApproveAction = async () => {
+    if (!activeManifest) return;
+    try {
+      await fetch('/api/lantern-keeper/action-gate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          actionType: activeManifest.actionType,
+          toolName: activeManifest.toolName,
+          status: 'APPROVED',
+          userId: currentUser?.uid || 'anonymous-user',
+          memoryCount: activeManifest.requiredMemoryIds.length,
+          summary: `Approved execution of ${activeManifest.toolName}.`
+        })
+      });
+      loadAuditRecords();
+    } catch (err) {
+      console.error(err);
+    }
+
+    setIsPermissionGateOpen(false);
+    if (pendingApprovalAction) {
+      pendingApprovalAction();
+      setPendingApprovalAction(null);
+    }
+  };
+
+  const handleDenyAction = async () => {
+    if (activeManifest) {
+      try {
+        await fetch('/api/lantern-keeper/action-gate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            actionType: activeManifest.actionType,
+            toolName: activeManifest.toolName,
+            status: 'DENIED',
+            userId: currentUser?.uid || 'anonymous-user',
+            memoryCount: activeManifest.requiredMemoryIds.length,
+            summary: `Denied execution of ${activeManifest.toolName}.`
+          })
+        });
+        loadAuditRecords();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    setIsPermissionGateOpen(false);
+    setPendingApprovalAction(null);
+    showToast('Consequential action canceled by user.');
+  };
+
   const handleSaveMemory = async (item: MemoryLanternItem) => {
     await MemoryLanternService.saveMemory(item, currentUser?.uid);
     await loadAllMemories();
-    showToast(`🏮 Lantern "${item.title}" placed in the garden.`);
+    showToast(`🏮 Lantern "${item.title}" preserved in sanctuary.`);
   };
 
   const handleDeleteMemory = async (id: string) => {
@@ -120,8 +257,18 @@ export const MemoryLanternModule: React.FC = () => {
     }
   };
 
+  const handleRevokeAccess = (id: string) => {
+    setMemories(prev => prev.map(m => m.id === id ? { ...m, revokedAt: new Date().toISOString() } : m));
+    showToast('Permission revoked: Memory is excluded from AI retrieval.');
+  };
+
+  const handleRestoreAccess = (id: string) => {
+    setMemories(prev => prev.map(m => m.id === id ? { ...m, revokedAt: null } : m));
+    showToast('Permission restored: Memory is accessible in AI retrieval.');
+  };
+
   const handleClearSampleData = async () => {
-    if (window.confirm('Remove all fictional sample memories from your garden?')) {
+    if (window.confirm('Remove all fictional sample memories from your sanctuary?')) {
       await MemoryLanternService.clearSampleMemories(currentUser?.uid);
       await loadAllMemories();
       showToast('Sample memories cleared.');
@@ -178,7 +325,27 @@ export const MemoryLanternModule: React.FC = () => {
     });
   }, [filteredMemories]);
 
-  // Export all memories as JSON
+  // Save reflection from Three Hats into Lantern Keeper
+  const handleSaveThreeHatsReflection = async (title: string, story: string, category: string) => {
+    const newMemory: MemoryLanternItem = {
+      id: `three-hats-mem-${Date.now()}`,
+      userId: currentUser?.uid || 'demo-user',
+      title,
+      category: 'Wisdom',
+      story,
+      meaningfulDetails: [
+        { type: 'saying_or_proverb', label: 'Reflection Insight', value: 'I am more than any single role I play.' }
+      ],
+      tags: ['Three Hats', 'Life Balance', 'Personal AI'],
+      privacyLevel: 'PRIVATE',
+      lanternColor: 'violet',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    await handleSaveMemory(newMemory);
+  };
+
+  // Export all memories
   const handleExportAllJson = () => {
     const sanitized = memories.map(m => ({
       title: m.title,
@@ -195,24 +362,28 @@ export const MemoryLanternModule: React.FC = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `memory-lanterns-export-${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = `lantern-keeper-export-${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
     URL.revokeObjectURL(url);
     showToast('Exported complete memory archive.');
   };
 
-  // Export all memories as Markdown
   const handleExportAllMarkdown = () => {
     const fullDoc = memories.map(m => MemoryLanternService.exportToMarkdown(m)).join('\n\n---\n\n');
     const blob = new Blob([fullDoc], { type: 'text/markdown' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `memory-lanterns-story-book-${new Date().toISOString().slice(0, 10)}.md`;
+    a.download = `lantern-keeper-storybook-${new Date().toISOString().slice(0, 10)}.md`;
     a.click();
     URL.revokeObjectURL(url);
     showToast('Exported Markdown Storybook.');
   };
+
+  const inspectedMemory = useMemo(() => {
+    if (!inspectedMemoryId) return null;
+    return memories.find(m => m.id === inspectedMemoryId) || null;
+  }, [inspectedMemoryId, memories]);
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-amber-500/30">
@@ -225,11 +396,10 @@ export const MemoryLanternModule: React.FC = () => {
         </div>
       )}
 
-      {/* Hero Night Garden Header */}
+      {/* Hero Header */}
       <div className="relative overflow-hidden border-b border-slate-800/80 bg-gradient-to-b from-slate-900 via-slate-950 to-slate-950">
-        {/* Subtle Background Glows */}
         <div className="absolute top-0 left-1/4 w-96 h-96 rounded-full bg-amber-500/5 blur-3xl pointer-events-none -z-10" />
-        <div className="absolute top-1/2 right-1/4 w-80 h-80 rounded-full bg-rose-500/5 blur-3xl pointer-events-none -z-10" />
+        <div className="absolute top-1/2 right-1/4 w-80 h-80 rounded-full bg-violet-500/5 blur-3xl pointer-events-none -z-10" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -237,12 +407,12 @@ export const MemoryLanternModule: React.FC = () => {
             {/* Title & Tagline */}
             <div className="space-y-2">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="px-2.5 py-1 rounded-full bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/40 text-amber-300 text-[11px] font-semibold tracking-wide uppercase flex items-center gap-1.5">
+                <span className="px-2.5 py-1 rounded-full bg-gradient-to-r from-amber-500/20 to-violet-500/20 border border-amber-500/40 text-amber-300 text-[11px] font-semibold tracking-wide uppercase flex items-center gap-1.5">
                   <Sparkles className="w-3 h-3 text-amber-400" />
-                  DEV Hacktoberfest 2026 • Week 4
+                  Personal AI • Lantern Keeper
                 </span>
-                <span className="px-2.5 py-1 rounded-full bg-purple-950/60 border border-purple-700/50 text-purple-300 text-[11px] font-mono">
-                  Theme: Ghost in the Machine
+                <span className="px-2.5 py-1 rounded-full bg-slate-900 border border-slate-800 text-slate-300 text-[11px] font-mono">
+                  NVIDIA Nemotron & Nebius Token Factory
                 </span>
                 <span className="px-2 py-0.5 rounded-md bg-slate-800 text-slate-400 text-[11px]">
                   {currentUser ? `Signed in as ${currentUser.email}` : 'Guest Sanctuary (Local Sandbox)'}
@@ -250,22 +420,22 @@ export const MemoryLanternModule: React.FC = () => {
               </div>
 
               <div className="flex items-center gap-3">
-                <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 via-orange-500 to-rose-500 text-slate-950 shadow-lg shadow-amber-500/20">
+                <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 via-orange-500 to-violet-600 text-slate-950 shadow-lg shadow-amber-500/20">
                   <Flame className="w-7 h-7 text-slate-950" />
                 </div>
                 <div>
                   <h1 className="text-2xl sm:text-3xl font-serif font-bold tracking-tight text-white flex items-center gap-2">
-                    Memory Lantern
-                    <span className="text-amber-400 text-lg font-sans font-light italic">— Stories That Stay</span>
+                    Lantern Keeper
+                    <span className="text-amber-400 text-lg font-sans font-light italic">— A Personal AI That Remembers With Permission</span>
                   </h1>
                   <p className="text-xs sm:text-sm text-slate-400 max-w-2xl">
-                    A peaceful digital sanctuary for intergenerational remembrance, family traditions, and living stories powered by open-weight Gemma AI.
+                    Evidence-backed memory retrieval, reusable personal skills, and permission-controlled role balance across your Three Hats.
                   </p>
                 </div>
               </div>
             </div>
 
-            {/* Quick Action Buttons */}
+            {/* Quick Actions */}
             <div className="flex flex-wrap items-center gap-2.5">
               <button
                 type="button"
@@ -285,7 +455,7 @@ export const MemoryLanternModule: React.FC = () => {
                 className="px-4 py-2.5 rounded-xl text-xs font-semibold bg-slate-800/90 border border-amber-500/40 text-amber-200 hover:bg-slate-700/80 hover:border-amber-400 transition-all flex items-center gap-2 shadow-xs"
               >
                 <Sparkles className="w-4 h-4 text-amber-400" />
-                <span>Lantern Stories (Gemma AI)</span>
+                <span>Story Keeper</span>
               </button>
             </div>
 
@@ -299,18 +469,20 @@ export const MemoryLanternModule: React.FC = () => {
               </div>
               <div className="space-y-0.5">
                 <div className="flex items-center gap-2">
-                  <span className="font-semibold text-slate-200">Open AI Engine:</span>
-                  <span className="font-mono text-amber-300">{providerStatus.modelId}</span>
+                  <span className="font-semibold text-slate-200">Personal AI Inference Engine:</span>
+                  <span className="font-mono text-amber-300">{nebiusStatus.modelId}</span>
                   <span className={`px-2 py-0.2 rounded text-[10px] font-mono ${
-                    providerStatus.status === 'READY' 
+                    nebiusStatus.status === 'READY' 
                       ? 'bg-emerald-950 text-emerald-300 border border-emerald-700/60'
                       : 'bg-amber-950 text-amber-300 border border-amber-700/60'
                   }`}>
-                    {providerStatus.status === 'READY' ? '● Live Open AI' : '○ Standby / Test Fixture Available'}
+                    {nebiusStatus.status === 'READY' 
+                      ? '● Live Nebius Token Factory' 
+                      : '○ Standby (Deterministic Engine Active)'}
                   </span>
                 </div>
                 <div className="text-[11px] text-slate-400 truncate max-w-xl">
-                  {providerStatus.message}
+                  {nebiusStatus.message}
                 </div>
               </div>
             </div>
@@ -318,7 +490,7 @@ export const MemoryLanternModule: React.FC = () => {
             <div className="flex items-center gap-2 shrink-0">
               <button
                 type="button"
-                onClick={checkGemmaProvider}
+                onClick={checkProviderStatus}
                 title="Refresh Provider Connectivity"
                 className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-[11px] text-slate-300 transition-colors"
               >
@@ -346,27 +518,28 @@ export const MemoryLanternModule: React.FC = () => {
         </div>
       </div>
 
-      {/* Main Content Area */}
+      {/* Main Subtabs Navigation */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full space-y-6">
         
-        {/* Navigation Sub-Tabs & Search Controls */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800/80 pb-4">
-          
-          {/* Subtabs */}
-          <div className="flex items-center gap-1.5 p-1 rounded-xl bg-slate-900/90 border border-slate-800">
+          <div className="flex items-center gap-1.5 p-1 rounded-xl bg-slate-900/90 border border-slate-800 overflow-x-auto">
             {[
-              { id: 'garden', label: 'Lantern Garden', icon: Flame, count: memories.length },
-              { id: 'timeline', label: 'Chronicle Timeline', icon: Calendar },
-              { id: 'storybook', label: 'Storybook & Tributes', icon: BookOpen },
-              { id: 'privacy', label: 'Sanctuary & Privacy', icon: ShieldCheck }
+              { id: 'personal_ai', label: 'Personal AI & Q&A', icon: Bot },
+              { id: 'skills', label: 'Personal Skills', icon: Sparkles },
+              { id: 'garden', label: 'Memory Sanctuary', icon: Flame, count: memories.length },
+              { id: 'three_hats', label: 'Three Hats', icon: Compass },
+              { id: 'timeline', label: 'Timeline', icon: Calendar },
+              { id: 'storybook', label: 'Storybooks', icon: BookOpen },
+              { id: 'privacy', label: 'Permission Center', icon: ShieldCheck }
             ].map(tab => {
               const Icon = tab.icon;
-              const isActive = activeTab === tab.id;
+              const isActive = activeSubTab === tab.id;
               return (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id as any)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                  type="button"
+                  onClick={() => setActiveSubTab(tab.id as any)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${
                     isActive 
                       ? 'bg-amber-500/20 text-amber-200 border border-amber-500/40 shadow-xs' 
                       : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
@@ -384,97 +557,104 @@ export const MemoryLanternModule: React.FC = () => {
             })}
           </div>
 
-          {/* Search Bar */}
-          <div className="relative flex-1 sm:max-w-xs">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-              placeholder="Search memories, people, recipes, sayings..."
-              className="w-full pl-9 pr-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-200 text-xs focus:outline-none focus:border-amber-400 placeholder:text-slate-500"
-            />
-          </div>
+          {/* Search bar (for garden & timeline) */}
+          {(activeSubTab === 'garden' || activeSubTab === 'timeline') && (
+            <div className="relative flex-1 sm:max-w-xs">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                placeholder="Search memories, recipes, proverbs..."
+                className="w-full pl-9 pr-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-200 text-xs focus:outline-none focus:border-amber-400 placeholder:text-slate-500"
+              />
+            </div>
+          )}
         </div>
 
-        {/* Category Pills (Visible in Garden & Timeline) */}
-        {(activeTab === 'garden' || activeTab === 'timeline') && (
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <div className="flex flex-wrap items-center gap-1.5">
-              {['ALL', 'Remembrance', 'Tradition', 'Milestone', 'Everyday Joy', 'Wisdom'].map(cat => (
-                <button
-                  key={cat}
-                  onClick={() => setActiveCategory(cat)}
-                  className={`px-3 py-1 rounded-full text-xs transition-colors ${
-                    activeCategory === cat
-                      ? 'bg-amber-500 text-slate-950 font-semibold shadow-xs'
-                      : 'bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 hover:border-slate-700'
-                  }`}
-                >
-                  {cat === 'ALL' ? 'All Lanterns' : cat}
-                </button>
-              ))}
-            </div>
-
-            {/* Multi-select bar if any cards are selected */}
-            {selectedMemoryIds.length > 0 && (
-              <div className="flex items-center gap-2 text-xs bg-amber-950/40 border border-amber-500/40 px-3 py-1.5 rounded-xl text-amber-200">
-                <span className="font-semibold">{selectedMemoryIds.length} selected</span>
-                <button
-                  onClick={() => setIsStoriesModalOpen(true)}
-                  className="px-2.5 py-0.5 rounded bg-amber-500 text-slate-950 font-bold hover:bg-amber-400 transition-colors"
-                >
-                  Compose Story
-                </button>
-                <button
-                  onClick={() => setSelectedMemoryIds([])}
-                  className="text-slate-400 hover:text-slate-200 underline text-[11px]"
-                >
-                  Clear
-                </button>
-              </div>
-            )}
-          </div>
+        {/* 1. PERSONAL AI EVIDENCE QA VIEW */}
+        {activeSubTab === 'personal_ai' && (
+          <EvidenceQaPanel
+            memories={memories}
+            providerStatus={nebiusStatus}
+            onSelectMemoryForInspection={(id) => {
+              setInspectedMemoryId(id);
+              setIsInspectorOpen(true);
+            }}
+          />
         )}
 
-        {/* VIEW 1: LANTERN GARDEN */}
-        {activeTab === 'garden' && (
-          <div>
-            {isLoading ? (
-              <div className="py-20 text-center space-y-3">
-                <Flame className="w-8 h-8 text-amber-400 animate-pulse mx-auto" />
-                <p className="text-xs text-slate-400">Tending the lantern garden...</p>
+        {/* 2. REUSABLE PERSONAL SKILLS VIEW */}
+        {activeSubTab === 'skills' && (
+          <PersonalSkillsPanel
+            memories={memories}
+            onOpenStoryModal={() => setIsStoriesModalOpen(true)}
+            onOpenMemoryInspector={(id) => {
+              setInspectedMemoryId(id || memories[0]?.id || null);
+              setIsInspectorOpen(true);
+            }}
+            onRequestActionApproval={handleRequestActionApproval}
+          />
+        )}
+
+        {/* 3. THREE HATS VIEW */}
+        {activeSubTab === 'three_hats' && (
+          <ThreeHatsModule 
+            setActiveTab={setPlatformTab}
+            onSaveToLanternKeeper={handleSaveThreeHatsReflection}
+          />
+        )}
+
+        {/* 4. MEMORY SANCTUARY (GARDEN) VIEW */}
+        {activeSubTab === 'garden' && (
+          <div className="space-y-6">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex flex-wrap items-center gap-1.5">
+                {['ALL', 'Remembrance', 'Tradition', 'Milestone', 'Everyday Joy', 'Wisdom'].map(cat => (
+                  <button
+                    key={cat}
+                    onClick={() => setActiveCategory(cat)}
+                    className={`px-3 py-1 rounded-full text-xs transition-colors ${
+                      activeCategory === cat
+                        ? 'bg-amber-500 text-slate-950 font-semibold shadow-xs'
+                        : 'bg-slate-900 text-slate-400 hover:text-slate-200 border border-slate-800'
+                    }`}
+                  >
+                    {cat}
+                  </button>
+                ))}
               </div>
-            ) : filteredMemories.length === 0 ? (
-              <div className="py-16 text-center rounded-2xl bg-slate-900/40 border border-slate-800/80 p-8 space-y-4 max-w-lg mx-auto">
-                <div className="w-12 h-12 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center mx-auto">
-                  <Flame className="w-6 h-6" />
-                </div>
-                <div className="space-y-1">
-                  <h3 className="text-base font-semibold text-slate-200">The Garden is Quiet</h3>
-                  <p className="text-xs text-slate-400">
-                    {searchQuery 
-                      ? 'No memories match your search filter. Try clearing the search query.'
-                      : 'Place your first memory into a glowing lantern or restore the sample memories to explore.'}
-                  </p>
-                </div>
-                <div className="flex items-center justify-center gap-2 pt-2">
-                  <button
-                    onClick={() => {
-                      setEditingMemory(null);
-                      setIsCreateModalOpen(true);
-                    }}
-                    className="px-4 py-2 rounded-lg text-xs font-semibold bg-amber-500 text-slate-950 hover:bg-amber-400 transition-colors"
-                  >
-                    Light a Lantern
-                  </button>
-                  <button
-                    onClick={handleRestoreSampleData}
-                    className="px-4 py-2 rounded-lg text-xs font-medium bg-slate-800 text-slate-300 hover:text-white transition-colors"
-                  >
-                    Load Fictional Samples
-                  </button>
-                </div>
+
+              <div className="flex items-center gap-2 text-xs">
+                {selectedMemoryIds.length > 0 && (
+                  <span className="text-amber-300 font-semibold">
+                    {selectedMemoryIds.length} selected
+                  </span>
+                )}
+                <button
+                  type="button"
+                  onClick={handleSelectAll}
+                  className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors"
+                >
+                  {selectedMemoryIds.length === filteredMemories.length ? 'Deselect All' : 'Select All'}
+                </button>
+              </div>
+            </div>
+
+            {filteredMemories.length === 0 ? (
+              <div className="py-16 text-center space-y-3 bg-slate-900/40 rounded-3xl border border-slate-800/80">
+                <Flame className="w-8 h-8 text-slate-600 mx-auto" />
+                <h4 className="text-sm font-semibold text-slate-300">No Lanterns Found</h4>
+                <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                  Light your first lantern to preserve family stories, traditions, and memories.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setIsCreateModalOpen(true)}
+                  className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold transition-all shadow-md"
+                >
+                  Light a Lantern
+                </button>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -499,15 +679,19 @@ export const MemoryLanternModule: React.FC = () => {
                       const url = URL.createObjectURL(blob);
                       const a = document.createElement('a');
                       a.href = url;
-                      a.download = `${memory.title.toLowerCase().replace(/\s+/g, '-')}.md`;
+                      a.download = `${memory.title.toLowerCase().replace(/[^a-z0-9]/g, '-')}.md`;
                       a.click();
                       URL.revokeObjectURL(url);
                       showToast(`Exported "${memory.title}" as Markdown.`);
                     }}
                     onShareText={() => {
-                      const text = MemoryLanternService.exportShareableText(memory);
-                      navigator.clipboard.writeText(text);
+                      const shareText = MemoryLanternService.exportShareableText(memory);
+                      navigator.clipboard.writeText(shareText);
                       showToast('Copied sanitized shareable text to clipboard.');
+                    }}
+                    onInspect={() => {
+                      setInspectedMemoryId(memory.id);
+                      setIsInspectorOpen(true);
                     }}
                   />
                 ))}
@@ -516,43 +700,27 @@ export const MemoryLanternModule: React.FC = () => {
           </div>
         )}
 
-        {/* VIEW 2: CHRONICLE TIMELINE */}
-        {activeTab === 'timeline' && (
+        {/* 5. TIMELINE VIEW */}
+        {activeSubTab === 'timeline' && (
           <div className="space-y-6">
-            <div className="text-xs text-slate-400">
-              Showing memories chronologically by time period or creation date.
-            </div>
-
-            <div className="relative border-l-2 border-amber-500/30 ml-4 sm:ml-8 pl-6 sm:pl-8 space-y-8">
-              {timelineMemories.map((m, idx) => (
+            <h3 className="text-sm font-semibold text-slate-200">
+              Chronicle Timeline ({timelineMemories.length} Memories)
+            </h3>
+            <div className="relative border-l-2 border-amber-500/30 ml-4 space-y-8 pl-6">
+              {timelineMemories.map(m => (
                 <div key={m.id} className="relative group">
-                  {/* Glowing Node */}
-                  <div className="absolute -left-[35px] sm:-left-[43px] top-1.5 w-6 h-6 rounded-full bg-slate-900 border-2 border-amber-400 flex items-center justify-center text-amber-400 shadow-md shadow-amber-400/20 group-hover:scale-110 transition-transform">
-                    <Flame className="w-3 h-3 text-amber-400" />
-                  </div>
-
-                  <div className="p-5 rounded-2xl bg-slate-900/80 border border-slate-800/80 hover:border-amber-500/40 transition-colors space-y-3">
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <span className="text-xs font-semibold text-amber-300">
-                        {m.dateOrPeriod || 'Time Period Unspecified'}
+                  <div className="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-slate-950 border-2 border-amber-400" />
+                  <div className="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-mono text-amber-400 font-bold">
+                        {m.dateOrPeriod || 'Circa Modern Era'}
                       </span>
-                      <span className="text-[11px] text-slate-500 uppercase tracking-wider">
+                      <span className="text-[10px] uppercase px-2 py-0.5 rounded bg-slate-800 text-slate-400">
                         {m.category}
                       </span>
                     </div>
-
-                    <h3 className="text-base font-semibold text-slate-100">{m.title}</h3>
+                    <h4 className="text-sm font-bold text-slate-100">{m.title}</h4>
                     <p className="text-xs text-slate-300 leading-relaxed">{m.story}</p>
-
-                    {m.meaningfulDetails?.length > 0 && (
-                      <div className="pt-2 border-t border-slate-800 text-[11px] text-slate-400 space-y-1">
-                        {m.meaningfulDetails.map((d, dIdx) => (
-                          <div key={dIdx} className="italic text-slate-300">
-                            • {d.label}: {d.value}
-                          </div>
-                        ))}
-                      </div>
-                    )}
                   </div>
                 </div>
               ))}
@@ -560,148 +728,108 @@ export const MemoryLanternModule: React.FC = () => {
           </div>
         )}
 
-        {/* VIEW 3: STORYBOOK & TRIBUTES */}
-        {activeTab === 'storybook' && (
+        {/* 6. STORYBOOKS & TRIBUTES VIEW */}
+        {activeSubTab === 'storybook' && (
           <div className="space-y-6">
-            <div className="p-6 rounded-2xl bg-gradient-to-r from-amber-500/10 via-slate-900 to-slate-900 border border-amber-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="p-6 rounded-2xl bg-gradient-to-r from-amber-950/30 to-slate-900 border border-amber-600/30 flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div className="space-y-1">
-                <h3 className="text-base font-semibold text-slate-100">Storybook & Family Archive</h3>
+                <h3 className="text-base font-bold text-slate-100">
+                  Export Complete Lantern Storybook
+                </h3>
                 <p className="text-xs text-slate-400 max-w-xl">
-                  Synthesize your preserved memories into chapters or read printable remembrances composed with Gemma open AI.
+                  Download your entire sanctuary of family stories, traditions, and proverbs as a single beautifully formatted Markdown volume or JSON archive.
                 </p>
               </div>
-
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 shrink-0">
                 <button
+                  type="button"
                   onClick={handleExportAllMarkdown}
-                  className="px-3.5 py-2 rounded-xl bg-slate-800 border border-slate-700 hover:border-slate-600 text-xs text-slate-200 transition-colors flex items-center gap-1.5"
+                  className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold transition-all shadow-md flex items-center gap-1.5"
                 >
                   <Download className="w-3.5 h-3.5" />
-                  <span>Export Full Markdown Storybook</span>
+                  <span>Download Markdown</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleExportAllJson}
+                  className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition-all"
+                >
+                  Export JSON
                 </button>
               </div>
             </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {memories.map(m => (
-                <div 
-                  key={m.id}
-                  className="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 flex flex-col justify-between space-y-3"
-                >
-                  <div>
-                    <div className="text-[11px] font-medium text-amber-400 uppercase tracking-wider mb-1">
-                      {m.category} • {m.dateOrPeriod || 'Heritage'}
-                    </div>
-                    <h4 className="text-base font-semibold text-slate-100">{m.title}</h4>
-                    <p className="text-xs text-slate-300 line-clamp-3 mt-1">{m.story}</p>
-                  </div>
-
-                  <div className="flex items-center justify-between pt-3 border-t border-slate-800 text-xs">
-                    <span className="text-[11px] text-slate-500">
-                      {m.peopleRemembered?.length ? `Remembering: ${m.peopleRemembered.join(', ')}` : 'Personal Memory'}
-                    </span>
-                    <button
-                      onClick={() => {
-                        setReadingMemory(m);
-                        setIsTributeModalOpen(true);
-                      }}
-                      className="px-3 py-1 rounded-lg bg-amber-500/20 border border-amber-500/40 text-amber-300 hover:bg-amber-500/30 transition-colors"
-                    >
-                      Read & Print Tribute
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
           </div>
         )}
 
-        {/* VIEW 4: PRIVACY & SANCTUARY */}
-        {activeTab === 'privacy' && (
-          <div className="space-y-6 max-w-3xl">
-            <div className="p-6 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
-                  <ShieldCheck className="w-6 h-6" />
-                </div>
-                <div>
-                  <h3 className="text-base font-semibold text-slate-100">Privacy & Data Sanctuary</h3>
-                  <p className="text-xs text-slate-400">
-                    How Memory Lantern handles your personal stories, attachments, and inference data.
-                  </p>
-                </div>
+        {/* 7. PERMISSION & AUDIT CENTER VIEW */}
+        {activeSubTab === 'privacy' && (
+          <div className="space-y-6">
+            <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-4">
+              <h3 className="text-base font-bold text-slate-100 flex items-center gap-2">
+                <ShieldCheck className="w-5 h-5 text-emerald-400" />
+                <span>Permission & Privacy Architecture</span>
+              </h3>
+              <p className="text-xs text-slate-300 leading-relaxed max-w-3xl">
+                Lantern Keeper enforces strict user isolation in Firebase Firestore rules, client-side encryption bounds, 
+                and permission gates. AI inference calls receive only the minimum necessary memory excerpts and are strictly forbidden from logging sensitive credentials.
+              </p>
+            </div>
+
+            {/* Audit Trail Ledger */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-300">
+                  Permission Action Audit Trail (Zero Sensitive Memory Content)
+                </h4>
+                <button
+                  type="button"
+                  onClick={loadAuditRecords}
+                  className="text-xs text-amber-400 hover:text-amber-300"
+                >
+                  Refresh Audit
+                </button>
               </div>
 
-              <div className="space-y-3 text-xs text-slate-300 leading-relaxed border-t border-slate-800 pt-4">
-                <div className="p-3 rounded-xl bg-slate-800/40 border border-slate-700/60 space-y-1">
-                  <span className="font-semibold text-slate-100 block">Where are memories stored?</span>
-                  <p>
-                    {currentUser 
-                      ? `Your memories are saved to your authenticated user account in Firebase Firestore (/memory_lantern_memories) scoped exclusively to your user ID (${currentUser.uid}). Cross-account access is strictly denied by Firestore security rules.`
-                      : 'You are currently browsing as a guest. Your memories are stored strictly in your browser’s isolated localStorage sandbox. Nothing leaves your browser until you sign in.'}
-                  </p>
+              {auditRecords.length === 0 ? (
+                <div className="p-4 rounded-xl bg-slate-900/50 border border-slate-800 text-center text-xs text-slate-500">
+                  No consequential actions recorded yet in this session.
                 </div>
+              ) : (
+                <div className="space-y-2">
+                  {auditRecords.map(rec => (
+                    <div 
+                      key={rec.id}
+                      className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between gap-4 text-xs"
+                    >
+                      <div className="space-y-0.5">
+                        <div className="flex items-center gap-2">
+                          <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold ${
+                            rec.status === 'APPROVED' || rec.status === 'EXECUTED' 
+                              ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' 
+                              : 'bg-rose-950 text-rose-300 border border-rose-800'
+                          }`}>
+                            {rec.status}
+                          </span>
+                          <span className="font-semibold text-slate-200">{rec.toolName}</span>
+                          <span className="text-[10px] text-slate-500 font-mono">({rec.accessedMemoryCount} source memories)</span>
+                        </div>
+                        <div className="text-[11px] text-slate-400">{rec.summary}</div>
+                      </div>
 
-                <div className="p-3 rounded-xl bg-slate-800/40 border border-slate-700/60 space-y-1">
-                  <span className="font-semibold text-slate-100 block">Open AI & Inference Transparency</span>
-                  <p>
-                    Memory Lantern uses Google's open-weight <strong>Gemma</strong> model family (via local Ollama or hosted open-weight endpoints). We do not silently send data to proprietary black-box APIs, and no memory text is ever sent to an AI provider until you explicitly click "Generate Story".
-                  </p>
+                      <div className="text-[10px] text-slate-500 font-mono shrink-0">
+                        {new Date(rec.timestamp).toLocaleTimeString()}
+                      </div>
+                    </div>
+                  ))}
                 </div>
-
-                <div className="p-3 rounded-xl bg-slate-800/40 border border-slate-700/60 space-y-1">
-                  <span className="font-semibold text-slate-100 block">Zero Telemetry & Strict Safety Invariant</span>
-                  <p>
-                    No personal stories, deceased names, or voice transcripts are recorded in analytics. Furthermore, Gemma narrative models strictly adhere to an ethical safety policy: they never impersonate deceased loved ones, never claim supernatural communication, and preserve user-supplied facts without alteration.
-                  </p>
-                </div>
-              </div>
-
-              {/* Data Export & Deletion Actions */}
-              <div className="pt-4 border-t border-slate-800 space-y-3">
-                <span className="text-xs font-semibold text-slate-200 block">Your Data Ownership Controls</span>
-                
-                <div className="flex flex-wrap items-center gap-3">
-                  <button
-                    onClick={handleExportAllJson}
-                    className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs text-slate-200 flex items-center gap-2 transition-colors"
-                  >
-                    <Download className="w-4 h-4 text-amber-400" />
-                    <span>Export Archive (JSON)</span>
-                  </button>
-
-                  <button
-                    onClick={handleExportAllMarkdown}
-                    className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs text-slate-200 flex items-center gap-2 transition-colors"
-                  >
-                    <BookOpen className="w-4 h-4 text-amber-400" />
-                    <span>Export Storybook (Markdown)</span>
-                  </button>
-
-                  <button
-                    onClick={async () => {
-                      if (window.confirm('Delete ALL memories in your sanctuary? This action is permanent and cannot be undone.')) {
-                        for (const m of memories) {
-                          await MemoryLanternService.deleteMemory(m.id, currentUser?.uid);
-                        }
-                        await loadAllMemories();
-                        showToast('All sanctuary memories permanently removed.');
-                      }
-                    }}
-                    className="px-4 py-2 rounded-xl bg-rose-950/60 hover:bg-rose-900 border border-rose-800 text-xs text-rose-300 flex items-center gap-2 transition-colors"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                    <span>Permanently Delete All Memories</span>
-                  </button>
-                </div>
-              </div>
+              )}
             </div>
           </div>
         )}
 
       </div>
 
-      {/* Modals */}
+      {/* Global Modals */}
       <CreateMemoryModal
         isOpen={isCreateModalOpen}
         onClose={() => {
@@ -716,31 +844,23 @@ export const MemoryLanternModule: React.FC = () => {
         isOpen={isStoriesModalOpen}
         onClose={() => setIsStoriesModalOpen(false)}
         memories={memories}
-        selectedMemoryIds={selectedMemoryIds.length > 0 ? selectedMemoryIds : memories.map(m => m.id)}
-        providerStatus={providerStatus}
-        onSaveAsMemory={async (title, content) => {
-          const newLantern: MemoryLanternItem = {
-            id: `story-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
-            userId: currentUser?.uid || 'guest_user',
+        selectedMemoryIds={selectedMemoryIds}
+        providerStatus={gemmaStatus}
+        onSaveAsMemory={async (title: string, narrative: string) => {
+          const newStoryItem: MemoryLanternItem = {
+            id: `story-${Date.now()}`,
+            userId: currentUser?.uid || 'demo-user',
             title,
-            category: 'Remembrance',
-            story: content,
-            meaningfulDetails: [
-              {
-                type: 'other',
-                label: 'AI-Assisted Narrative',
-                value: `Generated using open-weight ${providerStatus.modelId} on ${new Date().toLocaleDateString()}`
-              }
-            ],
-            tags: ['Lantern Story', 'Gemma AI', 'Heritage'],
+            category: 'Tradition',
+            story: narrative,
+            meaningfulDetails: [],
+            tags: ['AI Generated Story', 'Preserved Narrative'],
             privacyLevel: 'FAMILY_EXPORTABLE',
             lanternColor: 'warm_gold',
-            isSample: false,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString()
           };
-          await handleSaveMemory(newLantern);
-          setIsStoriesModalOpen(false);
+          await handleSaveMemory(newStoryItem);
         }}
       />
 
@@ -751,6 +871,25 @@ export const MemoryLanternModule: React.FC = () => {
           setReadingMemory(null);
         }}
         memory={readingMemory}
+      />
+
+      <PermissionGateModal
+        isOpen={isPermissionGateOpen}
+        manifest={activeManifest}
+        onApprove={handleApproveAction}
+        onDeny={handleDenyAction}
+      />
+
+      <MemoryInspectorModal
+        isOpen={isInspectorOpen}
+        memory={inspectedMemory}
+        onClose={() => {
+          setIsInspectorOpen(false);
+          setInspectedMemoryId(null);
+        }}
+        onRevokeAccess={handleRevokeAccess}
+        onRestoreAccess={handleRestoreAccess}
+        onDeletePermanently={handleDeleteMemory}
       />
 
     </div>

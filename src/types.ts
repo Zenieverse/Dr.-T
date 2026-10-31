@@ -32,6 +32,8 @@ export type NavTab =
   | 'microbiz'
   | 'buildwithai'
   | 'memorylantern'
+  | 'threehats'
+  | 'streetvendorsmap'
   | 'gcp'
   | 'settings';
 

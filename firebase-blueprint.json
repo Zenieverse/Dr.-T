@@ -111,6 +111,83 @@
         "date": { "type": "string", "description": "ISO date" },
         "description": { "type": "string", "description": "Details or line items" }
       }
+    },
+    "MemoryLanternItem": {
+      "collection": "memory_lantern_memories",
+      "fields": {
+        "id": { "type": "string", "description": "Memory unique ID" },
+        "userId": { "type": "string", "description": "User identifier who owns the memory" },
+        "title": { "type": "string", "description": "Title of the memory" },
+        "story": { "type": "string", "description": "Narrative story or recollection text" },
+        "category": { "type": "string", "description": "Memory category or theme" },
+        "lanternColor": { "type": "string", "description": "Color theme" },
+        "isSample": { "type": "boolean", "description": "Flag for public template sample" },
+        "createdAt": { "type": "timestamp", "description": "Creation timestamp" }
+      }
+    },
+    "LanternKeeperAction": {
+      "collection": "lantern_keeper_actions",
+      "fields": {
+        "id": { "type": "string", "description": "Action unique ID" },
+        "userId": { "type": "string", "description": "User who authorized the action" },
+        "actionType": { "type": "string", "description": "Tool or skill executed" },
+        "status": { "type": "string", "description": "APPROVED, REJECTED, EXECUTED" },
+        "timestamp": { "type": "timestamp", "description": "Action timestamp" }
+      }
+    },
+    "ThreeHatsRole": {
+      "collection": "three_hats_roles",
+      "fields": {
+        "id": { "type": "string", "description": "Unique role ID" },
+        "userId": { "type": "string", "description": "User ID who owns this role" },
+        "name": { "type": "string", "description": "Name of the role" },
+        "description": { "type": "string", "description": "Description of the role" },
+        "category": { "type": "string", "description": "Role category" },
+        "hatIds": { "type": "array", "description": "List of associated hats: professional, personal, social" },
+        "status": { "type": "string", "description": "current, occasional, aspirational, paused, completed" },
+        "importance": { "type": "string", "description": "core, high, moderate, low" },
+        "energyLevel": { "type": "string", "description": "energizing, neutral, draining" },
+        "timeDemand": { "type": "string", "description": "Estimated time requirement" },
+        "values": { "type": "array", "description": "Personal values expressed by this role" },
+        "commitments": { "type": "array", "description": "Specific commitments tied to this role" },
+        "createdAt": { "type": "string", "description": "ISO creation timestamp" },
+        "updatedAt": { "type": "string", "description": "ISO last update timestamp" }
+      }
+    },
+    "ThreeHatsCommitment": {
+      "collection": "three_hats_commitments",
+      "fields": {
+        "id": { "type": "string", "description": "Unique commitment ID" },
+        "userId": { "type": "string", "description": "User ID who owns this commitment" },
+        "roleId": { "type": "string", "description": "Parent role ID" },
+        "roleName": { "type": "string", "description": "Parent role name" },
+        "hatId": { "type": "string", "description": "Hat ID: professional, personal, social" },
+        "title": { "type": "string", "description": "Commitment title" },
+        "targetDate": { "type": "string", "description": "Target date or frequency" },
+        "priority": { "type": "string", "description": "high, medium, low" },
+        "status": { "type": "string", "description": "planned, in_progress, completed, paused" },
+        "personalValue": { "type": "string", "description": "Guiding personal value" },
+        "nextAction": { "type": "string", "description": "Concrete next action" },
+        "createdAt": { "type": "string", "description": "ISO creation timestamp" },
+        "updatedAt": { "type": "string", "description": "ISO last update timestamp" }
+      }
+    },
+    "ThreeHatsReflection": {
+      "collection": "three_hats_reflections",
+      "fields": {
+        "id": { "type": "string", "description": "Unique reflection ID" },
+        "userId": { "type": "string", "description": "User ID who owns this reflection" },
+        "weekStartDate": { "type": "string", "description": "Start date for reflection week" },
+        "step1_meaningful": { "type": "string", "description": "What felt meaningful" },
+        "step2_attentionReview": { "type": "string", "description": "Attention review" },
+        "step3_conflictsNoticed": { "type": "string", "description": "Conflicts noticed" },
+        "step4_appreciations": { "type": "string", "description": "Appreciations" },
+        "step5_realisticAdjustment": { "type": "string", "description": "Realistic adjustment" },
+        "step6_committedActions": { "type": "array", "description": "Committed actions" },
+        "perspectives": { "type": "object", "description": "3-perspective scores" },
+        "savedToLanternKeeper": { "type": "boolean", "description": "Whether exported to memory sanctuary" },
+        "createdAt": { "type": "string", "description": "ISO creation timestamp" }
+      }
     }
   }
 }

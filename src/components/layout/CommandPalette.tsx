@@ -177,6 +177,40 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       ]
     },
     {
+      category: '🎩 Three Hats — Many Roles (Professional, Personal & Social Balance)',
+      items: [
+        {
+          label: 'Three Hats — Role Map, Weekly Commitments & Balance Tracker',
+          icon: <Compass className="w-4 h-4 text-violet-400" />,
+          action: () => {
+            setActiveTab('threehats');
+            onClose();
+          }
+        }
+      ]
+    },
+    {
+      category: '🥢 StreetVendorsMap — Gánh Mưu Sinh (Community Initiative)',
+      items: [
+        {
+          label: 'StreetVendorsMap — Bản Đồ Gánh Mưu Sinh (Bilingual EN/VI)',
+          icon: <MapPin className="w-4 h-4 text-amber-500" />,
+          action: () => {
+            setActiveTab('streetvendorsmap');
+            onClose();
+          }
+        },
+        {
+          label: 'StreetVendorsMap — Đặt Shipper Grab & Xanh SM Giao Tận Nơi',
+          icon: <Sparkles className="w-4 h-4 text-emerald-500" />,
+          action: () => {
+            setActiveTab('streetvendorsmap');
+            onClose();
+          }
+        }
+      ]
+    },
+    {
       category: '🎹 PIANIST & 🌿 Touch Grass (Outdoor Music Discovery)',
       items: [
         {

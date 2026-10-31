@@ -1,0 +1,227 @@
+// ==========================================
+// STREET VENDORS MAP (GÁNH MƯU SINH) BILINGUAL DICTIONARY
+// Fully translated in Vietnamese and English
+// ==========================================
+
+export const streetVendorsTranslations = {
+  vi: {
+    tabName: 'StreetVendorsMap',
+    tabSubtitle: 'Bản Đồ Gánh Mưu Sinh',
+    heroBadge: 'Sáng Kiến Cộng Đồng Phi Thương Mại',
+    heroTitle: 'Gánh Hàng Rong Trên Từng Góc Phố',
+    heroDesc: 'Chung tay nâng niu và ủng hộ sinh kế cho các cụ già, cô chú buôn gánh bán bưng. Tra cứu vị trí, thấu cảm hoàn cảnh, và kết nối với các ứng dụng giao hàng Grab, Xanh SM để giao tận cửa nhà bạn.',
+    searchPlaceholder: 'Tìm kiếm theo tên gánh, món ăn (chè, hủ tiếu, bánh mì...), con phố...',
+    allCities: 'Tất cả các tỉnh thành',
+    cityHcm: 'TP. Hồ Chí Minh',
+    cityHanoi: 'Thủ đô Hà Nội',
+    cityDanang: 'TP. Đà Nẵng',
+    cityCantho: 'TP. Cần Thơ',
+    cityHue: 'Cố đô Huế',
+    
+    // Categories
+    catAll: 'Tất cả món',
+    catDessertChe: 'Chè & Món Ngọt',
+    catNoodlesSoup: 'Món Nước & Hủ Tiếu',
+    catBanhmiSnacks: 'Bánh Mì & Ăn Vặt',
+    catDrinksGinseng: 'Nước Sâm & Trà Mát',
+    catFruitsProduce: 'Trái Cây & Nông Sản',
+    catCraftsRepair: 'Sửa Chữa & Nghề Rong',
+
+    // Stats
+    statVendors: 'Gánh mưu sinh',
+    statDistricts: 'Quận huyện kết nối',
+    statElders: 'Cụ già trên 70 tuổi',
+    statOrders: 'Lượt mua & gọi shipper',
+
+    // View switcher
+    viewMap: 'Bản đồ trực quan',
+    viewList: 'Danh sách chi tiết',
+    filterVerified: 'Chỉ hiện gánh đã xác minh',
+    showingResults: 'Đang hiển thị {count} gánh mưu sinh',
+
+    // Card details
+    ageLabel: 'tuổi',
+    yearsTrading: 'năm mưu sinh',
+    operatingHours: 'Giờ bán',
+    priceEstimate: 'Giá trung bình',
+    specialties: 'Món đặc trưng',
+    viewStory: 'Xem câu chuyện & menu',
+    orderShipper: 'Đặt shipper giao tận nơi',
+    directions: 'Chỉ đường Google Maps',
+    verifiedBadge: 'Đã xác minh bởi cộng đồng',
+    openNow: 'Đang mở bán',
+    closedNow: 'Tạm nghỉ',
+    shareCart: 'Chia sẻ gánh này',
+    likeVendor: 'Thương mến',
+
+    // Detail Modal
+    storyTitle: 'Chuyện đời gánh mưu sinh',
+    landmarkTitle: 'Điểm nhận diện & gốc cây / vỉa hè',
+    menuTitle: 'Thực đơn & Giá bình dân',
+    contactSupport: 'Số điện thoại liên lạc',
+    wishlistTitle: 'Tâm nguyện & Hỗ trợ cần thiết',
+    copyAddressSuccess: 'Đã sao chép địa chỉ gánh hàng!',
+    closeModal: 'Đóng lại',
+
+    // Shipper Delivery Modal
+    shipperModalTitle: 'Kết Nối Shipper Giao Hàng Tận Nơi',
+    shipperModalSubtitle: 'Hỗ trợ các cụ già và người bán hàng rong không có smartphone bằng cách điều phối tài xế Grab hoặc Xanh SM qua lấy hàng giúp bạn.',
+    chooseService: '1. Chọn ứng dụng giao hàng bạn dùng:',
+    serviceGrab: 'GrabExpress (Grab Bike / Xe máy)',
+    serviceGreenSm: 'Xanh SM Express (Xe máy điện thuần xanh GSM)',
+    grabDesc: 'Mạng lưới tài xế đông đảo, có tính năng ứng tiền mặt mua hộ.',
+    greenSmDesc: 'Xe máy điện VinFast êm ái, thân thiện môi trường, tài xế văn minh.',
+    selectItems: '2. Chọn món bạn muốn đặt:',
+    buyerInfo: '3. Thông tin người nhận:',
+    yourName: 'Họ và tên bạn',
+    yourPhone: 'Số điện thoại nhận hàng',
+    yourAddress: 'Địa chỉ giao hàng (Số nhà, đường, phường, quận)',
+    specialNotes: 'Lời dặn thêm cho bác tài (ví dụ: ít đường, nhiều nước cốt dừa, xin thêm ớt...)',
+    driverTipTitle: 'Gợi ý bồi dưỡng bác tài mua hộ:',
+    estimatedFoodPrice: 'Tiền món ăn tạm tính:',
+    generatedNoteTitle: 'Nội dung ghi chú gửi Bác Tài Shipper:',
+    generatedNoteHint: 'Tài xế sẽ đọc ghi chú này để biết chính xác điểm đứng của cụ, ứng tiền thanh toán và mang tới cho bạn.',
+    copyNoteButton: 'Sao chép ghi chú gửi Bác Tài',
+    copiedNoteToast: 'Đã sao chép nội dung ghi chú thành công!',
+    openGrabApp: 'Mở ứng dụng GrabExpress',
+    openGreenSmApp: 'Mở ứng dụng Xanh SM Express',
+    howItWorksTitle: 'Cách thức hoạt động 3 bước đơn giản:',
+    howItWorks1: 'Nhấn sao chép ghi chú đơn hàng tự động bên trên.',
+    howItWorks2: 'Mở app GrabExpress hoặc Xanh SM, dán địa chỉ gánh hàng làm điểm nhận, địa chỉ của bạn làm điểm giao.',
+    howItWorks3: 'Dán ghi chú vào ô "Ghi chú cho tài xế", bác tài sẽ ứng tiền mua giúp cụ và bạn thanh toán lại khi nhận hàng!',
+
+    // Nominate / Contribute Modal
+    contributeButton: '+ Gửi gánh mưu sinh bạn biết',
+    contributeModalTitle: 'Đề Xuất Một Gánh Mưu Sinh Mới',
+    contributeModalDesc: 'Nếu bạn bắt gặp một cụ già, cô chú bán hàng rong cần được nhiều người biết đến và ủng hộ, hãy chia sẻ thông tin để cộng đồng cùng chung tay.',
+    formVendorName: 'Tên gánh / Người bán (ví dụ: Cụ Bảy - Bánh Cam)',
+    formAge: 'Tuổi ước tính',
+    formCity: 'Tỉnh / Thành phố',
+    formDistrict: 'Quận / Huyện',
+    formAddress: 'Vị trí cụ thể (vỉa hè, đầu hẻm, gốc cây, đối diện nhà số...)',
+    formCategory: 'Loại món bán',
+    formHours: 'Khung giờ bán thường ngày (ví dụ: 14h - 18h)',
+    formPrice: 'Khoảng giá (ví dụ: 10k - 20k)',
+    formStory: 'Hoàn cảnh hoặc kỷ niệm bạn muốn chia sẻ về gánh',
+    formSubmit: 'Gửi gánh mưu sinh lên bản đồ',
+    formSubmitting: 'Đang gửi...',
+    formSuccess: 'Cảm ơn tấm lòng của bạn! Gánh hàng đã được thêm vào bản đồ cộng đồng.',
+
+    // Footnote & Non-Commercial attribution
+    footnoteTitle: 'Tôn vinh & Bảo tồn Nét Đẹp Gánh Hàng Rong Việt Nam',
+    footnoteSource: 'Nguồn tham khảo và dữ liệu cảm hứng từ dự án cộng đồng: https://ganhmuusinh.vn/',
+    footnoteNonCommercial: 'Bản đồ StreetVendorsMap hoạt động 100% PHI THƯƠNG MẠI vì cộng đồng. Nền tảng không thu bất kỳ chi phí trung gian, hoa hồng hay quảng cáo nào từ các gánh hàng rong và người mua. Mục đích duy nhất là giúp đỡ sinh kế người cao tuổi và giữ gìn nét đẹp văn hóa vỉa hè Việt Nam.',
+    footnoteDisclaimer: 'Mọi thông tin giờ giấc và địa điểm được cộng đồng đóng góp và cập nhật thường xuyên. Vui lòng gọi điện hoặc kiểm tra trước vào những ngày mưa gió.',
+    visitOriginalSite: 'Ghé thăm trang gốc Gánh Mưu Sinh'
+  },
+  en: {
+    tabName: 'StreetVendorsMap',
+    tabSubtitle: 'Street Livelihoods Map',
+    heroBadge: 'Non-Commercial Community Initiative',
+    heroTitle: 'Preserving Vietnam’s Street Vendors & Elder Livelihoods',
+    heroDesc: 'Discover, cherish, and directly support elderly and vulnerable sidewalk food carts across Vietnam. Search genuine coordinates, read intimate life stories, and connect with Grab and Green SM (Xanh SM) couriers for door-to-door delivery.',
+    searchPlaceholder: 'Search by vendor name, food item (che, banh mi, noodles...), street corner...',
+    allCities: 'All Provinces & Cities',
+    cityHcm: 'Ho Chi Minh City (Saigon)',
+    cityHanoi: 'Hanoi Capital',
+    cityDanang: 'Da Nang City',
+    cityCantho: 'Can Tho City',
+    cityHue: 'Ancient Citadel Hue',
+
+    // Categories
+    catAll: 'All Items',
+    catDessertChe: 'Sweet Soups & Desserts',
+    catNoodlesSoup: 'Broth Noodles & Soups',
+    catBanhmiSnacks: 'Banh Mi & Street Snacks',
+    catDrinksGinseng: 'Herbal Teas & Cold Sâm',
+    catFruitsProduce: 'Fresh Fruit & Produce',
+    catCraftsRepair: 'Cobblers & Itinerant Crafts',
+
+    // Stats
+    statVendors: 'Mapped Street Vendors',
+    statDistricts: 'Districts Connected',
+    statElders: 'Elders Over 70 Years',
+    statOrders: 'Direct Courier Dispatches',
+
+    // View switcher
+    viewMap: 'Interactive Radar Map',
+    viewList: 'Detailed Directory',
+    filterVerified: 'Verified vendors only',
+    showingResults: 'Showing {count} street vendors',
+
+    // Card details
+    ageLabel: 'years old',
+    yearsTrading: 'years of vending',
+    operatingHours: 'Operating hours',
+    priceEstimate: 'Estimated price',
+    specialties: 'Signature dishes',
+    viewStory: 'View life story & menu',
+    orderShipper: 'Order courier delivery',
+    directions: 'Google Maps Directions',
+    verifiedBadge: 'Community Verified',
+    openNow: 'Open Now',
+    closedNow: 'Closed / Resting',
+    shareCart: 'Share this cart',
+    likeVendor: 'Support & Heart',
+
+    // Detail Modal
+    storyTitle: 'Life story & daily hustle',
+    landmarkTitle: 'Street Landmark & Sidewalk Spot',
+    menuTitle: 'Menu & Affordable Pricing',
+    contactSupport: 'Phone / Relative Contact',
+    wishlistTitle: 'Community Wishlist & Direct Support',
+    copyAddressSuccess: 'Vendor address copied to clipboard!',
+    closeModal: 'Close',
+
+    // Shipper Delivery Modal
+    shipperModalTitle: 'Connect Courier For Doorstep Delivery',
+    shipperModalSubtitle: 'Empower elderly sidewalk vendors without smartphones by dispatching Grab or Green SM (Xanh SM) couriers to buy on your behalf and deliver directly to your door.',
+    chooseService: '1. Choose your preferred delivery platform:',
+    serviceGrab: 'GrabExpress (Grab Bike / Motorbike courier)',
+    serviceGreenSm: 'Xanh SM Express (100% Electric EV motorbike courier)',
+    grabDesc: 'Vast driver network across all districts with cash advance purchase feature.',
+    greenSmDesc: 'Zero-emission electric motorbikes, quiet ride, polite drivers.',
+    selectItems: '2. Select items to order:',
+    buyerInfo: '3. Recipient Information:',
+    yourName: 'Your Name',
+    yourPhone: 'Your Phone Number',
+    yourAddress: 'Delivery Address (House no., street, ward, district)',
+    specialNotes: 'Special instructions for driver (e.g., less sugar, extra coconut cream, add chili...)',
+    driverTipTitle: 'Suggested driver tip for manual order pickup:',
+    estimatedFoodPrice: 'Estimated Food Total:',
+    generatedNoteTitle: 'Automated Courier Pickup Note:',
+    generatedNoteHint: 'The driver will read this note to identify the elder’s exact tree/sidewalk corner, advance cash payment to the vendor, and bring the fresh food to you.',
+    copyNoteButton: 'Copy Driver Pickup Note',
+    copiedNoteToast: 'Courier instructions copied to clipboard!',
+    openGrabApp: 'Open GrabExpress App',
+    openGreenSmApp: 'Open Xanh SM Express App',
+    howItWorksTitle: 'How Doorstep Delivery Works in 3 Simple Steps:',
+    howItWorks1: 'Click "Copy Driver Pickup Note" above to copy the formatted instructions.',
+    howItWorks2: 'Open GrabExpress or Xanh SM, paste the vendor corner as the pickup spot, and your home as destination.',
+    howItWorks3: 'Paste the copied note into "Notes to driver". The courier pays the elder in cash and you pay upon delivery!',
+
+    // Nominate / Contribute Modal
+    contributeButton: '+ Nominate a Street Vendor',
+    contributeModalTitle: 'Nominate a Street Vendor for the Map',
+    contributeModalDesc: 'If you have met an elderly or vulnerable sidewalk vendor who deserves support and patronage, please share their location so the community can rally behind them.',
+    formVendorName: 'Vendor Name / Nickname (e.g. Elder Bay - Fried Rice Cakes)',
+    formAge: 'Estimated Age',
+    formCity: 'City / Province',
+    formDistrict: 'District',
+    formAddress: 'Precise location (Sidewalk, alley entrance, banyan tree, opposite house no...)',
+    formCategory: 'Food Category',
+    formHours: 'Typical hours (e.g. 2:00 PM - 6:00 PM)',
+    formPrice: 'Price range (e.g. 15k - 25k VND)',
+    formStory: 'Their story or circumstances you wish to share',
+    formSubmit: 'Submit Vendor to Community Map',
+    formSubmitting: 'Submitting...',
+    formSuccess: 'Thank you for your kindness! The vendor has been added to the community map.',
+
+    // Footnote & Non-Commercial attribution
+    footnoteTitle: 'Honoring & Preserving Vietnamese Street Livelihoods',
+    footnoteSource: 'Data and inspiration sourced from the community initiative: https://ganhmuusinh.vn/',
+    footnoteNonCommercial: 'StreetVendorsMap operates 100% NON-COMMERCIAL for community benefit. We collect zero platform fees, commissions, or advertising charges from street vendors or buyers. Its sole mission is to preserve street culinary heritage and support the dignity and livelihoods of elders in Vietnam.',
+    footnoteDisclaimer: 'All schedules and locations are contributed by community volunteers. On heavy rain days, hours may shift. Please call or verify when possible.',
+    visitOriginalSite: 'Visit Original Gánh Mưu Sinh Website'
+  }
+};

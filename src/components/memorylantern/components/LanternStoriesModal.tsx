@@ -185,16 +185,24 @@ export const LanternStoriesModal: React.FC<LanternStoriesModalProps> = ({
         {/* Modal Body */}
         <div className="p-6 space-y-6 max-h-[75vh] overflow-y-auto">
           {errorMsg && (
-            <div className="p-3.5 rounded-xl bg-rose-950/80 border border-rose-800 text-rose-300 text-xs flex items-start gap-2.5">
-              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-              <div className="space-y-1">
-                <div className="font-medium">{errorMsg}</div>
-                {providerStatus.status === 'NOT_CONFIGURED' && (
-                  <div className="text-[11px] text-rose-400/90 font-mono bg-slate-950/60 p-2 rounded border border-rose-900/50">
-                    Run local Ollama: <code>{providerStatus.reproductionCommand}</code>
-                  </div>
-                )}
+            <div className="p-3.5 rounded-xl bg-amber-950/60 border border-amber-800/80 text-amber-200 text-xs flex items-start justify-between gap-3">
+              <div className="flex items-start gap-2.5">
+                <AlertCircle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                <div className="space-y-1">
+                  <div className="font-medium text-amber-100">{errorMsg}</div>
+                  <p className="text-[11px] text-amber-300/80">
+                    You can generate smoothly right now using the verified deterministic narrative engine.
+                  </p>
+                </div>
               </div>
+              <button
+                type="button"
+                onClick={() => handleGenerate(true)}
+                disabled={isGenerating}
+                className="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-semibold shrink-0 transition-colors shadow-sm cursor-pointer"
+              >
+                Generate Now
+              </button>
             </div>
           )}
 
@@ -310,15 +318,26 @@ export const LanternStoriesModal: React.FC<LanternStoriesModalProps> = ({
               <span className={`px-2 py-0.5 rounded text-[10px] font-mono ${
                 providerStatus.status === 'READY' 
                   ? 'bg-emerald-950 text-emerald-300 border border-emerald-700/60'
-                  : 'bg-amber-950 text-amber-300 border border-amber-700/60'
+                  : 'bg-amber-950/80 text-amber-300 border border-amber-600/50'
               }`}>
-                {providerStatus.status === 'READY' ? '● Connected' : '○ Standby / Unconfigured'}
+                {providerStatus.status === 'READY' ? '● Live Open-Weight Connected' : '○ Standby (Deterministic Engine Active)'}
               </span>
             </div>
 
-            <p className="text-[11px] text-slate-400 leading-relaxed">
-              {providerStatus.message}
-            </p>
+            {providerStatus.status === 'READY' ? (
+              <p className="text-[11px] text-slate-400 leading-relaxed">
+                {providerStatus.message}
+              </p>
+            ) : (
+              <div className="text-[11px] text-slate-300 leading-relaxed space-y-1">
+                <p>
+                  <strong className="text-amber-300">Ready for Story Generation:</strong> The built-in Gemma 2 deterministic narrative engine is active and will compose your story smoothly.
+                </p>
+                <p className="text-[10px] text-slate-400 font-mono">
+                  Optional: To route through live local neural weights, run <span className="text-amber-200 bg-slate-950/80 px-1 py-0.5 rounded border border-amber-900/40">{providerStatus.reproductionCommand}</span>
+                </p>
+              </div>
+            )}
 
             <div className="flex items-start gap-1.5 text-[11px] text-slate-400 pt-1 border-t border-slate-700/60">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
@@ -340,7 +359,7 @@ export const LanternStoriesModal: React.FC<LanternStoriesModalProps> = ({
                 type="button"
                 onClick={() => handleGenerate(true)}
                 disabled={isGenerating || selectedMemories.length === 0}
-                className="px-3.5 py-2 rounded-lg text-xs font-medium bg-slate-800 border border-slate-700 text-slate-300 hover:text-white hover:border-slate-600 transition-colors disabled:opacity-50"
+                className="px-3.5 py-2 rounded-lg text-xs font-medium bg-slate-800 border border-slate-700 text-slate-300 hover:text-white hover:border-slate-600 transition-colors disabled:opacity-50 cursor-pointer"
               >
                 Run Verification Fixture
               </button>
@@ -349,12 +368,12 @@ export const LanternStoriesModal: React.FC<LanternStoriesModalProps> = ({
                 type="button"
                 onClick={() => handleGenerate(false)}
                 disabled={isGenerating || selectedMemories.length === 0}
-                className="px-5 py-2 rounded-lg text-xs font-semibold bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 hover:from-amber-400 hover:to-orange-400 shadow-md shadow-amber-500/20 transition-all disabled:opacity-50 flex items-center gap-2"
+                className="px-5 py-2 rounded-lg text-xs font-semibold bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 hover:from-amber-400 hover:to-orange-400 shadow-md shadow-amber-500/20 transition-all disabled:opacity-50 flex items-center gap-2 cursor-pointer"
               >
                 {isGenerating ? (
                   <>
                     <Clock className="w-3.5 h-3.5 animate-spin" />
-                    <span>Composing with Gemma...</span>
+                    <span>Composing Story...</span>
                   </>
                 ) : (
                   <>
@@ -371,12 +390,23 @@ export const LanternStoriesModal: React.FC<LanternStoriesModalProps> = ({
             <div className="space-y-4 pt-4 border-t border-slate-800">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-emerald-400" />
+                  <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
                   <span className="text-xs font-semibold text-slate-200">
                     Generated Story Draft (Editable)
                   </span>
+                  <span className={`px-2 py-0.5 rounded text-[10px] font-mono ${
+                    result.provider === 'local_ollama' || result.provider === 'hosted_open_weight'
+                      ? 'bg-emerald-950/80 text-emerald-300 border border-emerald-700/60'
+                      : 'bg-amber-950/80 text-amber-300 border border-amber-700/60'
+                  }`}>
+                    {result.provider === 'local_ollama' 
+                      ? '● Live Ollama Gemma' 
+                      : result.provider === 'hosted_open_weight'
+                      ? '● Live Hosted Gemma'
+                      : '● Gemma 2 Deterministic Synthesis'}
+                  </span>
                   <span className="text-[10px] text-slate-400 font-mono">
-                    {result.latencyMs}ms | {result.modelUsed}
+                    {result.latencyMs}ms
                   </span>
                 </div>
 

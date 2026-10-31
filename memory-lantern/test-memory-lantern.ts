@@ -1,13 +1,14 @@
 import fs from 'fs';
 import path from 'path';
 import { MemoryLanternServerService, GEMMA_ETHICAL_DISCLAIMER } from './src/server/memoryLanternServerService';
+import { LanternKeeperServerService } from './src/server/lanternKeeperServerService';
 import { MemoryLanternService } from './src/services/memoryLanternService';
 import { FICTIONAL_SAMPLE_MEMORIES } from './src/data/sampleMemories';
-import { LanternStoryRequest } from './src/types';
+import { LanternStoryRequest, MemoryLanternItem } from './src/types';
 
 async function runMemoryLanternVerification() {
   console.log('======================================================');
-  console.log('🏮 MEMORY LANTERN (STANDALONE) — VERIFICATION SUITE');
+  console.log('🏮 LANTERN KEEPER (STANDALONE) — VERIFICATION SUITE');
   console.log('DEV Hacktoberfest 2026 Week 4: "Ghost in the Machine"');
   console.log('======================================================\n');
 
@@ -104,6 +105,23 @@ async function runMemoryLanternVerification() {
   assert(
     ['READY', 'CONFIGURED', 'NOT_CONFIGURED', 'UNREACHABLE'].includes(status.status),
     `Provider status is valid standard state (${status.status})`
+  );
+
+  // TEST GROUP 6: Personal AI Evidence-Backed Retrieval & Skills
+  console.log('\nTest Group 6: Personal AI Evidence Retrieval & Skills');
+  const sampleMemories: MemoryLanternItem[] = FICTIONAL_SAMPLE_MEMORIES.map(m => ({ ...m }));
+  const retrieval = await LanternKeeperServerService.retrieveEvidence({
+    query: 'Grandmother Elena verbena infusion recipe',
+    userMemories: sampleMemories,
+    isTestFixture: true
+  });
+  assert(retrieval.success === true, 'Standalone evidence retrieval succeeds');
+  assert(retrieval.citations.length >= 1, 'Returns verified citations');
+
+  const nebiusCheck = await LanternKeeperServerService.checkProviderStatus();
+  assert(
+    ['NOT_CONFIGURED', 'CONFIGURED', 'READY', 'UNREACHABLE'].includes(nebiusCheck.status),
+    `Nebius Token Factory reports standard status: ${nebiusCheck.status}`
   );
 
   console.log('\n======================================================');

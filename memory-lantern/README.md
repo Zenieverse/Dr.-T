@@ -1,166 +1,142 @@
-# 🏮 Memory Lantern — Stories That Stay
+# 🏮 Lantern Keeper — A Personal AI That Remembers With Permission
+### Featuring Three Hats — Professional, Personal & Social Life Balance
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-amber.svg)](LICENSE)
-[![Hacktoberfest 2026](https://img.shields.io/badge/Hacktoberfest%202026-Week%204%20Open%20Source%20AI-orange.svg)](https://dev.to/challenges/hacktoberfest-week4-2026-10-26)
-[![Model: Gemma 2](https://img.shields.io/badge/Open--Weight%20AI-Gemma%202%20(2B%20%2F%209B)-blue.svg)](https://ai.google.dev/gemma)
+[![NVIDIA Nemotron](https://img.shields.io/badge/NVIDIA%20Nemotron-Open--Source-76B900.svg)](https://build.nvidia.com)
+[![Nebius Token Factory](https://img.shields.io/badge/Nebius-Token%20Factory%20API-6366f1.svg)](https://tokenfactory.nebius.com)
+[![Gemma 2](https://img.shields.io/badge/Open--Weight%20AI-Gemma%202-blue.svg)](https://ai.google.dev/gemma)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue.svg)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-18.3-61dafb.svg)](https://react.dev/)
 
-> **A peaceful digital sanctuary for intergenerational remembrance, family traditions, and living stories powered by open-weight Gemma AI.**
-> Built for the **DEV Hacktoberfest 2026 Week 4 Challenge: “Ghost in the Machine”** (October 26–31, 2026).
+> **A real, working Personal AI that preserves family memories, retrieves authorized facts with exact source citations, executes reusable personal skills under strict permission control, and balances roles across Professional, Personal, and Social life domains.**
 
 ---
 
-## 🌟 The Vision: "Ghost in the Machine" Reimagined
+## 🌟 The Vision: Personal AI With Permission
 
-In speculative fiction, the "Ghost in the Machine" is often portrayed as something uncanny—synthetic resurrection, creepy digital replicas, or AI trying to mimic the voice of someone who has passed away.
+Most AI assistants either claim to know everything about you (surreptitiously scraping background context) or pretend to channel synthetic personas.
 
-**Memory Lantern rejects that approach.** 
-
-Instead of generating false replicas or pretending to channel the dead, Memory Lantern uses open-weight AI as a gentle, transparent lantern bearer:
-* It helps living families organize fragmented memories into coherent storybooks.
-* It preserves the exact names, dates, recipes, sayings, and places that people hold dear.
-* It explicitly safeguards against biographical hallucination or supernatural deception.
-* It places every memory in a glowing digital garden, keeping traditions alive across generations.
-
----
-
-## ✨ Core Features
-
-1. **🏮 Glowing Lantern Garden**:
-   - An accessible night-garden interface where each memory rests inside a warm lantern.
-   - Filter by categories: *Remembrance*, *Tradition*, *Milestone*, *Everyday Joy*, *Wisdom*.
-   - Instant search across story text, family members remembered, recipes, and sayings.
-
-2. **📖 Lantern Stories (Open-Weight Gemma AI)**:
-   - Select one or more lanterns from your garden and synthesize them into editable narratives.
-   - **5 Story Modes**:
-     - *A Story to Keep*: Weaves scattered moments into a cohesive life reflection.
-     - *A Tribute of Love*: Factual, respectful remembrance honoring someone remembered.
-     - *Family Storybook*: Timelines or chapters for younger generations.
-     - *Letters for the Future*: Living messages carrying advice, values, and traditions.
-     - *Voices & Traditions*: Focuses on family recipes, songs, idioms, and woodcraft/craftsmanship lessons.
-   - **4 Narrative Styles**: Warm & Simple, Poetic & Lyrical, Reflective & Philosophical, and Family Storytelling.
-   - **Mandatory Review & Edit**: Every draft is fully editable before saving or exporting.
-   - **Fact Provenance**: Separates *Supplied Facts Honored* from *Narrative Enhancements*.
-
-3. **⏳ Chronicle Timeline**:
-   - Time-ordered visual chronicle mapping memories across decades and generations.
-
-4. **🕊️ Printable Remembrance Mode**:
-   - Clean reading typography with one-click print styling (`@media print`) and copyable text stripped of database keys.
-
-5. **🔒 Privacy & Data Sanctuary**:
-   - Authenticated Firestore ownership (`/memory_lantern_memories`) or isolated browser sandbox for guests.
-   - Zero telemetry of memory text or personal names.
-   - Complete data export in JSON and Markdown, plus one-click permanent deletion.
+**Lantern Keeper takes a radically different approach:**
+1. **User-Owned Memory Sanctuary**: Your memories, traditions, heirloom recipes, and life lessons belong to you.
+2. **Evidence-Backed Retrieval**: Answers are grounded strictly in your authorized memories. Exact excerpts and source citations are shown with every response.
+3. **Zero Fabrication**: Lantern Keeper explicitly notes missing or conflicting facts instead of inventing biographical details or quotes.
+4. **Permission-Controlled Actions**: Consequential tasks require an explicit Permission Manifest approval before execution.
+5. **NVIDIA Nemotron on Nebius Token Factory**: Powered by state-of-the-art open-source NVIDIA Nemotron models served on Nebius Token Factory high-performance infrastructure, with graceful deterministic fallback.
+6. **Three Hats Role Balance**: Role-mapping across Professional, Personal, and Social life domains—anchored in the core statement:
+   > *“I am more than any single role I play.”*
 
 ---
 
-## 🤖 Open-Weight Gemma Architecture
+## 🏗️ Architecture & Three Core Capabilities
 
-Memory Lantern is built around an open AI provider adapter:
+### 1. Evidence-Backed Memory Retrieval
+* **Authorized Scoping**: Queries only access memories the user has explicitly authorized (`revokedAt === null`).
+* **Source Citations**: Returns exact excerpts, relevance scores, and people remembered.
+* **Gap Identification**: Transparently notes missing facts (e.g. absent dates or intentionally omitted private credentials) rather than guessing.
+* **Deterministic Fallback Engine**: If live inference is offline, a deterministic heuristic engine synthesizes factual responses truthfully.
 
-```
-┌────────────────────────────────────────────────────────┐
-│             Memory Lantern Client (React 18)           │
-└───────────────────────────┬────────────────────────────┘
-                            │ POST /api/memory-lantern/generate-story
-                            ▼
-┌────────────────────────────────────────────────────────┐
-│     MemoryLanternServerService (Node.js Express)       │
-│     • Strict Ethical Safety Prompting                  │
-│     • Provenance Extraction & Validation               │
-└─────────────┬───────────────────────────┬──────────────┘
-              │                           │
-              ▼ (Option A: Local)         ▼ (Option B: Hosted)
-   ┌───────────────────────┐   ┌───────────────────────────────┐
-   │ Local Ollama Server   │   │ Hosted Open-Weight Gemma API  │
-   │ http://localhost:11434│   │ (Groq, HF, OpenRouter, vLLM)  │
-   │ Model: gemma2:2b / 9b │   │ Model: google/gemma-2-9b-it   │
-   └───────────────────────┘   └───────────────────────────────┘
-```
+### 2. Reusable Personal Skills
+* **Family Story Keeper**: Synthesizes editable narrative drafts from selected memories while preserving verbatim recipes, proverbs, and timestamps.
+* **Weekly Life Review**: Audits mapped commitments across your Three Hats and prepares an actionable, realistic checklist.
+* **Memory Inspector**: Inspects raw record provenance, tests permission revocation, and audits permanent deletion.
+* **Three Hats Companion**: AI reflection assistant citing user inputs, noticing competing roles, and offering gentle options without psychological diagnosis.
 
-### Ethical Safety Invariants Enforced in Prompt & Server
-* **Zero First-Person Impersonation**: Never speaks as "I am watching you from beyond."
-* **No Supernatural Claims**: Never claims to channel, resurrect, or speak for the deceased.
-* **Factual Invariance**: Preserves all user-provided names, dates, recipes, and quotes verbatim.
+### 3. Permission-Controlled Actions
+* **Server-Side Tool Allowlist**: Enforces an explicit allowlist (`family_story_keeper`, `weekly_life_review`, `memory_inspector`, `three_hats_companion`, `role_reflection_keeper`).
+* **Consequential Action Gate**: Shows a Permission Manifest before execution and requests explicit user approval.
+* **Privacy-Preserving Audit Trail**: Records action approvals/executions in an immutable audit ledger without logging private memory bodies.
 
 ---
 
-## 🚀 Quick Start & Local Setup
+## 🤖 Nebius Token Factory & NVIDIA Integration
 
-### 1. Prerequisites
-- **Node.js**: v20+ or v22+
-- **npm**: v10+
-- **Ollama** (optional, for 100% offline local inference): [ollama.com](https://ollama.com)
+* **Service**: Nebius Token Factory (`https://api.tokenfactory.nebius.com/v1/chat/completions`)
+* **Primary NVIDIA Model**: `nvidia/llama-3.1-nemotron-70b-instruct`
+* **Supported Models**: `nvidia/nemotron-mini-4b-instruct`, `nvidia/nemotron-4-340b-instruct`
+* **Local Alternative**: Local Ollama with `gemma2:2b` or hosted open-weight endpoints.
+* **Truthful Provider Labeling**:
+  - `● Live Nebius Token Factory` when active.
+  - `○ Standby (Deterministic Engine Active)` when unconfigured.
 
-### 2. Installation
+### Environment Configuration
+
+Configure server environment variables in `.env` (never exposed to client bundles or git):
+
 ```bash
-# Clone the repository
-git clone https://github.com/Zenieverse/Dr.-T.git
-cd Dr.-T
+# Nebius Token Factory API Key (Required for live NVIDIA Nemotron inference)
+NEBIUS_API_KEY=your_nebius_token_factory_key_here
+NEBIUS_BASE_URL=https://api.tokenfactory.nebius.com/v1
+NEBIUS_MODEL_ID=nvidia/llama-3.1-nemotron-70b-instruct
 
-# Install dependencies
-npm install
+# Optional: Local Ollama Fallback
+OLLAMA_HOST=http://localhost:11434
+OLLAMA_MODEL=gemma2:2b
+
+# Optional: Hosted Gemma Open-Weight
+GEMMA_API_BASE_URL=
+GEMMA_API_KEY=
 ```
 
-### 3. Running Open-Weight Gemma Locally (Ollama)
-```bash
-# Pull and start the lightweight open-weight Gemma 2 model
-ollama run gemma2:2b
-```
+---
 
-### 4. Running the Application
-```bash
-# Start development server
-npm run dev
-```
-Navigate to `http://localhost:3000` and click the **Memory Lantern** tab.
+## 🎩 Three Hats — Professional, Personal & Social
 
-### 5. Running the Automated Test Suite
+* **Person**: The individual using the platform.
+* **Hat**: A broad life domain — Professional, Personal, or Social.
+* **Role**: A capacity or responsibility the person occupies (e.g., Team Member, Lifelong Learner, Caretaker of Wellbeing, Community Volunteer).
+* **Commitment**: Something actionable the person wants or needs to do.
+* **Value**: The principle giving the role meaning.
+* **Action**: A practical next step.
+
+### 3-Perspective Role Balance Model
+Rather than imposing an arbitrary "33% third" formula or a fake single "life score", Three Hats provides three independent user-rated perspectives:
+1. **Importance**: How much does this hat matter to me now?
+2. **Attention**: How much time/focus have I recorded for it?
+3. **Satisfaction**: How satisfied am I with this area of life?
+
+### 6-Step Weekly Ritual
+1. **Recognize**: What felt meaningful this week?
+2. **Review**: Which roles received intended attention?
+3. **Notice**: Where did you experience conflicts between roles, time, or energy?
+4. **Appreciate**: What went well, including something small?
+5. **Choose**: What is one realistic adjustment for next week?
+6. **Commit**: Select up to three next actions.
+7. **Lantern Keeper Sync**: Save the reflection as a private memory with explicit user permission.
+
+---
+
+## 🧪 Automated Verification & Quality Gates
+
+Run the test suite:
+
 ```bash
-# Runs Memory Lantern invariant and ethical guardrail tests
+# Run parent integration verification (62 automated assertions)
 npx tsx scripts/test-memory-lantern.ts
+
+# Run standalone package verification (18 automated assertions)
+npx tsx memory-lantern/test-memory-lantern.ts
+
+# Full platform test suite
+npm test
 ```
+
+### Verified Assertions:
+* ✅ Fictional sample data integrity & public safety flags.
+* ✅ Evidence-backed retrieval precision and source correctness.
+* ✅ Absence of hallucinations & explicit missing-fact detection.
+* ✅ Permission revocation: revoked memories immediately excluded from AI retrieval.
+* ✅ Server-side tool allowlist & consequential approval enforcement.
+* ✅ Consequential action audit trail without private memory content leakage.
+* ✅ Nebius Token Factory diagnostics & NVIDIA Nemotron contracts.
+* ✅ Three Hats role hierarchy, multi-hat roles, and weekly ritual steps.
+* ✅ TypeScript compilation (`tsc --noEmit`) passes with 0 errors.
 
 ---
 
-## 📂 Project Structure & Parent-Repository Integration
+## ⚖️ Ethical Invariants & License
 
-Memory Lantern is delivered as a first-class module within the **[Zenieverse/Dr.-T](https://github.com/Zenieverse/Dr.-T)** parent repository. It is accessible directly via the web applet deep link at `/#memorylantern`.
-
-### Dedicated Directory Layout (`memory-lantern/`):
-```
-memory-lantern/
-├── README.md                          # Project overview, mission & quickstart
-├── ARCHITECTURE.md                    # Detailed architectural specification
-├── OPEN_AI_SETUP.md                   # Guide to running Gemma via Ollama or hosted API
-├── .env.example                       # Environment template (zero secrets)
-├── package.json                       # Package definition, scripts & dependencies
-├── LICENSE                            # MIT License
-├── test-memory-lantern.ts             # Standalone test runner
-└── docs/
-    ├── privacy-and-data-flow.md       # Privacy, Firestore rules & data minimization
-    ├── demo-capture-checklist.md      # 2-minute judge demonstration flow
-    └── hacktoberfest-submission-draft.md # Official DEV Week 4 article submission
-```
-
-### Shared vs. Dedicated Components Matrix:
-* **Shared Infrastructure with Dr. T**:
-  * **Authentication**: Firebase Auth integration via `src/services/firebase.ts` (Google Sign-In, reactive user session listeners).
-  * **Server Runtime**: Express 5 on Node.js 22 with shared Vite middleware proxy (`server.impl.ts`).
-  * **Design System**: Global Tailwind CSS design tokens, fonts, responsive layout container, and `lucide-react` icons.
-* **Dedicated to Memory Lantern**:
-  * **Domain & UI**: `src/components/memorylantern/` (Garden, Timeline, Storybook, Privacy Sanctuary, modals, cards).
-  * **Gemma Narrative Engine**: `src/server/memoryLanternServerService.ts` (Ollama & hosted open-weight prompt builder, ethical invariants, provenance extraction).
-  * **Data Isolation**: Dedicated Firestore collection `/memory_lantern_memories/{memoryId}` with user-isolated security rules (`isOwner(userId)`).
-  * **Dedicated Test Suites**: `scripts/test-memory-lantern.ts` and `memory-lantern/test-memory-lantern.ts`.
-
----
-
-## 📄 License & Attribution
-
-* **Primary Repository**: Hosted inside [https://github.com/Zenieverse/Dr.-T](https://github.com/Zenieverse/Dr.-T). Memory Lantern is delivered as a first-class feature of the Dr. T platform and does not require a separate repository.
-* **License**: Licensed under the [MIT License](LICENSE).
-* **Attribution**: Memory Lantern reuses shared Dr. T infrastructure (Firebase Auth, Express 5 skeleton, and Tailwind tokens). All Memory Lantern components, Gemma open-weight prompt engineering, and narrative engines are original work created during October 26–31, 2026 for DEV Hacktoberfest Week 4.
+* **Zero Persona Imitation**: Never speaks from the voice of a deceased person.
+* **Zero Necromancy**: Never claims supernatural communication.
+* **Zero Medical Diagnosis**: Never diagnoses mental health conditions or claims to dictate human identity.
+* **User Permission**: Requires approval before consequential tool execution or persistent storage.
+* **License**: MIT License (Permissive Open Source).

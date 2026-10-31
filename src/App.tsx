@@ -67,6 +67,8 @@ import { StCoolModule } from './components/stcool/StCoolModule';
 import { HealthAlertModule } from './components/healthalert/HealthAlertModule';
 import { BuildWithAiModule } from './components/buildwithai/BuildWithAiModule';
 import { MemoryLanternModule } from './components/memorylantern/MemoryLanternModule';
+import { ThreeHatsModule } from './components/threehats/ThreeHatsModule';
+import { StreetVendorsMapModule } from './components/streetvendors/StreetVendorsMapModule';
 import { SettingsPage } from './components/settings/SettingsPage';
 
 export function App() {
@@ -562,7 +564,15 @@ export function App() {
         )}
 
         {activeTab === 'memorylantern' && (
-          <MemoryLanternModule />
+          <MemoryLanternModule setActiveTab={setActiveTab} />
+        )}
+
+        {activeTab === 'threehats' && (
+          <ThreeHatsModule setActiveTab={setActiveTab} />
+        )}
+
+        {activeTab === 'streetvendorsmap' && (
+          <StreetVendorsMapModule initialLang={currentLanguage === 'vi' ? 'vi' : 'en'} />
         )}
 
         {activeTab === 'gcp' && (

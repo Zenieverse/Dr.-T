@@ -12,7 +12,9 @@ import {
   BookOpen, 
   Mic, 
   Sparkles,
-  Heart
+  Heart,
+  SearchCheck,
+  Lock
 } from 'lucide-react';
 
 interface LanternCardProps {
@@ -24,6 +26,7 @@ interface LanternCardProps {
   onReadTribute: () => void;
   onExportMarkdown: () => void;
   onShareText: () => void;
+  onInspect?: () => void;
 }
 
 export const LanternCard: React.FC<LanternCardProps> = ({
@@ -34,14 +37,16 @@ export const LanternCard: React.FC<LanternCardProps> = ({
   onDelete,
   onReadTribute,
   onExportMarkdown,
-  onShareText
+  onShareText,
+  onInspect
 }) => {
   const colorGlows = {
     amber: 'from-amber-500/20 via-orange-500/10 to-transparent border-amber-500/30 text-amber-300',
     warm_gold: 'from-yellow-500/20 via-amber-500/10 to-transparent border-yellow-500/30 text-yellow-300',
     rose: 'from-rose-500/20 via-pink-500/10 to-transparent border-rose-500/30 text-rose-300',
     emerald: 'from-emerald-500/20 via-teal-500/10 to-transparent border-emerald-500/30 text-emerald-300',
-    indigo: 'from-indigo-500/20 via-purple-500/10 to-transparent border-indigo-500/30 text-indigo-300'
+    indigo: 'from-indigo-500/20 via-purple-500/10 to-transparent border-indigo-500/30 text-indigo-300',
+    violet: 'from-violet-500/20 via-purple-500/10 to-transparent border-violet-500/30 text-violet-300'
   };
 
   const activeColor = memory.lanternColor || 'amber';
@@ -107,6 +112,12 @@ export const LanternCard: React.FC<LanternCardProps> = ({
               Fictional Sample
             </span>
           )}
+          {memory.revokedAt && (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-rose-950/90 border border-rose-700/70 text-rose-300 text-[10px] font-mono">
+              <Lock className="w-2.5 h-2.5 text-rose-400" />
+              Revoked from AI
+            </span>
+          )}
         </div>
 
         {/* Story Snippet */}
@@ -159,6 +170,17 @@ export const LanternCard: React.FC<LanternCardProps> = ({
         </button>
 
         <div className="flex items-center gap-1 text-slate-400">
+          {onInspect && (
+            <button
+              onClick={onInspect}
+              type="button"
+              title="Inspect provenance & permissions"
+              aria-label="Inspect memory"
+              className="p-1.5 rounded-md hover:bg-slate-800 hover:text-sky-300 transition-colors"
+            >
+              <SearchCheck className="w-3.5 h-3.5" />
+            </button>
+          )}
           <button
             onClick={onShareText}
             type="button"

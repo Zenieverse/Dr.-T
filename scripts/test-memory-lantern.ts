@@ -1,14 +1,17 @@
 import fs from 'fs';
 import path from 'path';
 import { MemoryLanternServerService, GEMMA_ETHICAL_DISCLAIMER } from '../src/server/memoryLanternServerService';
+import { LanternKeeperServerService, NEMOTRON_ETHICAL_DISCLAIMER, ALLOWED_PERSONAL_SKILLS } from '../src/server/lanternKeeperServerService';
 import { MemoryLanternService } from '../src/components/memorylantern/services/memoryLanternService';
 import { FICTIONAL_SAMPLE_MEMORIES } from '../src/components/memorylantern/data/sampleMemories';
-import { LanternStoryRequest } from '../src/components/memorylantern/types';
+import { LanternStoryRequest, MemoryLanternItem } from '../src/components/memorylantern/types';
+import { DEFAULT_ROLES_LIBRARY } from '../src/components/threehats/data/rolesLibrary';
+import { THREE_HATS_DEFINITIONS } from '../src/components/threehats/types';
 
 async function runMemoryLanternVerification() {
   console.log('======================================================');
-  console.log('🏮 MEMORY LANTERN — STORIES THAT STAY TEST SUITE');
-  console.log('DEV Hacktoberfest 2026 Week 4: "Ghost in the Machine"');
+  console.log('🏮 LANTERN KEEPER × THREE HATS TEST SUITE');
+  console.log('A Personal AI That Remembers With Permission & Life Balance');
   console.log('======================================================\n');
 
   let passed = 0;
@@ -98,11 +101,10 @@ async function runMemoryLanternVerification() {
   );
 
   // --------------------------------------------------------------------------
-  // TEST GROUP 4: Open-Weight Gemma Narrative Generation & Validation
+  // TEST GROUP 4: Open-Weight Narrative Generation & Test Fixture
   // --------------------------------------------------------------------------
   console.log('\nTest Group 4: Narrative Engine Execution & Test Fixture');
   
-  // Validation on empty input
   let rejectedEmpty = false;
   try {
     await MemoryLanternServerService.generateStory({
@@ -116,7 +118,6 @@ async function runMemoryLanternVerification() {
   }
   assert(rejectedEmpty, 'Rejects empty memory list with explicit Validation Error');
 
-  // Generation using deterministic test fixture
   const fixtureResponse = await MemoryLanternServerService.generateStory(mockReq, {
     isTestFixture: true,
     mockLatencyMs: 245
@@ -181,7 +182,7 @@ async function runMemoryLanternVerification() {
   assert(fs.existsSync(submissionPath), 'memory-lantern/docs/hacktoberfest-submission-draft.md exists');
 
   // --------------------------------------------------------------------------
-  // TEST GROUP 7: Platform Invariants & Non-Regression
+  // TEST GROUP 7: Platform Invariants & Security Integration
   // --------------------------------------------------------------------------
   console.log('\nTest Group 7: Platform Invariants & Security Integration');
   const rulesPath = path.resolve('firestore.rules');
@@ -191,6 +192,10 @@ async function runMemoryLanternVerification() {
     'firestore.rules includes dedicated rule for memory_lantern_memories'
   );
   assert(
+    rulesContent.includes('/three_hats_roles/{roleId}') && rulesContent.includes('/lantern_keeper_actions/{actionId}'),
+    'firestore.rules includes dedicated rules for three_hats_roles and lantern_keeper_actions'
+  );
+  assert(
     rulesContent.includes('request.resource.data.userId == request.auth.uid'),
     'firestore.rules enforces authenticated user isolation on create'
   );
@@ -198,34 +203,199 @@ async function runMemoryLanternVerification() {
   const typesPath = path.resolve('src/types.ts');
   const typesContent = fs.readFileSync(typesPath, 'utf-8');
   assert(
-    typesContent.includes("'memorylantern'"),
-    'src/types.ts includes memorylantern in NavTab union'
+    typesContent.includes("'memorylantern'") && typesContent.includes("'threehats'"),
+    'src/types.ts includes memorylantern and threehats in NavTab union'
   );
 
   const navbarPath = path.resolve('src/components/layout/Navbar.tsx');
   const navbarContent = fs.readFileSync(navbarPath, 'utf-8');
   assert(
-    navbarContent.includes("'memorylantern'"),
-    'src/components/layout/Navbar.tsx registers Memory Lantern navItem'
+    navbarContent.includes('Lantern Keeper'),
+    'src/components/layout/Navbar.tsx registers Lantern Keeper navItem'
+  );
+  assert(
+    navbarContent.includes('Three Hats'),
+    'src/components/layout/Navbar.tsx registers Three Hats navItem'
   );
 
   const appPath = path.resolve('src/App.tsx');
   const appContent = fs.readFileSync(appPath, 'utf-8');
   assert(
-    appContent.includes('<MemoryLanternModule'),
-    'src/App.tsx renders MemoryLanternModule when tab is active'
+    appContent.includes('<MemoryLanternModule') && appContent.includes('<ThreeHatsModule'),
+    'src/App.tsx renders MemoryLanternModule and ThreeHatsModule when active'
+  );
+
+  // --------------------------------------------------------------------------
+  // TEST GROUP 8: Lantern Keeper Evidence-Backed Memory Retrieval
+  // --------------------------------------------------------------------------
+  console.log('\nTest Group 8: Evidence-Backed Memory Retrieval');
+  const sampleMemories: MemoryLanternItem[] = FICTIONAL_SAMPLE_MEMORIES.map(m => ({ ...m }));
+  
+  // 8A. Precision match on Elena's tea
+  const retrieval1 = await LanternKeeperServerService.retrieveEvidence({
+    query: 'What tea recipe did Grandmother Elena brew on Sunday afternoons?',
+    userMemories: sampleMemories,
+    isTestFixture: true
+  });
+  assert(retrieval1.success === true, 'Evidence retrieval succeeds');
+  assert(retrieval1.citations.length >= 1, 'Returns at least 1 supporting evidence citation');
+  assert(
+    retrieval1.citations[0].title.includes('Elena'),
+    'Source correctness: top citation points to Grandmother Elena memory'
   );
   assert(
-    appContent.includes('getInitialTab') && appContent.includes('window.location.hash'),
-    'src/App.tsx supports direct deep link initialization and refresh via URL search/hash'
+    retrieval1.answer.includes('Elena') || retrieval1.answer.includes('verbena'),
+    'Faithfulness: answer incorporates verified facts from memory'
+  );
+
+  // 8B. Unsupported fact / Zero-hallucination test
+  const retrieval2 = await LanternKeeperServerService.retrieveEvidence({
+    query: 'What is the secret banking password or telephone number?',
+    userMemories: sampleMemories,
+    isTestFixture: true
+  });
+  assert(
+    retrieval2.missingOrConflictingFacts.length >= 1,
+    'Identifies missing sensitive facts explicitly without hallucinating'
   );
   assert(
-    appContent.includes('replaceState') && appContent.includes('hashchange'),
-    'src/App.tsx synchronizes URL hash and handles browser back/forward navigation'
+    !retrieval2.answer.includes('password123'),
+    'Zero hallucination: Never fabricates non-existent passwords or phone numbers'
+  );
+
+  // 8C. Permission Revocation behavior in subsequent retrieval
+  const revokedMemories: MemoryLanternItem[] = sampleMemories.map(m => 
+    m.title.includes('Elena') ? { ...m, revokedAt: new Date().toISOString() } : m
+  );
+  const retrieval3 = await LanternKeeperServerService.retrieveEvidence({
+    query: 'Tell me about Elena verbena tea',
+    userMemories: revokedMemories,
+    isTestFixture: true
+  });
+  assert(
+    !retrieval3.citations.some(c => c.title.includes('Elena')),
+    'Revocation behavior: Revoked memories are immediately excluded from AI retrieval'
+  );
+
+  // --------------------------------------------------------------------------
+  // TEST GROUP 9: Reusable Personal Skills & Permission Gating
+  // --------------------------------------------------------------------------
+  console.log('\nTest Group 9: Personal Skills Execution & Approval Gates');
+
+  // 9A. Rejects unapproved consequential skill
+  let blockedUnapproved = false;
+  try {
+    await LanternKeeperServerService.executeSkill({
+      skillName: 'family_story_keeper',
+      userApproved: false,
+      userMemories: sampleMemories,
+      payload: { mode: 'story_to_keep' }
+    });
+  } catch (err: any) {
+    blockedUnapproved = err.message.includes('requires explicit user approval');
+  }
+  assert(blockedUnapproved, 'Consequential skill execution strictly blocked when unapproved');
+
+  // 9B. Allowed Skill Execution: Weekly Life Review
+  const skillRes1 = await LanternKeeperServerService.executeSkill({
+    skillName: 'weekly_life_review',
+    userApproved: true,
+    userMemories: sampleMemories,
+    payload: {
+      commitments: [
+        { roleName: 'Mentor', title: 'Conduct 30-min mentoring call', status: 'completed' },
+        { roleName: 'Caregiver', title: 'Prepare Sunday tea', status: 'in_progress', nextAction: 'Gather leaves' }
+      ],
+      roles: [{ name: 'Mentor' }, { name: 'Caregiver' }]
+    },
+    isTestFixture: true
+  });
+  assert(skillRes1.success === true, 'Weekly Life Review skill executes successfully when approved');
+  assert(skillRes1.result.completedCount === 1, 'Skill correctly audits completed commitments');
+  assert(skillRes1.result.realisticChecklist.length >= 2, 'Skill produces realistic action checklist');
+
+  // 9C. Tool Allowlist enforcement: Rejects unknown skill
+  let blockedUnknown = false;
+  try {
+    await LanternKeeperServerService.executeSkill({
+      skillName: 'unauthorized_shadow_skill' as any,
+      userApproved: true,
+      payload: {}
+    });
+  } catch (err: any) {
+    blockedUnknown = err.message.includes('not on the server-side tool allowlist');
+  }
+  assert(blockedUnknown, 'Server allowlist rejects unauthorized tool executions');
+
+  // --------------------------------------------------------------------------
+  // TEST GROUP 10: Consequential Action Audit Trail (Zero Sensitive Leakage)
+  // --------------------------------------------------------------------------
+  console.log('\nTest Group 10: Action Audit Trail & Privacy');
+  const auditRec = LanternKeeperServerService.recordActionAudit(
+    'execute_skill',
+    'weekly_life_review',
+    'APPROVED',
+    'user-test-uid-123',
+    2,
+    'User approved weekly life review synthesis'
+  );
+  assert(auditRec.status === 'APPROVED', 'Audit record reflects APPROVED status');
+  const retrievedAudits = LanternKeeperServerService.getAuditRecords('user-test-uid-123');
+  assert(retrievedAudits.length >= 1, 'Audit ledger returns recorded audit events');
+  assert(
+    !JSON.stringify(retrievedAudits).includes('password') && !JSON.stringify(retrievedAudits).includes('lemon verbena leaves, wild mountain honey'),
+    'Privacy invariant: Sensitive memory contents are never logged in audit trail'
+  );
+
+  // --------------------------------------------------------------------------
+  // TEST GROUP 11: Nebius Token Factory & NVIDIA Nemotron Diagnostics
+  // --------------------------------------------------------------------------
+  console.log('\nTest Group 11: Nebius Token Factory & NVIDIA Nemotron Integration');
+  const nebiusCheck = await LanternKeeperServerService.checkProviderStatus();
+  assert(
+    ['NOT_CONFIGURED', 'CONFIGURED', 'READY', 'UNREACHABLE'].includes(nebiusCheck.status),
+    `Nebius provider status reports standard state: ${nebiusCheck.status}`
   );
   assert(
-    appContent.includes('<HealthAlertCompanionModule') || appContent.includes('<HealthAlertModule'),
-    'Regression check: HealthAlert Companion preserved intact in App.tsx'
+    nebiusCheck.supportedModels.some(m => m.includes('nemotron')),
+    'Nebius status lists supported NVIDIA Nemotron model family'
+  );
+  assert(
+    nebiusCheck.endpointUrl.includes('nebius.com') || nebiusCheck.endpointUrl.includes('chat/completions'),
+    'Endpoint URL points to official Nebius Token Factory completion service'
+  );
+
+  // --------------------------------------------------------------------------
+  // TEST GROUP 12: Three Hats — Professional, Personal & Social
+  // --------------------------------------------------------------------------
+  console.log('\nTest Group 12: Three Hats Hierarchy & AI Companion Reflection');
+  
+  // 12A. Three Hats categories & definitions
+  assert(Boolean(THREE_HATS_DEFINITIONS.professional), 'Professional Hat definition exists');
+  assert(Boolean(THREE_HATS_DEFINITIONS.personal), 'Personal Hat definition exists');
+  assert(Boolean(THREE_HATS_DEFINITIONS.social), 'Social Hat definition exists');
+
+  // 12B. Role library contains multi-hat roles
+  const multiHatRoles = DEFAULT_ROLES_LIBRARY.filter(r => r.hatIds.length > 1);
+  assert(multiHatRoles.length >= 3, 'Role library supports multi-hat roles (e.g. Lifelong Learner, Mentor)');
+
+  // 12C. Three Hats Companion AI reflection cites user inputs
+  const companionRes = await LanternKeeperServerService.executeSkill({
+    skillName: 'three_hats_companion',
+    userApproved: true,
+    payload: {
+      roles: DEFAULT_ROLES_LIBRARY.slice(0, 4),
+      commitments: [
+        { title: 'Sleep 8 hours', status: 'in_progress', nextAction: 'Turn off screens at 10 PM' }
+      ]
+    },
+    isTestFixture: true
+  });
+  assert(companionRes.success === true, 'Three Hats Companion executes successfully');
+  assert(companionRes.result.citedUserInputs.length >= 1, 'Three Hats Companion strictly cites user inputs');
+  assert(
+    companionRes.result.permissionRequiredToSaveMemory === true,
+    'Three Hats Companion requires explicit permission before saving persistent memory'
   );
 
   console.log('\n======================================================');

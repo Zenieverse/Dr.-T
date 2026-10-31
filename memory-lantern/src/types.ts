@@ -29,7 +29,7 @@ export interface MemoryLanternItem {
   story: string;
   meaningfulDetails: MeaningfulDetail[];
   tags: string[];
-  category: 'Remembrance' | 'Tradition' | 'Milestone' | 'Everyday Joy' | 'Wisdom';
+  category: 'Remembrance' | 'Tradition' | 'Milestone' | 'Everyday Joy' | 'Wisdom' | 'Three Hats Reflection';
   isSample?: boolean;
   privacyLevel: LanternPrivacyLevel;
   audioNote?: {
@@ -37,9 +37,10 @@ export interface MemoryLanternItem {
     durationSeconds: number;
     transcriptSummary?: string;
   };
-  lanternColor?: 'amber' | 'emerald' | 'rose' | 'indigo' | 'warm_gold';
+  lanternColor?: 'amber' | 'emerald' | 'rose' | 'indigo' | 'warm_gold' | 'violet';
   createdAt: string;
   updatedAt: string;
+  revokedAt?: string | null;
 }
 
 // ----------------------------------------------------------------------------
@@ -75,6 +76,13 @@ export interface LanternStoryRequest {
   additionalNotes?: string;
 }
 
+export type LanternStoryProviderType = 
+  | 'local_ollama' 
+  | 'hosted_open_weight' 
+  | 'nebius_nvidia_nemotron'
+  | 'deterministic_test_fixture' 
+  | 'deterministic_heuristic_engine';
+
 export interface LanternStoryResponse {
   success: boolean;
   storyTitle: string;
@@ -82,7 +90,7 @@ export interface LanternStoryResponse {
   mode: LanternStoryMode;
   style: LanternStoryStyle;
   modelUsed: string;
-  provider: 'local_ollama' | 'hosted_open_weight' | 'deterministic_test_fixture';
+  provider: LanternStoryProviderType;
   latencyMs: number;
   timestamp: string;
   ethicalSafetyVerified: boolean;
@@ -103,3 +111,6 @@ export interface GemmaProviderStatus {
   supportedModels: string[];
   reproductionCommand: string;
 }
+
+// Re-export full Lantern Keeper & Personal AI Types
+export * from './lanternKeeperTypes';

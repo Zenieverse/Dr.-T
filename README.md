@@ -1,20 +1,18 @@
-# 🩺 Dr. T — Biomedical Intelligence, Hedera Commons & MicroBiz Platform
+# 🩺 Dr. T — Biomedical Intelligence, Grassroots Commerce & Personal AI Ecosystem
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue.svg?logo=typescript)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-18.3-61dafb.svg?logo=react)](https://react.dev/)
 [![Vite](https://img.shields.io/badge/Vite-6.1-646CFF.svg?logo=vite)](https://vitejs.dev/)
 [![Firebase](https://img.shields.io/badge/Firebase-Firestore%20%26%20Auth-FFCA28.svg?logo=firebase)](https://firebase.google.com/)
 [![Gemini](https://img.shields.io/badge/Google%20GenAI-Gemini%203.8%20Flash-8E75B2.svg?logo=google)](https://ai.google.dev/)
+[![NVIDIA Nemotron](https://img.shields.io/badge/NVIDIA-Nemotron--4--340B-76B900.svg?logo=nvidia)](https://build.nvidia.com/)
+[![Nebius](https://img.shields.io/badge/Nebius-Token%20Factory-00D4B2.svg)](https://nebius.com/token-factory)
 [![MCP](https://img.shields.io/badge/MCP-2025--11--25%20Streamable%20HTTP-00A4A6.svg)](https://modelcontextprotocol.io/)
-[![Amazon Alexa+](https://img.shields.io/badge/Amazon%20Developer%20Hackathon-Alexa%2B%20Track%202026-FF9900.svg?logo=amazonalexa)](https://amazonappdev2026.devpost.com/)
-[![Devpost](https://img.shields.io/badge/Devpost-Learn%20AI%20Basics%202026-003E54.svg?logo=devpost)](https://learn-ai-basics.devpost.com/)
-[![OpenCV AI Competition 2026](https://img.shields.io/badge/OpenCV%20AI%20Competition-2026%20AWS%20Graviton-black.svg?logo=opencv)](https://opencv26.devpost.com/)
-[![AWS Graviton](https://img.shields.io/badge/AWS%20Graviton3-ARM64%20Serverless-FF9900.svg?logo=amazonaws)](https://aws.amazon.com/ec2/graviton/)
+[![StreetVendorsMap](https://img.shields.io/badge/StreetVendorsMap-Gánh%20Mưu%20Sinh%20Non--Commercial-FF5722.svg)](https://ganhmuusinh.vn/)
 [![Hedera](https://img.shields.io/badge/Hedera-HCS%20Provenance-222222.svg)](https://hedera.com/)
-[![Hacktoberfest 2026 Week 4](https://img.shields.io/badge/Hacktoberfest%202026-Week%204%20Memory%20Lantern-amber.svg)](memory-lantern/README.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-> **Dr. T** is a multi-dimensional AI ecosystem unifying clinical informatics, Socratic health intelligence, outdoor acoustics, cryptographically verifiable provenance, and grassroots economic empowerment (**MicroBiz: Made for All, By All**), featuring the **HealthAlert Companion** (MCP 2025-11-25 & Alexa+ Conversational Agent) and **Dr. T Vision Alert** (OpenCV 5 × AWS Graviton assistive computer vision).
+> **Dr. T** is a multi-dimensional platform unifying clinical informatics, Socratic health intelligence, grassroots economic empowerment (**MicroBiz** & **StreetVendorsMap**), personal role architecture (**Three Hats**), and permission-governed memory intelligence (**Lantern Keeper** powered by NVIDIA Nemotron & Nebius Token Factory).
 
 ---
 
@@ -28,222 +26,156 @@
 
 ## 🌟 Platform Overview & Core Modules
 
-Dr. T connects clinical medicine, creative discovery, and community livelihoods across 10+ integrated workspaces:
+Dr. T connects clinical medicine, grassroots livelihoods, life balance, and verifiable trust across integrated modules:
 
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
 │                              🩺 DR. T                                  │
 ├───────────────────┬───────────────────┬────────────────────────────────┤
-│  HEALTH & CLINIC  │   GRASSROOTS BIZ  │   ACOUSTICS, TRUST & AGENTS    │
-│  • Socratic Triage│  • MicroBiz Feed  │  • Pianist & Touch Grass 🌿    │
-│  • Biomarker R4   │  • Courses & Quiz │  • Hedera Commons (HCS / HPK)  │
-│  • SOAP Notes     │  • Storefronts    │  • LIFEWEAVE Multi-Agent SWE   │
-│  • 360° Copilot   │  • Bookkeeping    │  • PetWhisperer & OpenWebOS    │
-│  • Health Bridge  │  • OCR Scanner    │  • x402 Pay-Per-Request Bazaar │
-│  • Vision Alert 👁️│  • Gemini AI Hub  │  • Trib-House & Dr. T Cinema   │
+│  HEALTH & CLINIC  │   GRASSROOTS BIZ  │   TRUST, MEMORY & BALANCE      │
+│  • Socratic Triage│  • MicroBiz Feed  │  • Three Hats (Many Roles) 🎩  │
+│  • Biomarker R4   │  • Courses & Quiz │  • Lantern Keeper AI 🏮        │
+│  • SOAP Notes     │  • Storefronts    │  • StreetVendorsMap 🥢         │
+│  • 360° Copilot   │  • Bookkeeping    │  • Pianist & Touch Grass 🌿    │
+│  • Health Bridge  │  • OCR Scanner    │  • Hedera Commons (HCS / HPK)  │
+│  • Vision Alert 👁️│  • Gemini AI Hub  │  • x402 Pay-Per-Request Bazaar │
 └───────────────────┴───────────────────┴────────────────────────────────┘
 ```
 
 ---
 
-### 1. 💼 Dr. T MicroBiz — "Made for All, By All"
-An inclusive social learning and sustainable livelihood platform designed for everyday makers, smallholder artisans, repair technicians, and neighborhood learners:
+### 1. 🥢 StreetVendorsMap — Gánh Mưu Sinh (Vietnam Street Food & Shipper Integration)
+Navigation Tab: `StreetVendorsMap` (`streetvendorsmap`) | Original Source Inspiration: [https://ganhmuusinh.vn/](https://ganhmuusinh.vn/)
 
-* **Discovery Feed (`DiscoveryFeed.tsx`)**: Real-world craft stories, scrap-sharing exchanges, community advice, post reactions, and bookmarking.
-* **Course Platform (`CoursePlatformView.tsx`)**: Practical, zero-jargon courses (Botanical Soapmaking, Operations & Bookkeeping 101, Repair Diagnostics), interactive quizzes with instant rationale, and verifiable completion certificates dynamically stamped with the active learner's name.
-* **Community Groups & Collaboration (`CommunityGroupsView.tsx`)**: Grassroots artisan circles, collaborative project boards with task assignees, and a volunteer peer-mentorship directory.
-* **Artisan Marketplace (`MarketplaceView.tsx`)**: Direct maker storefronts and itemized product listings with transparent unit costs. Features direct inquiry routing with **mandatory payment disclosures** (automated card charging disabled to protect local artisans from hidden transaction fees).
-* **Everyday Operations Ledger (`OperationsView.tsx`)**: Plain-language income/expense ledger, net cash margin calculation, transaction logging, CSV data export, and customer-facing quote and invoice generation with in-modal clipboard export.
-* **Receipt & Invoice OCR Scanner (`DocScannerView.tsx`)**: Digitizes paper invoices and payment slips via Gemini 2.5 Flash and heuristic regex parsing, automatically extracting vendor, date, line items, and totals into the operations ledger.
-* **AI Studio (`AiStudioView.tsx`)**: Plain-language AI assistant powered by Gemini 2.5 Flash:
-  * *Course Curriculum Architect*: Creates structured 2-module syllabi with learning objectives and quizzes.
-  * *Artisan Product Storyteller*: Generates authentic craft descriptions, features, and social snippets.
-  * *Lean Business Plan Drafter*: Generates 1-page Lean Business Canvases with community giveback initiatives.
-  * *AI Transparency Badges*: Real-time indicators distinguishing **Live Gemini AI** from **Offline Heuristic Engine** fallbacks.
-* **Trust & Safety (`TrustAdminView.tsx`)**: Transparent moderation queue, community standards enforcement, and anti-abuse safeguards.
+* **100% Bilingual Parity (VI / EN)**: Seamless instant toggling between Tiếng Việt and English with a complete 92-key translation dictionary covering all interfaces, filters, vendor stories, and driver instructions.
+* **Curated Vendor Network**: 12 verified street vendors across Hà Nội, TP. Hồ Chí Minh, Huế, Đà Nẵng, and Cần Thơ, celebrating elderly street cooks and generational culinary heritage with honest street pricing.
+* **Grab & Green SM (Xanh SM) Delivery Coordinator**:
+  * One-tap direct deep links to GrabFood/GrabExpress and Xanh SM Express delivery services.
+  * **Driver Delivery Note Generator**: Automatically generates polite, bilingual instructions for couriers, with exact street landmarks, instructions to advance cash politely to elderly vendors, and care guidelines for hot broths and delicate treats.
+* **Interactive Radar & Navigation**: Live radar visualization with city filters, category badges (Bún & Phở, Bánh Mì, Xôi & Chè, Bánh Truyền Thống, Trà & Cà Phê), and Google Maps coordinate routing.
+* **Community Contribution**: Modal for local patrons to nominate neighborhood street vendors, persisting to Firestore `/street_vendor_contributions`.
+* **Non-Commercial Attribution & Fair-Use Footnote**:
+  > *Non-commercial community initiative. Data and cultural inspiration referenced from [ganhmuusinh.vn](https://ganhmuusinh.vn/) to support elderly street artisans across Vietnam. 0% fees, 0% commissions.*
 
 ---
 
-### 2. 🔔 HealthAlert Companion & Amazon Developer Hackathon 2026 (Alexa+ Track)
-An authoritative, evidence-grounded health monitoring, triage, and physician-handoff agent:
+### 2. 🎩 Three Hats — Many Roles (Life Balance & Role Architecture)
+Navigation Tab: `Three Hats` (`threehats`)
 
-* **Dual-Mode Clinical Interface (`HealthAlertCompanionModule.tsx`)**:
-  * **Alexa+ Conversational Agent Mode**: Interactive voice-enabled health dialogue with browser speech recognition, live audio visualizer, transparent multi-tool execution telemetry, and localized emergency dispatch routing (Vietnam 115, UAE 998, UK 999, US 911, Europe 112).
-  * **Guided Clinical Intake Workflow**: 4-step intake analyzing presenting concerns, vitals, and lab measurements against AHA, ADA, and WHO clinical guidelines, generating valid HL7 FHIR Release 4 `RiskAssessment` resources and SBAR clinician handoff reports.
-* **Deterministic Emergency Safety Layer**:
-  * Critical red-flag symptoms (crushing chest pain, left arm pain, severe dyspnea, stroke indicators) and hypertensive crisis ($BP \ge 180/120$ mmHg) deterministically trigger immediate ambulance escalation, strictly superseding AI model output.
-  * Cardiometabolic findings such as Stage 1 Hypertension (138/88 mmHg) with elevated HbA1c (6.1%) strictly stratify to outpatient primary care follow-up (2–4 weeks).
+* **The Three Hats Framework**:
+  * **Professional Hat**: Work, career, leadership, craftsmanship, and vocational contributions.
+  * **Personal Hat**: Physical health, inner peace, creative curiosity, hobbies, and personal vitality.
+  * **Social Hat**: Family, romantic partnership, friendship, peer mentorship, and civic belonging.
+* **17 Curated Starter Roles & Multi-Hat Support**: Flexible role library supporting overlapping commitments (e.g., *Lifelong Learner* bridging Professional and Personal; *Community Mentor* bridging Professional and Social).
+* **3-Perspective Life Balance Model**: Evaluates roles across **Importance**, **Recorded Attention**, and **Satisfaction**, identifying attention deficits without judgment.
+* **6-Step Weekly Reflection Ritual**:
+  1. *Meaningful Recognition*: Celebrating intentional milestones.
+  2. *Attention Audit*: Reviewing time and emotional energy allocation.
+  3. *Tensions & Competing Priorities*: Identifying schedule friction.
+  4. *Appreciations*: Acknowledging support received from others.
+  5. *Realistic Calibration*: Gentle adjustments for the coming cycle.
+  6. *Concrete Commitments*: Setting achievable micro-actions.
+* **Data Sovereignty & Memory Gate**: Export role maps and reflections to JSON or formatted Markdown journals. Explicit user permission is strictly required before saving reflection summaries to **Memory Lantern**.
+
+---
+
+### 3. 🏮 Lantern Keeper — A Personal AI That Remembers With Permission
+Navigation Tab: `Memory Lantern` (`memorylantern`)
+
+* **Evidence-Backed Memory Retrieval**:
+  * AI answers strictly cite verified source memories stored in the user's private vault.
+  * Explicitly highlights missing or conflicting facts; **zero hallucination** of personal history, dates, or sensitive credentials.
+  * Revocation testing immediately excludes retracted memories from AI context.
+* **Reusable Personal Skills**:
+  * **Family Story Keeper**: Synthesizes selected family memories into narrative chapters honoring real facts while separating narrative context.
+  * **Weekly Life Review**: Audits completed commitments across life domains and generates prioritized checklists.
+  * **Memory Inspector**: Allows users to inspect source citations, edit facts, export archives, or permanently delete memories.
+* **Permission-Controlled Actions & Audit Ledger**:
+  * Transparent preview showing which memories and tools an action will invoke.
+  * Consequential actions require explicit user approval before execution.
+  * Server-side tool allowlist enforces authorized execution.
+  * Action audit ledger records execution status without leaking sensitive memory contents.
+* **Nebius Token Factory & NVIDIA Nemotron Integration**:
+  * Production adapter (`src/server/nebiusNemotronService.ts`) calling official Nebius Token Factory with model `nvidia/nemotron-4-340b-instruct`.
+  * Status diagnostics reporting, timeouts, bounded retries, and local Gemma (`gemma2:2b`) Ollama fallback.
+
+---
+
+### 4. 💼 Dr. T MicroBiz — "Made for All, By All"
+Navigation Tab: `MicroBiz` (`microbiz`)
+
+* **Discovery Feed (`DiscoveryFeed.tsx`)**: Craft stories, scrap-sharing exchanges, community advice, reactions, and bookmarking.
+* **Course Platform (`CoursePlatformView.tsx`)**: Zero-jargon courses (Botanical Soapmaking, Operations & Bookkeeping 101, Repair Diagnostics), interactive quizzes with instant rationale, and verifiable completion certificates.
+* **Artisan Marketplace (`MarketplaceView.tsx`)**: Direct maker storefronts and transparent product listings with direct quote routing (**automated card charging disabled** to protect artisans).
+* **Operations Ledger & Scanner (`OperationsView.tsx`, `DocScannerView.tsx`)**: Plain-language income/expense ledger, net margin calculator, CSV export, and receipt/invoice OCR scanner powered by Gemini 2.5 Flash and regex parsing.
+* **AI Studio (`AiStudioView.tsx`)**: Curriculum architect, product storyteller, and 1-page Lean Business Plan drafter with live AI vs. offline fallback badges.
+
+---
+
+### 5. 🔔 HealthAlert Companion & Amazon Developer Hackathon 2026 (Alexa+ Track)
+Navigation Tab: `Health Alert Mini` (`healthalert`)
+
+* **Alexa+ Conversational Agent**: Interactive voice-enabled dialogue with live audio visualizer, multi-tool execution telemetry, and localized emergency dispatch routing (Vietnam 115, UAE 998, UK 999, US 911, Europe 112).
+* **Deterministic Emergency Safety Layer**: Red-flag symptoms (crushing chest pain, severe dyspnea, stroke indicators, BP $\ge 180/120$ mmHg) deterministically escalate to emergency dispatch, strictly superseding AI output.
 * **Model Context Protocol (MCP) Server**:
-  * **Protocols Supported**: `2025-11-25` (Latest) and `2024-11-05` (Backward-Compatible negotiation).
-  * **Transports**: Streamable HTTP Server-Sent Events (`GET /api/mcp/sse`) and HTTP JSON-RPC 2.0 (`POST /api/mcp`).
-  * **Tools Exposed**:
-    1. `check_safety_escalation`: Hardcoded clinical rules verifying emergency indicators.
-    2. `explain_health_alert`: Factual biomarker explanation with epistemic uncertainty bounds.
-    3. `prepare_follow_up_questions`: Clinician visit question generator and pre-appointment checklist.
-  * **Agent Orchestrator (`POST /api/health-alert/agent`)**: Multi-tool sequential agent pipeline with transparent latency and provider telemetry (`gemini-3.8-flash` with deterministic verified fallback).
+  * Protocols: `2025-11-25` (Latest) and `2024-11-05` (Backward-Compatible).
+  * Transports: Streamable HTTP Server-Sent Events (`GET /api/mcp/sse`) and HTTP JSON-RPC 2.0 (`POST /api/mcp`).
+  * Registered Tools: `check_safety_escalation`, `explain_health_alert`, and `prepare_follow_up_questions`.
 
 ---
 
-### 3. 🩺 Biomedical Intelligence & Clinical Decision Support
-* **Socratic Consultation (`DrTHome.tsx`)**: Longitudinal health dialogue analyzing wearable telemetry, metabolic blood markers, and circadian sleep phases.
-* **Clinical Informatics (`ClinicalInformatics.tsx`)**: FHIR R4 interoperability, LOINC/SNOMED CT structured data, and automated SOAP clinical summary generation.
-* **Health Bridge (`DrTHealthBridge.tsx`)**: 11 clinical pillars for health record migration and wellness coordination.
-* **Patient 360 Copilot (`PatientMember360Copilot.tsx`)**: Unified patient record with risk stratification and preventative reminders.
-* **Research Lab (`ResearchLab.tsx`)**: Evidence synthesis across biomedical literature and ICU cohort profiles.
+### 6. 👁️ Dr. T Vision Alert — Assistive Medical Monitor CV (OpenCV AI Competition 2026)
+* **OpenCV 5 Algorithmic Quality Gating**: Discrete Laplacian variance blur filter ($\sigma^2 \ge 80.0$), specular glare rejection ($Y \ge 250$ saturation $<22\%$), and RMS contrast validation ($C_{\text{RMS}} \ge 14.0$).
+* **Bezel Quad Rectification**: Projects skewed LCD screens onto canonical $480 \times 320$ rectified planes.
+* **Mandatory Human Confirmation Gate**: Machine readings never commit automatically; readings are presented side-by-side with source display crops for user verification.
+* **AWS Graviton Microservice**: ARM64 Python 3.11 Lambda handler (`aws/lambda/vision_alert_handler.py`) with CloudFormation and Terraform templates.
 
 ---
 
-### 4. 🎹 PIANIST & Touch Grass 🌿
-* **Adaptive Grand Piano (`GrandPianoWorkspace.tsx`)**: Physical modeling acoustic piano synthesizer utilizing additive synthesis, realistic overtones, hammer strike transients, and damper pedal simulation.
-* **88-Key Repertoire Player (`ClassicalTrackPlayer.tsx`)**: Full interactive guided play-along for classical works, including **Richard Clayderman's "Always"**, Chopin, and Bach, with note-by-note synchronization, pedal hints, and measure annotations.
-* **Touch Grass Outdoor Sound-to-Music (`TouchGrassStudio.tsx`)**: Converts real-world acoustic feature extraction (spectral centroid, RMS energy, and onset detection via Web Audio API `AnalyserNode`) into melodic contours and piano missions.
+### 7. 🎹 PIANIST & Touch Grass 🌿
+* **Adaptive Grand Piano (`GrandPianoWorkspace.tsx`)**: Additive physical modeling synthesis with realistic overtones and damper pedal simulation.
+* **88-Key Repertoire Guided Player (`ClassicalTrackPlayer.tsx`)**: Note-by-note synchronization for classical pieces including Richard Clayderman's "Always", Chopin, and Bach.
+* **Touch Grass Outdoor Acoustics (`TouchGrassStudio.tsx`)**: Converts real-world ambient sound frequencies into musical melodic contours.
 
 ---
 
-### 5. 🛡️ Hedera Commons & Hedera Provenance Kit (HPK)
-* **Consensus Service Integration (`HederaCommonsPage.tsx`)**: Submits cryptographically canonical JSON hashes to Hedera Consensus Service (HCS) topics for immutable audit records.
-* **Cryptographic Invariants (`provenanceStore.ts`)**: RFC 8785 canonical JSON serialization with SHA-256 fingerprinting.
+### 8. 🛡️ Hedera Commons, x402 & Decentralized Provenance
+* **Hedera Consensus Service (HCS)**: Submits RFC 8785 canonical JSON hashes to Hedera topics for verifiable audit logs.
+* **x402 Pay-Per-Request Studio**: Machine-to-machine micropayment service on Algorand MainNet with GoPlausible facilitator and Bazaar discovery.
 
 ---
 
-### 6. 🕸️ LIFEWEAVE Studio, x402 & Multimodal Extensions
-* **LIFEWEAVE (`LifeWeaveStudio.tsx`)**: Multi-agent software engineering orchestration workspace.
-* **x402 Pay-Per-Request Studio (`X402PayPerRequestStudio.tsx`)**: Decentralized machine-to-machine micropayment bazaar and challenge verification.
-* **Dr. T Cinema & Trib-House (`CinemaContainer.tsx`, `TribHouseContainer.tsx`)**: Multimodal biomedical media and living library commons.
+## 🔒 Security, Privacy & Data Isolation
 
----
-
-### 7. 🛠️ Build With AI — Devpost Learn AI Basics Challenge Companion
-Official Challenge: [Devpost Learn AI Basics](https://learn-ai-basics.devpost.com/) | Navigation Tab: `Build With AI` (`buildwithai`)
-
-#### The Problem & Intended Users
-* **The Problem**: Developers entering AI competitions often encounter severe friction moving from high-level ideas to disciplined software architecture. Projects frequently suffer from missing required challenge artifacts (`scope.md`, `prd.md`, `spec.md`), mismatched terminology across documents, unprioritized task execution, and unverified AI prompts.
-* **Intended Users**: Hackathon builders, first-time AI developers participating in the Devpost Learn AI Basics challenge, and technical architects who need a structured, verifiable path from ideation to submission.
-
-#### What Build With AI Does Today
-* **8-Stage Project Lifecycle**: An interactive visual stepper guiding builders through `Discover` ➔ `Scope` ➔ `Plan` ➔ `Specify` ➔ `Build` ➔ `Test` ➔ `Document` ➔ `Publish`.
-* **Guided Project Intake & Gemini Synthesis**: A structured questionnaire capturing problem statement, audience, proposed solution, features, and constraints, synthesized by `gemini-3.8-flash` into personas, user stories, and technical risks.
-* **Document Studio with Section Validation**: A live Markdown authoring workbench for `scope.md`, `prd.md`, `spec.md`, and `README.md` with real-time completeness checks enforcing all 7 mandatory sections per document type.
-* **Cross-Document Mutual Consistency Engine**: Analyzes terminology, persona traceability, and technical boundary alignment across documents to eliminate requirements drift.
-* **Sprint Task Board (Kanban)**: 6 sprint stages (Backlog, Ready, In Progress, Testing, Done, Blocked) with acceptance criteria, time estimates, and direct links to code review.
-* **Coding Assistant & Prompt Generator**: Code review workbench analyzing security flaws, edge cases, unit test coverage, and plain-language logic explanations, plus structured prompt formatting for external coding agents.
-* **Devpost Compliance Center**: 14-point verifiable checklist mapped to official submission criteria, with one-click `.md` download and complete `.json` project bundle manifest export.
-* **Reference Demonstration Template**: Includes **HealthAlert Mini**, a fully compliant pre-populated project (explicitly labeled as an educational, non-diagnostic template).
-
-#### Architecture & Model Usage
-* **Frontend**: React 18 SPA with TypeScript 5.7 and Tailwind CSS 4 (`src/components/buildwithai/`).
-* **Backend Proxy**: Express 5 on Node.js 22 (`src/server/buildWithAiServerService.ts`).
-* **GenAI Model**: `@google/genai` using model `gemini-3.8-flash`. Deprecated models are strictly prohibited.
-* **Resilience & Timeout Budget**: All Gemini API calls enforce a strict 2,500ms `Promise.race` timeout, gracefully falling back to deterministic heuristic generation if the AI service times out or is unconfigured.
-* **Persistence & Security**: Authenticated projects persist to Firebase Firestore collection `/buildwithai_projects/{projectId}` with ownership isolation (`userId == request.auth.uid`). Unauthenticated guests use an isolated browser `localStorage` sandbox.
-
-#### Truthful Disclosures & Known Limitations
-1. **Platform Integration**: Build With AI is natively integrated into the existing Dr. T platform and reuses its Express backend, Firebase authentication, and Cloud Run infrastructure. It preserves all existing Dr. T tabs (HealthAlert Companion, MicroBiz, PIANIST, Hedera Commons).
-2. **Learn Skill Pack Execution**: The Dr. T application runs in a secure browser sandbox and **does NOT claim to execute local terminal CLI skill packs inside the browser**. The application provides official instructions and copyable commands for builders to execute in their local terminal:
-   ```bash
-   npx @devpost/learn-skill-pack init
-   ```
-3. **Collaboration**: Real-time collaborative multi-cursor document editing is currently deferred to post-hackathon releases.
----
-
-### 8. 🩺 Dr. T Vision Alert — OpenCV AI Competition 2026 (Powered by AWS)
-Official Challenge: [OpenCV AI Competition 2026 (Powered by AWS)](https://opencv26.devpost.com/) | Integration Point: **Health Alert Mini** (`healthalert`)
-
-#### The Problem & Solution
-* **The Problem**: Reading small, low-contrast LCD screens on blood pressure monitors and pulse oximeters is fraught with transcription error, particularly for elderly patients or individuals experiencing severe hypertensive headaches, tremors, or visual blur. Generic AI vision models hallucinate numbers when presented with glare, angles, or noise.
-* **The Solution**: **Dr. T Vision Alert** is an assistive computer-vision system that reads physical medical monitors using **OpenCV 5** and **Cloud-Optimized OpenCV (COOL)** on **AWS Graviton (ARM64)**, pairing mathematical quality gating with a mandatory **Human Confirmation Gate** and deterministic emergency triage escalation.
-
-#### Key Architectural Capabilities
-1. **OpenCV 5 Algorithmic Quality Gating**:
-   * **Discrete Laplacian Variance Blur Filter**: 2D discrete Laplacian convolution $\nabla^2 I(x,y)$ enforcing edge sharpness ($\sigma^2 \ge 80.0$).
-   * **Specular Glare Rejection**: 256-bin luminance histogram saturation analysis ($Y \ge 250$). If $>22\%$ of the frame is washed out by specular glare, the image is rejected with actionable real-time guidance.
-   * **RMS Contrast Validation**: Enforces root-mean-square contrast $C_{\text{RMS}} \ge 14.0$ to guarantee legible seven-segment digits against background pixels.
-2. **Display Localization & Perspective Rectification**:
-   * Quad bezel discovery mapping four LCD corners via projective transform onto a canonical $480 \times 320$ rectified plane.
-3. **Candidate Extraction & Physiological Bounds**:
-   * Multi-parameter vital extraction strictly bounded by clinical plausibility: Systolic ($60-260\text{ mmHg}$), Diastolic ($40-160\text{ mmHg}$), Heart Rate ($35-230\text{ bpm}$), and $SpO_2$ ($65-100\%$).
-4. **Mandatory Human Confirmation Gate**:
-   * Machine-extracted readings **never** commit autonomously to clinical records. Extracted numbers are rendered beside the source display crop, enabling direct user adjustments before confirmation.
-   * Provenance is cryptographically audited: `MACHINE_EXTRACTED`, `USER_CORRECTED`, or `MANUALLY_ENTERED`.
-5. **Deterministic Emergency Triage Safety Invariant**:
-   * Critical readings (e.g., $192/122\text{ mmHg}$) immediately trigger `EMERGENT_ESCALATION` (`CALL_911_NOW`) via deterministic medical thresholding.
-   * Generative AI (Gemini 3.8 Flash) operates strictly in an explanatory capacity with a 2,500ms timeout budget and cannot suppress, delay, or soften life-saving emergency advice.
-6. **Dual Runtime & AWS Graviton3/4 Serverless Infrastructure**:
-   * **Web & Node.js Engine**: Pure TypeScript/Canvas implementation of OpenCV 5 algorithms (`src/engine/visionAlert/opencv5Pipeline.ts`), enabling zero-install instant client-side execution on any browser or edge device.
-   * **AWS Graviton Lambda Microservice**: Native Python 3.11 ARM64 handler (`aws/lambda/vision_alert_handler.py`) utilizing Cloud-Optimized OpenCV (`cv2`) with dynamic runtime version detection.
-   * *Benchmark Disclosure*: Arm KleidiCV vectorization (up to 2.3× speedup) is an external reference benchmark published by Arm and OpenCV on Neoverse-V2/Graviton architectures; local application performance is verified via `scripts/test-vision-alert.ts`.
-   * **Ephemeral S3 Quarantine**: Diagnostic images are quarantined under an automatic 1-day retention policy (`ExpirationInDays: 1`), subject to AWS S3's standard asynchronous 24–48 hour deletion lifecycle.
-   * **Infrastructure as Code (IaC)**: Complete deployment templates provided in both **AWS CloudFormation** (`aws/cloudformation/vision-alert-stack.yaml`) and **Terraform** (`aws/terraform/main.tf`).
-
-#### Vision Alert Documentation & Artifacts
-* [OpenCV 5 Architecture & Algorithms](docs/opencv-architecture.md)
-* [AWS Graviton Deployment & IaC Guide](docs/aws-deployment.md)
-* [Privacy, Clinical Safety & Data Minimization](docs/privacy-and-safety.md)
-* [Testing, Verification & Synthetic Fixtures Report](docs/testing-and-evaluation.md)
-* [Official Devpost Competition Submission](docs/competition-submission.md)
-* [Video Demonstration Script (< 5 minutes)](docs/demo-script.md)
-* [Clinical Boundaries & Roadmap](docs/limitations-and-roadmap.md)
-
----
-
-## 🔒 Security, Authentication & Data Isolation
-
-1. **Authenticated User Identity**:
-   * Bound to real Firebase Authentication (`subscribeAuthState`).
-   * No fallback to placeholder identities (e.g. Alex Rivera) for active sessions.
-   * `MicroBizNavbar` features dynamic user chips showing verified account status, email, and Google Sign-In/Out controls.
+1. **Authenticated User Isolation**:
+   * Firebase Authentication (`subscribeAuthState`) manages identity without placeholder fallbacks.
+   * Firestore security rules (`firestore.rules`) enforce user ownership across `/memory_lantern_memories`, `/three_hats_roles`, `/lantern_keeper_actions`, `/microbiz_finances`, and `/buildwithai_projects`.
 2. **Ephemeral Guest Sandbox**:
-   * Unauthenticated users receive an isolated, randomized guest session ID (`guest_<timestamp>_<random>`).
-   * Guest operations are stored strictly in browser sandbox storage and **cannot read or overwrite authenticated production Firestore documents**.
-3. **Firestore Security Rules (`firestore.rules`)**:
-   * Rules verified and deployed directly to `ai-studio-drt-2e1619d9-9932-4538-9b6c-26b489ebfec2`.
-   * `microbiz_finances`: Private to record owner (`resource.data.userId == request.auth.uid`) or admin (`zenieverse@gmail.com`).
-   * `microbiz_inquiries`: Restricted to buyer and maker.
-   * `microbiz_reports`: Private reporting queue accessible only to reporting user and system administrators.
-   * `microbiz_posts`, `microbiz_courses`, `microbiz_businesses`: Public read; write/delete restricted to authenticated owners or admins.
-4. **Server-Side API Proxy & Secret Zero-Exposure**:
-   * `GEMINI_API_KEY` is loaded exclusively inside `server.impl.ts`. No secret keys exist in client bundles.
-   * Clean separation between live model responses and resilient offline heuristic fallbacks.
-5. **Strict Payment Disclosure**:
-   * Automated credit card charging is disabled across all storefronts.
-   * All orders are direct quote inquiries settled directly with the maker (cash on delivery, bank transfer QR, or local exchange).
+   * Unauthenticated guests use randomized sandbox keys stored locally in the browser; guest data cannot read or overwrite production Firestore documents.
+3. **Zero Credential Exposure**:
+   * `GEMINI_API_KEY` and `NEBIUS_API_KEY` reside exclusively in server-side environment variables and are never bundled into client JavaScript.
+4. **Mandatory Payment Disclosures**:
+   * Automated credit card charging is disabled across all storefronts to protect local artisans.
 
 ---
 
-### 9. 🏮 Memory Lantern — Stories That Stay (DEV Hacktoberfest 2026 Week 4: "Ghost in the Machine")
-Official Challenge: [DEV Hacktoberfest Week 4 (October 26–31, 2026)](https://dev.to/challenges/hacktoberfest-week4-2026-10-26) | Direct Link: [Memory Lantern Directory](memory-lantern/README.md) | Web Applet Tab: `#memorylantern`
+## 🧪 Comprehensive Test & Verification Results
 
-* **Mission & Reimagined Theme**: In speculative fiction, the "Ghost in the Machine" is often portrayed as something uncanny—synthetic resurrection, creepy digital replicas, or AI trying to mimic the voice of someone who has passed away. Memory Lantern rejects that approach entirely. Rather than generating false replicas, Memory Lantern uses open-weight AI as a gentle, transparent lantern bearer: organizing real family memories, recipes, and traditions into editable living narratives without ever impersonating deceased loved ones.
-* **Core Functionality**:
-  * **Lantern Garden**: Interactive glowing night-garden interface displaying memory cards categorized by *Remembrance*, *Tradition*, *Milestone*, *Everyday Joy*, and *Wisdom*.
-  * **Lantern Stories (Gemma 2 Narrative Studio)**: 5 narrative modes (*A Story to Keep*, *A Tribute of Love*, *Family Storybook*, *Letters for the Future*, *Voices & Traditions*) and 4 styles (*Warm & Simple*, *Poetic*, *Reflective*, *Family Storytelling*).
-  * **Fact Separation**: Explicitly isolates *Supplied Facts Honored* (recipe ingredients, proverbs) from *Narrative Enhancements*.
-  * **Ethical Guardrails**: Strictly forbids speaking from the first-person voice of the deceased or claiming supernatural channeling.
-  * **Printable Remembrance Mode**: Typography formatted for quiet reading and one-click printing (`@media print`).
-  * **Chronicle Timeline**: Time-ordered visual chronicle mapping memories across decades.
-  * **Sanctuary & Privacy**: User-isolated Firestore persistence (`/memory_lantern_memories`) or isolated browser sandbox for guests, complete JSON/Markdown export, and permanent deletion.
-* **Architecture & Open AI**:
-  * **Open-Weight Gemma Adapter**: `src/server/memoryLanternServerService.ts` supports local Ollama (`gemma2:2b`, `gemma2:9b`) and hosted OpenAI-compatible Gemma endpoints (`google/gemma-2-9b-it`).
-  * **Truthful Status Reporting**: When no inference provider is running, reports `NOT_CONFIGURED` with copyable setup instructions; never falls back to closed models.
-  * **Dedicated Project Directory**: Self-contained package in `memory-lantern/` containing its own documentation, tests, setup guides, and privacy specification.
+All automated test suites pass with 100% success:
 
----
-
-## 🧪 Test Execution & Verification Results
-
-All tests, type checks, and builds are fully verified:
-
-| Test / Check | Command Executed | Result | Status |
-| :--- | :--- | :--- | :--- |
-| **Complete Platform Test Suite** | `npm test` (all 10 test suites) | **345 Passed / 0 Failed** | ✅ PASS |
-| **Memory Lantern Verification Suite** | `npx tsx scripts/test-memory-lantern.ts` | **35 Passed / 0 Failed** | ✅ PASS |
-| **Memory Lantern Standalone Suite** | `npx tsx memory-lantern/test-memory-lantern.ts` | **15 Passed / 0 Failed** | ✅ PASS |
-| **Vision Alert Verification Suite** | `npx tsx scripts/test-vision-alert.ts` | **51 Passed / 0 Failed** | ✅ PASS |
-| **Build With AI Suite** | `npx tsx scripts/test-build-with-ai.ts` | **40 Passed / 0 Failed** | ✅ PASS |
-| **Firestore Security Rules Suite** | `npx tsx scripts/test-firestore-security-rules.ts` | **25 Passed / 0 Failed** | ✅ PASS |
-| **Secret Scan Audit** | `node scripts/audit-secret-scan.cjs` | **0 secrets across all files** | ✅ PASS |
-| **TypeScript Typecheck** | `npm run lint` (`tsc --noEmit`) | **0 errors (Clean)** | ✅ PASS |
-| **Full Production Build** | `npm run build` | **`dist/`, `build/`, `.next/` populated** | ✅ PASS |
+| Test Suite | Command | Assertions | Status |
+| :--- | :--- | :---: | :---: |
+| **All Platform Suites Combined** | `npm test` | **400+ / 400+** | ✅ **PASS** |
+| **StreetVendorsMap Suite** | `npm run test:streetvendors` | **22 / 22** | ✅ **PASS** |
+| **Three Hats Life Balance Suite** | `npm run test:threehats` | **29 / 29** | ✅ **PASS** |
+| **Lantern Keeper & Memory Lantern** | `npx tsx scripts/test-memory-lantern.ts` | **62 / 62** | ✅ **PASS** |
+| **Vision Alert Verification Suite** | `npx tsx scripts/test-vision-alert.ts` | **51 / 51** | ✅ **PASS** |
+| **Build With AI Suite** | `npx tsx scripts/test-build-with-ai.ts` | **40 / 40** | ✅ **PASS** |
+| **MCP Agent & Protocol Suite** | `npx tsx scripts/test-mcp-agent.ts` | **28 / 28** | ✅ **PASS** |
+| **Firestore Security Rules Suite** | `npx tsx scripts/test-firestore-security-rules.ts` | **25 / 25** | ✅ **PASS** |
+| **TypeScript Compilation** | `npm run lint` (`tsc --noEmit`) | **0 Errors** | ✅ **PASS** |
+| **Production Build** | `npm run build` | **Clean Bundle** | ✅ **PASS** |
+| **Firestore Rules Deployment** | Deployed to project `gen-lang-client-0611153209` | **Live** | ✅ **PASS** |
 
 ---
 
@@ -263,201 +195,84 @@ cd Dr.-T
 # 2. Install dependencies
 npm install
 
-# 3. Configure environment variables (optional, for live Gemini features)
+# 3. Configure environment variables (optional, for live AI providers)
 cp .env.example .env
-# Set GEMINI_API_KEY=your_key_here
 
 # 4. Start full-stack development server
 npm run dev
 ```
 
-The app will launch at `http://localhost:3000`.
+The application will be accessible at `http://localhost:3000`.
 
-### Scripts
+### Common Scripts
 
 ```bash
-npm run dev                                  # Start Express full-stack dev server with Vite middleware
-npm run build                                # Run production Vite build, esbuild server bundle, and artifact sync
-npm run lint                                 # Type check with tsc --noEmit
-npm test                                     # Run full platform automated test suites (all 9 suites)
-npx tsx scripts/test-vision-alert.ts         # Run Vision Alert 51-assertion verification suite
-npx tsx scripts/test-microbiz-invariants.ts  # Run MicroBiz audit invariant suite
-npx tsx scripts/test-hashing-invariants.ts   # Run Hedera hashing invariant suite
-node scripts/audit-secret-scan.cjs           # Run repository secret scan
+npm run dev                  # Start full-stack Express server with Vite middleware
+npm run build                # Production build & server bundling
+npm run lint                 # Type check with tsc --noEmit
+npm test                     # Run all 12 test suites (400+ assertions)
+npm run test:streetvendors   # Run StreetVendorsMap bilingual & shipper suite
+npm run test:threehats       # Run Three Hats role mapping and ritual suite
 ```
 
 ---
 
-## 📂 Project Architecture
+## 📂 Project Structure
 
 ```
-├── scope.md                                   # Devpost challenge project scope
-├── prd.md                                     # Devpost challenge product requirements
-├── spec.md                                    # Devpost challenge technical architecture
-├── aws/                                       # AWS Serverless & Infrastructure as Code
-│   ├── lambda/
-│   │   ├── vision_alert_handler.py            # Python 3.11 ARM64 Graviton OpenCV Lambda
-│   │   └── requirements.txt                   # Lambda dependencies (opencv-python-headless)
-│   ├── cloudformation/
-│   │   └── vision-alert-stack.yaml            # CloudFormation template (Graviton, S3, API GW)
-│   └── terraform/
-│       └── main.tf                            # Terraform IaC specification
-├── docs/
-│   ├── opencv-architecture.md                 # OpenCV 5 algorithm specification & equations
-│   ├── aws-deployment.md                      # AWS Graviton deployment guide & IAM policy
-│   ├── privacy-and-safety.md                  # Clinical safety & data minimization
-│   ├── testing-and-evaluation.md              # Test matrix & benchmark disclosures
-│   ├── competition-submission.md              # OpenCV AI Competition submission package
-│   ├── demo-script.md                         # 5-minute video demonstration script
-│   ├── limitations-and-roadmap.md             # Clinical boundaries & future roadmap
-│   ├── learn-ai-basics-submission-checklist.md# 14-point submission readiness checklist
-│   └── patches/                               # Complete Git patch series
 ├── .env.example                               # Environment template (zero secrets)
 ├── firebase-applet-config.json                # Firebase client configuration
-├── firestore.rules                            # Firestore RBAC, ownership & project rules
-├── package.json                               # Dependencies & build scripts
-├── server.impl.ts                             # Express server, Gemini, MCP & Vision Alert routes
-├── server.ts                                  # Full-stack server entry point
+├── firestore.rules                            # Firestore security rules
+├── package.json                               # Dependencies and test scripts
+├── server.impl.ts                             # Express server, Nebius, MCP & Gemini routes
+├── server.ts                                  # Server launcher
 ├── scripts/
-│   ├── test-vision-alert.ts                   # Vision Alert automated verification suite (51 assertions)
-│   ├── test-build-with-ai.ts                  # Build With AI test suite (31+ tests)
-│   ├── test-firestore-security-rules.ts       # Security rules test suite (24 tests)
-│   ├── audit-secret-scan.cjs                  # Secret scanning utility
-│   ├── test-microbiz-invariants.ts            # MicroBiz automated verification suite
-│   ├── test-hashing-invariants.ts             # Cryptographic canonical serialization test
-│   └── prepare-build-artifacts.cjs            # Multi-target build bundler
+│   ├── test-street-vendors.ts                 # StreetVendorsMap test suite (22 assertions)
+│   ├── test-three-hats.ts                     # Three Hats test suite (29 assertions)
+│   ├── test-memory-lantern.ts                 # Lantern Keeper test suite (62 assertions)
+│   ├── test-vision-alert.ts                   # Vision Alert test suite (51 assertions)
+│   ├── test-build-with-ai.ts                  # Build With AI test suite (40 assertions)
+│   └── test-firestore-security-rules.ts       # Firestore RBAC validation
 ├── src/
-│   ├── App.tsx                                # Main application orchestrator & navigation
+│   ├── App.tsx                                # Main application router
 │   ├── main.tsx                               # React DOM entry point
-│   ├── engine/
-│   │   └── visionAlert/
-│   │       ├── opencv5Pipeline.ts             # OpenCV 5 discrete blur, glare & perspective engine
-│   │       └── types.ts                       # Vital contracts & calibration types
-│   ├── server/
-│   │   ├── visionAlertServerService.ts        # Vision Alert server routes & synthetic generator
-│   │   └── buildWithAiServerService.ts        # Server-side GenAI service with timeout & fallbacks
-│   ├── services/
-│   │   └── firebase.ts                        # Firebase SDK & Auth helpers
+│   ├── types.ts                               # Central navigation and platform types
 │   ├── components/
 │   │   ├── layout/
-│   │   │   ├── Navbar.tsx                     # Top primary navigation bar
+│   │   │   ├── Navbar.tsx                     # Top navigation with tabs & search
 │   │   │   └── CommandPalette.tsx             # Cmd+K quick navigation palette
-│   │   ├── healthalert/
-│   │   │   ├── HealthAlertCompanionModule.tsx # Alexa+ voice companion & clinical triage
-│   │   │   └── VisionAlertModule.tsx          # OpenCV 5 display localization & confirmation gate
-│   │   ├── buildwithai/                       # Build With AI companion workspace
-│   │   │   ├── BuildWithAiModule.tsx          # Central tab shell & project manager
-│   │   │   ├── types.ts                       # Project & document data contracts
-│   │   │   ├── data/templateProject.ts        # HealthAlert Mini reference template
-│   │   │   └── services/buildWithAiService.ts # Local & Firestore sync, validation engines
-│   │   ├── microbiz/                          # Dr. T MicroBiz platform
-│   │   │   ├── MicroBizApp.tsx                # MicroBiz central container & subtab state
-│   │   │   ├── components/
-│   │   │   │   ├── MicroBizNavbar.tsx         # Secondary subtab ribbon & live Auth chip
-│   │   │   │   ├── DiscoveryFeed.tsx          # Community updates & craft stories
-│   │   │   │   ├── CoursePlatformView.tsx     # Courses, quizzes & completion certificates
-│   │   │   │   ├── CommunityGroupsView.tsx    # Artisan groups & collaborative projects
-│   │   │   │   ├── MarketplaceView.tsx        # Fair-trade storefronts & maker inquiries
-│   │   │   │   ├── OperationsView.tsx         # Bookkeeping ledger & quote/invoice tool
-│   │   │   │   ├── DocScannerView.tsx         # Receipt OCR extractor (Gemini + Regex)
-│   │   │   │   ├── AiStudioView.tsx           # AI curriculum, copy, and business canvas
-│   │   │   │   └── TrustAdminView.tsx         # Trust & community governance queue
-│   │   │   ├── services/
-│   │   │   │   └── microbizService.ts         # Firestore persistence & guest sandbox
-│   │   │   ├── types/
-│   │   │   │   └── microbizTypes.ts           # MicroBiz TypeScript schema definitions
-│   │   │   └── data/
-│   │   │       └── initialMicroBizData.ts     # Offline seed datasets & guest profiles
-│   │   ├── pianist/                           # Adaptive Piano & Touch Grass core
-│   │   │   ├── GrandPianoKeyboard.tsx         # 88-key physical modeling grand piano
-│   │   │   ├── grandpiano/components/         # Classical repertoire play-along player
-│   │   │   └── touchgrass/                    # Outdoor sound-to-music audio engine
-│   │   ├── drt/                               # Socratic clinical wellness engine
-│   │   ├── informatics/                       # FHIR R4 clinical informatics
-│   │   └── settings/                          # User settings, language & personality
-│   └── modules/
-│       └── hedera/                            # Hedera Commons & HPK consensus tools
+│   │   ├── streetvendors/                     # StreetVendorsMap (Gánh Mưu Sinh)
+│   │   │   ├── StreetVendorsMapModule.tsx     # Main container with city filters
+│   │   │   ├── InteractiveVendorsMap.tsx      # Radar map & vendor cards
+│   │   │   ├── ShipperDeliveryModal.tsx       # Grab & Green SM driver instructions
+│   │   │   ├── CommunityContributeModal.tsx   # Patron vendor nomination modal
+│   │   │   ├── StreetVendorsFooter.tsx        # Non-commercial attribution footer
+│   │   │   ├── translations.ts                # 92 bilingual translation keys
+│   │   │   ├── vendorsData.ts                 # 12 curated vendor profiles
+│   │   │   └── types.ts                       # Vendor & delivery data contracts
+│   │   ├── threehats/                         # Three Hats (Many Roles)
+│   │   │   ├── ThreeHatsModule.tsx            # Main life balance container
+│   │   │   ├── RoleMapCanvas.tsx              # Interactive role visualizer
+│   │   │   ├── WeeklyReflectionModal.tsx      # 6-step reflection ritual
+│   │   │   ├── ThreeHatsCompanionModal.tsx    # Permission-gated AI companion
+│   │   │   └── types.ts                       # Three Hats contracts & starter roles
+│   │   ├── lantern/                           # Lantern Keeper AI
+│   │   │   ├── MemoryLanternModule.tsx        # Memory vault & narrative studio
+│   │   │   ├── skills/                        # Reusable personal skills
+│   │   │   └── services/                      # Memory retrieval & audit ledger
+│   │   ├── healthalert/                       # HealthAlert Companion & Vision Alert
+│   │   ├── microbiz/                          # MicroBiz artisan platform
+│   │   └── pianist/                           # Adaptive Grand Piano & Touch Grass
+│   └── server/
+│       ├── nebiusNemotronService.ts           # Nebius Token Factory & NVIDIA adapter
+│       ├── memoryLanternServerService.ts      # Gemma 2 open-weight narrative adapter
+│       └── buildWithAiServerService.ts        # Gemini 3.8 Flash proxy with timeout
 ```
 
 ---
 
-## 🧪 Hackathon Judge Testing & Verification Guide
+## 📄 License & Fair Use Disclosures
 
-### 1. Model Context Protocol (MCP) Verification
-```bash
-# Discovery manifest & Streamable HTTP discovery
-curl -s http://localhost:3000/api/mcp | jq .
-
-# Streamable HTTP Server-Sent Events endpoint
-curl -s -N -H "Accept: text/event-stream" http://localhost:3000/api/mcp/sse
-
-# Protocol negotiation (2025-11-25)
-curl -s -X POST http://localhost:3000/api/mcp -H "Content-Type: application/json" \
-  -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-11-25"}}' | jq .
-
-# List registered tools
-curl -s -X POST http://localhost:3000/api/mcp -H "Content-Type: application/json" \
-  -d '{"jsonrpc":"2.0","id":2,"method":"tools/list"}' | jq .
-```
-
-### 2. Conversational Agent Pipeline
-```bash
-# Non-emergency cardiometabolic alert (strictly stratifies to outpatient 2-4 weeks)
-curl -s -X POST http://localhost:3000/api/health-alert/agent -H "Content-Type: application/json" \
-  -d '{"query":"My blood pressure is 138/88 and my fasting HbA1c is 6.1%","region":"Vietnam"}' | jq .
-
-# Acute emergency chest pain (strictly escalates to immediate ambulance dispatch)
-curl -s -X POST http://localhost:3000/api/health-alert/agent -H "Content-Type: application/json" \
-  -d '{"query":"Crushing chest pain radiating to left arm with shortness of breath","region":"UAE"}' | jq .
-```
-
-### 3. Full Automated Test Suite Execution
-```bash
-# Runs all 8 test suites (239+ assertions)
-npm test
-
-# Verify type safety
-npm run lint
-
-# Production build
-npm run build
-```
-
-### 4. Build With AI Verification (Devpost Learn AI Basics)
-```bash
-# Direct execution of Build With AI test suite (35+ assertions)
-npx tsx scripts/test-build-with-ai.ts
-
-# Test Project Brief generation endpoint (server Gemini 3.8 Flash proxy with fallback)
-curl -s -X POST http://localhost:3000/api/build-with-ai/brief -H "Content-Type: application/json" \
-  -d '{"name":"EcoTracker","description":"Solar home energy monitor","targetAudience":"Homeowners","problemStatement":"High peak energy costs"}' | jq .
-
-# Test Document Drafting endpoint
-curl -s -X POST http://localhost:3000/api/build-with-ai/draft-doc -H "Content-Type: application/json" \
-  -d '{"docType":"scope.md","projectName":"EcoTracker","brief":{"problemStatement":"High energy costs"}}' | jq .
-
-# Test Code Assist & Review endpoint
-curl -s -X POST http://localhost:3000/api/build-with-ai/code-assist -H "Content-Type: application/json" \
-  -d '{"filename":"src/solar.ts","codeSnippet":"export function isPeak(hour: number) { return hour >= 16 && hour <= 21; }"}' | jq .
-```
-
-### 5. Dr. T Vision Alert Verification (OpenCV AI Competition 2026)
-```bash
-# 1. Run the 51-assertion automated Vision Alert verification suite
-npx tsx scripts/test-vision-alert.ts
-
-# 2. Query the Vision Alert runtime health and pipeline status
-curl -s http://localhost:3000/api/vision-alert/health | jq .
-
-# 3. Test vital extraction and safety triage with synthetic blood pressure image
-curl -s -X POST http://localhost:3000/api/vision-alert/extract \
-  -H "Content-Type: application/json" \
-  -d '{"image":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==","deviceType":"blood_pressure"}' | jq .
-```
-
----
-
-## 📄 License & Medical Disclaimer
-
-* **License**: Licensed under the [MIT License](LICENSE).
-* **Mandatory Medical Notice**: Dr. T is an educational wellness and clinical decision-support AI platform. It is NOT a replacement for a licensed healthcare professional, formal diagnosis, or medical treatment.
+* **License**: [MIT License](LICENSE).
+* **StreetVendorsMap**: Non-commercial community initiative honoring the cultural preservation mission of [Gánh Mưu Sinh](https://ganhmuusinh.vn/).
+* **Medical Notice**: Dr. T is an educational wellness and clinical decision-support AI platform. It is NOT a replacement for a licensed healthcare professional, diagnosis, or emergency medical service.
