@@ -47,6 +47,7 @@ const base='http://127.0.0.1:'+address.port;
 process.env.TWITCH_REDIRECT_URI=base+'/api/chatquest/auth/callback';
 async function request(url:string,init:RequestInit={}){return originalFetch(base+url,{redirect:'manual',...init,headers:{...(init.headers||{})}});}
 try{
+ const health=await request('/api/chatquest/health');assert.equal(health.status,200);const healthData=await health.json() as any;assert.equal(healthData.ready,false);assert.equal(healthData.deploymentSafe,false);assert.equal(healthData.persistence,'local-json','current single-process storage must never advertise production readiness');
  const unauth=await request('/api/chatquest/quests',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({})});
  assert.equal(unauth.status,401,'mutations must require a streamer session');
 
