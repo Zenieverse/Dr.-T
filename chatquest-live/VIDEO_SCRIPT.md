@@ -1,24 +1,24 @@
 # Three-Minute Demo Video Script
 
 **0:00–0:20 — Hook**  
-“Streams are live, but audiences often stay passive. ChatQuest Live lets viewers shape what happens next.”
+“Don't just watch the stream. Shape the story together. ChatQuest Live turns Twitch chat into a shared quest.”
 
-**0:20–0:45 — Creator setup**  
-Show Dr. T ChatQuest Live. Connect Twitch through OAuth and explain the requested chat permissions.
+**0:20–0:45 — Connect**  
+Open Dr. T ChatQuest Live and connect a real Twitch broadcaster account. Show the channel identity and authorized chat permissions.
 
-**0:45–1:15 — Create a quest**  
-Create The Community Compass, add three options, and start the quest.
+**0:45–1:10 — Create**  
+Create “The Community Compass,” add three choices, set the duration, and start. Show the OBS browser-source overlay.
 
-**1:15–1:55 — Real audience participation**  
-Show an independent viewer sending !join and !vote B in the real Twitch channel. Show the vote update in studio and overlay. Record this live; do not simulate.
+**1:10–1:50 — Real chat participation**  
+From a second, independent Twitch viewer account, send `!join` and `!vote B`. Show the real Twitch reply and the updated results in Studio and OBS.
 
-**1:55–2:25 — Co-creation and moderation**  
-Send !suggest A hidden garden; approve it in the host moderation queue; show it on the overlay only after approval.
+**1:50–2:20 — Co-create and moderate**  
+Send `!suggest A hidden garden`. Show it pending in Community Review, approve it as host, and show it on the public overlay only after approval.
 
-**2:25–2:45 — Community outcome**  
-Pause/resume, end the quest, and show participation and voting results.
+**2:20–2:40 — More play modes**  
+Briefly show story, mystery and balanced Ember/Tide team modes.
 
-**2:45–3:00 — Close**  
-“Creator designs. Host guides. Community builds. Don't just watch the stream. Shape the story together.”
+**2:40–3:00 — Close**  
+“Creator designs. Host guides. Community builds. ChatQuest Live — don't just watch the stream. Shape the story together.”
 
-If live integration is unavailable, explicitly disclose the setup blocker rather than staging mock messages as real traffic.
+Only record real Twitch events as real. Clearly label any mocked test footage.

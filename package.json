@@ -13,7 +13,7 @@
     "test:threehats": "tsx scripts/test-three-hats.ts",
     "test:streetvendors": "tsx scripts/test-street-vendors.ts",
     "hedera:harness": "tsx hedera_harness/harness_runner.ts",
-    "test:chatquest": "tsx chatquest-live/tests/core.test.ts"
+    "test:chatquest": "tsx chatquest-live/tests/core.test.ts && tsx chatquest-live/tests/server.integration.test.ts"
   },
   "dependencies": {
     "@google/genai": "latest",
