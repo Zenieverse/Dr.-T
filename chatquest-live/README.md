@@ -15,15 +15,15 @@ A new, isolated Twitch audience-participation feature in Dr. T. Streamers create
 - Automatic quest expiry; pause/resume preserves remaining time.
 - Public overlay contains approved contributions only and never includes private viewer vote maps or pending submissions.
 - Participation points are independent of official Twitch Channel Points.
-- Deterministic quest-idea fallback clearly reports `isGenuineAi:false`.
+- Optional server-side Gemini assistance for quest ideas, submission organization and completed-quest summaries. If Gemini is not configured or fails, a deterministic fallback is returned and explicitly reports `isGenuineAi:false`; moderation decisions always remain with the streamer.
 
 ## Local development
 1. Install dependencies: `bun install`.
 2. Copy `.env.example` to `.env` and configure the Twitch values below. The host process must load your environment variables (or inject them through your shell/deployment).
 3. Set `CHATQUEST_DATA_FILE` to a writable path. Local JSON is for local/single-instance use only.
 4. Start Dr. T with `bun run dev`.
-5. Open `http://localhost:3000/?tab=chatquestlive`.
-6. Configure Twitch as described in [TWITCH_SETUP.md](./TWITCH_SETUP.md).
+6. Open `http://localhost:3000/?tab=chatquestlive`.
+7. Configure Twitch as described in [TWITCH_SETUP.md](./TWITCH_SETUP.md).
 
 ## Routes
 - `GET /api/chatquest/auth/twitch`, `GET /api/chatquest/auth/callback`, `POST /api/chatquest/auth/logout`

@@ -24,7 +24,7 @@ export function validateQuest(input:Partial<Quest>):string|null {
  if(!['vote','story','mystery','creative','teams'].includes(String(input.mode)))return 'Choose a supported quest mode.';
  if(input.mode==='vote') {
   if(!Array.isArray(input.options)||input.options.length<2||input.options.length>6)return 'Voting quests need 2–6 options.';
-  const labels=input.options.map(o=>String(o.label||'').trim().toLowerCase());
+  const labels=input.options.map(o=>String(o?.label||'').trim().toLowerCase());
   if(labels.some(x=>!x)||new Set(labels).size!==labels.length)return 'Voting options must be named and unique.';
  }
  return null;

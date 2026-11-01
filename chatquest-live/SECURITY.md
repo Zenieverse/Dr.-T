@@ -9,6 +9,7 @@
 - Contribution text is length-limited and control characters are removed. Host approval is required before public display.
 - EventSub event IDs are deduplicated; per-user command cooldowns limit chat spam.
 - Twitch API 429 receives one bounded retry. Errors never include credentials.
+- Optional Gemini assistance sends quest themes, pending contribution text (without Twitch usernames), and completed-quest aggregates to Google's Gemini API. Configure this only if the streamer accepts that data processing; never send access tokens or secrets.
 - Community score is an application feature, not official Twitch Channel Points.
 - Never log OAuth codes, cookies, tokens or client secrets.
 

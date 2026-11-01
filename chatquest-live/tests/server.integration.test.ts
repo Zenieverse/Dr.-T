@@ -68,6 +68,8 @@ try{
  await new Promise(r=>setTimeout(r,20));
  assert(calls.some(c=>c.url==='https://api.twitch.tv/helix/eventsub/subscriptions'),'EventSub subscription must be requested');
 
+ const unauthAi=await request('/api/chatquest/ai/quest-ideas',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({theme:'space'} )});assert.equal(unauthAi.status,401,'AI ideation endpoint must be streamer-authenticated');
+ const ideas=await request('/api/chatquest/ai/quest-ideas',{method:'POST',headers:{cookie:sessionCookie,'content-type':'application/json'},body:JSON.stringify({theme:'space'})});assert.equal(ideas.status,200);const ideaData=await ideas.json() as any;assert(ideaData.ideas.length>=1);assert.equal(ideaData.provider,'deterministic-fallback');
  const create=await request('/api/chatquest/quests',{method:'POST',headers:{cookie:sessionCookie,'content-type':'application/json'},body:JSON.stringify({title:'Community Compass',description:'Choose a path',rules:'Be kind',durationMinutes:10,mode:'vote',options:[{label:'Forest'},{label:'Moon'}]})});
  assert.equal(create.status,201);const created=await create.json() as any;const questId=created.quest.id;
  const startQuest=await request('/api/chatquest/quests/'+questId+'/action',{method:'POST',headers:{cookie:sessionCookie,'content-type':'application/json'},body:JSON.stringify({action:'start'})});
@@ -79,6 +81,7 @@ try{
  event('evt-vote','!vote A');await new Promise(r=>setTimeout(r,30));
  assert(calls.some(c=>c.url==='https://api.twitch.tv/helix/chat/messages'),'chat commands should generate Twitch replies');
 
+ const organize=await request('/api/chatquest/quests/'+questId+'/ai-organize',{method:'POST',headers:{cookie:sessionCookie,'content-type':'application/json'},body:JSON.stringify({})});assert.equal(organize.status,200);const organized=await organize.json() as any;assert.equal(organized.hostMustDecide,true);
  const privateList=await request('/api/chatquest/quests',{headers:{cookie:sessionCookie}});const list=await privateList.json() as any;
  const q=list.quests.find((x:any)=>x.id===questId);assert.equal(q.participants.length,1);assert.equal(q.options[0].votes,1);
  const overlay=await request('/api/chatquest/overlay');const publicSnapshot=await overlay.json() as any;
@@ -93,9 +96,10 @@ try{
 
  const end=await request('/api/chatquest/quests/'+questId+'/action',{method:'POST',headers:{cookie:sessionCookie,'content-type':'application/json'},body:JSON.stringify({action:'end'})});
  assert.equal(end.status,200);
+ const summary=await request('/api/chatquest/quests/'+questId+'/ai-summary',{method:'POST',headers:{cookie:sessionCookie,'content-type':'application/json'},body:JSON.stringify({})});assert.equal(summary.status,200);const summaryData=await summary.json() as any;assert(summaryData.summary.length>0);
  assert(fs.existsSync(dataFile),'quest data should be persisted');
  const persisted=JSON.parse(fs.readFileSync(dataFile,'utf8'));assert(persisted.quests.some((x:any)=>x.id===questId));
- console.log('ChatQuest server integration tests passed: auth state, token exchange, EventSub subscribe, host authorization, quest lifecycle, live chat commands, Helix replies, overlay privacy, moderation and persistence.');
+ console.log('ChatQuest server integration tests passed: auth state, token exchange, EventSub subscribe, host authorization, quest lifecycle, live chat commands, Helix replies, overlay privacy, moderation, Gemini fallback behavior and persistence.');
 }finally{
  await new Promise<void>(resolve=>server.close(()=>resolve()));
  globalThis.fetch=originalFetch;
