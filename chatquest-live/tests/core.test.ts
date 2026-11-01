@@ -1,0 +1,13 @@
+import { strict as assert } from 'node:assert';
+import { applyChatAction, parseChatCommand, tallyQuest, validateQuest, Quest } from '../core';
+const base:Quest={id:'q1',title:'Choose',description:'Choose together',rules:'Be kind',durationMinutes:10,mode:'vote',status:'active',options:[{id:'A',label:'Forest',votes:0},{id:'B',label:'Moon',votes:0}],participants:[],votes:{},contributions:[],createdAt:new Date().toISOString(),communityScore:0};
+assert.deepEqual(parseChatCommand('!vote A'),{command:'vote',argument:'A'});assert.equal(parseChatCommand('hello'),null);
+assert.match(validateQuest({title:'',description:'x',rules:'x',durationMinutes:5,mode:'vote',options:[]})||'',/title/i);
+const joined=applyChatAction(base,'viewer_1',{command:'join',argument:''});assert.equal(joined.quest.participants.length,1);
+assert.equal(applyChatAction(joined.quest,'viewer_1',{command:'join',argument:''}).quest.participants.length,1);
+const first=applyChatAction(joined.quest,'viewer_1',{command:'vote',argument:'A'});assert.equal(first.quest.options[0].votes,1);
+const changed=applyChatAction(first.quest,'viewer_1',{command:'vote',argument:'B'});assert.equal(changed.quest.options[0].votes,0);assert.equal(changed.quest.options[1].votes,1);
+assert.equal(applyChatAction(changed.quest,'viewer_1',{command:'vote',argument:'B'}).quest.options[1].votes,1);
+assert.equal(applyChatAction(base,'viewer_2',{command:'suggest',argument:'Add a dragon'}).quest.contributions[0].status,'pending');
+assert.equal(tallyQuest(first.quest).totalVotes,1);assert.match(applyChatAction({...base,status:'ended'},'viewer_3',{command:'join',argument:''}).reply,/no active/i);
+console.log('ChatQuest core tests passed: parsing, validation, join dedupe, vote replacement/deduplication, contribution queue, tally, inactive quest.');

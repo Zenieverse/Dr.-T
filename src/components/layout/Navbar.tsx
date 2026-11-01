@@ -34,7 +34,8 @@ import {
   Play,
   Hammer,
   Flame,
-  MapPin
+  MapPin,
+  Gamepad2
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -91,6 +92,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: 'bridge', label: 'Health Bridge', icon: <Stethoscope className="w-4 h-4 text-rose-500" />, badge: '11 Pillars' },
     // Backward-compatibility alias for legacy stcool and HealthAlert Companion references:
     // { id: 'stcool', label: 'HealthAlert Companion' }
+    { id: 'chatquestlive', label: 'ChatQuest Live', icon: <Gamepad2 className="w-4 h-4 text-fuchsia-500" />, badge: 'Twitch' },
     { id: 'healthalert', label: 'Health Alert Mini', icon: <BellRing className="w-4 h-4 text-rose-500" />, badge: 'Mini' },
     { id: 'futurehealth', label: 'Future Health', icon: <HeartPulse className="w-4 h-4 text-teal-500" />, badge: 'Challenge 2026' },
     { id: 'buildwithai', label: 'Build With AI', icon: <Hammer className="w-4 h-4 text-indigo-600" />, badge: 'Workspace' },

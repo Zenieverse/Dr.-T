@@ -7,6 +7,7 @@ import crypto from 'crypto';
 import { execSync } from 'child_process';
 import { createServer as createViteServer } from 'vite';
 import { GoogleGenAI } from '@google/genai';
+import { registerChatQuestRoutes } from './chatquest-live/server';
 import { MOCK_PATIENT_360_PROFILES } from './src/data/patient360Data';
 import { lifeweaveEngineeringService } from './src/server/lifeweaveEngineeringService';
 import { lifeweaveBenchmarkHarness } from './src/server/lifeweaveBenchmarkHarness';
@@ -4920,6 +4921,9 @@ app.post('/api/three-hats/companion-reflect', async (req, res) => {
     });
   }
 });
+
+// ChatQuest Live — isolated Twitch audience participation routes
+registerChatQuestRoutes(app);
 
 // Setup Vite or Static serving
 async function setupApp() {

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { ChatQuestLiveModule, ChatQuestOverlay } from '../chatquest-live/ChatQuestLiveModule';
 import { 
   NavTab, 
   LanguageCode, 
@@ -90,6 +91,7 @@ export function App() {
   };
 
   const [activeTab, setActiveTab] = useState<NavTab>(getInitialTab);
+  if (typeof window !== 'undefined' && window.location.pathname === '/chatquest-overlay') return <ChatQuestOverlay />;
   const [currentLanguage, setCurrentLanguage] = useState<LanguageCode>('en');
   const [personality, setPersonality] = useState<PersonalityMode>('Empathetic');
   const [patient, setPatient] = useState<PatientProfile>(MOCK_PATIENT);
@@ -399,6 +401,8 @@ export function App() {
 
       {/* Main Content Area */}
       <main className="flex-1 pb-16">
+        {activeTab === 'chatquestlive' && <ChatQuestLiveModule />}
+
         {activeTab === 'drt' && (
           <DrTHome
             messages={messages}
