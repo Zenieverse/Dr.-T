@@ -10,7 +10,8 @@
    - `CHATQUEST_DATA_FILE` (writable local path)
 4. Restart the server and open Dr. T → ChatQuest Live → Connect Twitch.
 5. Approve the scopes `user:read:chat` and `user:write:chat`.
-6. Confirm the connected channel in Studio, start a quest, then send a command from a second Twitch account in that channel.
+6. Optionally set `GEMINI_API_KEY` and `CHATQUEST_GEMINI_MODEL=gemini-3.8-flash` for server-side quest ideas, submission organization and completed-quest summaries. If absent or unavailable, deterministic fallback content is used.
+7. Confirm the connected channel and EventSub status in Studio, start a quest, then send a command from a second Twitch account in that channel.
 
 ## Twitch APIs and authorization model
 This build uses Twitch's **installed chatbot / chat client model**: one broadcaster-authorized user access token is used to read and send messages as that account.

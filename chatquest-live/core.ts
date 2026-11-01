@@ -36,7 +36,7 @@ export function applyChatAction(quest:Quest,username:string,command:ChatCommand,
  if(quest.status!=='active')return{quest,reply:'There is no active quest right now.'};
  const next=structuredClone(quest);
  if(command.command==='quest')return{quest,reply:'Quest: '+next.title+' — '+next.description+' Rules: '+next.rules};
- if(command.command==='help')return{quest,reply:'Commands: !quest, !join, !vote A, !suggest idea, !score, !help'};
+ if(command.command==='help')return{quest,reply:'Commands: !quest, !join, !vote A, !suggest idea, !story a line, !clue a hint, !score, !help'};
  if(command.command==='join'){
   if(next.participants.includes(user))return{quest,reply:'@'+user+' you are already in this quest.'};
   next.participants.push(user);next.communityScore++;next.scores[user]=(next.scores[user]||0)+1;

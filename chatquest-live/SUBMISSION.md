@@ -2,7 +2,7 @@
 
 **Tagline:** Don't just watch the stream. Shape the story together.
 
-**Description:** ChatQuest Live transforms Twitch chat into a shared game board. A streamer creates a quest, viewers join and vote using familiar chat commands, and audience members contribute story lines, mystery clues and creative ideas. Every contribution waits for the host's approval before it appears in the OBS browser-source overlay. Automatic quest timing, community scores and team assignments help turn passive viewing into collaborative play.
+**Description:** ChatQuest Live transforms Twitch chat into a shared game board. A streamer creates a quest, viewers join and vote using familiar chat commands, and audience members contribute story lines, mystery clues and creative ideas. Every contribution waits for the host's approval before it appears in the OBS browser-source overlay. Automatic quest timing, community scores and balanced team assignments help turn passive viewing into collaborative play. Optional Gemini assistance suggests quests, organizes submissions and summarizes completed quests; the host retains every moderation decision.
 
 **Why it matters:** Live audiences are communities, not just view counts. ChatQuest Live gives viewers a simple, low-friction way to influence a shared experience while leaving account settings and moderation authority with the streamer.
 

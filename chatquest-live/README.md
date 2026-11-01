@@ -21,7 +21,8 @@ A new, isolated Twitch audience-participation feature in Dr. T. Streamers create
 1. Install dependencies: `bun install`.
 2. Copy `.env.example` to `.env` and configure the Twitch values below. The host process must load your environment variables (or inject them through your shell/deployment).
 3. Set `CHATQUEST_DATA_FILE` to a writable path. Local JSON is for local/single-instance use only.
-4. Start Dr. T with `bun run dev`.
+4. Optionally set `GEMINI_API_KEY` and `CHATQUEST_GEMINI_MODEL` for server-side Gemini assistance.
+5. Start Dr. T with `bun run dev`.
 6. Open `http://localhost:3000/?tab=chatquestlive`.
 7. Configure Twitch as described in [TWITCH_SETUP.md](./TWITCH_SETUP.md).
 
@@ -31,6 +32,8 @@ A new, isolated Twitch audience-participation feature in Dr. T. Streamers create
 - `GET /api/chatquest/quests` (authenticated studio data), `POST /api/chatquest/quests`
 - `POST /api/chatquest/quests/:id/action`
 - `POST /api/chatquest/quests/:id/contributions/:cid/moderate`
+- `POST /api/chatquest/quests/:id/ai-organize`, `POST /api/chatquest/quests/:id/ai-summary` (host-only)
+- `POST /api/chatquest/ai/quest-ideas` (host-only)
 - `GET /api/chatquest/overlay` (public, sanitized), `GET /api/chatquest/events` (public SSE)
 - `/chatquest-overlay` — OBS browser source.
 
@@ -47,6 +50,6 @@ The mocked server integration test does not authenticate against Twitch's live p
 - OAuth sessions and token refresh state are memory-resident and are cleared on process restart.
 - Multi-broadcaster tenancy, encrypted shared token/session storage, Firestore transactional persistence, distributed event delivery, webhook transport and cross-instance WebSocket coordination remain required before public multi-tenant production.
 - Streamer-authorized account mode is used; there is no separate bot identity.
-- AI provider inference is not wired in this release; the deterministic fallback is explicit.
+- Gemini assistance is optional. Without a key or when the provider fails, deterministic fallback content is returned and labeled honestly.
 
 Read [ARCHITECTURE.md](./ARCHITECTURE.md), [TWITCH_SETUP.md](./TWITCH_SETUP.md), [SECURITY.md](./SECURITY.md), [DEMO.md](./DEMO.md), [SUBMISSION.md](./SUBMISSION.md) and [VIDEO_SCRIPT.md](./VIDEO_SCRIPT.md).

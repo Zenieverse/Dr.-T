@@ -7,7 +7,7 @@
 Open Dr. T ChatQuest Live and connect a real Twitch broadcaster account. Show the channel identity and authorized chat permissions.
 
 **0:45–1:10 — Create**  
-Create “The Community Compass,” add three choices, set the duration, and start. Show the OBS browser-source overlay.
+Use the Gemini quest-idea assistant (or clearly labeled fallback) to draft “The Community Compass,” review the choices, set the duration, and start. Show the OBS browser-source overlay.
 
 **1:10–1:50 — Real chat participation**  
 From a second, independent Twitch viewer account, send `!join` and `!vote B`. Show the real Twitch reply and the updated results in Studio and OBS.

@@ -8,6 +8,7 @@ import express from 'express';
 const originalFetch=globalThis.fetch;
 const dataFile=path.join('/tmp','chatquest-live-'+randomUUID()+'.json');
 process.env.CHATQUEST_DATA_FILE=dataFile;
+delete process.env.GEMINI_API_KEY;
 process.env.CHATQUEST_SESSION_SECRET='test-only-session-secret-which-is-long-enough-32-bytes';
 process.env.TWITCH_CLIENT_ID='test-client-id';
 process.env.TWITCH_CLIENT_SECRET='test-client-secret';
@@ -44,24 +45,24 @@ await new Promise<void>(resolve=>server.listen(0,'127.0.0.1',resolve));
 const address=server.address();assert(address&&typeof address==='object');
 const base='http://127.0.0.1:'+address.port;
 process.env.TWITCH_REDIRECT_URI=base+'/api/chatquest/auth/callback';
-async function request(url:string,init:RequestInit={}){return originalFetch(base+url,{...init,headers:{...(init.headers||{})}});}
+async function request(url:string,init:RequestInit={}){return originalFetch(base+url,{redirect:'manual',...init,headers:{...(init.headers||{})}});}
 try{
  const unauth=await request('/api/chatquest/quests',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({})});
  assert.equal(unauth.status,401,'mutations must require a streamer session');
 
  const start=await request('/api/chatquest/auth/twitch');assert.equal(start.status,302);
  const authUrl=new URL(start.headers.get('location')!);const state=authUrl.searchParams.get('state')!;
- const stateCookie=(start.headers.get('set-cookie')||'').split(';')[0];
+ const stateCookie=((start.headers as any).getSetCookie?.()[0]||start.headers.get('set-cookie')||'').split(';')[0];
  assert(authUrl.searchParams.get('scope')?.includes('user:read:chat'));
  assert(authUrl.searchParams.get('scope')?.includes('user:write:chat'));
  const badState=await request('/api/chatquest/auth/callback?code=bad&state='+state);
  assert.equal(badState.status,400,'OAuth state must be bound to the initiating browser');
  const start2=await request('/api/chatquest/auth/twitch');
  const authUrl2=new URL(start2.headers.get('location')!);const state2=authUrl2.searchParams.get('state')!;
- const stateCookie2=(start2.headers.get('set-cookie')||'').split(';')[0];
+ const stateCookie2=((start2.headers as any).getSetCookie?.()[0]||start2.headers.get('set-cookie')||'').split(';')[0];
  const callback=await request('/api/chatquest/auth/callback?code=fake-code&state='+state2,{headers:{cookie:stateCookie2}});
  assert.equal(callback.status,302,'OAuth callback should establish a session');
- const sessionCookie=(callback.headers.get('set-cookie')||'').split(',').map(x=>x.trim()).find(x=>x.startsWith('cq_session='))?.split(';')[0];
+ const callbackCookies=(callback.headers as any).getSetCookie?.()||[callback.headers.get('set-cookie')||''];const sessionCookie=callbackCookies.map((x:string)=>x.trim()).find((x:string)=>x.startsWith('cq_session='))?.split(';')[0];
  assert(sessionCookie,'OAuth callback must set a session cookie');
  const ws=FakeWebSocket.instances.at(-1)!;assert(ws,'OAuth should open EventSub WebSocket');
  ws.message({metadata:{message_type:'session_welcome'},payload:{session:{id:'eventsub-session-1'}}});

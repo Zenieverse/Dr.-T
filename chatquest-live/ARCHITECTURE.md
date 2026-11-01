@@ -28,4 +28,4 @@ The product uses Twitch's installed-chatbot model: one broadcaster user token re
 Quest state is atomically written to a local JSON file. This supports a single process on persistent local storage, not Cloud Run multi-instance production. OAuth sessions and token refresh state are in memory and clear on restart. Production requires Firestore or equivalent transactional storage, encrypted shared sessions, per-broadcaster tenant isolation and shared event delivery.
 
 ## AI
-The quest idea endpoint currently returns deterministic fallback ideas and explicitly reports `isGenuineAi:false`. No model inference is claimed.
+When `GEMINI_API_KEY` is configured, the server uses the Google Gen AI SDK and `CHATQUEST_GEMINI_MODEL` (default `gemini-3.8-flash`) for quest ideation, organizing pending submissions, and summarizing completed quests. Prompts treat viewer text as untrusted data. AI suggestions never approve or reject contributions. A bounded timeout, response validation and deterministic fallback are used; every response labels `provider` and `isGenuineAi` honestly. The Gemini key remains server-side.
