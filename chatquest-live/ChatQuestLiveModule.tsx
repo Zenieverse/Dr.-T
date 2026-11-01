@@ -1,6 +1,6 @@
 import React,{useEffect,useMemo,useState}from'react';
 import{ArrowUpRight,Check,CircleHelp,Eye,Gamepad2,MessageCircle,Pause,Play,Plus,Radio,ShieldCheck,Sparkles,Square,Trophy,Wifi,WifiOff}from'lucide-react';
-type Quest={id:string;title:string;description:string;rules:string;durationMinutes:number;mode:string;status:string;options:{id:string;label:string;votes:number}[];participants?:string[];participantCount?:number;contributions:{id:string;user:string;text:string;status:string}[];communityScore:number;results?:{totalVotes:number;winner:{id:string;label:string}|null;participation:number;teamScores?:{Ember:number;Tide:number}};
+type Quest={id:string;title:string;description:string;rules:string;durationMinutes:number;mode:string;status:string;options:{id:string;label:string;votes:number}[];participants?:string[];participantCount?:number;contributions:{id:string;user:string;text:string;status:string}[];communityScore:number;results?:{totalVotes:number;winner:{id:string;label:string}|null;participation:number;teamScores?:{Ember:number;Tide:number}}};
 const API='/api/chatquest';
 async function call(url:string,init:RequestInit={}):Promise<any>{const r=await fetch(API+url,{...init,credentials:'include',headers:{'Content-Type':'application/json',...(init.headers||{})}});const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||'Request failed ('+r.status+')');return d;}
 export function ChatQuestLiveModule(){
