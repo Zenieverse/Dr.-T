@@ -2,6 +2,7 @@ name: ChatQuest Live CI
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
     paths:
       - 'chatquest-live/**'
       - 'src/App.tsx'
@@ -11,6 +12,7 @@ on:
       - 'package.json'
       - 'bun.lock'
       - '.github/workflows/chatquest-live.yml'
+  workflow_dispatch:
   push:
     branches: [main, feat/chatquest-live-twitchcon-2026]
 
