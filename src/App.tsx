@@ -91,7 +91,6 @@ export function App() {
   };
 
   const [activeTab, setActiveTab] = useState<NavTab>(getInitialTab);
-  if (typeof window !== 'undefined' && window.location.pathname === '/chatquest-overlay') return <ChatQuestOverlay />;
   const [currentLanguage, setCurrentLanguage] = useState<LanguageCode>('en');
   const [personality, setPersonality] = useState<PersonalityMode>('Empathetic');
   const [patient, setPatient] = useState<PatientProfile>(MOCK_PATIENT);
@@ -375,6 +374,8 @@ export function App() {
   const handleMarkAllNotificationsRead = () => {
     setNotifications(prev => prev.map(n => ({ ...n, read: true })));
   };
+
+  if (typeof window !== 'undefined' && window.location.pathname === '/chatquest-overlay') return <ChatQuestOverlay />;
 
   return (
     <div className="min-h-screen bg-slate-50/50 text-slate-900 flex flex-col font-sans selection:bg-teal-100 selection:text-teal-900">
