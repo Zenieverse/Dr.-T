@@ -52,4 +52,4 @@ The mocked server integration test does not authenticate against Twitch's live p
 - Streamer-authorized account mode is used; there is no separate bot identity.
 - Gemini assistance is optional. Without a key or when the provider fails, deterministic fallback content is returned and labeled honestly.
 
-Read [ARCHITECTURE.md](./ARCHITECTURE.md), [TWITCH_SETUP.md](./TWITCH_SETUP.md), [SECURITY.md](./SECURITY.md), [DEMO.md](./DEMO.md), [SUBMISSION.md](./SUBMISSION.md) and [VIDEO_SCRIPT.md](./VIDEO_SCRIPT.md).
+Read [CLOUD_RUN.md](./CLOUD_RUN.md) for the isolated deployment gate and rollback runbook. Read [ARCHITECTURE.md](./ARCHITECTURE.md), [TWITCH_SETUP.md](./TWITCH_SETUP.md), [SECURITY.md](./SECURITY.md), [DEMO.md](./DEMO.md), [SUBMISSION.md](./SUBMISSION.md) and [VIDEO_SCRIPT.md](./VIDEO_SCRIPT.md).
