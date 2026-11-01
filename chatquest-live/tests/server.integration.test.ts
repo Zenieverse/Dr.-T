@@ -75,6 +75,10 @@ try{
  assert.equal(create.status,201);const created=await create.json() as any;const questId=created.quest.id;
  const startQuest=await request('/api/chatquest/quests/'+questId+'/action',{method:'POST',headers:{cookie:sessionCookie,'content-type':'application/json'},body:JSON.stringify({action:'start'})});
  assert.equal(startQuest.status,200);
+ const pauseQuest=await request('/api/chatquest/quests/'+questId+'/action',{method:'POST',headers:{cookie:sessionCookie,'content-type':'application/json'},body:JSON.stringify({action:'pause'})});
+ assert.equal(pauseQuest.status,200);const paused=await pauseQuest.json() as any;assert(paused.quest.pausedRemainingMs>=0);
+ const resumeQuest=await request('/api/chatquest/quests/'+questId+'/action',{method:'POST',headers:{cookie:sessionCookie,'content-type':'application/json'},body:JSON.stringify({action:'resume'})});
+ assert.equal(resumeQuest.status,200);const resumed=await resumeQuest.json() as any;assert(Date.parse(resumed.quest.endsAt)>Date.now(),'resume must restore the remaining quest duration');assert.equal(resumed.quest.pausedRemainingMs,undefined);
 
  const event=(messageId:string,text:string)=>ws.message({metadata:{message_type:'notification',message_id:messageId},payload:{subscription:{type:'channel.chat.message'},event:{chatter_user_id:'viewer-1',chatter_user_login:'viewerone',message:{text}}}});
  event('evt-join','!join');await new Promise(r=>setTimeout(r,30));
