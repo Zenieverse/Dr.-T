@@ -188,6 +188,30 @@
         "savedToLanternKeeper": { "type": "boolean", "description": "Whether exported to memory sanctuary" },
         "createdAt": { "type": "string", "description": "ISO creation timestamp" }
       }
+    },
+    "GatherGlowEvent": {
+      "collection": "gather_and_glow_events",
+      "fields": {
+        "id": { "type": "string", "description": "Unique celebration ID" },
+        "userId": { "type": "string", "description": "User ID who owns this celebration" },
+        "title": { "type": "string", "description": "Celebration title" },
+        "eventType": { "type": "string", "description": "wedding, anniversary, birthday, family_celebration, community_gathering, etc." },
+        "date": { "type": "string", "description": "Event date (YYYY-MM-DD)" },
+        "time": { "type": "string", "description": "Event start time (HH:mm)" },
+        "location": { "type": "string", "description": "Venue, address or city" },
+        "expectedGuests": { "type": "number", "description": "Estimated guest count" },
+        "currency": { "type": "string", "description": "Currency code (USD, VND, EUR, etc.)" },
+        "totalBudget": { "type": "number", "description": "Total target budget ceiling" },
+        "themeStyle": { "type": "string", "description": "Style and atmosphere preferences" },
+        "dietaryNeeds": { "type": "array", "description": "Dietary requirements to accommodate" },
+        "accessibilityNeeds": { "type": "array", "description": "Accessibility and elder care considerations" },
+        "culturalPreferences": { "type": "string", "description": "Cultural traditions or ancestral rites" },
+        "planningStage": { "type": "string", "description": "Current planning milestone stage" },
+        "priorities": { "type": "array", "description": "Core host priorities" },
+        "notes": { "type": "string", "description": "Special wishes and notes" },
+        "createdAt": { "type": "string", "description": "Creation timestamp" },
+        "updatedAt": { "type": "string", "description": "Last updated timestamp" }
+      }
     }
   }
 }

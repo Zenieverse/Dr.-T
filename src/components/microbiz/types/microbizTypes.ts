@@ -5,6 +5,17 @@
 // ==========================================
 
 export type MicroBizSubTab = 
+  // PayFlow AI Core Navigation (PayPal AI Hackathon 2026)
+  | 'overview'
+  | 'invoices'
+  | 'payments'
+  | 'transactions'
+  | 'expenses'
+  | 'debtfree'
+  | 'ai-assistant'
+  | 'reports'
+  | 'settings'
+  // Preserved MicroBiz Community & Knowledge Hub
   | 'discover'
   | 'courses'
   | 'groups'

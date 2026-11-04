@@ -68,6 +68,9 @@ export interface StreetVendor {
   shippersSupported: ShipperService[];
   paymentNotesVI: string;
   paymentNotesEN: string;
+  source?: 'ganhmuusinh.vn' | 'drt_community' | 'local_seed';
+  contributedAt?: string;
+  contributorName?: string;
 }
 
 export interface ShipperOrderRequest {

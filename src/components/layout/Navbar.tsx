@@ -99,6 +99,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: 'memorylantern', label: 'Lantern Keeper', icon: <Flame className="w-4 h-4 text-amber-400" />, badge: 'Personal AI' },
     { id: 'threehats', label: 'Three Hats', icon: <Compass className="w-4 h-4 text-violet-400" />, badge: 'Roles' },
     { id: 'streetvendorsmap', label: 'StreetVendorsMap', icon: <MapPin className="w-4 h-4 text-amber-500" />, badge: 'Gánh Mưu Sinh' },
+    { id: 'gatherglow', label: 'Gather & Glow', icon: <Sparkles className="w-4 h-4 text-rose-500" />, badge: 'AI Events' },
     { id: 'deck', label: 'Executive Deck', icon: <Presentation className="w-4 h-4 text-purple-600" />, badge: 'MVP Brief' },
     { id: 'cinema', label: '🎬 Cinema', icon: <Clapperboard className="w-4 h-4 text-amber-500" />, badge: 'Studio' },
     { id: 'tribhouse', label: '🌳 Trib-House', icon: <Trees className="w-4 h-4 text-emerald-600" />, badge: 'Living Library' },

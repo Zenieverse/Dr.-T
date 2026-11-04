@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { StreetVendor, MenuItem } from './types';
 import { streetVendorsTranslations } from './translations';
+import { StreetVendorsService } from '../../services/streetVendorsService';
 
 interface VendorDetailModalProps {
   vendor: StreetVendor;
@@ -36,18 +37,40 @@ export const VendorDetailModal: React.FC<VendorDetailModalProps> = ({
   const t = streetVendorsTranslations[lang];
   const [liked, setLiked] = useState<boolean>(false);
   const [likesCount, setLikesCount] = useState<number>(vendor.likesCount);
+  const [isVerified, setIsVerified] = useState<boolean>(vendor.verified);
+  const [verifiedCount, setVerifiedCount] = useState<number>(vendor.verifiedByCount || 1);
+  const [hasVerifiedByMe, setHasVerifiedByMe] = useState<boolean>(false);
   const [copiedShare, setCopiedShare] = useState<boolean>(false);
+  const [toastMsg, setToastMsg] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
-  const handleToggleLike = () => {
+  const showToast = (msg: string) => {
+    setToastMsg(msg);
+    setTimeout(() => setToastMsg(prev => prev === msg ? null : prev), 3000);
+  };
+
+  const handleToggleLike = async () => {
     if (liked) {
       setLiked(false);
-      setLikesCount(prev => prev - 1);
+      setLikesCount(prev => Math.max(0, prev - 1));
     } else {
       setLiked(true);
-      setLikesCount(prev => prev + 1);
+      const newCount = likesCount + 1;
+      setLikesCount(newCount);
+      showToast(t.likeSuccessToast);
+      await StreetVendorsService.likeVendor(vendor.id, likesCount);
     }
+  };
+
+  const handleCommunityVerify = async () => {
+    if (hasVerifiedByMe) return;
+    setHasVerifiedByMe(true);
+    setIsVerified(true);
+    const newCount = verifiedCount + 1;
+    setVerifiedCount(newCount);
+    showToast(t.verifySuccessToast);
+    await StreetVendorsService.verifyVendor(vendor.id, verifiedCount);
   };
 
   const handleShare = async () => {
@@ -110,11 +133,11 @@ export const VendorDetailModal: React.FC<VendorDetailModalProps> = ({
           </div>
 
           {/* Verification Badge */}
-          {vendor.verified && (
+          {isVerified && (
             <div className="absolute top-4 left-4 flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-600/90 text-white backdrop-blur-md text-xs font-medium shadow-xs">
               <ShieldCheck className="w-3.5 h-3.5" />
               <span>{t.verifiedBadge}</span>
-              <span className="opacity-80">({vendor.verifiedByCount})</span>
+              <span className="opacity-80">({verifiedCount})</span>
             </div>
           )}
 
@@ -259,6 +282,20 @@ export const VendorDetailModal: React.FC<VendorDetailModalProps> = ({
             </button>
 
             <button
+              onClick={handleCommunityVerify}
+              disabled={hasVerifiedByMe}
+              title={lang === 'vi' ? 'Xác minh bạn đã từng ghé hoặc biết gánh này còn hoạt động' : 'Confirm you know or visited this vendor'}
+              className={`px-3 py-2 rounded-xl text-xs font-medium border transition-colors flex items-center gap-1.5 ${
+                hasVerifiedByMe
+                  ? 'bg-emerald-50 border-emerald-300 text-emerald-700 cursor-default'
+                  : 'bg-white border-stone-300 text-stone-700 hover:bg-emerald-50 hover:text-emerald-800'
+              }`}
+            >
+              <ShieldCheck className={`w-4 h-4 ${hasVerifiedByMe ? 'text-emerald-600' : 'text-stone-400'}`} />
+              <span>{hasVerifiedByMe ? (lang === 'vi' ? 'Đã xác minh' : 'Verified') : (lang === 'vi' ? 'Xác minh gánh' : 'Verify cart')}</span>
+            </button>
+
+            <button
               onClick={handleOpenGoogleMaps}
               className="px-3 py-2 rounded-xl text-xs font-medium border border-stone-300 bg-white text-stone-700 hover:bg-stone-100 transition-colors flex items-center gap-1.5"
             >
@@ -266,6 +303,13 @@ export const VendorDetailModal: React.FC<VendorDetailModalProps> = ({
               <span className="hidden sm:inline">{t.directions}</span>
             </button>
           </div>
+
+          {/* Toast Notification */}
+          {toastMsg && (
+            <div className="w-full text-center py-1.5 px-3 rounded-lg bg-emerald-700 text-white text-xs font-medium animate-in fade-in slide-in-from-bottom-2 duration-200">
+              {toastMsg}
+            </div>
+          )}
 
           <div className="flex items-center gap-2">
             <button

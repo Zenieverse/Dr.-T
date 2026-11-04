@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { StreetVendor, VendorCategory, CityKey } from './types';
 import { streetVendorsTranslations } from './translations';
+import { StreetVendorsService } from '../../services/streetVendorsService';
 
 interface CommunityContributeModalProps {
   isOpen: boolean;
@@ -42,7 +43,7 @@ export const CommunityContributeModal: React.FC<CommunityContributeModalProps> =
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!vendorName || !address) return;
 
@@ -92,18 +93,25 @@ export const CommunityContributeModal: React.FC<CommunityContributeModalProps> =
       likesCount: 1,
       shippersSupported: ['grab', 'green_sm'],
       paymentNotesVI: 'Tiền mặt trả trực tiếp cho cụ hoặc nhờ bác tài shipper ứng trước.',
-      paymentNotesEN: 'Cash advance directly to elder or through courier dispatch.'
+      paymentNotesEN: 'Cash advance directly to elder or through courier dispatch.',
+      source: 'drt_community',
+      contributedAt: new Date().toISOString(),
+      contributorName: ownerName ? `Cộng đồng ủng hộ ${ownerName}` : 'Người dùng Dr. T'
     };
 
+    try {
+      await StreetVendorsService.saveContribution(newVendor);
+    } catch (err) {
+      console.warn('Realtime save contribution warning:', err);
+    }
+
+    onAddVendor(newVendor);
+    setIsSubmitting(false);
+    setIsSuccess(true);
     setTimeout(() => {
-      onAddVendor(newVendor);
-      setIsSubmitting(false);
-      setIsSuccess(true);
-      setTimeout(() => {
-        setIsSuccess(false);
-        onClose();
-      }, 1500);
-    }, 600);
+      setIsSuccess(false);
+      onClose();
+    }, 1500);
   };
 
   return (

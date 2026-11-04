@@ -35,6 +35,7 @@ export type NavTab =
   | 'memorylantern'
   | 'threehats'
   | 'streetvendorsmap'
+  | 'gatherglow'
   | 'gcp'
   | 'settings';
 

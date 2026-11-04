@@ -34,7 +34,9 @@ export const ALLOWED_PERSONAL_SKILLS: PersonalSkillName[] = [
 export class LanternKeeperServerService {
   // Nebius Token Factory Configuration
   private static nebiusBaseUrl = (process.env.NEBIUS_BASE_URL || 'https://api.tokenfactory.nebius.com/v1').replace(/\/+$/, '');
-  private static nebiusApiKey = process.env.NEBIUS_API_KEY || '';
+  private static get nebiusApiKey(): string {
+    return (process.env.NEBIUS_API_KEY || '').trim();
+  }
   private static nebiusModelId = process.env.NEBIUS_MODEL_ID || 'nvidia/llama-3.1-nemotron-70b-instruct';
 
   // In-memory audit trail (Zero sensitive memory bodies stored)

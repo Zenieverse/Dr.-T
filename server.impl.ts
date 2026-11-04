@@ -7,6 +7,29 @@ import crypto from 'crypto';
 import { execSync } from 'child_process';
 import { createServer as createViteServer } from 'vite';
 import { GoogleGenAI } from '@google/genai';
+
+// Safely load local .env into process.env if present
+try {
+  const envPath = path.join(process.cwd(), '.env');
+  if (fs.existsSync(envPath)) {
+    const lines = fs.readFileSync(envPath, 'utf8').split('\n');
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (trimmed && !trimmed.startsWith('#')) {
+        const idx = trimmed.indexOf('=');
+        if (idx > 0) {
+          const k = trimmed.slice(0, idx).trim();
+          const v = trimmed.slice(idx + 1).trim();
+          if (!process.env[k]) {
+            process.env[k] = v;
+          }
+        }
+      }
+    }
+  }
+} catch {
+  // ignore
+}
 import { registerChatQuestRoutes } from './chatquest-live/server';
 import { MOCK_PATIENT_360_PROFILES } from './src/data/patient360Data';
 import { lifeweaveEngineeringService } from './src/server/lifeweaveEngineeringService';
@@ -52,6 +75,11 @@ import { BuildWithAiServerService } from './src/server/buildWithAiServerService'
 import { VisionAlertServerService } from './src/server/visionAlertServerService';
 import { MemoryLanternServerService } from './src/server/memoryLanternServerService';
 import { LanternKeeperServerService } from './src/server/lanternKeeperServerService';
+import { GatherGlowServerService } from './src/server/gatherGlowServerService';
+import { StreetVendorsServerService } from './src/server/streetVendorsServerService';
+import { paypalService } from './src/server/paypalService';
+import { PayFlowAiServerService } from './src/server/payflowAiServerService';
+import { DebtFreeAiServerService } from './src/server/debtFreeAiServerService';
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
@@ -4919,6 +4947,316 @@ app.post('/api/three-hats/companion-reflect', async (req, res) => {
       success: false,
       error: err.message || 'Reflection generation failed.'
     });
+  }
+});
+
+// ==========================================
+// GATHER & GLOW — AI EVENT PLANNING ASSISTANT
+// ==========================================
+app.get('/api/gather-and-glow/health', (req, res) => {
+  try {
+    const health = GatherGlowServerService.checkHealth();
+    return res.json(health);
+  } catch (err: any) {
+    return res.status(500).json({ status: 'DEGRADED', error: err.message });
+  }
+});
+
+app.post('/api/gather-and-glow/generate-plan', async (req, res) => {
+  try {
+    const { event } = req.body || {};
+    if (!event || !event.title) {
+      return res.status(400).json({ error: 'Event details required with valid title.' });
+    }
+    const result = await GatherGlowServerService.generateEventPlan(event);
+    return res.json(result);
+  } catch (err: any) {
+    console.error('[GatherGlow Server Route] Generation error:', err);
+    return res.status(500).json({ error: err.message || 'Event plan generation failed.' });
+  }
+});
+
+app.post('/api/gather-and-glow/refine-plan', async (req, res) => {
+  try {
+    const { currentPlan, prompt, event } = req.body || {};
+    if (!currentPlan || !prompt || !event) {
+      return res.status(400).json({ error: 'currentPlan, prompt, and event are required.' });
+    }
+    const result = await GatherGlowServerService.refinePlan(currentPlan, prompt, event);
+    return res.json(result);
+  } catch (err: any) {
+    console.error('[GatherGlow Server Route] Refine error:', err);
+    return res.status(500).json({ error: err.message || 'Event plan refinement failed.' });
+  }
+});
+
+// ==========================================
+// STREET VENDORS MAP (GÁNH MƯU SINH) REALTIME SYNC
+// ==========================================
+app.get('/api/street-vendors/sync-ganhmuusinh', async (req, res) => {
+  try {
+    const result = await StreetVendorsServerService.syncWithGanhMuuSinh();
+    return res.json(result);
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message || 'Sync failed' });
+  }
+});
+
+app.post('/api/street-vendors/sync-ganhmuusinh', async (req, res) => {
+  try {
+    const result = await StreetVendorsServerService.syncWithGanhMuuSinh();
+    return res.json(result);
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message || 'Sync failed' });
+  }
+});
+
+// ==========================================
+// MICROBIZ PAYFLOW AI & PAYPAL REST API ENDPOINTS
+// Competition: PayPal AI Hackathon 2026
+// ==========================================
+
+// 1. Safe Client Configuration (Public diagnostics)
+app.get('/api/paypal/config', (req, res) => {
+  try {
+    const status = paypalService.getConfigStatus();
+    return res.json(status);
+  } catch (err: any) {
+    return res.status(500).json({ error: err?.message || 'Failed to get PayPal status' });
+  }
+});
+
+// 2. Server-side PayPal Order Creation
+app.post('/api/paypal/create-order', async (req, res) => {
+  try {
+    const { invoiceId, invoiceNumber, amount, currency, customerName, customerEmail, businessName } = req.body;
+
+    if (!invoiceId || !amount || typeof amount !== 'number' || amount <= 0) {
+      return res.status(400).json({ error: 'Valid invoiceId and positive numerical amount are required.' });
+    }
+
+    const orderResult = await paypalService.createOrder({
+      invoiceId,
+      invoiceNumber: invoiceNumber || invoiceId,
+      amount,
+      currency: currency || 'USD',
+      customerName,
+      customerEmail,
+      businessName
+    });
+
+    return res.json({
+      success: true,
+      orderId: orderResult.orderId,
+      status: orderResult.status,
+      approveUrl: orderResult.approveUrl
+    });
+  } catch (err: any) {
+    console.error('[API /api/paypal/create-order] Error:', err);
+    return res.status(500).json({ 
+      error: err?.message || 'Server error creating PayPal order.',
+      setupHelp: !process.env.PAYPAL_CLIENT_ID ? 'PayPal client credentials missing in server environment.' : undefined
+    });
+  }
+});
+
+// 3. Server-side Authoritative Payment Capture
+app.post('/api/paypal/capture-order', async (req, res) => {
+  try {
+    const { orderId, invoiceId, expectedAmount, expectedCurrency } = req.body;
+
+    if (!orderId || !invoiceId || expectedAmount === undefined) {
+      return res.status(400).json({ error: 'orderId, invoiceId, and expectedAmount are required for verification.' });
+    }
+
+    const captureResult = await paypalService.captureOrder({
+      orderId,
+      invoiceId,
+      expectedAmount: Number(expectedAmount),
+      expectedCurrency: expectedCurrency || 'USD'
+    });
+
+    if (!captureResult.success) {
+      return res.status(400).json({
+        success: false,
+        error: captureResult.error || 'Payment capture could not be verified by PayPal.',
+        status: captureResult.status
+      });
+    }
+
+    return res.json({
+      success: true,
+      orderId: captureResult.orderId,
+      captureId: captureResult.captureId,
+      status: captureResult.status,
+      grossAmount: captureResult.grossAmount,
+      feeAmount: captureResult.feeAmount,
+      netAmount: captureResult.netAmount,
+      currency: captureResult.currency,
+      payerEmail: captureResult.payerEmail,
+      payerName: captureResult.payerName,
+      payerId: captureResult.payerId,
+      createTime: captureResult.createTime
+    });
+  } catch (err: any) {
+    console.error('[API /api/paypal/capture-order] Error:', err);
+    return res.status(500).json({ error: err?.message || 'Server error capturing PayPal order.' });
+  }
+});
+
+// 4. Webhook Receiver with Cryptographic Signature Verification
+app.post('/api/paypal/webhook', async (req, res) => {
+  try {
+    const verification = await paypalService.verifyWebhookSignature(req.headers as any, req.body);
+    
+    // Log audit event
+    const eventType = req.body?.event_type || 'UNKNOWN';
+    console.log(`[PayPal Webhook] Event: ${eventType}, Verified: ${verification.verified}`);
+
+    if (!verification.verified && verification.verificationStatus !== 'NOT_CONFIGURED') {
+      console.warn('[PayPal Webhook] Unauthorized or unverified webhook rejected:', verification.reason);
+      return res.status(401).json({ error: 'Invalid PayPal webhook signature', reason: verification.reason });
+    }
+
+    // Process specific PayPal events
+    if (eventType === 'PAYMENT.CAPTURE.COMPLETED') {
+      const resource = req.body.resource;
+      console.log(`[PayPal Webhook] Payment capture completed: ${resource?.id}, Amount: ${resource?.amount?.value} ${resource?.amount?.currency_code}`);
+    }
+
+    return res.status(200).json({
+      received: true,
+      verified: verification.verified,
+      eventType
+    });
+  } catch (err: any) {
+    console.error('[API /api/paypal/webhook] Error:', err);
+    return res.status(500).json({ error: err?.message || 'Webhook processing failed' });
+  }
+});
+
+// 5. Refund Capture Endpoint
+app.post('/api/paypal/refund', async (req, res) => {
+  try {
+    const { captureId, amount, currency, noteToPayer } = req.body;
+    if (!captureId) {
+      return res.status(400).json({ error: 'captureId is required for refund processing.' });
+    }
+
+    const result = await paypalService.refundCapture(captureId, amount, currency, noteToPayer);
+    if (!result.success) {
+      return res.status(400).json(result);
+    }
+    return res.json(result);
+  } catch (err: any) {
+    console.error('[API /api/paypal/refund] Error:', err);
+    return res.status(500).json({ error: err?.message || 'Refund processing error' });
+  }
+});
+
+// 6. Gemini-Powered PayFlow Financial Assistant
+app.post('/api/microbiz/ai-assistant', async (req, res) => {
+  try {
+    const { query: queryText, context } = req.body;
+    if (!queryText || typeof queryText !== 'string') {
+      return res.status(400).json({ error: 'query string is required.' });
+    }
+
+    const gemini = getGemini();
+    const result = await PayFlowAiServerService.answerFinancialQuery(
+      queryText,
+      context || { invoices: [], transactions: [], expenses: [] },
+      gemini
+    );
+
+    return res.json(result);
+  } catch (err: any) {
+    console.error('[API /api/microbiz/ai-assistant] Error:', err);
+    return res.status(500).json({ error: err?.message || 'AI financial assistant processing error' });
+  }
+});
+
+// 7. PayFlow DebtFree — Dedicated PayPal Order Creation
+app.post('/api/debtfree/create-order', async (req, res) => {
+  try {
+    const { debtRequestId, debtTitle, amount, currency, supporterName, supporterEmail } = req.body;
+    if (!debtRequestId || !amount || typeof amount !== 'number' || amount <= 0) {
+      return res.status(400).json({ error: 'Valid debtRequestId and positive amount are required.' });
+    }
+
+    const orderResult = await paypalService.createOrder({
+      invoiceId: debtRequestId,
+      invoiceNumber: `DEBT-CONTRIB-${debtRequestId}`,
+      amount,
+      currency: currency || 'USD',
+      customerName: supporterName || 'Anonymous Supporter',
+      customerEmail: supporterEmail,
+      businessName: 'PayFlow DebtFree Community Relief Fund'
+    });
+
+    return res.json({
+      success: true,
+      orderId: orderResult.orderId,
+      status: orderResult.status,
+      approveUrl: orderResult.approveUrl
+    });
+  } catch (err: any) {
+    console.error('[API /api/debtfree/create-order] Error:', err);
+    return res.status(500).json({ error: err?.message || 'Server error creating DebtFree PayPal order.' });
+  }
+});
+
+// 8. PayFlow DebtFree — Authoritative Payment Capture
+app.post('/api/debtfree/capture-order', async (req, res) => {
+  try {
+    const { orderId, debtRequestId, expectedAmount, expectedCurrency } = req.body;
+    if (!orderId || !debtRequestId || expectedAmount === undefined) {
+      return res.status(400).json({ error: 'orderId, debtRequestId, and expectedAmount are required.' });
+    }
+
+    const captureResult = await paypalService.captureOrder({
+      orderId,
+      invoiceId: debtRequestId,
+      expectedAmount: Number(expectedAmount),
+      expectedCurrency: expectedCurrency || 'USD'
+    });
+
+    if (!captureResult.success) {
+      return res.status(400).json({
+        success: false,
+        error: captureResult.error || 'Debt relief contribution capture could not be verified by PayPal.',
+        status: captureResult.status
+      });
+    }
+
+    return res.json({
+      success: true,
+      orderId: captureResult.orderId,
+      captureId: captureResult.captureId,
+      status: captureResult.status,
+      grossAmount: captureResult.grossAmount,
+      feeAmount: captureResult.feeAmount,
+      netAmount: captureResult.netAmount,
+      currency: captureResult.currency,
+      payerEmail: captureResult.payerEmail,
+      payerName: captureResult.payerName,
+      payerId: captureResult.payerId,
+      createTime: captureResult.createTime
+    });
+  } catch (err: any) {
+    console.error('[API /api/debtfree/capture-order] Error:', err);
+    return res.status(500).json({ error: err?.message || 'Server error capturing DebtFree PayPal order.' });
+  }
+});
+
+// 9. PayFlow DebtFree — Gemini AI Dignity & Relief Assistant
+app.post('/api/debtfree/ai-assistant', async (req, res) => {
+  try {
+    const result = await DebtFreeAiServerService.processRequest(req.body);
+    return res.json(result);
+  } catch (err: any) {
+    console.error('[API /api/debtfree/ai-assistant] Error:', err);
+    return res.status(500).json({ error: err?.message || 'DebtFree AI assistant processing error' });
   }
 });
 

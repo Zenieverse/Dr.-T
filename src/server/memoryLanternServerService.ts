@@ -99,7 +99,7 @@ export class MemoryLanternServerService {
           isLocal: false,
           checkedAt,
           supportedModels,
-          reproductionCommand: `export GEMMA_API_BASE_URL="${this.hostedBaseUrl}"`
+          reproductionCommand: `export GEMMA_API_BASE_URL="${this.hostedBaseUrl}" # or local fallback: ollama run gemma2:2b`
         };
       }
     }

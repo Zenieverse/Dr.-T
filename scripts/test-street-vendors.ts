@@ -2,7 +2,7 @@ import { streetVendorsTranslations } from '../src/components/streetvendors/trans
 import { INITIAL_STREET_VENDORS } from '../src/components/streetvendors/data/vendorsData';
 import { StreetVendor, VendorCategory, CityKey, ShipperService } from '../src/components/streetvendors/types';
 
-function runTests() {
+async function runTests() {
   console.log('🥢 Starting StreetVendorsMap (Gánh Mưu Sinh) Comprehensive Verification...');
   let passed = 0;
   let failed = 0;
@@ -151,6 +151,32 @@ Dạ em nhờ Bác tài ghé gánh ứng tiền mặt mua giúp em cho ${sampleV
   assert(nonCommercialVI.toLowerCase().includes('phi thương mại'), 'Vietnamese footnote explicitly declares non-commercial purpose');
   assert(nonCommercialEN.toLowerCase().includes('non-commercial'), 'English footnote explicitly declares non-commercial purpose');
   assert(nonCommercialVI.includes('không thu bất kỳ chi phí trung gian'), 'Vietnamese footnote confirms zero commission or middleman charges');
+
+  // TEST 5: Automatic Real-Time Synchronization Engine
+  console.log('\n[Suite 5] Automatic Real-Time Synchronization Engine (Dual-Source)');
+  const { syncWithGanhMuuSinh, getSyncStatus } = await import('../src/server/streetVendorsServerService');
+  
+  const syncResult = await syncWithGanhMuuSinh();
+  assert(Array.isArray(syncResult.vendors) && syncResult.vendors.length > 0, 'Server service retrieves verified external vendors');
+  assert(syncResult.source === 'https://ganhmuusinh.vn/', 'Sync result identifies upstream source https://ganhmuusinh.vn/');
+  assert(typeof syncResult.isExternalLive === 'boolean', 'Sync result reports live upstream connectivity boolean');
+  assert(typeof syncResult.timestamp === 'string', 'Sync result has valid ISO timestamp');
+  
+  const status = getSyncStatus();
+  assert(status.totalSynced > 0, `Sync status tracks ${status.totalSynced} external vendors`);
+  assert(status.sourceUrl === 'https://ganhmuusinh.vn/', 'Sync status tracks upstream source URL');
+
+  // Verify real-time translation keys for live ribbon and feedback
+  assert(streetVendorsTranslations.vi.realtimeConnected.length > 0, 'Vietnamese realtimeConnected label exists');
+  assert(streetVendorsTranslations.en.realtimeConnected.length > 0, 'English realtimeConnected label exists');
+  assert(streetVendorsTranslations.vi.realtimeGanhMuuSinh.length > 0, 'Vietnamese realtimeGanhMuuSinh label exists');
+  assert(streetVendorsTranslations.en.realtimeGanhMuuSinh.length > 0, 'English realtimeGanhMuuSinh label exists');
+  assert(streetVendorsTranslations.vi.realtimeDrTCommunity.length > 0, 'Vietnamese realtimeDrTCommunity label exists');
+  assert(streetVendorsTranslations.en.realtimeDrTCommunity.length > 0, 'English realtimeDrTCommunity label exists');
+  assert(streetVendorsTranslations.vi.contributedBadge.length > 0, 'Vietnamese contributedBadge exists');
+  assert(streetVendorsTranslations.en.contributedBadge.length > 0, 'English contributedBadge exists');
+  assert(streetVendorsTranslations.vi.ganhmuusinhBadge.length > 0, 'Vietnamese ganhmuusinhBadge exists');
+  assert(streetVendorsTranslations.en.ganhmuusinhBadge.length > 0, 'English ganhmuusinhBadge exists');
 
   console.log(`\n========================================`);
   console.log(`Total tests passed: ${passed}/${passed + failed}`);

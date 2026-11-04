@@ -46,7 +46,8 @@ import {
   Hammer,
   CheckCircle2,
   Camera,
-  Flame
+  Flame,
+  DollarSign
 } from 'lucide-react';
 
 interface CommandPaletteProps {
@@ -205,6 +206,35 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
           icon: <Sparkles className="w-4 h-4 text-emerald-500" />,
           action: () => {
             setActiveTab('streetvendorsmap');
+            onClose();
+          }
+        }
+      ]
+    },
+    {
+      category: '🏮 Gather & Glow — Complete AI-Powered Event Planning Assistant',
+      items: [
+        {
+          label: 'Gather & Glow — Master AI Event Planner & Concept Architecture',
+          icon: <Sparkles className="w-4 h-4 text-rose-500" />,
+          action: () => {
+            setActiveTab('gatherglow');
+            onClose();
+          }
+        },
+        {
+          label: 'Gather & Glow — Smart Budget Manager & MicroBiz Ledger Voucher',
+          icon: <DollarSign className="w-4 h-4 text-emerald-500" />,
+          action: () => {
+            setActiveTab('gatherglow');
+            onClose();
+          }
+        },
+        {
+          label: 'Gather & Glow — Three Hats Team Roles & Master Day-Of Run-Sheet',
+          icon: <Compass className="w-4 h-4 text-purple-500" />,
+          action: () => {
+            setActiveTab('gatherglow');
             onClose();
           }
         }

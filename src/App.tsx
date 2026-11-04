@@ -70,6 +70,7 @@ import { BuildWithAiModule } from './components/buildwithai/BuildWithAiModule';
 import { MemoryLanternModule } from './components/memorylantern/MemoryLanternModule';
 import { ThreeHatsModule } from './components/threehats/ThreeHatsModule';
 import { StreetVendorsMapModule } from './components/streetvendors/StreetVendorsMapModule';
+import { GatherGlowModule } from './components/gatherglow/GatherGlowModule';
 import { SettingsPage } from './components/settings/SettingsPage';
 
 export function App() {
@@ -577,6 +578,10 @@ export function App() {
 
         {activeTab === 'streetvendorsmap' && (
           <StreetVendorsMapModule initialLang={currentLanguage === 'vi' ? 'vi' : 'en'} />
+        )}
+
+        {activeTab === 'gatherglow' && (
+          <GatherGlowModule />
         )}
 
         {activeTab === 'gcp' && (

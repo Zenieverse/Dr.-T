@@ -107,6 +107,74 @@ service cloud.firestore {
       allow delete: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
     }
 
+    // MicroBiz PayFlow AI: Invoices & Billing
+    match /microbiz_invoices/{invoiceId} {
+      // Allow read to the business creator, the customer by email, or anyone with public invoice link token
+      allow read: if true;
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      allow update: if isAuthenticated() && (
+        (resource.data.userId == request.auth.uid && (!('userId' in request.resource.data) || request.resource.data.userId == resource.data.userId)) ||
+        isAdmin()
+      );
+      allow delete: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+    }
+
+    // MicroBiz PayFlow AI: Authoritative Payment Transactions
+    match /microbiz_transactions/{txnId} {
+      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      allow update: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow delete: if isAdmin();
+    }
+
+    // MicroBiz PayFlow AI: Receipts & Business Expenses
+    match /microbiz_expenses/{expenseId} {
+      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      allow update: if isAuthenticated() && (
+        (resource.data.userId == request.auth.uid && request.resource.data.userId == resource.data.userId) ||
+        isAdmin()
+      );
+      allow delete: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+    }
+
+    // MicroBiz PayFlow AI: Business Profile & Payment Settings
+    match /microbiz_business_settings/{profileId} {
+      allow read: if true;
+      allow create, update: if isAuthenticated() && (
+        (request.resource.data.userId == request.auth.uid) ||
+        profileId == request.auth.uid ||
+        isAdmin()
+      );
+      allow delete: if isAdmin();
+    }
+
+    // PayFlow DebtFree: Verified Community Debt Relief Requests
+    match /payflow_debt_requests/{requestId} {
+      // Published requests are transparently viewable; unlisted/drafts are restricted to beneficiary or reviewers
+      allow read: if (resource.data.allowPublicListing == true && resource.data.status != 'DRAFT') ||
+                     (isAuthenticated() && (resource.data.beneficiaryUserId == request.auth.uid || isAdmin()));
+      allow create: if isAuthenticated() && request.resource.data.beneficiaryUserId == request.auth.uid;
+      allow update: if isAuthenticated() && (
+        (resource.data.beneficiaryUserId == request.auth.uid && (!('beneficiaryUserId' in request.resource.data) || request.resource.data.beneficiaryUserId == resource.data.beneficiaryUserId)) ||
+        isAdmin()
+      );
+      allow delete: if isAdmin() || (isAuthenticated() && resource.data.beneficiaryUserId == request.auth.uid && resource.data.status == 'DRAFT');
+    }
+
+    // PayFlow DebtFree: Supporter Contributions Ledger
+    match /payflow_debt_contributions/{contributionId} {
+      allow read: if true;
+      allow create: if true; // Support anonymous and authenticated contributors
+      allow update, delete: if isAdmin();
+    }
+
+    // PayFlow DebtFree: Official Creditor Settlement Confirmations
+    match /payflow_debt_settlements/{settlementId} {
+      allow read: if true; // Transparent public audit trail for verified creditor payments
+      allow create, update, delete: if isAdmin();
+    }
+
     // Direct Customer Inquiries & Quotation Proposals
     // Confidential between customer and artisan storefront owner
     match /microbiz_inquiries/{inquiryId} {
@@ -279,6 +347,36 @@ service cloud.firestore {
         isAdmin()
       );
       allow delete: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+    }
+
+    // ----------------------------------------------------
+    // GATHER & GLOW — AI EVENT PLANNING ASSISTANT
+    // User-isolated celebration records with collaborator permissions & guest privacy
+    // ----------------------------------------------------
+    match /gather_and_glow_events/{eventId} {
+      allow read: if isAuthenticated() && (
+        resource.data.userId == request.auth.uid || 
+        (resource.data.collaborators != null && request.auth.uid in resource.data.collaborators) || 
+        isAdmin()
+      );
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      allow update: if isAuthenticated() && (
+        (resource.data.userId == request.auth.uid && request.resource.data.userId == resource.data.userId) ||
+        (resource.data.collaborators != null && request.auth.uid in resource.data.collaborators && request.resource.data.userId == resource.data.userId) ||
+        isAdmin()
+      );
+      allow delete: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+    }
+
+    // ----------------------------------------------------
+    // STREET VENDORS MAP — GÁNH MƯU SINH & REALTIME CONTRIBUTIONS
+    // Public discovery of elder street vendors and community contributions
+    // ----------------------------------------------------
+    match /street_vendor_contributions/{vendorId} {
+      allow read: if true;
+      allow create: if true; // Any community patron can nominate or sync a street vendor
+      allow update: if true; // Allows live likes counter, verification votes, and status updates
+      allow delete: if isAdmin();
     }
   }
 }

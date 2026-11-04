@@ -112,7 +112,21 @@ export const streetVendorsTranslations = {
     footnoteSource: 'Nguồn tham khảo và dữ liệu cảm hứng từ dự án cộng đồng: https://ganhmuusinh.vn/',
     footnoteNonCommercial: 'Bản đồ StreetVendorsMap hoạt động 100% PHI THƯƠNG MẠI vì cộng đồng. Nền tảng không thu bất kỳ chi phí trung gian, hoa hồng hay quảng cáo nào từ các gánh hàng rong và người mua. Mục đích duy nhất là giúp đỡ sinh kế người cao tuổi và giữ gìn nét đẹp văn hóa vỉa hè Việt Nam.',
     footnoteDisclaimer: 'Mọi thông tin giờ giấc và địa điểm được cộng đồng đóng góp và cập nhật thường xuyên. Vui lòng gọi điện hoặc kiểm tra trước vào những ngày mưa gió.',
-    visitOriginalSite: 'Ghé thăm trang gốc Gánh Mưu Sinh'
+    visitOriginalSite: 'Ghé thăm trang gốc Gánh Mưu Sinh',
+
+    // Realtime Sync & Live Stream
+    realtimeSyncTitle: 'Đồng bộ thời gian thực',
+    realtimeConnected: 'Đang kết nối thời gian thực',
+    realtimeGanhMuuSinh: 'Nguồn ganhmuusinh.vn',
+    realtimeDrTCommunity: 'Cộng đồng Dr. T',
+    realtimeSyncNow: 'Đồng bộ ngay',
+    realtimeSyncing: 'Đang đồng bộ...',
+    realtimeLastSync: 'Vừa đồng bộ lúc',
+    realtimeAutoSyncNote: 'Tự động cập nhật 2 chiều khi có địa điểm mới',
+    likeSuccessToast: 'Đã gửi thương mến và tăng lượt quan tâm đến gánh!',
+    verifySuccessToast: 'Cảm ơn bạn đã tham gia xác minh gánh hàng rong!',
+    contributedBadge: 'Đóng góp bởi cộng đồng',
+    ganhmuusinhBadge: 'Xác minh từ ganhmuusinh.vn'
   },
   en: {
     tabName: 'StreetVendorsMap',
@@ -222,6 +236,20 @@ export const streetVendorsTranslations = {
     footnoteSource: 'Data and inspiration sourced from the community initiative: https://ganhmuusinh.vn/',
     footnoteNonCommercial: 'StreetVendorsMap operates 100% NON-COMMERCIAL for community benefit. We collect zero platform fees, commissions, or advertising charges from street vendors or buyers. Its sole mission is to preserve street culinary heritage and support the dignity and livelihoods of elders in Vietnam.',
     footnoteDisclaimer: 'All schedules and locations are contributed by community volunteers. On heavy rain days, hours may shift. Please call or verify when possible.',
-    visitOriginalSite: 'Visit Original Gánh Mưu Sinh Website'
+    visitOriginalSite: 'Visit Original Gánh Mưu Sinh Website',
+
+    // Realtime Sync & Live Stream
+    realtimeSyncTitle: 'Realtime Live Sync',
+    realtimeConnected: 'Live Realtime Connected',
+    realtimeGanhMuuSinh: 'Source ganhmuusinh.vn',
+    realtimeDrTCommunity: 'Dr. T Community',
+    realtimeSyncNow: 'Sync Now',
+    realtimeSyncing: 'Syncing...',
+    realtimeLastSync: 'Last synced at',
+    realtimeAutoSyncNote: 'Automatic 2-way live sync for new locations',
+    likeSuccessToast: 'Sent love and support to this street vendor!',
+    verifySuccessToast: 'Thank you for verifying this street vendor location!',
+    contributedBadge: 'Community Contributed',
+    ganhmuusinhBadge: 'Verified via ganhmuusinh.vn'
   }
 };
