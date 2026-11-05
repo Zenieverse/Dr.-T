@@ -55,16 +55,6 @@ To ensure absolute integrity and compliance with hackathon rules, this project t
 
 ## 3. Video Demonstration Script (3 Minutes)
 
-> **Important Note**: This script demonstrates the fully functional UI, automated test-suite verification, and test mode flows. It does not fabricate live bank transfers or fake live PayPal transaction approvals.
-
-| Timecode | Visual / Screen | Voiceover / Narration |
-| :--- | :--- | :--- |
-| **0:00 - 0:30** | Opening on Dr. T dashboard, navigating to `#microbiz`. Showing the tabbed interface (Invoices, Receipts, Ledger, POS, AI Copilot, Gather Bridge, DebtFree). | *"Welcome to MicroBiz PayFlow AI and PayFlow DebtFree on the Dr. T platform, created for the PayPal AI Hackathon 2026. Micro-businesses live or die by cash flow, while vulnerable families face unexpected debt emergencies. Today, we show how intelligent payments and verified community mutual aid work together in one unified platform."* |
-| **0:30 - 1:15** | PayFlow AI: Creating an invoice, inputting line items, 10% discount, and 8.5% tax. Showing decimal precision and launching PayPal Checkout button. | *"In the Invoicing Studio, an artisan creates an invoice. Our decimal-safe math engine eliminates IEEE 754 floating-point drift down to the integer subunit, supporting both decimal currencies like USD and zero-decimal currencies like Vietnamese Dong. Clicking PayPal Checkout triggers our server-side API, where expected amounts are cryptographically validated before any capture occurs."* |
-| **1:15 - 1:45** | Showing the Gemini 3.8 Flash financial copilot drafting an overdue invoice reminder and reviewing receivables. | *"Our Gemini financial copilot is grounded strictly in authenticated ledger facts—never hallucinating numbers or making false promises. It distinguishes verified facts from recommendations and drafts empathetic, professional payment reminders with direct payment links and non-CPA advisory disclaimers."* |
-| **1:45 - 2:30** | Switching to *PayFlow DebtFree*: Showing verified medical and utility requests, making a contribution with fee coverage toggle, and showing progress. | *"Now meet PayFlow DebtFree. Unlike typical crowdfunding that sends untracked cash, DebtFree routes funds directly to verified institutional billing accounts—like a pediatric emergency hospital bill. Beneficiary dignity is protected with privacy aliases like 'S. J.', and our atomic overpayment guard ensures donations never exceed the remaining balance. Plus, our 0% platform fee ensures maximum relief reaches the creditor."* |
-| **2:30 - 3:00** | Showing the Reviewer Portal confirming an official creditor settlement receipt, the Impact Dashboard ($0 platform fees), and test logs. | *"In the Trust & Safety Reviewer Portal, committee officers audit uploaded statements and record official institutional settlement receipt numbers. All of this is validated by 68 automated domain tests. MicroBiz PayFlow AI and PayFlow DebtFree: accountable payments for business, transparent relief for communities."* |
-
 ---
 
 ## 4. How PayPal is Integrated
