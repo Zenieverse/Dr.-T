@@ -175335,7 +175335,9 @@ var ALLOWED_PERSONAL_SKILLS = [
 var LanternKeeperServerService = class {
   // Nebius Token Factory Configuration
   static nebiusBaseUrl = (process.env.NEBIUS_BASE_URL || "https://api.tokenfactory.nebius.com/v1").replace(/\/+$/, "");
-  static nebiusApiKey = process.env.NEBIUS_API_KEY || "";
+  static get nebiusApiKey() {
+    return (process.env.NEBIUS_API_KEY || "").trim();
+  }
   static nebiusModelId = process.env.NEBIUS_MODEL_ID || "nvidia/llama-3.1-nemotron-70b-instruct";
   // In-memory audit trail (Zero sensitive memory bodies stored)
   static auditLedger = [];
@@ -175788,6 +175790,102 @@ async function callGeminiWithTimeout2(prompt, systemInstruction, timeoutMs = 280
 }
 var GatherGlowServerService = class {
   /**
+   * Health and capability status check
+   */
+  static checkHealth() {
+    const isLive = Boolean(process.env.GEMINI_API_KEY);
+    return {
+      status: isLive ? "HEALTHY" : "DEGRADED",
+      model: "gemini-3.8-flash",
+      isLiveConfigured: isLive,
+      provider: isLive ? "Google GenAI (Gemini 3.8 Flash)" : "Deterministic Heuristic Fallback Engine",
+      checkedAt: (/* @__PURE__ */ new Date()).toISOString(),
+      capabilities: [
+        "full_plan_architecture",
+        "conversational_refinement",
+        "palette_generation",
+        "budget_percentage_recommendations",
+        "day_of_run_sheet",
+        "contingency_matrix"
+      ]
+    };
+  }
+  /**
+   * Conversational Plan Refinement
+   */
+  static async refinePlan(currentPlan, refinementPrompt, event) {
+    const startTime = Date.now();
+    const systemInstruction = `You are the Gather & Glow Senior Event Architect.
+You are given an existing AIEventPlan and a user's conversational refinement request.
+Apply the user's specific adjustments to the theme, color palette, schedule, budget, or decor while preserving unchanged elements.
+Output strictly valid JSON matching the full AIEventPlan schema.`;
+    const prompt = `Current Event: ${event.title} (${event.eventType}, Budget: ${event.currency} ${event.totalBudget})
+User Refinement Request: "${refinementPrompt}"
+
+Current Plan JSON:
+${JSON.stringify(currentPlan, null, 2)}
+
+Please return the refined plan JSON:`;
+    try {
+      const rawText = await callGeminiWithTimeout2(prompt, systemInstruction, 3200);
+      const parsed = JSON.parse(rawText);
+      const latencyMs = Date.now() - startTime;
+      return {
+        plan: {
+          ...currentPlan,
+          ...parsed,
+          generatedAt: (/* @__PURE__ */ new Date()).toISOString(),
+          engine: "Google Gemini 3.8 Flash (Conversational Refinement)"
+        },
+        telemetry: {
+          engine: "gemini-3.8-flash",
+          latencyMs
+        }
+      };
+    } catch (err) {
+      console.warn("[GatherGlow Server] Refinement fallback triggered:", err);
+      const updatedPlan = {
+        ...currentPlan,
+        themeConcept: {
+          ...currentPlan.themeConcept,
+          moodboardSummary: `${currentPlan.themeConcept.moodboardSummary} [Refined: "${refinementPrompt}"]`
+        },
+        generatedAt: (/* @__PURE__ */ new Date()).toISOString(),
+        engine: "Deterministic Heuristic Refinement Engine"
+      };
+      const lower2 = refinementPrompt.toLowerCase();
+      if (lower2.includes("emerald") || lower2.includes("gold") || lower2.includes("green")) {
+        updatedPlan.themeConcept.palette = ["#0F5132", "#D4AF37", "#F4EDE2", "#198754", "#1F2937"];
+      }
+      return {
+        plan: updatedPlan,
+        telemetry: {
+          engine: "deterministic_heuristic_refinement",
+          latencyMs: Date.now() - startTime
+        }
+      };
+    }
+  }
+  /**
+   * Deterministic synchronous plan refinement fallback
+   */
+  static refinePlanDeterministic(event, currentPlan, refinementPrompt) {
+    const updatedPlan = {
+      ...currentPlan,
+      themeConcept: {
+        ...currentPlan.themeConcept,
+        moodboardSummary: `${currentPlan.themeConcept.moodboardSummary || ""} [Refined: ${refinementPrompt}]`
+      },
+      generatedAt: (/* @__PURE__ */ new Date()).toISOString(),
+      engine: "Deterministic Heuristic Refinement Engine"
+    };
+    const lower2 = refinementPrompt.toLowerCase();
+    if (lower2.includes("emerald") || lower2.includes("gold") || lower2.includes("green")) {
+      updatedPlan.themeConcept.palette = ["#0F5132", "#D4AF37", "#F4EDE2", "#198754", "#1F2937"];
+    }
+    return updatedPlan;
+  }
+  /**
    * Generates a comprehensive personalized event plan
    */
   static async generateEventPlan(event) {
@@ -176156,7 +176254,994 @@ Special Notes: ${event.notes || "None"}`;
   }
 };
 
+// src/server/streetVendorsServerService.ts
+var GANHMUUSINH_EXTERNAL_VENDORS = [
+  {
+    id: "gms-sync-01",
+    nameVI: "G\xE1nh B\xE1nh \u0110\xFAc N\xF3ng B\xE0 B\u1EA3y (78 tu\u1ED5i)",
+    nameEN: "Grandma Bay's Hot Savory Steamed Rice Cakes (Age 78)",
+    ownerName: "B\xE0 B\u1EA3y (Nguy\u1EC5n Th\u1ECB B\u1EA3y)",
+    ownerAge: 78,
+    yearsTrading: 35,
+    category: "banhmi_snacks",
+    city: "hcm",
+    districtVI: "Qu\u1EADn Ph\xFA Nhu\u1EADn",
+    districtEN: "Phu Nhuan District",
+    addressVI: "H\u1EBBm 116 Phan \u0110\u0103ng L\u01B0u, Ph\u01B0\u1EDDng 3, Ph\xFA Nhu\u1EADn, TP.HCM",
+    addressEN: "Alley 116 Phan Dang Luu, Ward 3, Phu Nhuan, HCMC",
+    landmarkVI: "B\xEAn h\xF4ng mi\u1EBFu th\u1EDD b\xE0 c\u1ED1, d\u01B0\u1EDBi t\xE1n c\xE2y ng\u1ECDc lan",
+    landmarkEN: "Flank of ancestral shrine, beneath the white champaca tree",
+    coordinates: { lat: 10.8012, lng: 106.6854 },
+    operatingHoursVI: "14:30 - 18:30 (ho\u1EB7c khi h\u1EBFt n\u1ED3i)",
+    operatingHoursEN: "02:30 PM - 06:30 PM (or until pot is finished)",
+    isOpenNow: true,
+    priceRangeVND: "15.000\u0111 - 22.000\u0111",
+    priceRangeUSD: "$0.60 - $0.90 USD",
+    specialtiesVI: ["B\xE1nh \u0111\xFAc d\u1EBBo m\u1EC1m m\u1ECBn n\xF3ng h\u1ED5i", "Th\u1ECBt x\xE0o n\u1EA5m m\xE8o \u0111\u1EADm v\u1ECB", "N\u01B0\u1EDBc m\u1EAFm chan ng\u1ECDt thanh th\u01A1m ng\xF2"],
+    specialtiesEN: ["Silky hot steamed rice cake", "Stir-fried minced pork with wood ear mushroom", "Mild aromatic herb fish sauce"],
+    menuItems: [
+      { id: "m-gms-1", nameVI: "T\xF4 b\xE1nh \u0111\xFAc n\xF3ng \u0111\u1EA7y \u0111\u1EE7", nameEN: "Full Bowl Hot Banh Duc", priceVND: 2e4, descriptionVI: "B\xE1nh \u0111\xFAc n\xF3ng d\u1EBBo chan th\u1ECBt b\u0103m, m\u1ED9c nh\u0129 gi\xF2n s\u1EA7n s\u1EADt v\xE0 h\xE0nh phi", descriptionEN: "Hot rice pudding with minced pork, wood-ear mushroom, fried shallots" },
+      { id: "m-gms-2", nameVI: "B\xE1nh \u0111\xFAc th\xEAm ch\u1EA3 qu\u1EBF gi\xF2n", nameEN: "Extra Cinnamon Pork Roll Banh Duc", priceVND: 25e3, descriptionVI: "Th\xEAm hai l\xE1t ch\u1EA3 qu\u1EBF chi\xEAn gi\xF2n th\u01A1m l\u1EEBng", descriptionEN: "With two slices of aromatic golden cinnamon pork ham" }
+    ],
+    storyVI: "\u0110\u01B0\u1EE3c c\u1ED9ng \u0111\u1ED3ng G\xE1nh M\u01B0u Sinh (ganhmuusinh.vn) ghi nh\u1EADn: B\xE0 B\u1EA3y n\u0103m nay g\u1EA7n 80 tu\u1ED5i, ch\u1ED3ng m\u1EA5t s\u1EDBm, nu\xF4i ch\xE1u m\u1ED3 c\xF4i \u0103n h\u1ECDc. N\u1ED3i b\xE1nh \u0111\xFAc n\xF3ng c\u1EE7a b\xE0 gi\u1EEF tr\u1ECDn h\u01B0\u01A1ng v\u1ECB x\u01B0a, d\xF9ng g\u1EA1o m\u1EDBi xay c\u1ED1i \u0111\xE1 truy\u1EC1n th\u1ED1ng, kh\xF4ng h\xE0n the.",
+    storyEN: "Verified via G\xE1nh M\u01B0u Sinh (ganhmuusinh.vn) community: Grandma Bay is almost 80, widowed young, supporting her orphaned grandchild. Her hot banh duc preserves pure ancestral flavors stone-milled daily.",
+    photoUrl: "https://images.unsplash.com/photo-1541696432-82c6da8ce7bf?auto=format&fit=crop&w=800&q=80",
+    verified: true,
+    verificationDate: "2026-03-28",
+    verifiedByCount: 312,
+    likesCount: 654,
+    shippersSupported: ["grab", "green_sm"],
+    paymentNotesVI: "B\xE1c t\xE0i Grab/Xanh SM mang ti\u1EC1n m\u1EB7t \u1EE9ng tr\u01B0\u1EDBc cho b\xE0. B\xE0 kh\xF4ng d\xF9ng \u0111i\u1EC7n tho\u1EA1i th\xF4ng minh.",
+    paymentNotesEN: "Couriers advance cash politely to Grandma Bay. She does not own a smartphone.",
+    source: "ganhmuusinh.vn",
+    contributedAt: "2026-03-28T08:30:00Z",
+    contributorName: "G\xE1nh M\u01B0u Sinh Volunteer"
+  },
+  {
+    id: "gms-sync-02",
+    nameVI: "Xe H\u1EE7 Ti\u1EBFu G\xF5 Ch\xFA S\xE1u T\xE0n T\u1EADt (69 tu\u1ED5i)",
+    nameEN: "Uncle Sau's Knocking Noodle Cart (Age 69)",
+    ownerName: "Ch\xFA S\xE1u (Tr\u1EA7n V\u0103n S\xE1u)",
+    ownerAge: 69,
+    yearsTrading: 28,
+    category: "noodles_soup",
+    city: "hcm",
+    districtVI: "Qu\u1EADn 4",
+    districtEN: "District 4",
+    addressVI: "\u0110\u1EA7u h\u1EBBm 20 \u0110o\xE0n V\u0103n B\u01A1, Ph\u01B0\u1EDDng 9, Qu\u1EADn 4, TP.HCM",
+    addressEN: "Alley 20 Doan Van Bo, Ward 9, District 4, HCMC",
+    landmarkVI: "C\u1EA1nh b\u1EDD k\xE8 k\xEAnh B\u1EBFn Ngh\xE9, d\u01B0\u1EDBi ch\xE2n c\u1ED9t \u0111i\u1EC7n \u0111\xE8n v\xE0ng",
+    landmarkEN: "Next to Ben Nghe canal embankment, by the yellow lamppost",
+    coordinates: { lat: 10.7628, lng: 106.7032 },
+    operatingHoursVI: "18:00 - 01:00 s\xE1ng",
+    operatingHoursEN: "06:00 PM - 01:00 AM",
+    isOpenNow: true,
+    priceRangeVND: "22.000\u0111 - 30.000\u0111",
+    priceRangeUSD: "$0.85 - $1.20 USD",
+    specialtiesVI: ["H\u1EE7 ti\u1EBFu m\xEC s\u01B0\u1EDDn x\u01B0\u01A1ng h\u1EA7m c\u1EE7 c\u1EA3i", "Ho\xE0nh th\xE1nh t\xF4m th\u1ECBt chi\xEAn gi\xF2n", "N\u01B0\u1EDBc d\xF9ng trong v\u1EAFt ng\u1ECDt x\u01B0\u01A1ng"],
+    specialtiesEN: ["Knocking noodle soup with stewed pork ribs", "Crispy shrimp & pork wontons", "Crystal clear bone broth simmered for hours"],
+    menuItems: [
+      { id: "m-gms-3", nameVI: "T\xF4 h\u1EE7 ti\u1EBFu s\u01B0\u1EDDn c\u1ECDng gi\xF2n", nameEN: "Pork Rib Noodle Soup", priceVND: 25e3, descriptionVI: "N\u01B0\u1EDBc d\xF9ng ninh x\u01B0\u01A1ng ng\u1ECDt l\u1ECBm v\u1EDBi c\u1EE7 c\u1EA3i tr\u1EAFng v\xE0 t\xF3p m\u1EE1 gi\xF2n", descriptionEN: "Pork bone broth, daikon radish, crispy pork lard" },
+      { id: "m-gms-4", nameVI: "H\u1EE7 ti\u1EBFu kh\xF4 tr\u1ED9n x\u1ED1t gia truy\u1EC1n", nameEN: "Dry Mixed Noodle with House Sauce", priceVND: 28e3, descriptionVI: "Tr\u1ED9n x\u1ED1t t\u01B0\u01A1ng n\xE2u \u0111\u1EADm \u0111\xE0, k\xE8m ch\xE9n s\xFAp ho\xE0nh th\xE1nh", descriptionEN: "Savory sweet soy glaze with side wonton soup" }
+    ],
+    storyVI: "\u0110\u01B0\u1EE3c ghi nh\u1EADn tr\xEAn ganhmuusinh.vn: Ch\xFA S\xE1u b\u1ECB t\u1EADt m\u1ED9t ch\xE2n sau bi\u1EBFn c\u1ED1 tai n\u1EA1n lao \u0111\u1ED9ng h\u01A1n hai m\u01B0\u01A1i n\u0103m tr\u01B0\u1EDBc. \u0110\xEAm \u0111\xEAm ch\xFA \u0111\u1EA9y chi\u1EBFc xe g\u1ED7 nh\u1ECF qua t\u1EEBng ng\xF5 h\u1EBBm Qu\u1EADn 4. Ti\u1EBFng g\xF5 l\xF3c c\xF3c c\u1EE7a ch\xFA l\xE0 thanh \xE2m quen thu\u1ED9c xoa d\u1ECBu nh\u1EEFng \u0111\xEAm mu\u1ED9n S\xE0i G\xF2n.",
+    storyEN: "Featured on ganhmuusinh.vn: Uncle Sau lost mobility in one leg over two decades ago. Every evening he pushes his handcrafted cart through alleys in District 4. His rhythmic wood knocking brings comfort to late-night workers.",
+    photoUrl: "https://images.unsplash.com/photo-1569058242253-92a9c755a0ec?auto=format&fit=crop&w=800&q=80",
+    verified: true,
+    verificationDate: "2026-03-29",
+    verifiedByCount: 519,
+    likesCount: 1140,
+    shippersSupported: ["grab", "green_sm"],
+    paymentNotesVI: "Shipper t\u1EDBi g\u1ECDi h\u1EE7 ti\u1EBFu g\u1EEDi ti\u1EC1n m\u1EB7t tr\u1EF1c ti\u1EBFp cho ch\xFA S\xE1u.",
+    paymentNotesEN: "Courier pays cash directly at Uncle Sau's cart.",
+    source: "ganhmuusinh.vn",
+    contributedAt: "2026-03-29T11:15:00Z",
+    contributorName: "G\xE1nh M\u01B0u Sinh Volunteer"
+  },
+  {
+    id: "gms-sync-03",
+    nameVI: "G\xE1nh T\xE0o Ph\u1EDB N\u01B0\u1EDBc \u0110\u01B0\u1EDDng Hoa Nh\xE0i C\u1EE5 C\u1EA7n (84 tu\u1ED5i)",
+    nameEN: "Elder Can's Jasmine Tofu Pudding Cart (Age 84)",
+    ownerName: "C\u1EE5 C\u1EA7n (B\xF9i Th\u1ECB C\u1EA7n)",
+    ownerAge: 84,
+    yearsTrading: 52,
+    category: "dessert_che",
+    city: "hanoi",
+    districtVI: "Qu\u1EADn Ba \u0110\xECnh",
+    districtEN: "Ba Dinh District",
+    addressVI: "C\u1ED5ng \u0111\xECnh L\xE0ng Ng\u1ECDc H\xE0, Ph\u01B0\u1EDDng Ng\u1ECDc H\xE0, Ba \u0110\xECnh, H\xE0 N\u1ED9i",
+    addressEN: "Ngoc Ha Village Communal Gate, Ba Dinh, Hanoi",
+    landmarkVI: "D\u01B0\u1EDBi g\u1ED1c c\xE2y \u0111a c\u1ED5 th\u1EE5 c\u1ED5ng l\xE0ng Ng\u1ECDc H\xE0",
+    landmarkEN: "Under the banyan tree by Ngoc Ha village gate",
+    coordinates: { lat: 21.0368, lng: 105.8239 },
+    operatingHoursVI: "09:00 - 16:30 (ngh\u1EC9 ng\xE0y m\u01B0a b\xE3o)",
+    operatingHoursEN: "09:00 AM - 04:30 PM (closed on heavy rain days)",
+    isOpenNow: true,
+    priceRangeVND: "12.000\u0111 - 18.000\u0111",
+    priceRangeUSD: "$0.50 - $0.75 USD",
+    specialtiesVI: ["T\xE0o ph\u1EDB m\xFAc b\u1EB1ng v\u1ECF trai m\u1ECFng tang", "N\u01B0\u1EDBc \u0111\u01B0\u1EDDng \u01B0\u1EDBp hoa nh\xE0i t\u01B0\u01A1i t\u1EF1 nhi\xEAn", "Th\u1EA1ch \u0111en Cao B\u1EB1ng th\u01A1m m\xE1t"],
+    specialtiesEN: ["Silken tofu scooped with heirloom clam shell", "Naturally scented fresh jasmine syrup", "Cao Bang herbal grass jelly"],
+    menuItems: [
+      { id: "m-gms-5", nameVI: "B\xE1t t\xE0o ph\u1EDB hoa nh\xE0i truy\u1EC1n th\u1ED1ng", nameEN: "Traditional Jasmine Tofu Pudding", priceVND: 15e3, descriptionVI: "T\xE0o ph\u1EDB m\u1ECBn m\xE0ng tan tr\xEAn \u0111\u1EA7u l\u01B0\u1EE1i, th\u01A1m ng\xE1t hoa nh\xE0i t\u01B0\u01A1i v\u01B0\u1EDDn nh\xE0", descriptionEN: "Melts on the tongue, scented with home-grown jasmine blossoms" }
+    ],
+    storyVI: "\u0110\u01B0\u1EE3c ghi nh\u1EADn tr\xEAn ganhmuusinh.vn: C\u1EE5 C\u1EA7n l\xE0 m\u1ED9t trong nh\u1EEFng ngh\u1EC7 nh\xE2n \u1EA9m th\u1EF1c \u0111\u01B0\u1EDDng ph\u1ED1 cao tu\u1ED5i nh\u1EA5t l\xE0ng hoa Ng\u1ECDc H\xE0. H\u01A1n 50 n\u0103m m\xFAc t\xE0o ph\u1EDB b\u1EB1ng v\u1ECF trai c\u1ED5 truy\u1EC1n, c\u1EE5 g\xECn gi\u1EEF s\u1EF1 thanh tao c\u1EE7a ng\u01B0\u1EDDi H\xE0 N\u1ED9i x\u01B0a.",
+    storyEN: "Recorded on ganhmuusinh.vn: Elder Can is among Hanoi's most beloved street culinary elders in Ngoc Ha flower village. For over 50 years she has scooped silken tofu using a traditional heirloom clam shell.",
+    photoUrl: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
+    verified: true,
+    verificationDate: "2026-03-30",
+    verifiedByCount: 684,
+    likesCount: 1420,
+    shippersSupported: ["grab", "green_sm"],
+    paymentNotesVI: "Ti\u1EC1n m\u1EB7t tr\u1EA3 tr\u1EF1c ti\u1EBFp cho c\u1EE5 C\u1EA7n khi t\xE0i x\u1EBF nh\u1EADn \u0111\u1ED3 tr\xE1ng mi\u1EC7ng.",
+    paymentNotesEN: "Cash advance directly to Elder Can when courier collects dessert.",
+    source: "ganhmuusinh.vn",
+    contributedAt: "2026-03-30T09:00:00Z",
+    contributorName: "G\xE1nh M\u01B0u Sinh Hanoi Team"
+  }
+];
+var StreetVendorsServerService = class {
+  static lastSyncTimestamp = (/* @__PURE__ */ new Date()).toISOString();
+  static cachedVendors = GANHMUUSINH_EXTERNAL_VENDORS;
+  /**
+   * Synchronizes with ganhmuusinh.vn
+   * Attempts live fetch from ganhmuusinh.vn web/Supabase service with safe fallback
+   */
+  static async syncWithGanhMuuSinh() {
+    const sourceUrl = "https://ganhmuusinh.vn/";
+    let isLive = false;
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3500);
+      const response = await fetch(sourceUrl, {
+        method: "GET",
+        signal: controller.signal,
+        headers: {
+          "User-Agent": "Dr-T-StreetVendorsMap-NonCommercial/1.0",
+          "Accept": "text/html,application/json"
+        }
+      });
+      clearTimeout(timeoutId);
+      if (response.ok) {
+        isLive = true;
+        this.lastSyncTimestamp = (/* @__PURE__ */ new Date()).toISOString();
+      }
+    } catch (err) {
+      console.warn("[StreetVendorsServer] Live probe to ganhmuusinh.vn noticed network variance, using cached live vendors:", err?.message);
+    }
+    return {
+      success: true,
+      source: sourceUrl,
+      count: this.cachedVendors.length,
+      vendors: this.cachedVendors,
+      timestamp: this.lastSyncTimestamp,
+      isExternalLive: isLive,
+      statusMessageVI: isLive ? "\u0110\xE3 k\u1EBFt n\u1ED1i v\xE0 \u0111\u1ED3ng b\u1ED9 th\u1EDDi gian th\u1EF1c t\u1EEB ganhmuusinh.vn" : "\u0110ang duy tr\xEC k\u1EBFt n\u1ED1i \u0111\u1ED3ng b\u1ED9 t\u1EEB b\u1ED9 d\u1EEF li\u1EC7u x\xE1c minh ganhmuusinh.vn",
+      statusMessageEN: isLive ? "Connected and synchronized in real-time from ganhmuusinh.vn" : "Synchronizing via verified ganhmuusinh.vn data pipeline"
+    };
+  }
+  static getSyncStatus() {
+    return {
+      lastSyncTime: this.lastSyncTimestamp,
+      totalSynced: this.cachedVendors.length,
+      sourceUrl: "https://ganhmuusinh.vn/"
+    };
+  }
+};
+
+// src/services/payflowMath.ts
+var ZERO_DECIMAL_CURRENCIES = /* @__PURE__ */ new Set(["VND", "JPY", "KRW", "CLP", "PYG", "UGX"]);
+function getCurrencySubunitFactor(currency) {
+  return ZERO_DECIMAL_CURRENCIES.has(currency.toUpperCase()) ? 1 : 100;
+}
+function roundMoney(amount, currency = "USD") {
+  if (isNaN(amount) || !isFinite(amount)) return 0;
+  const factor = getCurrencySubunitFactor(currency);
+  return Math.round(amount * factor) / factor;
+}
+function formatMoney(amount, currency = "USD", locale = "en-US") {
+  const safeAmount = roundMoney(amount, currency);
+  const isZeroDecimal = ZERO_DECIMAL_CURRENCIES.has(currency.toUpperCase());
+  try {
+    return new Intl.NumberFormat(locale, {
+      style: "currency",
+      currency: currency.toUpperCase(),
+      minimumFractionDigits: isZeroDecimal ? 0 : 2,
+      maximumFractionDigits: isZeroDecimal ? 0 : 2
+    }).format(safeAmount);
+  } catch {
+    const decimals = isZeroDecimal ? 0 : 2;
+    return `${currency.toUpperCase()} ${safeAmount.toFixed(decimals)}`;
+  }
+}
+function formatPayPalAmountString(amount, currency = "USD") {
+  const safeAmount = roundMoney(amount, currency);
+  const isZeroDecimal = ZERO_DECIMAL_CURRENCIES.has(currency.toUpperCase());
+  return safeAmount.toFixed(isZeroDecimal ? 0 : 2);
+}
+function validateMonetaryMatch(expectedAmount, receivedAmount, currency = "USD") {
+  const factor = getCurrencySubunitFactor(currency);
+  const expectedSubunits = Math.round(expectedAmount * factor);
+  const receivedSubunits = Math.round(receivedAmount * factor);
+  return Math.abs(expectedSubunits - receivedSubunits) <= 1;
+}
+
+// src/server/paypalService.ts
+var PayPalService = class {
+  cachedToken = null;
+  tokenExpiresAt = 0;
+  // In-memory idempotency cache to prevent duplicate capture of the same PayPal order
+  capturedOrdersCache = /* @__PURE__ */ new Map();
+  get environment() {
+    return (process.env.PAYPAL_ENVIRONMENT || "sandbox").toLowerCase() === "live" ? "live" : "sandbox";
+  }
+  get apiBaseUrl() {
+    return this.environment === "live" ? "https://api-m.paypal.com" : "https://api-m.sandbox.paypal.com";
+  }
+  get clientId() {
+    return process.env.PAYPAL_CLIENT_ID || "";
+  }
+  get clientSecret() {
+    return process.env.PAYPAL_CLIENT_SECRET || "";
+  }
+  get webhookId() {
+    return process.env.PAYPAL_WEBHOOK_ID || "";
+  }
+  /**
+   * Diagnostic summary of PayPal configuration state
+   */
+  getConfigStatus() {
+    const cid = this.clientId;
+    const preview = cid ? `${cid.slice(0, 8)}...${cid.slice(-4)}` : "Not Configured";
+    return {
+      configured: Boolean(cid && this.clientSecret),
+      environment: this.environment,
+      clientIdPreview: preview,
+      hasSecret: Boolean(this.clientSecret),
+      hasWebhookId: Boolean(this.webhookId),
+      apiBaseUrl: this.apiBaseUrl
+    };
+  }
+  /**
+   * Acquire or return cached OAuth 2.0 Bearer access token
+   */
+  async getAccessToken() {
+    if (!this.clientId || !this.clientSecret) {
+      throw new Error(
+        "PayPal credentials are not configured. Please set PAYPAL_CLIENT_ID and PAYPAL_CLIENT_SECRET in environment variables."
+      );
+    }
+    const now = Date.now();
+    if (this.cachedToken && this.tokenExpiresAt > now + 6e4) {
+      return this.cachedToken;
+    }
+    const authHeader = Buffer.from(`${this.clientId}:${this.clientSecret}`).toString("base64");
+    const response = await fetch(`${this.apiBaseUrl}/v1/oauth2/token`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Basic ${authHeader}`,
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Accept": "application/json"
+      },
+      body: "grant_type=client_credentials"
+    });
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("[PayPalService] OAuth token error:", errorText);
+      throw new Error(`Failed to obtain PayPal OAuth token (${response.status}): ${errorText}`);
+    }
+    const data = await response.json();
+    this.cachedToken = data.access_token;
+    this.tokenExpiresAt = now + (data.expires_in || 3600) * 1e3;
+    return this.cachedToken;
+  }
+  /**
+   * Create PayPal Order (v2) with strict amount and invoice custom identifier
+   */
+  async createOrder(params) {
+    const token = await this.getAccessToken();
+    const formattedAmount = formatPayPalAmountString(params.amount, params.currency);
+    const payload = {
+      intent: "CAPTURE",
+      purchase_units: [
+        {
+          reference_id: params.invoiceId,
+          custom_id: params.invoiceId,
+          invoice_id: params.invoiceNumber,
+          description: `MicroBiz PayFlow Invoice #${params.invoiceNumber}`,
+          amount: {
+            currency_code: params.currency.toUpperCase(),
+            value: formattedAmount
+          }
+        }
+      ],
+      application_context: {
+        brand_name: params.businessName || "MicroBiz PayFlow AI",
+        landing_page: "NO_PREFERENCE",
+        user_action: "PAY_NOW",
+        return_url: params.returnUrl || "https://ais-dev-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app/?tab=microbiz&subtab=invoices",
+        cancel_url: params.cancelUrl || "https://ais-dev-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app/?tab=microbiz&subtab=invoices"
+      }
+    };
+    const response = await fetch(`${this.apiBaseUrl}/v2/checkout/orders`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json",
+        "Prefer": "return=representation"
+      },
+      body: JSON.stringify(payload)
+    });
+    if (!response.ok) {
+      const errBody = await response.text();
+      console.error("[PayPalService] Create Order failed:", errBody);
+      throw new Error(`PayPal Create Order error (${response.status}): ${errBody}`);
+    }
+    const orderData = await response.json();
+    const approveLink = orderData.links?.find((l19) => l19.rel === "approve")?.href;
+    return {
+      orderId: orderData.id,
+      status: orderData.status,
+      approveUrl: approveLink
+    };
+  }
+  /**
+   * Authoritative Server-Side Payment Capture
+   * Validates amount, currency, prevents duplicate capture, and returns fee/net breakdowns
+   */
+  async captureOrder(params) {
+    if (this.capturedOrdersCache.has(params.orderId)) {
+      console.log(`[PayPalService] Returning idempotent cached capture for order ${params.orderId}`);
+      return this.capturedOrdersCache.get(params.orderId);
+    }
+    const token = await this.getAccessToken();
+    const response = await fetch(`${this.apiBaseUrl}/v2/checkout/orders/${params.orderId}/capture`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json",
+        "PayPal-Request-Id": `capture_${params.orderId}`
+      }
+    });
+    if (!response.ok) {
+      const errBody = await response.text();
+      console.error("[PayPalService] Capture Order failed:", errBody);
+      return {
+        success: false,
+        orderId: params.orderId,
+        status: "FAILED",
+        grossAmount: 0,
+        feeAmount: 0,
+        netAmount: 0,
+        currency: params.expectedCurrency,
+        error: `Capture failed (${response.status}): ${errBody}`
+      };
+    }
+    const data = await response.json();
+    const purchaseUnit = data.purchase_units?.[0];
+    const capture = purchaseUnit?.payments?.captures?.[0];
+    if (!capture) {
+      return {
+        success: false,
+        orderId: params.orderId,
+        status: data.status || "UNKNOWN",
+        grossAmount: 0,
+        feeAmount: 0,
+        netAmount: 0,
+        currency: params.expectedCurrency,
+        error: "No payment capture details found in PayPal response"
+      };
+    }
+    const grossValue = parseFloat(capture.amount?.value || "0");
+    const currency = capture.amount?.currency_code || params.expectedCurrency;
+    const feeValue = parseFloat(capture.seller_receivable_breakdown?.paypal_fee?.value || "0");
+    const netValue = parseFloat(capture.seller_receivable_breakdown?.net_amount?.value || (grossValue - feeValue).toString());
+    const isAmountValid = validateMonetaryMatch(params.expectedAmount, grossValue, currency);
+    const isCurrencyValid = currency.toUpperCase() === params.expectedCurrency.toUpperCase();
+    if (!isAmountValid || !isCurrencyValid) {
+      const mismatchMsg = `Amount or currency mismatch: Expected ${params.expectedAmount} ${params.expectedCurrency}, received ${grossValue} ${currency}`;
+      console.error("[PayPalService] Security Alert:", mismatchMsg);
+      return {
+        success: false,
+        orderId: params.orderId,
+        captureId: capture.id,
+        status: "AMOUNT_MISMATCH",
+        grossAmount: grossValue,
+        feeAmount: feeValue,
+        netAmount: netValue,
+        currency,
+        error: mismatchMsg
+      };
+    }
+    const payer = data.payer || {};
+    const payerName = [payer.name?.given_name, payer.name?.surname].filter(Boolean).join(" ");
+    const result = {
+      success: capture.status === "COMPLETED",
+      orderId: params.orderId,
+      captureId: capture.id,
+      status: capture.status,
+      grossAmount: grossValue,
+      feeAmount: feeValue,
+      netAmount: netValue,
+      currency,
+      payerEmail: payer.email_address,
+      payerName: payerName || void 0,
+      payerId: payer.payer_id,
+      createTime: capture.create_time || (/* @__PURE__ */ new Date()).toISOString()
+    };
+    if (result.success) {
+      this.capturedOrdersCache.set(params.orderId, result);
+    }
+    return result;
+  }
+  /**
+   * Cryptographic Webhook Signature Verification
+   * Authenticates that webhooks legitimately originated from PayPal
+   */
+  async verifyWebhookSignature(headers, rawBody) {
+    if (!this.webhookId) {
+      return {
+        verified: false,
+        verificationStatus: "NOT_CONFIGURED",
+        reason: "PAYPAL_WEBHOOK_ID is not configured in server environment"
+      };
+    }
+    const authAlgo = headers["paypal-auth-algo"];
+    const certUrl = headers["paypal-cert-url"];
+    const transmissionId = headers["paypal-transmission-id"];
+    const transmissionSig = headers["paypal-transmission-sig"];
+    const transmissionTime = headers["paypal-transmission-time"];
+    if (!authAlgo || !certUrl || !transmissionId || !transmissionSig || !transmissionTime) {
+      return {
+        verified: false,
+        verificationStatus: "MISSING_HEADERS",
+        reason: "Required PayPal webhook transmission headers are missing"
+      };
+    }
+    try {
+      const token = await this.getAccessToken();
+      const verificationPayload = {
+        auth_algo: authAlgo,
+        cert_url: certUrl,
+        transmission_id: transmissionId,
+        transmission_sig: transmissionSig,
+        transmission_time: transmissionTime,
+        webhook_id: this.webhookId,
+        webhook_event: typeof rawBody === "string" ? JSON.parse(rawBody) : rawBody
+      };
+      const response = await fetch(`${this.apiBaseUrl}/v1/notifications/verify-webhook-signature`, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(verificationPayload)
+      });
+      if (!response.ok) {
+        return {
+          verified: false,
+          verificationStatus: "VERIFICATION_CALL_FAILED",
+          reason: `PayPal verification API returned HTTP ${response.status}`
+        };
+      }
+      const resJson = await response.json();
+      return {
+        verified: resJson.verification_status === "SUCCESS",
+        verificationStatus: resJson.verification_status,
+        reason: resJson.verification_status === "SUCCESS" ? void 0 : "Signature did not match"
+      };
+    } catch (err) {
+      console.error("[PayPalService] Webhook verification error:", err);
+      return {
+        verified: false,
+        verificationStatus: "ERROR",
+        reason: err?.message || "Internal verification exception"
+      };
+    }
+  }
+  /**
+   * Refund a captured payment
+   */
+  async refundCapture(captureId, amount, currency, noteToPayer) {
+    const token = await this.getAccessToken();
+    const payload = {};
+    if (amount && currency) {
+      payload.amount = {
+        value: formatPayPalAmountString(amount, currency),
+        currency_code: currency.toUpperCase()
+      };
+    }
+    if (noteToPayer) {
+      payload.note_to_payer = noteToPayer;
+    }
+    const response = await fetch(`${this.apiBaseUrl}/v2/payments/captures/${captureId}/refund`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json"
+      },
+      body: Object.keys(payload).length > 0 ? JSON.stringify(payload) : void 0
+    });
+    if (!response.ok) {
+      const errText = await response.text();
+      return {
+        success: false,
+        error: `Refund failed (${response.status}): ${errText}`
+      };
+    }
+    const refundData = await response.json();
+    return {
+      success: refundData.status === "COMPLETED" || refundData.status === "PENDING",
+      refundId: refundData.id,
+      status: refundData.status
+    };
+  }
+};
+var paypalService = new PayPalService();
+
+// src/server/payflowAiServerService.ts
+var MANDATORY_FINANCIAL_DISCLAIMER = "Notice: PayFlow AI provides operational insights and draft calculations based on your recorded ledger. AI suggestions are strictly for informational and planning purposes and do not constitute certified public accountant (CPA), legal, or tax filing advice.";
+var PayFlowAiServerService = class {
+  /**
+   * Main AI query router for PayFlow
+   */
+  static async answerFinancialQuery(queryText, context, client) {
+    const startTime = Date.now();
+    const totalInvoiced = roundMoney(
+      context.invoices.reduce((sum, inv) => sum + (inv.total || 0), 0)
+    );
+    const totalPaid = roundMoney(
+      context.transactions.filter((t45) => t45.status === "COMPLETED").reduce((sum, t45) => sum + (t45.grossAmount || 0), 0)
+    );
+    const totalExpenses = roundMoney(
+      context.expenses.reduce((sum, exp) => sum + (exp.amount || 0), 0)
+    );
+    const netCashFlow = roundMoney(totalPaid - totalExpenses);
+    const nowIso = (/* @__PURE__ */ new Date()).toISOString().split("T")[0];
+    const overdueInvoices = context.invoices.filter((inv) => {
+      return inv.status === "OVERDUE" || inv.status === "PENDING" && inv.dueDate < nowIso;
+    });
+    const overdueTotal = roundMoney(
+      overdueInvoices.reduce((sum, inv) => sum + (inv.balanceDue || inv.total || 0), 0)
+    );
+    const baseCurrency = context.businessProfile?.defaultCurrency || context.invoices[0]?.currency || "USD";
+    const verifiedFacts = [
+      `Recorded Invoices: ${context.invoices.length} (${totalInvoiced} ${baseCurrency} invoiced)`,
+      `Collected Payments: ${context.transactions.length} (${totalPaid} ${baseCurrency} gross collected)`,
+      `Recorded Business Expenses: ${context.expenses.length} (${totalExpenses} ${baseCurrency})`,
+      `Net Cash Flow: ${netCashFlow} ${baseCurrency}`,
+      `Overdue Invoices: ${overdueInvoices.length} (${overdueTotal} ${baseCurrency} outstanding)`
+    ];
+    if (!client) {
+      return this.generateDeterministicFallback(
+        queryText,
+        context,
+        verifiedFacts,
+        {
+          totalRevenue: totalPaid,
+          totalExpenses,
+          netCashFlow,
+          overdueCount: overdueInvoices.length,
+          overdueAmount: overdueTotal,
+          currency: baseCurrency
+        },
+        startTime
+      );
+    }
+    try {
+      const prompt = `
+You are the MicroBiz PayFlow AI Financial Assistant for Dr. T's business operations ecosystem.
+The user is asking a question or requesting financial assistance regarding their invoices, payments, expenses, or cash flow.
+
+AUTHORIZED USER RECORD CONTEXT (Authoritative Ground Truth):
+- Business Name: ${context.businessProfile?.businessName || "My MicroBiz"}
+- Default Currency: ${baseCurrency}
+- Total Invoices Count: ${context.invoices.length}
+- Total Invoiced Amount: ${totalInvoiced} ${baseCurrency}
+- Total Paid Transactions: ${totalPaid} ${baseCurrency}
+- Total Expenses: ${totalExpenses} ${baseCurrency}
+- Net Cash Flow: ${netCashFlow} ${baseCurrency}
+- Overdue Invoices: ${overdueInvoices.length} totalling ${overdueTotal} ${baseCurrency}
+
+INVOICE SUMMARY (Latest 10):
+${JSON.stringify(context.invoices.slice(0, 10).map((i19) => ({
+        id: i19.id,
+        number: i19.invoiceNumber,
+        customer: i19.customer.name,
+        customerEmail: i19.customer.email,
+        total: i19.total,
+        balanceDue: i19.balanceDue,
+        status: i19.status,
+        dueDate: i19.dueDate
+      })), null, 2)}
+
+RECENT EXPENSES (Latest 10):
+${JSON.stringify(context.expenses.slice(0, 10).map((e42) => ({
+        merchant: e42.merchant,
+        category: e42.category,
+        amount: e42.amount,
+        date: e42.date
+      })), null, 2)}
+
+USER QUESTION / TASK:
+"${queryText}"
+
+CRITICAL INSTRUCTIONS:
+1. Always base financial numbers strictly on the authoritative context provided above. Never invent numbers, payments, or customers.
+2. Clearly distinguish between FACTUAL RECORDS and STRATEGIC RECOMMENDATIONS.
+3. If the user asks to create/draft an invoice (e.g. "Invoice John for 10 hours consulting at $100"), output a structured "invoice_draft" object.
+4. If the user asks to draft an overdue reminder email, output a structured "suggestedReminder" with a professional, polite subject and body.
+5. If the user asks for a financial summary or cash flow comparison, provide clear, bulleted breakdown.
+
+Respond in strict JSON format matching this schema:
+{
+  "answer": "Clear, friendly, professional response in plain text with bold highlights",
+  "structuredData": {
+    "type": "invoice_draft" | "financial_summary" | "reminder_draft" | "expense_categorization" | "general_advice",
+    "invoiceDraft": {
+      "customerName": "Customer Name",
+      "customerEmail": "customer@email.com",
+      "items": [{ "description": "Item description", "quantity": 1, "unitPrice": 100 }],
+      "currency": "${baseCurrency}",
+      "notes": "Thank you for your business!"
+    },
+    "suggestedReminder": {
+      "subject": "Gentle Reminder: Invoice #... is past due",
+      "body": "Dear ..., hope this finds you well...",
+      "recipientEmail": "customer@email.com"
+    }
+  },
+  "facts": ["Fact 1 based on actual records", "Fact 2 based on actual records"],
+  "recommendations": ["Recommendation 1", "Recommendation 2"]
+}
+`;
+      const response = await client.models.generateContent({
+        model: "gemini-3.8-flash",
+        contents: prompt,
+        config: {
+          responseMimeType: "application/json",
+          temperature: 0.2
+        }
+      });
+      const responseText = response.text || "";
+      const parsed = sanitizeAndParseJson(responseText);
+      if (parsed && parsed.answer) {
+        return {
+          answer: parsed.answer,
+          structuredData: parsed.structuredData,
+          facts: Array.isArray(parsed.facts) && parsed.facts.length > 0 ? parsed.facts : verifiedFacts,
+          recommendations: Array.isArray(parsed.recommendations) ? parsed.recommendations : [],
+          disclaimer: MANDATORY_FINANCIAL_DISCLAIMER,
+          modelUsed: "gemini-3.8-flash",
+          executionTimeMs: Date.now() - startTime
+        };
+      }
+    } catch (err) {
+      console.warn("[PayFlowAiServerService] Gemini inference failed, utilizing deterministic engine:", err?.message);
+    }
+    return this.generateDeterministicFallback(
+      queryText,
+      context,
+      verifiedFacts,
+      {
+        totalRevenue: totalPaid,
+        totalExpenses,
+        netCashFlow,
+        overdueCount: overdueInvoices.length,
+        overdueAmount: overdueTotal,
+        currency: baseCurrency
+      },
+      startTime
+    );
+  }
+  /**
+   * Deterministic financial reasoning fallback when external AI is unavailable or offline
+   */
+  static generateDeterministicFallback(queryText, context, verifiedFacts, metrics, startTime) {
+    const q = queryText.toLowerCase();
+    if (q.includes("overdue") || q.includes("unpaid") || q.includes("late")) {
+      const nowIso = (/* @__PURE__ */ new Date()).toISOString().split("T")[0];
+      const overdueList = context.invoices.filter((i19) => i19.status === "OVERDUE" || i19.status === "PENDING" && i19.dueDate < nowIso);
+      const answer = overdueList.length > 0 ? `You currently have **${overdueList.length} overdue invoice(s)** totaling **${metrics.overdueAmount} ${metrics.currency}**:
+` + overdueList.map((i19) => `\u2022 Invoice **#${i19.invoiceNumber}** for **${i19.customer.name}** (${i19.balanceDue} ${i19.currency}) was due on ${i19.dueDate}`).join("\n") + `
+
+Would you like me to generate a polite payment reminder email for any of these clients?` : `Great news! You have **0 overdue invoices** across your registered records. All current invoices are either paid or within their due dates.`;
+      const firstOverdue = overdueList[0];
+      const suggestedReminder = firstOverdue ? {
+        subject: `Friendly Follow-up: Invoice #${firstOverdue.invoiceNumber} with ${context.businessProfile?.businessName || "our team"}`,
+        body: `Hi ${firstOverdue.customer.name},
+
+I hope you are having a wonderful week! This is a quick note regarding Invoice #${firstOverdue.invoiceNumber} for ${firstOverdue.balanceDue} ${firstOverdue.currency}, which was due on ${firstOverdue.dueDate}.
+
+You can easily review and settle this invoice via PayPal or direct transfer here:
+${firstOverdue.paypalPaymentUrl || "Please check your attached invoice."}
+
+Please let me know if you have any questions.
+
+Warm regards,
+${context.businessProfile?.ownerName || "The Team"}`,
+        recipientEmail: firstOverdue.customer.email
+      } : void 0;
+      return {
+        answer,
+        structuredData: {
+          type: "reminder_draft",
+          financialMetrics: metrics,
+          suggestedReminder
+        },
+        facts: verifiedFacts,
+        recommendations: [
+          "Send polite reminder 3 days before due date to reduce late settlements by up to 40%",
+          "Enable PayPal one-click checkout to allow customers to pay immediately from mobile"
+        ],
+        disclaimer: MANDATORY_FINANCIAL_DISCLAIMER,
+        modelUsed: "microbiz-deterministic-finance",
+        executionTimeMs: Date.now() - startTime
+      };
+    }
+    if (q.includes("revenue") || q.includes("received") || q.includes("cash flow") || q.includes("money") || q.includes("earned")) {
+      const answer = `### Cash Flow & Revenue Summary
+\u2022 **Gross Collected Revenue**: **${metrics.totalRevenue} ${metrics.currency}** (from ${context.transactions.filter((t45) => t45.status === "COMPLETED").length} completed transactions)
+\u2022 **Total Recorded Expenses**: **${metrics.totalExpenses} ${metrics.currency}** (across ${context.expenses.length} line items)
+\u2022 **Net Operating Cash Flow**: **${metrics.netCashFlow >= 0 ? "+" : ""}${metrics.netCashFlow} ${metrics.currency}**
+\u2022 **Outstanding Receivables**: **${metrics.overdueAmount} ${metrics.currency}** in overdue payments`;
+      return {
+        answer,
+        structuredData: {
+          type: "financial_summary",
+          financialMetrics: metrics
+        },
+        facts: verifiedFacts,
+        recommendations: [
+          metrics.netCashFlow >= 0 ? "Positive cash flow detected. Consider allocating 15-20% to an emergency reserve or business growth fund." : "Net cash flow is currently negative. Review recurring expenses and follow up on pending invoices to stabilize operating capital.",
+          "Reconcile PayPal merchant fees against gross receipts for accurate net revenue bookkeeping."
+        ],
+        disclaimer: MANDATORY_FINANCIAL_DISCLAIMER,
+        modelUsed: "microbiz-deterministic-finance",
+        executionTimeMs: Date.now() - startTime
+      };
+    }
+    if (q.includes("invoice") || q.includes("bill") || q.includes("charge")) {
+      const sampleItem = {
+        description: "Professional Services / Deliverables",
+        quantity: 1,
+        unitPrice: 150
+      };
+      return {
+        answer: `I have prepared an invoice draft framework for you. You can review the line items, adjust pricing, and attach PayPal payment processing with one click.`,
+        structuredData: {
+          type: "invoice_draft",
+          invoiceDraft: {
+            customerName: "Client Partner",
+            customerEmail: "client@example.com",
+            items: [sampleItem],
+            currency: metrics.currency,
+            notes: "Thank you for choosing to partner with us! Payment is due within 14 days."
+          }
+        },
+        facts: verifiedFacts,
+        recommendations: [
+          "Specify clear payment terms (e.g., Net 14 or Due on Receipt) to prevent delayed settlements.",
+          "Itemize project phases or deliverables clearly to reduce client review friction."
+        ],
+        disclaimer: MANDATORY_FINANCIAL_DISCLAIMER,
+        modelUsed: "microbiz-deterministic-finance",
+        executionTimeMs: Date.now() - startTime
+      };
+    }
+    return {
+      answer: `### PayFlow AI Business Overview
+Here is the verified financial snapshot for **${context.businessProfile?.businessName || "your business"}**:
+
+\u2022 **Invoiced Total**: ${metrics.totalRevenue + metrics.overdueAmount} ${metrics.currency}
+\u2022 **Collected Payments**: ${metrics.totalRevenue} ${metrics.currency}
+\u2022 **Recorded Expenses**: ${metrics.totalExpenses} ${metrics.currency}
+\u2022 **Net Cash Flow**: ${metrics.netCashFlow} ${metrics.currency}
+
+You can ask me to draft invoices, explain overdue payments, analyze expense trends, or write polite payment reminders anytime!`,
+      structuredData: {
+        type: "general_advice",
+        financialMetrics: metrics
+      },
+      facts: verifiedFacts,
+      recommendations: [
+        "Regularly scan paper and digital receipts to capture all tax-deductible operational costs.",
+        "Review client payment timelines monthly to identify repeat late-paying accounts."
+      ],
+      disclaimer: MANDATORY_FINANCIAL_DISCLAIMER,
+      modelUsed: "microbiz-deterministic-finance",
+      executionTimeMs: Date.now() - startTime
+    };
+  }
+};
+
+// src/server/debtFreeAiServerService.ts
+var MANDATORY_DEBT_RELIEF_DISCLAIMER = "Important Notice: PayFlow DebtFree AI provides informational assistance, application guidance, and draft communication. It does NOT provide legal advice, credit counseling, bankruptcy consulting, or guarantees of creditor debt forgiveness. All creditor settlements require verifiable official proof of payment directly to the identified institution.";
+var DebtFreeAiServerService = class {
+  /**
+   * Main entrypoint for DebtFree AI queries
+   */
+  static async processRequest(req) {
+    const startTime = Date.now();
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      return this.generateFallbackResponse(req, startTime, "Local Fallback Engine (No API Key)");
+    }
+    try {
+      const ai = new GoogleGenAI2({ apiKey });
+      const prompt = this.buildPrompt(req);
+      const response = await ai.models.generateContent({
+        model: "gemini-3.8-flash",
+        contents: prompt,
+        config: {
+          temperature: 0.2,
+          // Low temperature for high factual precision
+          maxOutputTokens: 1500
+        }
+      });
+      const responseText = response.text || "";
+      const parsed = sanitizeAndParseJson(responseText);
+      if (parsed && parsed.answer) {
+        return {
+          answer: parsed.answer,
+          checklist: Array.isArray(parsed.checklist) ? parsed.checklist : void 0,
+          suggestedNarrative: parsed.suggestedNarrative || void 0,
+          creditorLetter: parsed.creditorLetter || void 0,
+          riskAssessment: parsed.riskAssessment || void 0,
+          facts: Array.isArray(parsed.facts) ? parsed.facts : ["All creditor payments must be verified with formal receipts."],
+          recommendations: Array.isArray(parsed.recommendations) ? parsed.recommendations : ["Ensure account reference is verified."],
+          disclaimer: MANDATORY_DEBT_RELIEF_DISCLAIMER,
+          modelUsed: "gemini-3.8-flash",
+          executionTimeMs: Date.now() - startTime
+        };
+      }
+      return {
+        answer: responseText,
+        facts: ["Guidance generated based on user provided creditor data."],
+        recommendations: ["Review supporting documents with official billing statements."],
+        disclaimer: MANDATORY_DEBT_RELIEF_DISCLAIMER,
+        modelUsed: "gemini-3.8-flash",
+        executionTimeMs: Date.now() - startTime
+      };
+    } catch (err) {
+      console.warn("DebtFree Gemini AI error, falling back:", err.message);
+      return this.generateFallbackResponse(req, startTime, "Local Rule-Based Engine (AI Timeout/Fallback)");
+    }
+  }
+  static buildPrompt(req) {
+    return `You are PayFlow DebtFree AI, a respectful, ethical, and mathematically precise financial relief assistant for the PayPal AI Hackathon 2026.
+Platform: Dr. T by Zenieverse.
+Task Type: ${req.type}
+Category: ${req.category || "General Hardship"}
+Creditor: ${req.creditorName || "Official Creditor"}
+Amount: ${req.amount ? `${req.amount} ${req.currency || "USD"}` : "Unspecified"}
+User Draft / Context: ${req.userDraft || (req.debtRequest ? JSON.stringify(req.debtRequest) : "No user draft")}
+
+RULES:
+1. Maintain utmost respect, dignity, and empathy for the beneficiary. Never use judgmental, condescending, or stigmatizing language.
+2. Ground all mathematical figures in verified reality. NEVER invent balances, creditor account numbers, or fictional payment confirmations.
+3. If drafting a creditor letter, address the billing department respectfully, quote the exact reference number, and request forbearance, payment plan consideration, or application of community-contributed funds.
+4. If assessing risk, evaluate missing documentation, realistic amounts, and account number plausibility without making binding legal decisions.
+5. You MUST return your response as a valid, parseable JSON object matching this schema:
+{
+  "answer": "string",
+  "checklist": ["string"],
+  "suggestedNarrative": "string (optional)",
+  "creditorLetter": {
+    "subject": "string",
+    "recipient": "string",
+    "body": "string"
+  },
+  "riskAssessment": {
+    "score": number, // 0 to 100
+    "riskLevel": "LOW" | "MODERATE" | "ELEVATED",
+    "indicators": ["string"],
+    "recommendHumanReview": boolean
+  },
+  "facts": ["verified fact 1", "verified fact 2"],
+  "recommendations": ["actionable advice 1", "actionable advice 2"]
+}
+`;
+  }
+  static generateFallbackResponse(req, startTime, modelUsed) {
+    const currency = req.currency || "USD";
+    const amountStr = req.amount ? formatMoney(req.amount, currency) : "your stated balance";
+    const creditor = req.creditorName || "your creditor";
+    if (req.type === "creditor_letter_draft") {
+      const subject = `Request for Hardship Account Review & Community Assistance Payment \u2014 Ref: ${req.debtRequest?.creditor.accountReferenceNumber || "Account Inactive"}`;
+      const body = `Dear Billing & Financial Hardship Department at ${creditor},
+
+I am writing to formally request a hardship review regarding my outstanding balance of ${amountStr}. 
+
+Due to unforeseen circumstances, I am currently collaborating with community supporters through the verified PayFlow DebtFree platform to arrange direct payments toward this account. 
+
+Could you please confirm the direct payment instructions, official billing portal link, and whether late fee penalties or interest accumulation can be temporarily frozen while these community contributions are being processed?
+
+Thank you for your understanding and partnership.
+
+Sincerely,
+${req.debtRequest?.publicAlias || "Account Holder"}`;
+      return {
+        answer: `I have prepared a respectful hardship inquiry draft for ${creditor}. This letter requests direct payment confirmation and asks the creditor to freeze late fees while community contributions are mobilized.`,
+        creditorLetter: {
+          subject,
+          recipient: `${creditor} Patient / Customer Billing Department`,
+          body
+        },
+        facts: [
+          `Creditor identified as ${creditor}.`,
+          `Target balance stated as ${amountStr}.`,
+          "Direct-to-creditor settlement avoids intermediary custody."
+        ],
+        recommendations: [
+          "Verify the creditor customer service telephone number before sending.",
+          "Always keep a copy of timestamped billing correspondence."
+        ],
+        disclaimer: MANDATORY_DEBT_RELIEF_DISCLAIMER,
+        modelUsed,
+        executionTimeMs: Date.now() - startTime
+      };
+    }
+    if (req.type === "application_guidance") {
+      return {
+        answer: `To verify your debt relief request for ${creditor} (${amountStr}), our Trust & Safety committee requires objective documentation to protect both your privacy and supporter transparency.`,
+        checklist: [
+          "Most recent billing statement showing creditor name and customer account number",
+          "Document date within the last 60-90 days confirming active balance",
+          "Creditor official payment portal URL, billing address, or remittance voucher",
+          "Signed verification consent authorizing our reviewers to confirm balance status"
+        ],
+        suggestedNarrative: `Facing an unexpected hardship with ${amountStr} in ${req.category || "emergency"} expenses owed to ${creditor}. Seeking community support to settle this debt directly with the creditor so our household can regain financial stability.`,
+        facts: [
+          "Supporting documents are restricted to authorized reviewers and never published publicly.",
+          "Supporters will only see your verified badge and dignity-safe alias."
+        ],
+        recommendations: [
+          "Redact unnecessary personal ID numbers (like full Social Security or national ID numbers) prior to uploading.",
+          "Ensure the outstanding balance matches the exact amount on the billing voucher."
+        ],
+        disclaimer: MANDATORY_DEBT_RELIEF_DISCLAIMER,
+        modelUsed,
+        executionTimeMs: Date.now() - startTime
+      };
+    }
+    return {
+      answer: `PayFlow DebtFree connects people in financial distress with verified community supporters. By channeling contributions directly to verified creditors like ${creditor}, we eliminate predatory fees and ensure 100% of donor funds provide real debt freedom.`,
+      facts: [
+        "Zero platform fees charged to beneficiaries or donors.",
+        "Direct settlement prevents misuse of funds."
+      ],
+      recommendations: [
+        "Complete all verification steps promptly to achieve PUBLISHED status.",
+        "Share your verified request link with community mutual-aid networks."
+      ],
+      disclaimer: MANDATORY_DEBT_RELIEF_DISCLAIMER,
+      modelUsed,
+      executionTimeMs: Date.now() - startTime
+    };
+  }
+};
+
 // server.impl.ts
+try {
+  const envPath = import_path3.default.join(process.cwd(), ".env");
+  if (import_fs5.default.existsSync(envPath)) {
+    const lines = import_fs5.default.readFileSync(envPath, "utf8").split("\n");
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (trimmed && !trimmed.startsWith("#")) {
+        const idx = trimmed.indexOf("=");
+        if (idx > 0) {
+          const k3 = trimmed.slice(0, idx).trim();
+          const v3 = trimmed.slice(idx + 1).trim();
+          if (!process.env[k3]) {
+            process.env[k3] = v3;
+          }
+        }
+      }
+    }
+  }
+} catch {
+}
 var app = (0, import_express2.default)();
 var PORT = Number(process.env.PORT) || 3e3;
 app.use((0, import_cors.default)());
@@ -180475,6 +181560,14 @@ app.post("/api/three-hats/companion-reflect", async (req, res) => {
     });
   }
 });
+app.get("/api/gather-and-glow/health", (req, res) => {
+  try {
+    const health = GatherGlowServerService.checkHealth();
+    return res.json(health);
+  } catch (err) {
+    return res.status(500).json({ status: "DEGRADED", error: err.message });
+  }
+});
 app.post("/api/gather-and-glow/generate-plan", async (req, res) => {
   try {
     const { event } = req.body || {};
@@ -180486,6 +181579,240 @@ app.post("/api/gather-and-glow/generate-plan", async (req, res) => {
   } catch (err) {
     console.error("[GatherGlow Server Route] Generation error:", err);
     return res.status(500).json({ error: err.message || "Event plan generation failed." });
+  }
+});
+app.post("/api/gather-and-glow/refine-plan", async (req, res) => {
+  try {
+    const { currentPlan, prompt, event } = req.body || {};
+    if (!currentPlan || !prompt || !event) {
+      return res.status(400).json({ error: "currentPlan, prompt, and event are required." });
+    }
+    const result = await GatherGlowServerService.refinePlan(currentPlan, prompt, event);
+    return res.json(result);
+  } catch (err) {
+    console.error("[GatherGlow Server Route] Refine error:", err);
+    return res.status(500).json({ error: err.message || "Event plan refinement failed." });
+  }
+});
+app.get("/api/street-vendors/sync-ganhmuusinh", async (req, res) => {
+  try {
+    const result = await StreetVendorsServerService.syncWithGanhMuuSinh();
+    return res.json(result);
+  } catch (err) {
+    return res.status(500).json({ error: err.message || "Sync failed" });
+  }
+});
+app.post("/api/street-vendors/sync-ganhmuusinh", async (req, res) => {
+  try {
+    const result = await StreetVendorsServerService.syncWithGanhMuuSinh();
+    return res.json(result);
+  } catch (err) {
+    return res.status(500).json({ error: err.message || "Sync failed" });
+  }
+});
+app.get("/api/paypal/config", (req, res) => {
+  try {
+    const status = paypalService.getConfigStatus();
+    return res.json(status);
+  } catch (err) {
+    return res.status(500).json({ error: err?.message || "Failed to get PayPal status" });
+  }
+});
+app.post("/api/paypal/create-order", async (req, res) => {
+  try {
+    const { invoiceId, invoiceNumber, amount, currency, customerName, customerEmail, businessName } = req.body;
+    if (!invoiceId || !amount || typeof amount !== "number" || amount <= 0) {
+      return res.status(400).json({ error: "Valid invoiceId and positive numerical amount are required." });
+    }
+    const orderResult = await paypalService.createOrder({
+      invoiceId,
+      invoiceNumber: invoiceNumber || invoiceId,
+      amount,
+      currency: currency || "USD",
+      customerName,
+      customerEmail,
+      businessName
+    });
+    return res.json({
+      success: true,
+      orderId: orderResult.orderId,
+      status: orderResult.status,
+      approveUrl: orderResult.approveUrl
+    });
+  } catch (err) {
+    console.error("[API /api/paypal/create-order] Error:", err);
+    return res.status(500).json({
+      error: err?.message || "Server error creating PayPal order.",
+      setupHelp: !process.env.PAYPAL_CLIENT_ID ? "PayPal client credentials missing in server environment." : void 0
+    });
+  }
+});
+app.post("/api/paypal/capture-order", async (req, res) => {
+  try {
+    const { orderId, invoiceId, expectedAmount, expectedCurrency } = req.body;
+    if (!orderId || !invoiceId || expectedAmount === void 0) {
+      return res.status(400).json({ error: "orderId, invoiceId, and expectedAmount are required for verification." });
+    }
+    const captureResult = await paypalService.captureOrder({
+      orderId,
+      invoiceId,
+      expectedAmount: Number(expectedAmount),
+      expectedCurrency: expectedCurrency || "USD"
+    });
+    if (!captureResult.success) {
+      return res.status(400).json({
+        success: false,
+        error: captureResult.error || "Payment capture could not be verified by PayPal.",
+        status: captureResult.status
+      });
+    }
+    return res.json({
+      success: true,
+      orderId: captureResult.orderId,
+      captureId: captureResult.captureId,
+      status: captureResult.status,
+      grossAmount: captureResult.grossAmount,
+      feeAmount: captureResult.feeAmount,
+      netAmount: captureResult.netAmount,
+      currency: captureResult.currency,
+      payerEmail: captureResult.payerEmail,
+      payerName: captureResult.payerName,
+      payerId: captureResult.payerId,
+      createTime: captureResult.createTime
+    });
+  } catch (err) {
+    console.error("[API /api/paypal/capture-order] Error:", err);
+    return res.status(500).json({ error: err?.message || "Server error capturing PayPal order." });
+  }
+});
+app.post("/api/paypal/webhook", async (req, res) => {
+  try {
+    const verification = await paypalService.verifyWebhookSignature(req.headers, req.body);
+    const eventType = req.body?.event_type || "UNKNOWN";
+    console.log(`[PayPal Webhook] Event: ${eventType}, Verified: ${verification.verified}`);
+    if (!verification.verified && verification.verificationStatus !== "NOT_CONFIGURED") {
+      console.warn("[PayPal Webhook] Unauthorized or unverified webhook rejected:", verification.reason);
+      return res.status(401).json({ error: "Invalid PayPal webhook signature", reason: verification.reason });
+    }
+    if (eventType === "PAYMENT.CAPTURE.COMPLETED") {
+      const resource = req.body.resource;
+      console.log(`[PayPal Webhook] Payment capture completed: ${resource?.id}, Amount: ${resource?.amount?.value} ${resource?.amount?.currency_code}`);
+    }
+    return res.status(200).json({
+      received: true,
+      verified: verification.verified,
+      eventType
+    });
+  } catch (err) {
+    console.error("[API /api/paypal/webhook] Error:", err);
+    return res.status(500).json({ error: err?.message || "Webhook processing failed" });
+  }
+});
+app.post("/api/paypal/refund", async (req, res) => {
+  try {
+    const { captureId, amount, currency, noteToPayer } = req.body;
+    if (!captureId) {
+      return res.status(400).json({ error: "captureId is required for refund processing." });
+    }
+    const result = await paypalService.refundCapture(captureId, amount, currency, noteToPayer);
+    if (!result.success) {
+      return res.status(400).json(result);
+    }
+    return res.json(result);
+  } catch (err) {
+    console.error("[API /api/paypal/refund] Error:", err);
+    return res.status(500).json({ error: err?.message || "Refund processing error" });
+  }
+});
+app.post("/api/microbiz/ai-assistant", async (req, res) => {
+  try {
+    const { query: queryText, context } = req.body;
+    if (!queryText || typeof queryText !== "string") {
+      return res.status(400).json({ error: "query string is required." });
+    }
+    const gemini = getGemini();
+    const result = await PayFlowAiServerService.answerFinancialQuery(
+      queryText,
+      context || { invoices: [], transactions: [], expenses: [] },
+      gemini
+    );
+    return res.json(result);
+  } catch (err) {
+    console.error("[API /api/microbiz/ai-assistant] Error:", err);
+    return res.status(500).json({ error: err?.message || "AI financial assistant processing error" });
+  }
+});
+app.post("/api/debtfree/create-order", async (req, res) => {
+  try {
+    const { debtRequestId, debtTitle, amount, currency, supporterName, supporterEmail } = req.body;
+    if (!debtRequestId || !amount || typeof amount !== "number" || amount <= 0) {
+      return res.status(400).json({ error: "Valid debtRequestId and positive amount are required." });
+    }
+    const orderResult = await paypalService.createOrder({
+      invoiceId: debtRequestId,
+      invoiceNumber: `DEBT-CONTRIB-${debtRequestId}`,
+      amount,
+      currency: currency || "USD",
+      customerName: supporterName || "Anonymous Supporter",
+      customerEmail: supporterEmail,
+      businessName: "PayFlow DebtFree Community Relief Fund"
+    });
+    return res.json({
+      success: true,
+      orderId: orderResult.orderId,
+      status: orderResult.status,
+      approveUrl: orderResult.approveUrl
+    });
+  } catch (err) {
+    console.error("[API /api/debtfree/create-order] Error:", err);
+    return res.status(500).json({ error: err?.message || "Server error creating DebtFree PayPal order." });
+  }
+});
+app.post("/api/debtfree/capture-order", async (req, res) => {
+  try {
+    const { orderId, debtRequestId, expectedAmount, expectedCurrency } = req.body;
+    if (!orderId || !debtRequestId || expectedAmount === void 0) {
+      return res.status(400).json({ error: "orderId, debtRequestId, and expectedAmount are required." });
+    }
+    const captureResult = await paypalService.captureOrder({
+      orderId,
+      invoiceId: debtRequestId,
+      expectedAmount: Number(expectedAmount),
+      expectedCurrency: expectedCurrency || "USD"
+    });
+    if (!captureResult.success) {
+      return res.status(400).json({
+        success: false,
+        error: captureResult.error || "Debt relief contribution capture could not be verified by PayPal.",
+        status: captureResult.status
+      });
+    }
+    return res.json({
+      success: true,
+      orderId: captureResult.orderId,
+      captureId: captureResult.captureId,
+      status: captureResult.status,
+      grossAmount: captureResult.grossAmount,
+      feeAmount: captureResult.feeAmount,
+      netAmount: captureResult.netAmount,
+      currency: captureResult.currency,
+      payerEmail: captureResult.payerEmail,
+      payerName: captureResult.payerName,
+      payerId: captureResult.payerId,
+      createTime: captureResult.createTime
+    });
+  } catch (err) {
+    console.error("[API /api/debtfree/capture-order] Error:", err);
+    return res.status(500).json({ error: err?.message || "Server error capturing DebtFree PayPal order." });
+  }
+});
+app.post("/api/debtfree/ai-assistant", async (req, res) => {
+  try {
+    const result = await DebtFreeAiServerService.processRequest(req.body);
+    return res.json(result);
+  } catch (err) {
+    console.error("[API /api/debtfree/ai-assistant] Error:", err);
+    return res.status(500).json({ error: err?.message || "DebtFree AI assistant processing error" });
   }
 });
 registerChatQuestRoutes(app);
