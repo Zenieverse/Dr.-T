@@ -11,7 +11,7 @@
 [![StreetVendorsMap](https://img.shields.io/badge/StreetVendorsMap-Gánh%20Mưu%20Sinh%20Non--Commercial-FF5722.svg)](https://ganhmuusinh.vn/)
 [![Gather & Glow](https://img.shields.io/badge/Gather%20%26%20Glow-AI%20Event%20Planner-F59E0B.svg)](https://github.com/Zenieverse/Dr.-T)
 [![Hedera](https://img.shields.io/badge/Hedera-HCS%20Provenance-222222.svg)](https://hedera.com/)
-[![PayPal PayFlow AI](https://img.shields.io/badge/PayPal%20AI%20Hackathon-PayFlow%20AI%202026-003087.svg?logo=paypal)](docs/PAYPAL_AI_HACKATHON_SUBMISSION.md)
+[![PayPal AI Hackathon](https://img.shields.io/badge/PayPal%20AI%20Hackathon-MicroBiz%20PayFlow%20%2B%20DebtFree-003087.svg?logo=paypal)](docs/PAYPAL_AI_HACKATHON_SUBMISSION.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 > **Dr. T** is a multi-dimensional platform unifying clinical informatics, Socratic health intelligence, grassroots economic empowerment (**MicroBiz** & **StreetVendorsMap**), personal role architecture (**Three Hats**), AI event architecture (**Gather & Glow**), and permission-governed memory intelligence (**Lantern Keeper** powered by NVIDIA Nemotron & Nebius Token Factory).
@@ -162,12 +162,14 @@ Navigation Tab: `Memory Lantern` (`memorylantern`)
 
 ---
 
-### 5. 💳 Dr. T MicroBiz PayFlow AI & PayFlow DebtFree — Autonomous Fintech & Community Debt Relief (PayPal AI Hackathon 2026)
-Navigation Tab: `MicroBiz` (`microbiz`) | Subtabs: Invoices, Payments, Transactions, Expenses, DebtFree, AI Copilot, Reports, Settings | Deep Link: `#microbiz` | Submission: `docs/PAYPAL_AI_HACKATHON_SUBMISSION.md`
+### 5. 💳 MicroBiz PayFlow + DebtFree — Autonomous Fintech & Community Debt Relief (PayPal AI Hackathon 2026)
+Navigation Tab: `MicroBiz` (`microbiz`) | Subtabs: Invoices, Receipts, Ledger, POS, AI Copilot, Gather Bridge, DebtFree, Reports, Settings | Deep Link: `#microbiz`  
+* **Submission Dossier**: [`docs/PAYPAL_AI_HACKATHON_SUBMISSION.md`](docs/PAYPAL_AI_HACKATHON_SUBMISSION.md)  
+* **3-Minute Video Demo Script & Recording Guide**: [`docs/PAYPAL_AI_HACKATHON_DEMO.md`](docs/PAYPAL_AI_HACKATHON_DEMO.md)  
 
 Transforming grassroots economic operations into an intelligent, zero-leakage financial copilot and dignity-first community debt relief platform:
 
-#### A. MicroBiz PayFlow AI (Business Finance & Invoicing)
+#### A. MicroBiz PayFlow (Business Finance & Invoicing)
 * **Authoritative PayPal REST API (v2) Integration**:
   * **Orders v2 & Payments v2**: Seamless server-side order generation (`POST /api/paypal/create-order`) and cryptographic capture (`POST /api/paypal/capture-order`).
   * **Zero Payment Spoofing**: Invoices are never marked paid via unverified client browser redirects. The server captures the order directly from PayPal and enforces an exact dollar-for-dollar amount match before updating the ledger.
@@ -308,10 +310,12 @@ The application will be accessible at `http://localhost:3000`.
 npm run dev                  # Start full-stack Express server with Vite middleware
 npm run build                # Production build & server bundling
 npm run lint                 # Type check with tsc --noEmit
-npm test                     # Run all 13 test suites (460+ assertions)
-npm run test:gatherglow      # Run Gather & Glow AI event planner test suite
-npm run test:streetvendors   # Run StreetVendorsMap bilingual & shipper suite
-npm run test:threehats       # Run Three Hats role mapping and ritual suite
+npm test                     # Run all 15 test suites (324 assertions)
+npm run test:payflow         # Run MicroBiz PayFlow test suite (34 assertions)
+npm run test:debtfree        # Run PayFlow DebtFree community relief suite (34 assertions)
+npm run test:gatherglow      # Run Gather & Glow AI event planner test suite (87 assertions)
+npm run test:streetvendors   # Run StreetVendorsMap bilingual & shipper suite (18 assertions)
+npm run test:threehats       # Run Three Hats role mapping and ritual suite (16 assertions)
 ```
 
 ---
