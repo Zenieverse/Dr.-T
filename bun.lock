@@ -7,6 +7,7 @@
       "dependencies": {
         "@google/genai": "latest",
         "@hashgraph/sdk": "^2.81.0",
+        "@smartspectra/node-sdk": "^3.4.0",
         "canvas-confetti": "^1.9.4",
         "clsx": "^2.1.1",
         "cors": "^2.8.6",
@@ -383,6 +384,16 @@
 
     "@sinclair/typebox": ["@sinclair/typebox@0.27.12", "", {}, "sha512-hhyNJ+nbR6ZR7pToHvllEFun9TL0sbL+tk/ON75lo+Xas054uez98qRbsuNt7MBCyZKK4+8Yli/OAGZhmfBZ/g=="],
 
+    "@smartspectra/node-sdk": ["@smartspectra/node-sdk@3.4.0", "", { "dependencies": { "@smartspectra/node-sdk-darwin-arm64": "3.4.0", "@smartspectra/node-sdk-linux-arm64": "3.4.0", "@smartspectra/node-sdk-linux-x64": "3.4.0", "@smartspectra/node-sdk-win32-x64": "3.4.0", "koffi": "^2.10.0", "protobufjs": "^7.6.5" } }, "sha512-gl4Nav+MHmzJQQju/uE+zMmwobr08SI9gOHBxPn7HJDAA4SgW7NCb2L5t1vFDdZc2varVCWGLEkP930jpHhD0g=="],
+
+    "@smartspectra/node-sdk-darwin-arm64": ["@smartspectra/node-sdk-darwin-arm64@3.4.0", "", {}, "sha512-135zhq19064xWxCRKFZr6XQShK0YU/1ws5rdSDSnkDOEP/oON/7IpHSXcjKWmtcNYktdUkXiy3Y+Xrj6IIECvQ=="],
+
+    "@smartspectra/node-sdk-linux-arm64": ["@smartspectra/node-sdk-linux-arm64@3.4.0", "", {}, "sha512-lT/GXlJZ8iXVnJQ4DNgu++SfrgcaBo5eIRo5uCuXW/JZmnNeRBl9W87R6Ko1+9kjmTRe9yqDNnh7QJrflYLQUQ=="],
+
+    "@smartspectra/node-sdk-linux-x64": ["@smartspectra/node-sdk-linux-x64@3.4.0", "", {}, "sha512-perhh902URHQh3OWDydHGUDsn0T0KPAKEDU3+DmNoI1+XT/Ij+TX7iUhc5AxEjH2DlslSMqp7DJzRVAGToL0fw=="],
+
+    "@smartspectra/node-sdk-win32-x64": ["@smartspectra/node-sdk-win32-x64@3.4.0", "", {}, "sha512-voqVGmEnnL0whzfh+zpTY7B3GChifeiRT976NpyuTLDMT7WBaszwfHBfeRKr4kQ16A9umdKAUPwhp6kLMJ4jWA=="],
+
     "@tailwindcss/node": ["@tailwindcss/node@4.3.3", "", { "dependencies": { "@jridgewell/remapping": "^2.3.5", "enhanced-resolve": "^5.24.1", "jiti": "^2.7.0", "lightningcss": "1.32.0", "magic-string": "^0.30.21", "source-map-js": "^1.2.1", "tailwindcss": "4.3.3" } }, "sha512-/T8IKEsf9VTU6tLjgC7+sv2mOPtQxzE2jMw7u4Tt40Tx+QSZxpzh95/H6cMKoja9XuW7iMdLJYBB0o9G1CaAgg=="],
 
     "@tailwindcss/oxide": ["@tailwindcss/oxide@4.3.3", "", { "optionalDependencies": { "@tailwindcss/oxide-android-arm64": "4.3.3", "@tailwindcss/oxide-darwin-arm64": "4.3.3", "@tailwindcss/oxide-darwin-x64": "4.3.3", "@tailwindcss/oxide-freebsd-x64": "4.3.3", "@tailwindcss/oxide-linux-arm-gnueabihf": "4.3.3", "@tailwindcss/oxide-linux-arm64-gnu": "4.3.3", "@tailwindcss/oxide-linux-arm64-musl": "4.3.3", "@tailwindcss/oxide-linux-x64-gnu": "4.3.3", "@tailwindcss/oxide-linux-x64-musl": "4.3.3", "@tailwindcss/oxide-wasm32-wasi": "4.3.3", "@tailwindcss/oxide-win32-arm64-msvc": "4.3.3", "@tailwindcss/oxide-win32-x64-msvc": "4.3.3" } }, "sha512-krXjAikiaFSPaK/FkAQT5UTx3VormQaiZ5hBFlJZ9UFQGB/rwg1MZIhHAG9smMQRTdyJxP6Qt5MwMtdyU5FWrA=="],
@@ -754,6 +765,8 @@
     "jwa": ["jwa@2.0.1", "", { "dependencies": { "buffer-equal-constant-time": "^1.0.1", "ecdsa-sig-formatter": "1.0.11", "safe-buffer": "^5.0.1" } }, "sha512-hRF04fqJIP8Abbkq5NKGN0Bbr3JxlQ+qhZufXVr0DvujKy93ZCbXZMHDL4EOtodSbCWxOqR8MS1tXA5hwqCXDg=="],
 
     "jws": ["jws@4.0.1", "", { "dependencies": { "jwa": "^2.0.1", "safe-buffer": "^5.0.1" } }, "sha512-EKI/M/yqPncGUUh44xz0PxSidXFr/+r0pA70+gIYhjv+et7yxM+s29Y+VGDkovRofQem0fs7Uvf4+YmAdyRduA=="],
+
+    "koffi": ["koffi@2.16.3", "", { "hasInstallScript": true }, "sha512-E9y1AsgYGlaxMhcZzHr8y96QF2U5XzA12GGVAfbWqIubTwPNMXQarfBzePNXHe0xtIEtNd6ifAv3GAKYGUeBAQ=="],
 
     "leven": ["leven@3.1.0", "", {}, "sha512-qsda+H8jTaUaN/x5vzW2rzc+8Rw4TAQ/4KjB46IwK5VH+IlVeeeje/EoZRpiXvIqjFgK84QffqPztGI3VBLG1A=="],
 

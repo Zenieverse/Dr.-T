@@ -43,6 +43,7 @@ import {
   Camera
 } from 'lucide-react';
 import { VisionAlertModule } from './VisionAlertModule';
+import { PresageSenseModule } from '../presagesense/PresageSenseModule';
 
 export interface HealthAlertCompanionModuleProps {
   setActiveTab: (tab: NavTab) => void;
@@ -101,8 +102,8 @@ export const HealthAlertCompanionModule: React.FC<HealthAlertCompanionModuleProp
   // Sub-tabs on results view
   const [resultsSubTab, setResultsSubTab] = useState<'triage' | 'findings' | 'clinician' | 'education' | 'fhir'>('triage');
 
-  // Interaction Mode: 'agent' (Alexa+-style conversational agent with live MCP tools) vs 'guided' (step-by-step form) vs 'vision' (Dr. T Vision Alert)
-  const [activeMode, setActiveMode] = useState<'agent' | 'guided' | 'vision'>('agent');
+  // Interaction Mode: 'agent' (Alexa+-style conversational agent with live MCP tools) vs 'guided' (step-by-step form) vs 'vision' (Dr. T Vision Alert) vs 'presage' (Presage Sense)
+  const [activeMode, setActiveMode] = useState<'agent' | 'guided' | 'vision' | 'presage'>('agent');
 
   // Alexa+ Agent State
   const [agentQuery, setAgentQuery] = useState<string>('');
@@ -430,6 +431,18 @@ medical diagnosis, prescription, or clinical evaluation.
             <span>Vision Alert</span>
             <span className="px-1.5 py-0.5 rounded text-[9px] font-mono bg-amber-500/20 text-amber-200 border border-amber-500/30">OpenCV 5 + AWS</span>
           </button>
+          <button
+            onClick={() => setActiveMode('presage')}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition cursor-pointer ${
+              activeMode === 'presage'
+                ? 'bg-gradient-to-r from-cyan-500 via-sky-600 to-blue-600 text-white shadow-md shadow-sky-500/25 ring-1 ring-white/20'
+                : 'text-slate-400 hover:text-white hover:bg-slate-800'
+            }`}
+          >
+            <Activity className="w-4 h-4 text-cyan-300" />
+            <span>Presage Sense</span>
+            <span className="px-1.5 py-0.5 rounded text-[9px] font-mono bg-cyan-500/20 text-cyan-200 border border-cyan-500/30">SmartSpectra</span>
+          </button>
         </div>
 
         <div className="flex items-center gap-2 px-3 py-1 bg-slate-800/80 rounded-xl border border-slate-700 text-[11px] text-slate-300">
@@ -437,6 +450,26 @@ medical diagnosis, prescription, or clinical evaluation.
           <span>MCP Protocol: <code className="text-cyan-300 font-mono">/api/mcp (2025-11-25)</code></span>
         </div>
       </div>
+
+      {/* ======================================================== */}
+      {/* PRESAGE SENSE — CAMERA-POWERED WELLNESS (SmartSpectra)   */}
+      {/* ======================================================== */}
+      {activeMode === 'presage' && (
+        <PresageSenseModule
+          onBackToHealthAlert={() => setActiveMode('agent')}
+          onImportVitalsToHealthAlert={(v) => {
+            setIntakeData(prev => ({
+              ...prev,
+              vitals: {
+                ...prev.vitals,
+                restingHeartRate: (v.pulseBpm ?? v.pulseRateBpm) || prev.vitals.restingHeartRate
+              }
+            }));
+            setActiveMode('guided');
+            setCurrentStep('intake');
+          }}
+        />
+      )}
 
       {/* ======================================================== */}
       {/* VISION ALERT PANEL (OpenCV 5 & AWS Physical AI)         */}
@@ -535,6 +568,32 @@ medical diagnosis, prescription, or clinical evaluation.
                   </button>
                 ))}
               </div>
+            </div>
+
+            {/* Dedicated Presage Sense Entry Card */}
+            <div className="bg-gradient-to-r from-slate-900 via-cyan-950 to-slate-900 p-5 rounded-2xl border border-cyan-800/40 text-white shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="px-2 py-0.5 rounded-md text-[10px] font-mono bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
+                    Presage SmartSpectra Challenge 2026
+                  </span>
+                  <span className="text-xs text-slate-400 font-semibold">• Contactless rPPG Sensing</span>
+                </div>
+                <h4 className="text-base font-bold text-white flex items-center gap-2">
+                  <Activity className="w-4 h-4 text-cyan-400" />
+                  Presage Sense — Camera-Powered Wellness
+                </h4>
+                <p className="text-xs text-slate-300 max-w-2xl leading-relaxed">
+                  Measure live pulse rate, breathing cadence, and HRV directly through your camera using facial photoplethysmography (Pure-FFI C ABI v3.4.0) with zero wearable hardware.
+                </p>
+              </div>
+              <button
+                onClick={() => setActiveMode('presage')}
+                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-cyan-500/25 shrink-0"
+              >
+                Launch Presage Sense
+                <ChevronRight className="w-4 h-4" />
+              </button>
             </div>
 
             {/* Conversational Query Box */}

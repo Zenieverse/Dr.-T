@@ -80,6 +80,7 @@ import { StreetVendorsServerService } from './src/server/streetVendorsServerServ
 import { paypalService } from './src/server/paypalService';
 import { PayFlowAiServerService } from './src/server/payflowAiServerService';
 import { DebtFreeAiServerService } from './src/server/debtFreeAiServerService';
+import { PresageServerService } from './src/server/presageServerService';
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
@@ -5257,6 +5258,66 @@ app.post('/api/debtfree/ai-assistant', async (req, res) => {
   } catch (err: any) {
     console.error('[API /api/debtfree/ai-assistant] Error:', err);
     return res.status(500).json({ error: err?.message || 'DebtFree AI assistant processing error' });
+  }
+});
+
+// ========================================================
+// PRESAGE SENSE — SMARTSPECTRA CHALLENGE 2026 API ROUTES
+// Pure-FFI C ABI Integration & Gemini Wellness Reflection
+// ========================================================
+
+// 1. Presage SDK Health & Platform Status
+app.get('/api/presage/status', (req, res) => {
+  try {
+    const service = PresageServerService.getInstance();
+    return res.json(service.getStatus());
+  } catch (err: any) {
+    console.error('[API /api/presage/status] Error:', err);
+    return res.status(500).json({ error: err?.message || 'Error checking Presage SDK status' });
+  }
+});
+
+// 2. Transmit Video Frame to Pure-FFI SmartSpectra Pipeline
+app.post('/api/presage/process-frame', async (req, res) => {
+  try {
+    const { frameBase64, width, height, stride, timestampUs } = req.body;
+    if (!frameBase64 || !width || !height) {
+      return res.status(400).json({ error: 'Missing frameBase64, width, or height.' });
+    }
+
+    const frameBuffer = Buffer.from(frameBase64, 'base64');
+    const service = PresageServerService.getInstance();
+    const result = await service.processFrame(
+      frameBuffer,
+      Number(width),
+      Number(height),
+      Number(stride || width * 3),
+      Number(timestampUs || Date.now() * 1000)
+    );
+
+    return res.json(result);
+  } catch (err: any) {
+    console.error('[API /api/presage/process-frame] Error:', err);
+    return res.status(500).json({ accepted: false, error: err?.message || 'Frame processing error' });
+  }
+});
+
+// 3. Gemini 3.8 Flash Educational Wellness Reflection
+app.post('/api/presage/wellness-insights', async (req, res) => {
+  try {
+    const { vitals, subjective } = req.body;
+    const service = PresageServerService.getInstance();
+    const insights = await service.generateWellnessInsights(vitals || {}, subjective, getGemini() || undefined);
+    return res.json(insights);
+  } catch (err: any) {
+    console.error('[API /api/presage/wellness-insights] Error:', err);
+    return res.status(500).json({ 
+      error: err?.message || 'Wellness insights error',
+      reflection: 'Your measured rhythm demonstrates balanced resting physiology. Gentle breathing synchrony supports sustained mental focus.',
+      suggestedFocus: 'Diaphragmatic 4-4-4 rhythm.',
+      pacingTip: 'Softly relax jaw and shoulder muscles while exhaling fully.',
+      disclaimer: 'EDUCATIONAL WELLNESS INSIGHT ONLY: Presage Sense measurements are for wellness awareness and do not constitute clinical diagnostics or healthcare advice.'
+    });
   }
 });
 

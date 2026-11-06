@@ -71,6 +71,7 @@ import { MemoryLanternModule } from './components/memorylantern/MemoryLanternMod
 import { ThreeHatsModule } from './components/threehats/ThreeHatsModule';
 import { StreetVendorsMapModule } from './components/streetvendors/StreetVendorsMapModule';
 import { GatherGlowModule } from './components/gatherglow/GatherGlowModule';
+import { PresageSenseModule } from './components/presagesense/PresageSenseModule';
 import { SettingsPage } from './components/settings/SettingsPage';
 
 export function App() {
@@ -582,6 +583,15 @@ export function App() {
 
         {activeTab === 'gatherglow' && (
           <GatherGlowModule />
+        )}
+
+        {activeTab === 'presagesense' && (
+          <PresageSenseModule
+            onBackToHealthAlert={() => setActiveTab('healthalert')}
+            onImportVitalsToHealthAlert={() => {
+              setActiveTab('healthalert');
+            }}
+          />
         )}
 
         {activeTab === 'gcp' && (

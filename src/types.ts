@@ -36,6 +36,7 @@ export type NavTab =
   | 'threehats'
   | 'streetvendorsmap'
   | 'gatherglow'
+  | 'presagesense'
   | 'gcp'
   | 'settings';
 
