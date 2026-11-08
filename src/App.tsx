@@ -83,8 +83,12 @@ export function App() {
         const queryTab = params.get('tab') as NavTab | null;
         if (queryTab) return queryTab;
 
-        const hash = window.location.hash.replace('#', '') as NavTab;
-        if (hash) return hash;
+        const raw = window.location.hash.replace('#', '').toLowerCase();
+        if (raw) {
+          if (raw === 'presage' || raw === 'presagesense' || raw === 'smartspectra') return 'presagesense';
+          if (raw.startsWith('healthalert')) return 'healthalert';
+          return raw as NavTab;
+        }
       }
     } catch {
       // Fallback to default
@@ -115,7 +119,9 @@ export function App() {
   React.useEffect(() => {
     if (typeof window !== 'undefined' && activeTab) {
       const currentHash = window.location.hash.replace('#', '');
-      if (currentHash !== activeTab) {
+      if (currentHash.startsWith('healthalert') && activeTab === 'healthalert') {
+        // preserve healthalert sub-hashes such as #healthalert-presage
+      } else if (currentHash !== activeTab) {
         window.history.replaceState(null, '', `#${activeTab}`);
       }
     }
@@ -123,9 +129,15 @@ export function App() {
 
   React.useEffect(() => {
     const handleHashChange = () => {
-      const hash = window.location.hash.replace('#', '') as NavTab;
-      if (hash && hash !== activeTab) {
-        setActiveTab(hash);
+      const raw = window.location.hash.replace('#', '').toLowerCase();
+      let targetTab = raw as NavTab;
+      if (raw === 'presage' || raw === 'presagesense' || raw === 'smartspectra') {
+        targetTab = 'presagesense';
+      } else if (raw.startsWith('healthalert')) {
+        targetTab = 'healthalert';
+      }
+      if (targetTab && targetTab !== activeTab) {
+        setActiveTab(targetTab);
       }
     };
     window.addEventListener('hashchange', handleHashChange);

@@ -105,6 +105,27 @@ export const HealthAlertCompanionModule: React.FC<HealthAlertCompanionModuleProp
   // Interaction Mode: 'agent' (Alexa+-style conversational agent with live MCP tools) vs 'guided' (step-by-step form) vs 'vision' (Dr. T Vision Alert) vs 'presage' (Presage Sense)
   const [activeMode, setActiveMode] = useState<'agent' | 'guided' | 'vision' | 'presage'>('agent');
 
+  // Automatic deep-link / hash navigation for Presage Sense
+  useEffect(() => {
+    const checkHashAndParams = () => {
+      if (typeof window !== 'undefined') {
+        const hash = window.location.hash.toLowerCase();
+        const search = window.location.search.toLowerCase();
+        if (
+          hash.includes('presage') || 
+          hash.includes('smartspectra') || 
+          search.includes('presage') ||
+          hash.includes('healthalert-presage')
+        ) {
+          setActiveMode('presage');
+        }
+      }
+    };
+    checkHashAndParams();
+    window.addEventListener('hashchange', checkHashAndParams);
+    return () => window.removeEventListener('hashchange', checkHashAndParams);
+  }, []);
+
   // Alexa+ Agent State
   const [agentQuery, setAgentQuery] = useState<string>('');
   const [agentRegion, setAgentRegion] = useState<string>('Vietnam');
@@ -360,19 +381,72 @@ medical diagnosis, prescription, or clinical evaluation.
 
           <div className="flex flex-col sm:flex-row lg:flex-col gap-3 shrink-0">
             <button
+              onClick={() => {
+                setActiveMode('presage');
+                if (typeof window !== 'undefined') window.location.hash = '#healthalert-presage';
+              }}
+              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-xs font-bold transition shadow-lg shadow-cyan-500/25 ring-2 ring-cyan-300/40 cursor-pointer"
+            >
+              <Activity className="w-4 h-4 text-cyan-100 animate-pulse" />
+              <span>Presage Sense (Camera rPPG)</span>
+              <span className="px-1.5 py-0.5 rounded text-[9px] font-mono bg-white/20 text-white border border-white/30">2026 Challenge</span>
+            </button>
+            <button
               onClick={() => setActiveTab('bridge')}
-              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-semibold border border-white/20 transition shadow-xs cursor-pointer"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-semibold border border-white/20 transition shadow-xs cursor-pointer"
             >
               <Activity className="w-4 h-4 text-teal-300" />
               <span>Dr. T Health Bridge</span>
             </button>
             <button
               onClick={() => setActiveTab('deck')}
-              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition shadow-md shadow-indigo-600/30 cursor-pointer"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-indigo-600/80 hover:bg-indigo-500 text-white text-xs font-semibold transition shadow-md shadow-indigo-600/20 cursor-pointer"
             >
               <FileText className="w-4 h-4" />
               <span>Executive Deck & Brief</span>
             </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Prominent Presage Sense 2026 Challenge Showcase Card */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-950 via-cyan-950 to-slate-900 border-2 border-cyan-500/50 p-6 sm:p-7 text-white shadow-2xl">
+        <div className="absolute top-0 right-0 -mt-10 -mr-10 w-72 h-72 bg-cyan-500/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="space-y-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wide uppercase bg-cyan-500/25 text-cyan-300 border border-cyan-400/40 flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-cyan-300 animate-pulse" />
+                Presage SmartSpectra Challenge 2026
+              </span>
+              <span className="px-2 py-0.5 rounded-md text-[10px] font-mono bg-slate-800 text-slate-300 border border-slate-700">
+                Pure-FFI C ABI v3.4.0
+              </span>
+            </div>
+            <h3 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2.5">
+              <Activity className="w-6 h-6 text-cyan-400 animate-pulse" />
+              Presage Sense — Camera-Powered Wellness
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
+              Contactless physiological vital sensing directly via your device camera. Measures optical facial blood volume fluctuations (photoplethysmography) for live pulse rate (BPM), breathing cadence (RPM), heart rate variability (HRV), and guided 4-4-4 respiratory pacing with zero hardware.
+            </p>
+          </div>
+
+          <div className="flex flex-col sm:flex-row md:flex-col items-stretch md:items-end gap-2.5 shrink-0">
+            <button
+              onClick={() => {
+                setActiveMode('presage');
+                if (typeof window !== 'undefined') window.location.hash = '#healthalert-presage';
+              }}
+              className="px-6 py-3 rounded-2xl bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-extrabold text-xs tracking-wide uppercase transition shadow-lg shadow-cyan-500/30 flex items-center justify-center gap-2 cursor-pointer ring-2 ring-white/30"
+            >
+              <Activity className="w-4 h-4 fill-white" />
+              {activeMode === 'presage' ? 'Viewing Presage Sense' : 'Open Presage Sense'}
+              <ChevronRight className="w-4 h-4" />
+            </button>
+            <span className="text-[11px] text-cyan-300/80 text-center md:text-right font-medium">
+              Zero wearable hardware • Pure optical rPPG
+            </span>
           </div>
         </div>
       </div>
@@ -391,11 +465,10 @@ medical diagnosis, prescription, or clinical evaluation.
           </div>
         </div>
       </div>
-
       
-      {/* Interaction Mode Selector: Conversational Agent Experience vs Guided Clinical Intake */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between bg-slate-900/95 backdrop-blur-md p-2.5 rounded-2xl border border-slate-800 shadow-md gap-3">
-        <div className="flex items-center gap-2">
+      {/* Interaction Mode Selector: Conversational Agent Experience vs Guided Clinical Intake vs Vision Alert vs Presage Sense */}
+      <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between bg-slate-900/95 backdrop-blur-md p-2.5 rounded-2xl border border-slate-800 shadow-md gap-3">
+        <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={() => setActiveMode('agent')}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition cursor-pointer ${
@@ -432,16 +505,19 @@ medical diagnosis, prescription, or clinical evaluation.
             <span className="px-1.5 py-0.5 rounded text-[9px] font-mono bg-amber-500/20 text-amber-200 border border-amber-500/30">OpenCV 5 + AWS</span>
           </button>
           <button
-            onClick={() => setActiveMode('presage')}
+            onClick={() => {
+              setActiveMode('presage');
+              if (typeof window !== 'undefined') window.location.hash = '#healthalert-presage';
+            }}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition cursor-pointer ${
               activeMode === 'presage'
-                ? 'bg-gradient-to-r from-cyan-500 via-sky-600 to-blue-600 text-white shadow-md shadow-sky-500/25 ring-1 ring-white/20'
-                : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                ? 'bg-gradient-to-r from-cyan-500 via-sky-600 to-blue-600 text-white shadow-md shadow-sky-500/25 ring-2 ring-cyan-300'
+                : 'text-cyan-300 bg-cyan-950/40 border border-cyan-800/60 hover:text-white hover:bg-cyan-900/50'
             }`}
           >
-            <Activity className="w-4 h-4 text-cyan-300" />
+            <Activity className="w-4 h-4 text-cyan-300 animate-pulse" />
             <span>Presage Sense</span>
-            <span className="px-1.5 py-0.5 rounded text-[9px] font-mono bg-cyan-500/20 text-cyan-200 border border-cyan-500/30">SmartSpectra</span>
+            <span className="px-1.5 py-0.5 rounded text-[9px] font-mono bg-cyan-500/30 text-cyan-100 border border-cyan-400/40">SmartSpectra rPPG</span>
           </button>
         </div>
 

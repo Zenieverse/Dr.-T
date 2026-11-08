@@ -12,18 +12,18 @@ import {
   SubjectiveCheckIn 
 } from '../components/presagesense/types';
 
-const require = createRequire(import.meta.url);
-
 let smartSpectraInstance: any = null;
 let sdkInitError: string | null = null;
 let sdkLoadedModule: any = null;
 
-// Safe dynamic loader for @smartspectra/node-sdk
+// Safe dynamic loader for @smartspectra/node-sdk supporting both CJS bundle and ESM
 function getSmartSpectraModule() {
   if (sdkLoadedModule) return sdkLoadedModule;
   try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    sdkLoadedModule = require('@smartspectra/node-sdk');
+    const req = typeof require !== 'undefined' 
+      ? require 
+      : createRequire(process.cwd() + '/package.json');
+    sdkLoadedModule = req('@smartspectra/node-sdk');
     return sdkLoadedModule;
   } catch (err: any) {
     console.warn('[PresageServerService] Failed to load @smartspectra/node-sdk:', err?.message || err);

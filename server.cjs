@@ -94880,7 +94880,7 @@ var require_thread_stream = __commonJS({
 var require_transport = __commonJS({
   "node_modules/pino/lib/transport.js"(exports2, module2) {
     "use strict";
-    var { createRequire } = require("module");
+    var { createRequire: createRequire2 } = require("module");
     var getCallers = require_caller();
     var { join, isAbsolute, sep } = require("node:path");
     var sleep2 = require_atomic_sleep();
@@ -94991,7 +94991,7 @@ var require_transport = __commonJS({
         for (const filePath of callers) {
           try {
             const context = filePath === "node:repl" ? process.cwd() + sep : filePath;
-            fixTarget2 = createRequire(context).resolve(origin);
+            fixTarget2 = createRequire2(context).resolve(origin);
             break;
           } catch (err) {
             continue;
@@ -177221,6 +177221,211 @@ ${req.debtRequest?.publicAlias || "Account Holder"}`;
   }
 };
 
+// src/server/presageServerService.ts
+var import_module = require("module");
+var import_meta = {};
+var require2 = (0, import_module.createRequire)(import_meta.url);
+var sdkInitError = null;
+var sdkLoadedModule = null;
+function getSmartSpectraModule() {
+  if (sdkLoadedModule) return sdkLoadedModule;
+  try {
+    sdkLoadedModule = require2("@smartspectra/node-sdk");
+    return sdkLoadedModule;
+  } catch (err) {
+    console.warn("[PresageServerService] Failed to load @smartspectra/node-sdk:", err?.message || err);
+    sdkInitError = err?.message || "SDK not available";
+    return null;
+  }
+}
+var PresageServerService = class _PresageServerService {
+  static instance = null;
+  sdk = null;
+  isProcessing = false;
+  lastDecodedMetrics = null;
+  lastValidationStatus = null;
+  static getInstance() {
+    if (!_PresageServerService.instance) {
+      _PresageServerService.instance = new _PresageServerService();
+      _PresageServerService.instance.initializeSdk();
+    }
+    return _PresageServerService.instance;
+  }
+  initializeSdk() {
+    const mod2 = getSmartSpectraModule();
+    if (!mod2) return;
+    const apiKey = process.env.PRESAGE_API_KEY || "";
+    try {
+      const {
+        SmartSpectraSDK,
+        breathingMetrics = [],
+        cardioMetrics = [],
+        faceMetrics = []
+      } = mod2;
+      this.sdk = new SmartSpectraSDK({
+        apiKey: apiKey || "unconfigured_key_dr_t_companion",
+        requestedMetrics: [...breathingMetrics, ...cardioMetrics, ...faceMetrics]
+      });
+      this.sdk.useCustomInput();
+      this.sdk.on("processingStatus", (status) => {
+      });
+      this.sdk.on("validationStatus", (code, timestampUs, hint) => {
+        this.lastValidationStatus = { code, hint, timestampUs };
+      });
+      this.sdk.on("metrics", (buf, timestampUs) => {
+        try {
+          if (mod2.decodeMetrics) {
+            const decoded = mod2.decodeMetrics(buf);
+            if (!Buffer.isBuffer(decoded)) {
+              this.lastDecodedMetrics = decoded;
+            }
+          }
+        } catch (decErr) {
+          console.warn("[PresageServerService] Metric decode warning:", decErr);
+        }
+      });
+      console.log("[PresageServerService] SmartSpectra Node SDK initialized successfully.");
+    } catch (err) {
+      console.warn("[PresageServerService] SDK init notice:", err?.message || err);
+      sdkInitError = err?.message || "Initialization failed";
+    }
+  }
+  getStatus() {
+    const hasKey = Boolean(process.env.PRESAGE_API_KEY && process.env.PRESAGE_API_KEY.trim().length > 0);
+    const mod2 = getSmartSpectraModule();
+    return {
+      status: this.sdk ? "OPERATIONAL" : "INITIALIZING",
+      sdkInstalled: Boolean(mod2),
+      sdkVersion: "3.4.0",
+      nativePlatform: `${process.platform}-${process.arch}`,
+      hasApiKey: hasKey,
+      requestedMetrics: ["pulseRate", "arterialPressureTrace", "hrv", "breathingRate", "upperTrace", "lowerTrace", "faceLandmarks"],
+      apiAuthStatus: hasKey ? "AUTHORIZED" : "NOT_CONFIGURED",
+      notice: hasKey ? "Presage SmartSpectra SDK authenticated." : "Presage API key not configured in environment (PRESAGE_API_KEY). Set key for live cloud model delivery."
+    };
+  }
+  async processFrame(frameBuffer, width, height, stride, timestampUs) {
+    if (!this.sdk) {
+      return { accepted: false, lastMetrics: null, validation: null };
+    }
+    try {
+      const mod2 = getSmartSpectraModule();
+      const pixelFormat = mod2?.PixelFormat?.kRGB ?? 0;
+      if (!this.isProcessing) {
+        this.sdk.start();
+        this.isProcessing = true;
+      }
+      const accepted = this.sdk.sendFrame(
+        frameBuffer,
+        width,
+        height,
+        stride,
+        pixelFormat,
+        timestampUs
+      );
+      return {
+        accepted: Boolean(accepted),
+        lastMetrics: this.lastDecodedMetrics,
+        validation: this.lastValidationStatus
+      };
+    } catch (err) {
+      console.warn("[PresageServerService] Frame processing error:", err?.message || err);
+      return {
+        accepted: false,
+        lastMetrics: null,
+        validation: { code: -1, hint: err?.message || "Frame send failed" }
+      };
+    }
+  }
+  async stopSession() {
+    if (this.sdk && this.isProcessing) {
+      try {
+        if (typeof this.sdk.stopAsync === "function") {
+          await this.sdk.stopAsync();
+        } else if (typeof this.sdk.stop === "function") {
+          this.sdk.stop();
+        }
+      } catch (err) {
+        console.warn("[PresageServerService] Stop notice:", err);
+      } finally {
+        this.isProcessing = false;
+      }
+    }
+  }
+  /**
+   * Gemini 3.8 Flash Wellness Reflection Engine
+   * Strictly educational wellness context — NO disease diagnosis or treatment recommendations.
+   */
+  async generateWellnessInsights(vitals, subjective, geminiClient) {
+    return this.generateWellnessReflection(vitals, subjective, geminiClient);
+  }
+  async generateWellnessReflection(vitals, subjective, geminiClient) {
+    const disclaimer = "EDUCATIONAL WELLNESS INSIGHT ONLY: Presage Sense measurements and AI reflections are for general fitness and wellness awareness. They are not medical diagnostics, clinical evaluations, or therapeutic advice. For any health concerns, consult a licensed healthcare professional.";
+    const pulse = vitals.pulseRateBpm ? `${Math.round(vitals.pulseRateBpm)} BPM` : "Baseline in progress";
+    const breathing = vitals.breathingRateRpm ? `${Math.round(vitals.breathingRateRpm)} breaths/min` : "Calibrating";
+    const hrv = vitals.hrvRmssdMs ? `${Math.round(vitals.hrvRmssdMs)} ms (RMSSD)` : "Evaluating stability";
+    const mood = subjective?.mood || "Unspecified";
+    const stress = subjective?.stressLevel ? `${subjective.stressLevel}/5` : "Normal";
+    if (!geminiClient) {
+      return {
+        reflection: `Your resting rhythm indicates a pulse of ${pulse} with a respiration cadence of ${breathing}. Combined with your check-in feeling "${mood}", your autonomic system is currently settling into a steady state.`,
+        suggestedFocus: "Box Breathing (4-4-4 rhythm) to reinforce vagal tone.",
+        pacingTip: "Take two deep diaphragmatic breaths through your nose, exhaling slowly through gently parted lips.",
+        disclaimer
+      };
+    }
+    try {
+      const prompt = `You are the Dr. T Presage Sense Wellness Companion.
+A user completed a camera-based contactless wellness check-in using the Presage SmartSpectra optical sensing system.
+
+Measured Data:
+- Pulse Rate: ${pulse}
+- Breathing Cadence: ${breathing}
+- Heart Rate Variability: ${hrv}
+- Subjective Mood Check-in: ${mood}
+- Self-Reported Stress: ${stress}
+- Notes: ${subjective?.notes || "None"}
+
+CRITICAL COMPLIANCE RULES:
+1. Do NOT diagnose any illness, cardiovascular condition, arrhythmia, anxiety disorder, or pathology.
+2. Do NOT prescribe medication, treatments, or clinical interventions.
+3. Provide warm, educational observations about heart-rate rhythm, breathing pacing, and somatic grounding.
+4. Keep the reflection concise, reassuring, and under 120 words.
+5. Provide a 1-sentence "suggestedFocus" and a 1-sentence "pacingTip".
+
+Output JSON format:
+{
+  "reflection": "concise wellness reflection",
+  "suggestedFocus": "actionable calming focus",
+  "pacingTip": "breathing or posture tip"
+}`;
+      const response = await geminiClient.models.generateContent({
+        model: "gemini-2.5-flash",
+        contents: prompt,
+        config: {
+          responseMimeType: "application/json",
+          temperature: 0.3
+        }
+      });
+      const parsed = JSON.parse(response.text || "{}");
+      return {
+        reflection: parsed.reflection || `Your physiological cadence shows a pulse of ${pulse} and breathing at ${breathing}.`,
+        suggestedFocus: parsed.suggestedFocus || "Gentle diaphragmatic breathing and gentle shoulder release.",
+        pacingTip: parsed.pacingTip || "Inhale smoothly for 4 seconds, exhale softly for 4 seconds.",
+        disclaimer
+      };
+    } catch (aiErr) {
+      console.warn("[PresageServerService] Gemini reflection fallback:", aiErr?.message || aiErr);
+      return {
+        reflection: `Your measured rhythm reflects a pulse of ${pulse} and breathing of ${breathing}. Integrating mindful pauses helps align your cardiovascular and respiratory rhythms.`,
+        suggestedFocus: "4-4-4 Box Breathing for autonomic balance.",
+        pacingTip: "Rest your hands on your lower abdomen and feel the gentle rise with each inhalation.",
+        disclaimer
+      };
+    }
+  }
+};
+
 // server.impl.ts
 try {
   const envPath = import_path3.default.join(process.cwd(), ".env");
@@ -181813,6 +182018,53 @@ app.post("/api/debtfree/ai-assistant", async (req, res) => {
   } catch (err) {
     console.error("[API /api/debtfree/ai-assistant] Error:", err);
     return res.status(500).json({ error: err?.message || "DebtFree AI assistant processing error" });
+  }
+});
+app.get("/api/presage/status", (req, res) => {
+  try {
+    const service = PresageServerService.getInstance();
+    return res.json(service.getStatus());
+  } catch (err) {
+    console.error("[API /api/presage/status] Error:", err);
+    return res.status(500).json({ error: err?.message || "Error checking Presage SDK status" });
+  }
+});
+app.post("/api/presage/process-frame", async (req, res) => {
+  try {
+    const { frameBase64, width, height, stride, timestampUs } = req.body;
+    if (!frameBase64 || !width || !height) {
+      return res.status(400).json({ error: "Missing frameBase64, width, or height." });
+    }
+    const frameBuffer = Buffer.from(frameBase64, "base64");
+    const service = PresageServerService.getInstance();
+    const result = await service.processFrame(
+      frameBuffer,
+      Number(width),
+      Number(height),
+      Number(stride || width * 3),
+      Number(timestampUs || Date.now() * 1e3)
+    );
+    return res.json(result);
+  } catch (err) {
+    console.error("[API /api/presage/process-frame] Error:", err);
+    return res.status(500).json({ accepted: false, error: err?.message || "Frame processing error" });
+  }
+});
+app.post("/api/presage/wellness-insights", async (req, res) => {
+  try {
+    const { vitals, subjective } = req.body;
+    const service = PresageServerService.getInstance();
+    const insights = await service.generateWellnessInsights(vitals || {}, subjective, getGemini() || void 0);
+    return res.json(insights);
+  } catch (err) {
+    console.error("[API /api/presage/wellness-insights] Error:", err);
+    return res.status(500).json({
+      error: err?.message || "Wellness insights error",
+      reflection: "Your measured rhythm demonstrates balanced resting physiology. Gentle breathing synchrony supports sustained mental focus.",
+      suggestedFocus: "Diaphragmatic 4-4-4 rhythm.",
+      pacingTip: "Softly relax jaw and shoulder muscles while exhaling fully.",
+      disclaimer: "EDUCATIONAL WELLNESS INSIGHT ONLY: Presage Sense measurements are for wellness awareness and do not constitute clinical diagnostics or healthcare advice."
+    });
   }
 });
 registerChatQuestRoutes(app);
