@@ -1,0 +1,2428 @@
+{
+  "demoActive": true,
+  "kThreshold": 5,
+  "seededComplete": true,
+  "participants": [
+    {
+      "syntheticCode": "SYN-REV-001",
+      "createdAt": "2026-10-08T03:15:00.960Z",
+      "referralStage": "NONE",
+      "id": "PART-SYN-REV-01",
+      "dataOrigin": "SIMULATED",
+      "priorityScore": 0,
+      "gender": "Female",
+      "ageBand": "30-44",
+      "consentStatus": "REVOKED",
+      "cohort": "Maternal Health",
+      "notes": "Synthetic demo control: participant exercised right to withdraw analytics consent.",
+      "activeProgrammeIds": [],
+      "age": 36,
+      "screeningStatus": "UP_TO_DATE",
+      "updatedAt": "2026-11-16T03:15:00.960Z",
+      "consentScopes": [],
+      "isSynthetic": true,
+      "preferredLanguage": "vi",
+      "region": "River Ward Maternal",
+      "riskTier": "ROUTINE",
+      "displayAlias": "Cohort Member REV-001 (Consent Revoked)",
+      "lastSignalAt": "2026-10-30T03:15:00.960Z"
+    },
+    {
+      "gender": "Male",
+      "preferredLanguage": "en",
+      "priorityScore": 98,
+      "id": "PART-SYN-CMD-01",
+      "dataOrigin": "SIMULATED",
+      "referralStage": "FOLLOW_UP_IN_PROGRESS",
+      "updatedAt": "2026-11-15T06:16:33.919Z",
+      "syntheticCode": "SYN-CMD-001",
+      "screeningStatus": "IN_PROGRESS",
+      "riskTier": "PRIORITY_FOLLOWUP",
+      "region": "Urban Core Hub",
+      "lastSignalAt": "2026-11-15T06:16:33.919Z",
+      "displayAlias": "Cohort Member CMD-001 (Synthetic)",
+      "isSynthetic": true,
+      "followUpDueAt": "2026-11-19T06:16:33.919Z",
+      "consentScopes": [
+        "population_analytics",
+        "care_navigation",
+        "ai_synthesis",
+        "sensor_intake"
+      ],
+      "createdAt": "2026-10-12T06:16:33.919Z",
+      "age": 54,
+      "notes": "Synthetic demo: Stage 2 BP + HbA1c 6.8% + low Presage HRV.",
+      "consentStatus": "ACTIVE",
+      "activeProgrammeIds": [
+        "PROG-CMD-METABOLIC",
+        "PROG-CMD-BP"
+      ],
+      "cohort": "Cardiometabolic Health",
+      "ageBand": "45-59"
+    },
+    {
+      "priorityScore": 10,
+      "activeProgrammeIds": [
+        "PROG-CMD-BP"
+      ],
+      "age": 39,
+      "gender": "Male",
+      "referralStage": "NONE",
+      "dataOrigin": "SIMULATED",
+      "createdAt": "2026-09-16T03:15:00.960Z",
+      "syntheticCode": "SYN-CMD-005",
+      "screeningStatus": "UP_TO_DATE",
+      "preferredLanguage": "en",
+      "displayAlias": "Cohort Member CMD-005 (Synthetic)",
+      "lastSignalAt": "2026-11-02T03:15:00.960Z",
+      "id": "PART-SYN-CMD-05",
+      "riskTier": "ROUTINE",
+      "ageBand": "30-44",
+      "notes": "Synthetic demo: normotensive baseline with Presage resting cadence check.",
+      "consentScopes": [
+        "population_analytics"
+      ],
+      "region": "Urban Core Hub",
+      "cohort": "Cardiometabolic Health",
+      "updatedAt": "2026-11-02T03:15:00.960Z",
+      "consentStatus": "ACTIVE",
+      "isSynthetic": true
+    },
+    {
+      "referralStage": "RESOLVED",
+      "preferredLanguage": "vi",
+      "priorityScore": 26,
+      "region": "District 1 Clinic",
+      "id": "PART-SYN-BLD-03",
+      "cohort": "Blood Health",
+      "syntheticCode": "SYN-BLD-003",
+      "displayAlias": "Cohort Member BLD-003 (Synthetic)",
+      "lastSignalAt": "2026-11-07T06:16:33.919Z",
+      "createdAt": "2026-10-02T06:16:33.919Z",
+      "riskTier": "MONITOR",
+      "isSynthetic": true,
+      "consentScopes": [
+        "population_analytics",
+        "care_navigation"
+      ],
+      "age": 41,
+      "gender": "Male",
+      "notes": "Synthetic demo: mild iron insufficiency tracked post community screening.",
+      "screeningStatus": "UP_TO_DATE",
+      "consentStatus": "ACTIVE",
+      "dataOrigin": "SIMULATED",
+      "updatedAt": "2026-11-07T06:16:33.919Z",
+      "ageBand": "30-44",
+      "activeProgrammeIds": [
+        "PROG-BLD-IRON"
+      ]
+    },
+    {
+      "ageBand": "30-44",
+      "activeProgrammeIds": [
+        "PROG-MAT-ANC",
+        "PROG-BLD-IRON"
+      ],
+      "consentScopes": [
+        "population_analytics",
+        "care_navigation",
+        "multilingual_outreach"
+      ],
+      "age": 31,
+      "preferredLanguage": "vi",
+      "followUpDueAt": "2026-11-22T03:15:00.960Z",
+      "gender": "Female",
+      "updatedAt": "2026-11-14T03:15:00.960Z",
+      "id": "PART-SYN-MAT-02",
+      "consentStatus": "ACTIVE",
+      "cohort": "Maternal Health",
+      "priorityScore": 55,
+      "displayAlias": "Cohort Member MAT-002 (Synthetic)",
+      "lastSignalAt": "2026-11-14T03:15:00.960Z",
+      "screeningStatus": "IN_PROGRESS",
+      "referralStage": "SCREENING_ASSESSMENT",
+      "dataOrigin": "SIMULATED",
+      "notes": "Synthetic demo: maternal Hb 10.4 g/dL; midwife follow-up scheduled.",
+      "isSynthetic": true,
+      "createdAt": "2026-10-21T03:15:00.960Z",
+      "riskTier": "ELEVATED",
+      "syntheticCode": "SYN-MAT-002",
+      "region": "River Ward Maternal"
+    },
+    {
+      "gender": "Female",
+      "consentScopes": [
+        "population_analytics",
+        "care_navigation"
+      ],
+      "followUpDueAt": "2026-11-23T03:15:00.960Z",
+      "screeningStatus": "DUE_SOON",
+      "preferredLanguage": "en",
+      "id": "PART-SYN-MAT-03",
+      "consentStatus": "ACTIVE",
+      "age": 25,
+      "createdAt": "2026-10-28T03:15:00.960Z",
+      "isSynthetic": true,
+      "notes": "Synthetic demo: antenatal visit 10 days past target window.",
+      "ageBand": "18-29",
+      "referralStage": "HUMAN_REVIEW",
+      "dataOrigin": "SIMULATED",
+      "region": "River Ward Maternal",
+      "priorityScore": 34,
+      "riskTier": "MONITOR",
+      "syntheticCode": "SYN-MAT-003",
+      "cohort": "Maternal Health",
+      "updatedAt": "2026-11-13T03:15:00.960Z",
+      "lastSignalAt": "2026-11-13T03:15:00.960Z",
+      "displayAlias": "Cohort Member MAT-003 (Synthetic)",
+      "activeProgrammeIds": [
+        "PROG-MAT-ANC"
+      ]
+    },
+    {
+      "activeProgrammeIds": [
+        "PROG-BLD-IRON"
+      ],
+      "notes": "Synthetic demo: stable ferritin and haemoglobin profile.",
+      "consentScopes": [
+        "population_analytics",
+        "care_navigation"
+      ],
+      "ageBand": "30-44",
+      "gender": "Male",
+      "createdAt": "2026-09-27T06:16:33.919Z",
+      "preferredLanguage": "en",
+      "id": "PART-SYN-BLD-06",
+      "consentStatus": "ACTIVE",
+      "priorityScore": 10,
+      "displayAlias": "Cohort Member BLD-006 (Synthetic)",
+      "lastSignalAt": "2026-11-02T06:16:33.919Z",
+      "screeningStatus": "UP_TO_DATE",
+      "riskTier": "ROUTINE",
+      "region": "District 1 Clinic",
+      "referralStage": "NONE",
+      "age": 37,
+      "cohort": "Blood Health",
+      "dataOrigin": "SIMULATED",
+      "updatedAt": "2026-11-02T06:16:33.919Z",
+      "isSynthetic": true,
+      "syntheticCode": "SYN-BLD-006"
+    },
+    {
+      "preferredLanguage": "en",
+      "referralStage": "HUMAN_REVIEW",
+      "screeningStatus": "OVERDUE",
+      "priorityScore": 42,
+      "lastSignalAt": "2026-11-11T06:16:33.919Z",
+      "displayAlias": "Cohort Member BLD-002 (Synthetic)",
+      "createdAt": "2026-10-19T06:16:33.919Z",
+      "ageBand": "30-44",
+      "id": "PART-SYN-BLD-02",
+      "syntheticCode": "SYN-BLD-002",
+      "isSynthetic": true,
+      "age": 34,
+      "gender": "Female",
+      "consentScopes": [
+        "population_analytics",
+        "care_navigation",
+        "ai_synthesis"
+      ],
+      "notes": "Synthetic demo: ferritin 12 ng/mL with afternoon fatigue via Health Alert Mini.",
+      "riskTier": "MONITOR",
+      "cohort": "Blood Health",
+      "followUpDueAt": "2026-11-23T06:16:33.919Z",
+      "updatedAt": "2026-11-11T06:16:33.919Z",
+      "consentStatus": "ACTIVE",
+      "dataOrigin": "SIMULATED",
+      "region": "District 1 Clinic",
+      "activeProgrammeIds": [
+        "PROG-BLD-IRON"
+      ]
+    },
+    {
+      "screeningStatus": "UP_TO_DATE",
+      "createdAt": "2026-09-22T06:16:33.919Z",
+      "consentStatus": "ACTIVE",
+      "isSynthetic": true,
+      "riskTier": "MONITOR",
+      "id": "PART-SYN-CMD-04",
+      "displayAlias": "Cohort Member CMD-004 (Synthetic)",
+      "lastSignalAt": "2026-11-06T06:16:33.919Z",
+      "consentScopes": [
+        "population_analytics",
+        "sensor_intake"
+      ],
+      "age": 49,
+      "gender": "Female",
+      "dataOrigin": "SIMULATED",
+      "notes": "Synthetic demo: borderline HbA1c enrolled in lifestyle education.",
+      "cohort": "Cardiometabolic Health",
+      "updatedAt": "2026-11-06T06:16:33.919Z",
+      "preferredLanguage": "vi",
+      "syntheticCode": "SYN-CMD-004",
+      "ageBand": "45-59",
+      "priorityScore": 26,
+      "region": "Urban Core Hub",
+      "referralStage": "RESOLVED",
+      "activeProgrammeIds": [
+        "PROG-CMD-METABOLIC"
+      ]
+    },
+    {
+      "syntheticCode": "SYN-CMD-008",
+      "ageBand": "45-59",
+      "age": 51,
+      "riskTier": "ROUTINE",
+      "isSynthetic": true,
+      "updatedAt": "2026-11-09T03:15:00.960Z",
+      "referralStage": "NONE",
+      "notes": "Synthetic demo: rural subgroup member (n<5 suppression cell).",
+      "gender": "Female",
+      "lastSignalAt": "2026-11-09T03:15:00.960Z",
+      "displayAlias": "Cohort Member CMD-008 (Synthetic)",
+      "priorityScore": 10,
+      "activeProgrammeIds": [
+        "PROG-CMD-METABOLIC"
+      ],
+      "consentStatus": "ACTIVE",
+      "cohort": "Cardiometabolic Health",
+      "id": "PART-SYN-CMD-08",
+      "dataOrigin": "SIMULATED",
+      "preferredLanguage": "en",
+      "createdAt": "2026-10-17T03:15:00.960Z",
+      "region": "Rural Outreach South",
+      "consentScopes": [
+        "population_analytics"
+      ],
+      "screeningStatus": "DUE_SOON"
+    },
+    {
+      "syntheticCode": "SYN-BLD-004",
+      "screeningStatus": "DUE_SOON",
+      "region": "District 1 Clinic",
+      "preferredLanguage": "en",
+      "riskTier": "ELEVATED",
+      "dataOrigin": "SIMULATED",
+      "referralStage": "SCREENING_ASSESSMENT",
+      "createdAt": "2026-10-26T06:16:33.919Z",
+      "cohort": "Blood Health",
+      "ageBand": "18-29",
+      "priorityScore": 55,
+      "gender": "Female",
+      "consentStatus": "ACTIVE",
+      "age": 24,
+      "isSynthetic": true,
+      "id": "PART-SYN-BLD-04",
+      "followUpDueAt": "2026-11-26T06:16:33.919Z",
+      "displayAlias": "Cohort Member BLD-004 (Synthetic)",
+      "lastSignalAt": "2026-11-12T06:16:33.919Z",
+      "updatedAt": "2026-11-12T06:16:33.919Z",
+      "consentScopes": [
+        "population_analytics",
+        "care_navigation",
+        "ai_synthesis",
+        "multilingual_outreach"
+      ],
+      "notes": "Synthetic demo: Hb 10.2 g/dL flagged at community blood drive.",
+      "activeProgrammeIds": [
+        "PROG-BLD-IRON"
+      ]
+    },
+    {
+      "consentStatus": "ACTIVE",
+      "updatedAt": "2026-11-10T06:16:33.919Z",
+      "gender": "Female",
+      "dataOrigin": "SIMULATED",
+      "screeningStatus": "OVERDUE",
+      "age": 46,
+      "followUpDueAt": "2026-11-21T06:16:33.919Z",
+      "isSynthetic": true,
+      "consentScopes": [
+        "population_analytics",
+        "care_navigation",
+        "multilingual_outreach"
+      ],
+      "notes": "Synthetic demo: BP 138/88 + HbA1c 6.1% cardiometabolic preventive outreach.",
+      "activeProgrammeIds": [
+        "PROG-CMD-METABOLIC"
+      ],
+      "syntheticCode": "SYN-CMD-002",
+      "region": "Urban Core Hub",
+      "createdAt": "2026-10-07T06:16:33.919Z",
+      "displayAlias": "Cohort Member CMD-002 (Synthetic)",
+      "lastSignalAt": "2026-11-10T06:16:33.919Z",
+      "ageBand": "45-59",
+      "referralStage": "SIGNAL_IDENTIFIED",
+      "preferredLanguage": "vi",
+      "riskTier": "ELEVATED",
+      "id": "PART-SYN-CMD-02",
+      "cohort": "Cardiometabolic Health",
+      "priorityScore": 50
+    },
+    {
+      "activeProgrammeIds": [
+        "PROG-CMD-BP"
+      ],
+      "updatedAt": "2026-11-10T03:15:00.960Z",
+      "dataOrigin": "SIMULATED",
+      "age": 58,
+      "consentScopes": [
+        "population_analytics",
+        "care_navigation"
+      ],
+      "region": "Rural Outreach South",
+      "notes": "Synthetic demo: rural subgroup member (n<5 privacy suppression).",
+      "cohort": "Cardiometabolic Health",
+      "riskTier": "MONITOR",
+      "ageBand": "45-59",
+      "consentStatus": "ACTIVE",
+      "preferredLanguage": "vi",
+      "isSynthetic": true,
+      "screeningStatus": "OVERDUE",
+      "createdAt": "2026-10-19T03:15:00.960Z",
+      "lastSignalAt": "2026-11-10T03:15:00.960Z",
+      "displayAlias": "Cohort Member CMD-006 (Synthetic)",
+      "priorityScore": 42,
+      "gender": "Female",
+      "referralStage": "HUMAN_REVIEW",
+      "id": "PART-SYN-CMD-06",
+      "syntheticCode": "SYN-CMD-006"
+    },
+    {
+      "gender": "Female",
+      "riskTier": "ROUTINE",
+      "age": 29,
+      "consentScopes": [
+        "population_analytics"
+      ],
+      "activeProgrammeIds": [
+        "PROG-MAT-ANC"
+      ],
+      "ageBand": "18-29",
+      "createdAt": "2026-09-30T03:15:00.960Z",
+      "notes": "Synthetic demo: baseline healthy perinatal trajectory.",
+      "consentStatus": "ACTIVE",
+      "displayAlias": "Cohort Member MAT-005 (Synthetic)",
+      "lastSignalAt": "2026-11-08T03:15:00.960Z",
+      "region": "River Ward Maternal",
+      "isSynthetic": true,
+      "priorityScore": 10,
+      "screeningStatus": "UP_TO_DATE",
+      "referralStage": "NONE",
+      "updatedAt": "2026-11-08T03:15:00.960Z",
+      "id": "PART-SYN-MAT-05",
+      "dataOrigin": "SIMULATED",
+      "syntheticCode": "SYN-MAT-005",
+      "cohort": "Maternal Health",
+      "preferredLanguage": "en"
+    },
+    {
+      "activeProgrammeIds": [
+        "PROG-MAT-ANC"
+      ],
+      "displayAlias": "Cohort Member MAT-001 (Synthetic)",
+      "lastSignalAt": "2026-11-16T03:15:00.960Z",
+      "consentStatus": "ACTIVE",
+      "followUpDueAt": "2026-11-18T03:15:00.960Z",
+      "id": "PART-SYN-MAT-01",
+      "screeningStatus": "OVERDUE",
+      "gender": "Female",
+      "age": 27,
+      "createdAt": "2026-10-23T03:15:00.960Z",
+      "consentScopes": [
+        "population_analytics",
+        "care_navigation",
+        "ai_synthesis",
+        "multilingual_outreach"
+      ],
+      "preferredLanguage": "vi",
+      "cohort": "Maternal Health",
+      "riskTier": "PRIORITY_FOLLOWUP",
+      "dataOrigin": "SIMULATED",
+      "isSynthetic": true,
+      "syntheticCode": "SYN-MAT-001",
+      "notes": "Synthetic demo: overdue antenatal visit (+22 days) + gestational BP 142/92.",
+      "ageBand": "18-29",
+      "priorityScore": 97,
+      "region": "River Ward Maternal",
+      "updatedAt": "2026-11-16T03:15:00.960Z",
+      "referralStage": "REFERRAL_ISSUED"
+    },
+    {
+      "activeProgrammeIds": [
+        "PROG-MAT-ANC"
+      ],
+      "preferredLanguage": "vi",
+      "consentStatus": "ACTIVE",
+      "isSynthetic": true,
+      "updatedAt": "2026-11-11T03:15:00.960Z",
+      "gender": "Female",
+      "displayAlias": "Cohort Member MAT-004 (Synthetic)",
+      "lastSignalAt": "2026-11-11T03:15:00.960Z",
+      "consentScopes": [
+        "population_analytics",
+        "care_navigation"
+      ],
+      "notes": "Synthetic demo: completed ANC trimester check-in on schedule.",
+      "screeningStatus": "UP_TO_DATE",
+      "id": "PART-SYN-MAT-04",
+      "age": 33,
+      "ageBand": "30-44",
+      "region": "River Ward Maternal",
+      "riskTier": "ROUTINE",
+      "syntheticCode": "SYN-MAT-004",
+      "createdAt": "2026-10-03T03:15:00.960Z",
+      "referralStage": "RESOLVED",
+      "priorityScore": 10,
+      "dataOrigin": "SIMULATED",
+      "cohort": "Maternal Health"
+    },
+    {
+      "lastSignalAt": "2026-11-06T03:15:00.960Z",
+      "displayAlias": "Cohort Member CMD-007 (Synthetic)",
+      "dataOrigin": "SIMULATED",
+      "syntheticCode": "SYN-CMD-007",
+      "age": 64,
+      "riskTier": "ROUTINE",
+      "gender": "Male",
+      "id": "PART-SYN-CMD-07",
+      "priorityScore": 10,
+      "createdAt": "2026-10-15T03:15:00.960Z",
+      "isSynthetic": true,
+      "referralStage": "NONE",
+      "activeProgrammeIds": [
+        "PROG-CMD-BP"
+      ],
+      "ageBand": "60+",
+      "cohort": "Cardiometabolic Health",
+      "screeningStatus": "UP_TO_DATE",
+      "consentStatus": "ACTIVE",
+      "region": "Rural Outreach South",
+      "updatedAt": "2026-11-06T03:15:00.960Z",
+      "preferredLanguage": "vi",
+      "notes": "Synthetic demo: rural subgroup member (n<5 suppression cell).",
+      "consentScopes": [
+        "population_analytics"
+      ]
+    },
+    {
+      "priorityScore": 74,
+      "dataOrigin": "SIMULATED",
+      "id": "PART-SYN-CMD-03",
+      "referralStage": "REFERRAL_ISSUED",
+      "preferredLanguage": "en",
+      "region": "Urban Core Hub",
+      "cohort": "Cardiometabolic Health",
+      "updatedAt": "2026-11-13T06:16:33.919Z",
+      "ageBand": "60+",
+      "syntheticCode": "SYN-CMD-003",
+      "activeProgrammeIds": [
+        "PROG-CMD-BP"
+      ],
+      "screeningStatus": "IN_PROGRESS",
+      "age": 63,
+      "gender": "Male",
+      "isSynthetic": true,
+      "displayAlias": "Cohort Member CMD-003 (Synthetic)",
+      "lastSignalAt": "2026-11-13T06:16:33.919Z",
+      "consentScopes": [
+        "population_analytics",
+        "care_navigation",
+        "ai_synthesis"
+      ],
+      "notes": "Synthetic demo: Stage 2 BP + eGFR 52 renal-cardiometabolic follow-up.",
+      "followUpDueAt": "2026-11-18T06:16:33.919Z",
+      "riskTier": "ELEVATED",
+      "createdAt": "2026-10-05T06:16:33.919Z",
+      "consentStatus": "ACTIVE"
+    },
+    {
+      "screeningStatus": "UP_TO_DATE",
+      "ageBand": "45-59",
+      "syntheticCode": "SYN-BLD-005",
+      "priorityScore": 10,
+      "updatedAt": "2026-11-04T06:16:33.919Z",
+      "gender": "Female",
+      "referralStage": "NONE",
+      "isSynthetic": true,
+      "dataOrigin": "SIMULATED",
+      "displayAlias": "Cohort Member BLD-005 (Synthetic)",
+      "lastSignalAt": "2026-11-04T06:16:33.919Z",
+      "activeProgrammeIds": [
+        "PROG-BLD-IRON"
+      ],
+      "cohort": "Blood Health",
+      "preferredLanguage": "vi",
+      "age": 52,
+      "consentStatus": "ACTIVE",
+      "riskTier": "ROUTINE",
+      "region": "District 1 Clinic",
+      "createdAt": "2026-09-17T06:16:33.919Z",
+      "notes": "Synthetic demo: routine blood-health benchmark within reference.",
+      "id": "PART-SYN-BLD-05",
+      "consentScopes": [
+        "population_analytics"
+      ]
+    },
+    {
+      "activeProgrammeIds": [
+        "PROG-BLD-IRON"
+      ],
+      "referralStage": "REFERRAL_ISSUED",
+      "preferredLanguage": "vi",
+      "priorityScore": 96,
+      "dataOrigin": "SIMULATED",
+      "screeningStatus": "IN_PROGRESS",
+      "gender": "Female",
+      "age": 28,
+      "syntheticCode": "SYN-BLD-001",
+      "createdAt": "2026-10-17T06:16:33.918Z",
+      "notes": "Synthetic demo: depleted ferritin + mild low haemoglobin; nutrition & CBC review pending.",
+      "consentScopes": [
+        "population_analytics",
+        "care_navigation",
+        "ai_synthesis",
+        "multilingual_outreach"
+      ],
+      "followUpDueAt": "2026-11-20T06:16:33.918Z",
+      "id": "PART-SYN-BLD-01",
+      "region": "District 1 Clinic",
+      "isSynthetic": true,
+      "riskTier": "PRIORITY_FOLLOWUP",
+      "cohort": "Blood Health",
+      "consentStatus": "ACTIVE",
+      "lastSignalAt": "2026-11-14T06:16:33.918Z",
+      "displayAlias": "Cohort Member BLD-001 (Synthetic)",
+      "ageBand": "18-29",
+      "updatedAt": "2026-11-14T06:16:33.918Z"
+    }
+  ],
+  "consents": [
+    {
+      "updatedAt": "2026-11-10T03:15:00.960Z",
+      "grantedAt": "2026-10-19T03:15:00.960Z",
+      "id": "CNS-SYN-012",
+      "participantId": "PART-SYN-CMD-06",
+      "scopes": [
+        "population_analytics",
+        "care_navigation"
+      ],
+      "expiresAt": "2027-11-17T03:15:00.961Z",
+      "status": "ACTIVE",
+      "recordedBy": "Community Registry Intake (Synthetic)",
+      "purpose": "Cardiometabolic Health screening, care navigation & de-identified population analytics"
+    },
+    {
+      "id": "CNS-SYN-016",
+      "scopes": [
+        "population_analytics",
+        "care_navigation",
+        "multilingual_outreach"
+      ],
+      "purpose": "Maternal Health screening, care navigation & de-identified population analytics",
+      "grantedAt": "2026-10-21T03:15:00.960Z",
+      "status": "ACTIVE",
+      "participantId": "PART-SYN-MAT-02",
+      "expiresAt": "2027-11-17T03:15:00.961Z",
+      "recordedBy": "Community Registry Intake (Synthetic)",
+      "updatedAt": "2026-11-14T03:15:00.960Z"
+    },
+    {
+      "id": "CNS-SYN-002",
+      "scopes": [
+        "population_analytics",
+        "care_navigation",
+        "ai_synthesis"
+      ],
+      "expiresAt": "2027-11-16T06:16:33.919Z",
+      "grantedAt": "2026-10-19T06:16:33.919Z",
+      "recordedBy": "Community Registry Intake (Synthetic)",
+      "status": "ACTIVE",
+      "updatedAt": "2026-11-11T06:16:33.919Z",
+      "purpose": "Blood Health screening, care navigation & de-identified population analytics",
+      "participantId": "PART-SYN-BLD-02"
+    },
+    {
+      "scopes": [
+        "population_analytics",
+        "care_navigation"
+      ],
+      "status": "ACTIVE",
+      "updatedAt": "2026-11-02T06:16:33.919Z",
+      "id": "CNS-SYN-006",
+      "purpose": "Blood Health screening, care navigation & de-identified population analytics",
+      "recordedBy": "Community Registry Intake (Synthetic)",
+      "grantedAt": "2026-09-27T06:16:33.919Z",
+      "expiresAt": "2027-11-16T06:16:33.919Z",
+      "participantId": "PART-SYN-BLD-06"
+    },
+    {
+      "updatedAt": "2026-11-15T06:16:33.919Z",
+      "id": "CNS-SYN-007",
+      "status": "ACTIVE",
+      "participantId": "PART-SYN-CMD-01",
+      "purpose": "Cardiometabolic Health screening, care navigation & de-identified population analytics",
+      "recordedBy": "Community Registry Intake (Synthetic)",
+      "scopes": [
+        "population_analytics",
+        "care_navigation",
+        "ai_synthesis",
+        "sensor_intake"
+      ],
+      "expiresAt": "2027-11-16T06:16:33.919Z",
+      "grantedAt": "2026-10-12T06:16:33.919Z"
+    },
+    {
+      "recordedBy": "Community Registry Intake (Synthetic)",
+      "updatedAt": "2026-11-07T06:16:33.919Z",
+      "status": "ACTIVE",
+      "scopes": [
+        "population_analytics",
+        "care_navigation"
+      ],
+      "participantId": "PART-SYN-BLD-03",
+      "expiresAt": "2027-11-16T06:16:33.919Z",
+      "purpose": "Blood Health screening, care navigation & de-identified population analytics",
+      "grantedAt": "2026-10-02T06:16:33.919Z",
+      "id": "CNS-SYN-003"
+    },
+    {
+      "expiresAt": "2027-11-17T03:15:00.961Z",
+      "status": "ACTIVE",
+      "grantedAt": "2026-10-28T03:15:00.960Z",
+      "scopes": [
+        "population_analytics",
+        "care_navigation"
+      ],
+      "purpose": "Maternal Health screening, care navigation & de-identified population analytics",
+      "updatedAt": "2026-11-13T03:15:00.960Z",
+      "id": "CNS-SYN-017",
+      "participantId": "PART-SYN-MAT-03",
+      "recordedBy": "Community Registry Intake (Synthetic)"
+    },
+    {
+      "scopes": [
+        "population_analytics"
+      ],
+      "purpose": "Cardiometabolic Health screening, care navigation & de-identified population analytics",
+      "id": "CNS-SYN-013",
+      "status": "ACTIVE",
+      "participantId": "PART-SYN-CMD-07",
+      "updatedAt": "2026-11-06T03:15:00.960Z",
+      "recordedBy": "Community Registry Intake (Synthetic)",
+      "expiresAt": "2027-11-17T03:15:00.961Z",
+      "grantedAt": "2026-10-15T03:15:00.960Z"
+    },
+    {
+      "withdrawnAt": "2026-11-17T03:31:32.459Z",
+      "participantId": "PART-MWK4XMMN",
+      "id": "CNS-MWK4XMMN",
+      "expiresAt": "2027-11-17T03:30:55.823Z",
+      "purpose": "Cardiometabolic Health community screening & care navigation",
+      "grantedAt": "2026-11-17T03:30:55.823Z",
+      "recordedBy": "zenieverse@gmail.com",
+      "status": "REVOKED",
+      "scopes": [],
+      "updatedAt": "2026-11-17T03:31:32.459Z"
+    },
+    {
+      "recordedBy": "Community Registry Intake (Synthetic)",
+      "id": "CNS-SYN-009",
+      "expiresAt": "2027-11-16T06:16:33.919Z",
+      "grantedAt": "2026-10-05T06:16:33.919Z",
+      "scopes": [
+        "population_analytics",
+        "care_navigation",
+        "ai_synthesis"
+      ],
+      "participantId": "PART-SYN-CMD-03",
+      "purpose": "Cardiometabolic Health screening, care navigation & de-identified population analytics",
+      "updatedAt": "2026-11-13T06:16:33.919Z",
+      "status": "ACTIVE"
+    },
+    {
+      "participantId": "PART-SYN-BLD-01",
+      "id": "CNS-SYN-001",
+      "grantedAt": "2026-10-17T06:16:33.918Z",
+      "expiresAt": "2027-11-16T06:16:33.919Z",
+      "purpose": "Blood Health screening, care navigation & de-identified population analytics",
+      "scopes": [
+        "population_analytics",
+        "care_navigation",
+        "ai_synthesis",
+        "multilingual_outreach"
+      ],
+      "status": "ACTIVE",
+      "recordedBy": "Community Registry Intake (Synthetic)",
+      "updatedAt": "2026-11-14T06:16:33.918Z"
+    },
+    {
+      "expiresAt": "2027-11-16T06:16:33.919Z",
+      "recordedBy": "Community Registry Intake (Synthetic)",
+      "grantedAt": "2026-09-17T06:16:33.919Z",
+      "purpose": "Blood Health screening, care navigation & de-identified population analytics",
+      "scopes": [
+        "population_analytics"
+      ],
+      "participantId": "PART-SYN-BLD-05",
+      "id": "CNS-SYN-005",
+      "updatedAt": "2026-11-04T06:16:33.919Z",
+      "status": "ACTIVE"
+    },
+    {
+      "withdrawnAt": "2026-11-17T03:16:13.493Z",
+      "id": "CNS-MWK4DUQN",
+      "participantId": "PART-MWK4DUQN",
+      "purpose": "Cardiometabolic Health community screening & care navigation",
+      "expiresAt": "2027-11-17T03:15:33.215Z",
+      "grantedAt": "2026-11-17T03:15:33.215Z",
+      "recordedBy": "service-actor",
+      "status": "REVOKED",
+      "updatedAt": "2026-11-17T03:16:13.493Z",
+      "scopes": []
+    },
+    {
+      "expiresAt": "2027-11-17T03:15:00.961Z",
+      "scopes": [
+        "population_analytics"
+      ],
+      "grantedAt": "2026-09-16T03:15:00.960Z",
+      "status": "ACTIVE",
+      "purpose": "Cardiometabolic Health screening, care navigation & de-identified population analytics",
+      "participantId": "PART-SYN-CMD-05",
+      "updatedAt": "2026-11-02T03:15:00.960Z",
+      "recordedBy": "Community Registry Intake (Synthetic)",
+      "id": "CNS-SYN-011"
+    },
+    {
+      "participantId": "PART-SYN-MAT-01",
+      "scopes": [
+        "population_analytics",
+        "care_navigation",
+        "ai_synthesis",
+        "multilingual_outreach"
+      ],
+      "purpose": "Maternal Health screening, care navigation & de-identified population analytics",
+      "status": "ACTIVE",
+      "updatedAt": "2026-11-16T03:15:00.960Z",
+      "expiresAt": "2027-11-17T03:15:00.961Z",
+      "id": "CNS-SYN-015",
+      "recordedBy": "Community Registry Intake (Synthetic)",
+      "grantedAt": "2026-10-23T03:15:00.960Z"
+    },
+    {
+      "id": "CNS-SYN-019",
+      "participantId": "PART-SYN-MAT-05",
+      "updatedAt": "2026-11-08T03:15:00.960Z",
+      "status": "ACTIVE",
+      "expiresAt": "2027-11-17T03:15:00.961Z",
+      "grantedAt": "2026-09-30T03:15:00.960Z",
+      "purpose": "Maternal Health screening, care navigation & de-identified population analytics",
+      "recordedBy": "Community Registry Intake (Synthetic)",
+      "scopes": [
+        "population_analytics"
+      ]
+    },
+    {
+      "updatedAt": "2026-11-17T03:22:26.325Z",
+      "purpose": "Cardiometabolic Health community screening & care navigation",
+      "expiresAt": "2027-11-17T03:21:40.509Z",
+      "withdrawnAt": "2026-11-17T03:22:26.325Z",
+      "id": "CNS-MWK4LQ59",
+      "scopes": [],
+      "grantedAt": "2026-11-17T03:21:40.509Z",
+      "status": "REVOKED",
+      "participantId": "PART-MWK4LQ59",
+      "recordedBy": "zenieverse@gmail.com"
+    },
+    {
+      "scopes": [
+        "population_analytics"
+      ],
+      "updatedAt": "2026-11-09T03:15:00.960Z",
+      "id": "CNS-SYN-014",
+      "recordedBy": "Community Registry Intake (Synthetic)",
+      "status": "ACTIVE",
+      "grantedAt": "2026-10-17T03:15:00.960Z",
+      "participantId": "PART-SYN-CMD-08",
+      "purpose": "Cardiometabolic Health screening, care navigation & de-identified population analytics",
+      "expiresAt": "2027-11-17T03:15:00.961Z"
+    },
+    {
+      "participantId": "PART-SYN-CMD-04",
+      "grantedAt": "2026-09-23T03:15:00.960Z",
+      "scopes": [
+        "population_analytics",
+        "sensor_intake"
+      ],
+      "purpose": "Cardiometabolic Health screening, care navigation & de-identified population analytics",
+      "expiresAt": "2027-11-17T03:15:00.961Z",
+      "id": "CNS-SYN-010",
+      "status": "ACTIVE",
+      "updatedAt": "2026-11-07T03:15:00.960Z",
+      "recordedBy": "Community Registry Intake (Synthetic)"
+    },
+    {
+      "id": "CNS-SYN-018",
+      "scopes": [
+        "population_analytics",
+        "care_navigation"
+      ],
+      "recordedBy": "Community Registry Intake (Synthetic)",
+      "purpose": "Maternal Health screening, care navigation & de-identified population analytics",
+      "status": "ACTIVE",
+      "updatedAt": "2026-11-11T03:15:00.960Z",
+      "expiresAt": "2027-11-17T03:15:00.961Z",
+      "participantId": "PART-SYN-MAT-04",
+      "grantedAt": "2026-10-03T03:15:00.960Z"
+    },
+    {
+      "updatedAt": "2026-11-10T06:16:33.919Z",
+      "scopes": [
+        "population_analytics",
+        "care_navigation",
+        "multilingual_outreach"
+      ],
+      "id": "CNS-SYN-008",
+      "status": "ACTIVE",
+      "participantId": "PART-SYN-CMD-02",
+      "grantedAt": "2026-10-07T06:16:33.919Z",
+      "purpose": "Cardiometabolic Health screening, care navigation & de-identified population analytics",
+      "expiresAt": "2027-11-16T06:16:33.919Z",
+      "recordedBy": "Community Registry Intake (Synthetic)"
+    },
+    {
+      "id": "CNS-SYN-004",
+      "expiresAt": "2027-11-16T06:16:33.919Z",
+      "grantedAt": "2026-10-26T06:16:33.919Z",
+      "purpose": "Blood Health screening, care navigation & de-identified population analytics",
+      "recordedBy": "Community Registry Intake (Synthetic)",
+      "scopes": [
+        "population_analytics",
+        "care_navigation",
+        "ai_synthesis",
+        "multilingual_outreach"
+      ],
+      "status": "ACTIVE",
+      "updatedAt": "2026-11-12T06:16:33.919Z",
+      "participantId": "PART-SYN-BLD-04"
+    },
+    {
+      "participantId": "PART-SYN-REV-01",
+      "expiresAt": "2027-11-17T03:15:00.961Z",
+      "grantedAt": "2026-10-08T03:15:00.960Z",
+      "purpose": "Maternal Health screening, care navigation & de-identified population analytics",
+      "id": "CNS-SYN-020",
+      "status": "REVOKED",
+      "recordedBy": "Community Registry Intake (Synthetic)",
+      "withdrawnAt": "2026-11-16T03:15:00.961Z",
+      "updatedAt": "2026-11-16T03:15:00.960Z",
+      "scopes": []
+    }
+  ],
+  "observations": [
+    {
+      "sourceSystem": "COMMUNITY_SCREENING",
+      "consentVerified": true,
+      "metricLabel": "Antenatal Care Schedule Interval",
+      "id": "OBS-SYN-017",
+      "dataOrigin": "SIMULATED",
+      "referenceRange": "0 days overdue",
+      "recordedAt": "2026-11-16T03:15:00.961Z",
+      "qualityFlag": "VALID",
+      "metricType": "anc_visit",
+      "numericValue": 22,
+      "participantId": "PART-SYN-MAT-01",
+      "provenanceNote": "Synthetic maternal care navigation schedule check",
+      "qualityScore": 0.99,
+      "valueDisplay": "22 days overdue",
+      "unit": "days overdue"
+    },
+    {
+      "qualityFlag": "VALID",
+      "numericValue": 19,
+      "provenanceNote": "Synthetic Presage SmartSpectra contactless optical session",
+      "metricType": "hrv",
+      "valueDisplay": "19 ms",
+      "metricLabel": "Heart Rate Variability (RMSSD)",
+      "id": "OBS-SYN-009",
+      "consentVerified": true,
+      "qualityScore": 0.9,
+      "participantId": "PART-SYN-CMD-01",
+      "recordedAt": "2026-11-16T03:15:00.961Z",
+      "unit": "ms",
+      "sourceSystem": "PRESAGE_OPTICAL",
+      "referenceRange": "25 - 90 ms",
+      "dataOrigin": "SIMULATED"
+    },
+    {
+      "qualityFlag": "VALID",
+      "participantId": "PART-SYN-MAT-01",
+      "numericValue": 142,
+      "provenanceNote": "Synthetic prenatal cuff check submitted via Health Alert Mini",
+      "consentVerified": true,
+      "metricType": "blood_pressure",
+      "valueDisplay": "142/92 mmHg",
+      "unit": "mmHg",
+      "metricLabel": "Blood Pressure (Sys/Dia)",
+      "qualityScore": 0.97,
+      "recordedAt": "2026-11-16T03:15:00.961Z",
+      "secondaryNumericValue": 92,
+      "id": "OBS-SYN-018",
+      "sourceSystem": "HEALTH_ALERT_MINI",
+      "referenceRange": "< 120/80 mmHg",
+      "dataOrigin": "SIMULATED"
+    },
+    {
+      "metricLabel": "Blood Pressure (Sys/Dia)",
+      "provenanceNote": "Synthetic Health Alert Mini blood pressure triage",
+      "recordedAt": "2026-11-15T06:16:33.919Z",
+      "participantId": "PART-SYN-CMD-01",
+      "dataOrigin": "SIMULATED",
+      "qualityFlag": "VALID",
+      "sourceSystem": "HEALTH_ALERT_MINI",
+      "valueDisplay": "154/94 mmHg",
+      "qualityScore": 0.96,
+      "id": "OBS-SYN-007",
+      "numericValue": 154,
+      "unit": "mmHg",
+      "secondaryNumericValue": 94,
+      "consentVerified": true,
+      "referenceRange": "< 120/80 mmHg",
+      "metricType": "blood_pressure"
+    },
+    {
+      "sourceSystem": "CLINICAL_IMPORT",
+      "metricType": "ferritin",
+      "provenanceNote": "Synthetic confirmatory iron panel",
+      "unit": "ng/mL",
+      "participantId": "PART-SYN-BLD-01",
+      "dataOrigin": "SIMULATED",
+      "numericValue": 11,
+      "metricLabel": "Serum Ferritin",
+      "referenceRange": "30 - 200 ng/mL",
+      "qualityFlag": "VALID",
+      "consentVerified": true,
+      "id": "OBS-SYN-002",
+      "valueDisplay": "11 ng/mL",
+      "recordedAt": "2026-11-14T06:16:33.919Z",
+      "qualityScore": 0.97
+    },
+    {
+      "valueDisplay": "10.4 g/dL",
+      "dataOrigin": "SIMULATED",
+      "unit": "g/dL",
+      "referenceRange": "12.0 - 16.0 g/dL",
+      "qualityScore": 0.98,
+      "numericValue": 10.4,
+      "consentVerified": true,
+      "participantId": "PART-SYN-BLD-01",
+      "recordedAt": "2026-11-14T06:16:33.919Z",
+      "metricType": "haemoglobin",
+      "qualityFlag": "VALID",
+      "metricLabel": "Haemoglobin (Hb)",
+      "id": "OBS-SYN-001",
+      "sourceSystem": "COMMUNITY_SCREENING",
+      "provenanceNote": "Synthetic community blood health screening lab import"
+    },
+    {
+      "unit": "mmHg",
+      "consentVerified": true,
+      "metricLabel": "Blood Pressure (Sys/Dia)",
+      "dataOrigin": "SIMULATED",
+      "numericValue": 152,
+      "id": "OBS-SYN-012",
+      "provenanceNote": "Synthetic primary clinic cuff measurement",
+      "qualityScore": 0.97,
+      "secondaryNumericValue": 92,
+      "valueDisplay": "152/92 mmHg",
+      "recordedAt": "2026-11-14T03:15:00.961Z",
+      "qualityFlag": "VALID",
+      "sourceSystem": "CLINICAL_IMPORT",
+      "metricType": "blood_pressure",
+      "referenceRange": "< 120/80 mmHg",
+      "participantId": "PART-SYN-CMD-03"
+    },
+    {
+      "qualityScore": 0.98,
+      "unit": "mL/min/1.73m²",
+      "dataOrigin": "SIMULATED",
+      "valueDisplay": "52 mL/min/1.73m²",
+      "provenanceNote": "Synthetic renal panel import",
+      "numericValue": 52,
+      "id": "OBS-SYN-013",
+      "recordedAt": "2026-11-14T03:15:00.961Z",
+      "metricLabel": "Estimated GFR (CKD-EPI)",
+      "metricType": "egfr",
+      "sourceSystem": "CLINICAL_IMPORT",
+      "referenceRange": ">= 90 mL/min/1.73m²",
+      "participantId": "PART-SYN-CMD-03",
+      "consentVerified": true,
+      "qualityFlag": "VALID"
+    },
+    {
+      "participantId": "PART-SYN-MAT-02",
+      "qualityFlag": "VALID",
+      "referenceRange": ">= 11.0 g/dL (pregnancy)",
+      "id": "OBS-SYN-019",
+      "metricType": "haemoglobin",
+      "metricLabel": "Haemoglobin (Hb)",
+      "sourceSystem": "CLINICAL_IMPORT",
+      "valueDisplay": "10.4 g/dL",
+      "provenanceNote": "Synthetic prenatal anaemia screen",
+      "recordedAt": "2026-11-14T03:15:00.961Z",
+      "qualityScore": 0.98,
+      "unit": "g/dL",
+      "dataOrigin": "SIMULATED",
+      "numericValue": 10.4,
+      "consentVerified": true
+    },
+    {
+      "unit": "%",
+      "sourceSystem": "CLINICAL_IMPORT",
+      "consentVerified": true,
+      "metricType": "hba1c",
+      "participantId": "PART-SYN-CMD-01",
+      "referenceRange": "< 5.7 %",
+      "dataOrigin": "SIMULATED",
+      "provenanceNote": "Synthetic clinical lab import",
+      "id": "OBS-SYN-008",
+      "numericValue": 6.8,
+      "qualityFlag": "VALID",
+      "metricLabel": "Hemoglobin A1c (HbA1c)",
+      "qualityScore": 0.98,
+      "recordedAt": "2026-11-14T03:15:00.961Z",
+      "valueDisplay": "6.8 %"
+    },
+    {
+      "id": "OBS-SYN-020",
+      "numericValue": 10,
+      "metricType": "anc_visit",
+      "qualityScore": 0.98,
+      "valueDisplay": "10 days overdue",
+      "referenceRange": "0 days overdue",
+      "provenanceNote": "Synthetic antenatal visit reminder tracker",
+      "dataOrigin": "SIMULATED",
+      "sourceSystem": "COMMUNITY_SCREENING",
+      "unit": "days overdue",
+      "consentVerified": true,
+      "qualityFlag": "VALID",
+      "participantId": "PART-SYN-MAT-03",
+      "metricLabel": "Antenatal Care Schedule Interval",
+      "recordedAt": "2026-11-13T03:15:00.961Z"
+    },
+    {
+      "valueDisplay": "10.2 g/dL",
+      "metricLabel": "Haemoglobin (Hb)",
+      "provenanceNote": "Synthetic capillary Hb point-of-care test",
+      "qualityScore": 0.97,
+      "dataOrigin": "SIMULATED",
+      "recordedAt": "2026-11-12T06:16:33.919Z",
+      "numericValue": 10.2,
+      "qualityFlag": "VALID",
+      "unit": "g/dL",
+      "id": "OBS-SYN-005",
+      "metricType": "haemoglobin",
+      "participantId": "PART-SYN-BLD-04",
+      "consentVerified": true,
+      "referenceRange": "12.0 - 16.0 g/dL",
+      "sourceSystem": "COMMUNITY_SCREENING"
+    },
+    {
+      "participantId": "PART-SYN-BLD-02",
+      "provenanceNote": "Synthetic intake from Health Alert Mini check-in",
+      "valueDisplay": "12 ng/mL",
+      "qualityScore": 0.96,
+      "metricType": "ferritin",
+      "numericValue": 12,
+      "qualityFlag": "VALID",
+      "recordedAt": "2026-11-11T06:16:33.919Z",
+      "consentVerified": true,
+      "metricLabel": "Serum Ferritin",
+      "id": "OBS-SYN-003",
+      "unit": "ng/mL",
+      "dataOrigin": "SIMULATED",
+      "sourceSystem": "HEALTH_ALERT_MINI",
+      "referenceRange": "30 - 200 ng/mL"
+    },
+    {
+      "provenanceNote": "Synthetic normal trimester Hb check",
+      "sourceSystem": "CLINICAL_IMPORT",
+      "metricLabel": "Haemoglobin (Hb)",
+      "id": "OBS-SYN-021",
+      "metricType": "haemoglobin",
+      "qualityFlag": "VALID",
+      "consentVerified": true,
+      "unit": "g/dL",
+      "numericValue": 12.3,
+      "recordedAt": "2026-11-11T03:15:00.961Z",
+      "qualityScore": 0.98,
+      "dataOrigin": "SIMULATED",
+      "valueDisplay": "12.3 g/dL",
+      "participantId": "PART-SYN-MAT-04",
+      "referenceRange": ">= 11.0 g/dL (pregnancy)"
+    },
+    {
+      "provenanceNote": "Synthetic prediabetes screening record",
+      "recordedAt": "2026-11-11T03:15:00.961Z",
+      "sourceSystem": "CLINICAL_IMPORT",
+      "unit": "%",
+      "id": "OBS-SYN-011",
+      "dataOrigin": "SIMULATED",
+      "participantId": "PART-SYN-CMD-02",
+      "consentVerified": true,
+      "metricLabel": "Hemoglobin A1c (HbA1c)",
+      "numericValue": 6.1,
+      "qualityFlag": "VALID",
+      "qualityScore": 0.97,
+      "metricType": "hba1c",
+      "referenceRange": "< 5.7 %",
+      "valueDisplay": "6.1 %"
+    },
+    {
+      "dataOrigin": "SIMULATED",
+      "sourceSystem": "COMMUNITY_SCREENING",
+      "provenanceNote": "Synthetic community BP kiosk reading",
+      "consentVerified": true,
+      "id": "OBS-SYN-010",
+      "recordedAt": "2026-11-11T03:15:00.961Z",
+      "numericValue": 138,
+      "qualityFlag": "VALID",
+      "secondaryNumericValue": 88,
+      "metricType": "blood_pressure",
+      "qualityScore": 0.96,
+      "unit": "mmHg",
+      "metricLabel": "Blood Pressure (Sys/Dia)",
+      "valueDisplay": "138/88 mmHg",
+      "participantId": "PART-SYN-CMD-02",
+      "referenceRange": "< 120/80 mmHg"
+    },
+    {
+      "referenceRange": "< 120/80 mmHg",
+      "recordedAt": "2026-11-10T03:15:00.961Z",
+      "dataOrigin": "SIMULATED",
+      "unit": "mmHg",
+      "sourceSystem": "COMMUNITY_SCREENING",
+      "valueDisplay": "144/90 mmHg",
+      "qualityScore": 0.95,
+      "metricLabel": "Blood Pressure (Sys/Dia)",
+      "participantId": "PART-SYN-CMD-06",
+      "id": "OBS-SYN-016",
+      "consentVerified": true,
+      "provenanceNote": "Synthetic rural outreach clinic screening",
+      "qualityFlag": "VALID",
+      "numericValue": 144,
+      "secondaryNumericValue": 90,
+      "metricType": "blood_pressure"
+    },
+    {
+      "unit": "ng/mL",
+      "metricType": "ferritin",
+      "sourceSystem": "CLINICAL_IMPORT",
+      "consentVerified": true,
+      "provenanceNote": "Synthetic repeat ferritin follow-up",
+      "referenceRange": "30 - 200 ng/mL",
+      "recordedAt": "2026-11-07T06:16:33.919Z",
+      "qualityScore": 0.95,
+      "metricLabel": "Serum Ferritin",
+      "valueDisplay": "26 ng/mL",
+      "qualityFlag": "VALID",
+      "participantId": "PART-SYN-BLD-03",
+      "id": "OBS-SYN-004",
+      "dataOrigin": "SIMULATED",
+      "numericValue": 26
+    },
+    {
+      "numericValue": 5.9,
+      "qualityFlag": "VALID",
+      "participantId": "PART-SYN-CMD-04",
+      "valueDisplay": "5.9 %",
+      "metricLabel": "Hemoglobin A1c (HbA1c)",
+      "metricType": "hba1c",
+      "provenanceNote": "Synthetic diabetes prevention screening",
+      "qualityScore": 0.96,
+      "unit": "%",
+      "recordedAt": "2026-11-07T03:15:00.961Z",
+      "referenceRange": "< 5.7 %",
+      "sourceSystem": "CLINICAL_IMPORT",
+      "dataOrigin": "SIMULATED",
+      "id": "OBS-SYN-014",
+      "consentVerified": true
+    },
+    {
+      "qualityFlag": "VALID",
+      "valueDisplay": "13.4 g/dL",
+      "recordedAt": "2026-11-04T06:16:33.919Z",
+      "qualityScore": 0.98,
+      "provenanceNote": "Synthetic routine community screening",
+      "participantId": "PART-SYN-BLD-05",
+      "dataOrigin": "SIMULATED",
+      "numericValue": 13.4,
+      "metricLabel": "Haemoglobin (Hb)",
+      "consentVerified": true,
+      "unit": "g/dL",
+      "referenceRange": "12.0 - 16.0 g/dL",
+      "id": "OBS-SYN-006",
+      "metricType": "haemoglobin",
+      "sourceSystem": "COMMUNITY_SCREENING"
+    },
+    {
+      "id": "OBS-SYN-015",
+      "sourceSystem": "PRESAGE_OPTICAL",
+      "unit": "bpm",
+      "consentVerified": true,
+      "recordedAt": "2026-11-02T03:15:00.961Z",
+      "dataOrigin": "SIMULATED",
+      "provenanceNote": "Synthetic Presage optical wellness reading",
+      "referenceRange": "60 - 100 bpm",
+      "participantId": "PART-SYN-CMD-05",
+      "metricLabel": "Resting Heart Rate",
+      "numericValue": 66,
+      "qualityScore": 0.94,
+      "valueDisplay": "66 bpm",
+      "metricType": "resting_hr",
+      "qualityFlag": "VALID"
+    }
+  ],
+  "riskSignals": [
+    {
+      "id": "SIG-CMD-PART-SYN-CMD-01",
+      "participantId": "PART-SYN-CMD-01",
+      "participantAlias": "Cohort Member CMD-001 (Synthetic)",
+      "cohort": "Cardiometabolic Health",
+      "region": "Urban Core Hub",
+      "domain": "Cardiometabolic",
+      "riskTier": "HIGH",
+      "priorityScore": 98,
+      "indicators": [
+        "Elevated Blood Pressure (154/94 mmHg)",
+        "HbA1c >= 6.5% (6.8%)",
+        "Low Resting HRV (19 ms)"
+      ],
+      "rationale": "Combined vascular pressure and glycaemic indicators point to elevated cardiometabolic follow-up priority under AHA/ACC and ADA preventive benchmarks.",
+      "guidelineRefs": [
+        "AHA/ACC 2024 BP Guideline",
+        "ADA Standards of Care 2026",
+        "KDIGO 2024"
+      ],
+      "uncertaintyNote": "Multi-marker screening score; interpret alongside clinical history.",
+      "nonDiagnosticNotice": "Preventive risk stratification only — not a medical diagnosis of hypertension or diabetes.",
+      "humanReviewRequired": true,
+      "dataOrigin": "SIMULATED",
+      "observedAt": "2026-11-15T06:16:33.919Z",
+      "contributingObservations": [
+        {
+          "id": "OBS-SYN-007",
+          "metricLabel": "Blood Pressure (Sys/Dia)",
+          "valueDisplay": "154/94 mmHg",
+          "unit": "mmHg",
+          "qualityFlag": "VALID",
+          "dataOrigin": "SIMULATED",
+          "recordedAt": "2026-11-15T06:16:33.919Z"
+        },
+        {
+          "id": "OBS-SYN-008",
+          "metricLabel": "Hemoglobin A1c (HbA1c)",
+          "valueDisplay": "6.8 %",
+          "unit": "%",
+          "qualityFlag": "VALID",
+          "dataOrigin": "SIMULATED",
+          "recordedAt": "2026-11-14T03:15:00.961Z"
+        },
+        {
+          "id": "OBS-SYN-009",
+          "metricLabel": "Heart Rate Variability (RMSSD)",
+          "valueDisplay": "19 ms",
+          "unit": "ms",
+          "qualityFlag": "VALID",
+          "dataOrigin": "SIMULATED",
+          "recordedAt": "2026-11-16T03:15:00.961Z"
+        }
+      ],
+      "status": "OPEN",
+      "detectedAt": "2026-11-17T03:43:29.822Z"
+    },
+    {
+      "id": "SIG-MAT-PART-SYN-MAT-01",
+      "participantId": "PART-SYN-MAT-01",
+      "participantAlias": "Cohort Member MAT-001 (Synthetic)",
+      "cohort": "Maternal Health",
+      "region": "River Ward Maternal",
+      "domain": "Maternal & Perinatal",
+      "riskTier": "HIGH",
+      "priorityScore": 97,
+      "indicators": [
+        "Overdue Antenatal Visit (+22 days)",
+        "Gestational BP Check Needed (142/92 mmHg)"
+      ],
+      "rationale": "Maternal biomarker or antenatal care schedule indicator signals timely midwife/obstetric care navigation.",
+      "guidelineRefs": [
+        "WHO Antenatal Care Recommendations (2016)",
+        "WHO Haemoglobin Cutoffs (2024)"
+      ],
+      "uncertaintyNote": "Requires verification of gestational week and clinic visit attendance.",
+      "nonDiagnosticNotice": "Care-coordination priority flag — not a medical diagnosis; clinician review required.",
+      "humanReviewRequired": true,
+      "dataOrigin": "SIMULATED",
+      "observedAt": "2026-11-16T03:15:00.961Z",
+      "contributingObservations": [
+        {
+          "id": "OBS-SYN-017",
+          "metricLabel": "Antenatal Care Schedule Interval",
+          "valueDisplay": "22 days overdue",
+          "unit": "days overdue",
+          "qualityFlag": "VALID",
+          "dataOrigin": "SIMULATED",
+          "recordedAt": "2026-11-16T03:15:00.961Z"
+        },
+        {
+          "id": "OBS-SYN-018",
+          "metricLabel": "Blood Pressure (Sys/Dia)",
+          "valueDisplay": "142/92 mmHg",
+          "unit": "mmHg",
+          "qualityFlag": "VALID",
+          "dataOrigin": "SIMULATED",
+          "recordedAt": "2026-11-16T03:15:00.961Z"
+        }
+      ],
+      "status": "OPEN",
+      "detectedAt": "2026-11-17T03:43:29.822Z"
+    },
+    {
+      "id": "SIG-BLD-PART-SYN-BLD-01",
+      "participantId": "PART-SYN-BLD-01",
+      "participantAlias": "Cohort Member BLD-001 (Synthetic)",
+      "cohort": "Blood Health",
+      "region": "District 1 Clinic",
+      "domain": "Blood Health & Anaemia",
+      "riskTier": "HIGH",
+      "priorityScore": 96,
+      "indicators": [
+        "Low Haemoglobin (10.4 g/dL)",
+        "Low Serum Ferritin (11 ng/mL)"
+      ],
+      "rationale": "Depleted iron stores and/or reduced haemoglobin warrant confirmatory CBC/iron studies and structured nutrition or clinician follow-up.",
+      "guidelineRefs": [
+        "WHO Ferritin Guideline (2020)",
+        "WHO Haemoglobin Cutoffs (2024)"
+      ],
+      "uncertaintyNote": "Biomarker trend supported by consented laboratory record.",
+      "nonDiagnosticNotice": "Population screening signal only — not a medical diagnosis of anaemia.",
+      "humanReviewRequired": true,
+      "dataOrigin": "SIMULATED",
+      "observedAt": "2026-11-14T06:16:33.919Z",
+      "contributingObservations": [
+        {
+          "id": "OBS-SYN-001",
+          "metricLabel": "Haemoglobin (Hb)",
+          "valueDisplay": "10.4 g/dL",
+          "unit": "g/dL",
+          "qualityFlag": "VALID",
+          "dataOrigin": "SIMULATED",
+          "recordedAt": "2026-11-14T06:16:33.919Z"
+        },
+        {
+          "id": "OBS-SYN-002",
+          "metricLabel": "Serum Ferritin",
+          "valueDisplay": "11 ng/mL",
+          "unit": "ng/mL",
+          "qualityFlag": "VALID",
+          "dataOrigin": "SIMULATED",
+          "recordedAt": "2026-11-14T06:16:33.919Z"
+        }
+      ],
+      "status": "OPEN",
+      "detectedAt": "2026-11-17T03:43:29.822Z"
+    },
+    {
+      "id": "SIG-CMD-PART-SYN-CMD-03",
+      "participantId": "PART-SYN-CMD-03",
+      "participantAlias": "Cohort Member CMD-003 (Synthetic)",
+      "cohort": "Cardiometabolic Health",
+      "region": "Urban Core Hub",
+      "domain": "Cardiometabolic",
+      "riskTier": "HIGH",
+      "priorityScore": 74,
+      "indicators": [
+        "Elevated Blood Pressure (152/92 mmHg)",
+        "Reduced eGFR (52 mL/min/1.73m²)"
+      ],
+      "rationale": "Combined vascular pressure and glycaemic indicators point to elevated cardiometabolic follow-up priority under AHA/ACC and ADA preventive benchmarks.",
+      "guidelineRefs": [
+        "AHA/ACC 2024 BP Guideline",
+        "ADA Standards of Care 2026",
+        "KDIGO 2024"
+      ],
+      "uncertaintyNote": "Multi-marker screening score; interpret alongside clinical history.",
+      "nonDiagnosticNotice": "Preventive risk stratification only — not a medical diagnosis of hypertension or diabetes.",
+      "humanReviewRequired": true,
+      "dataOrigin": "SIMULATED",
+      "observedAt": "2026-11-14T03:15:00.961Z",
+      "contributingObservations": [
+        {
+          "id": "OBS-SYN-012",
+          "metricLabel": "Blood Pressure (Sys/Dia)",
+          "valueDisplay": "152/92 mmHg",
+          "unit": "mmHg",
+          "qualityFlag": "VALID",
+          "dataOrigin": "SIMULATED",
+          "recordedAt": "2026-11-14T03:15:00.961Z"
+        },
+        {
+          "id": "OBS-SYN-013",
+          "metricLabel": "Estimated GFR (CKD-EPI)",
+          "valueDisplay": "52 mL/min/1.73m²",
+          "unit": "mL/min/1.73m²",
+          "qualityFlag": "VALID",
+          "dataOrigin": "SIMULATED",
+          "recordedAt": "2026-11-14T03:15:00.961Z"
+        }
+      ],
+      "status": "OPEN",
+      "detectedAt": "2026-11-17T03:43:29.822Z"
+    },
+    {
+      "id": "SIG-BLD-PART-SYN-MAT-02",
+      "participantId": "PART-SYN-MAT-02",
+      "participantAlias": "Cohort Member MAT-002 (Synthetic)",
+      "cohort": "Maternal Health",
+      "region": "River Ward Maternal",
+      "domain": "Blood Health & Anaemia",
+      "riskTier": "MODERATE",
+      "priorityScore": 55,
+      "indicators": [
+        "Low Haemoglobin (10.4 g/dL)"
+      ],
+      "rationale": "Depleted iron stores and/or reduced haemoglobin warrant confirmatory CBC/iron studies and structured nutrition or clinician follow-up.",
+      "guidelineRefs": [
+        "WHO Ferritin Guideline (2020)",
+        "WHO Haemoglobin Cutoffs (2024)"
+      ],
+      "uncertaintyNote": "Single-point laboratory intake; serial confirmation recommended.",
+      "nonDiagnosticNotice": "Population screening signal only — not a medical diagnosis of anaemia.",
+      "humanReviewRequired": true,
+      "dataOrigin": "SIMULATED",
+      "observedAt": "2026-11-14T03:15:00.961Z",
+      "contributingObservations": [
+        {
+          "id": "OBS-SYN-019",
+          "metricLabel": "Haemoglobin (Hb)",
+          "valueDisplay": "10.4 g/dL",
+          "unit": "g/dL",
+          "qualityFlag": "VALID",
+          "dataOrigin": "SIMULATED",
+          "recordedAt": "2026-11-14T03:15:00.961Z"
+        }
+      ],
+      "status": "OPEN",
+      "detectedAt": "2026-11-17T03:43:29.822Z"
+    },
+    {
+      "id": "SIG-BLD-PART-SYN-BLD-04",
+      "participantId": "PART-SYN-BLD-04",
+      "participantAlias": "Cohort Member BLD-004 (Synthetic)",
+      "cohort": "Blood Health",
+      "region": "District 1 Clinic",
+      "domain": "Blood Health & Anaemia",
+      "riskTier": "MODERATE",
+      "priorityScore": 55,
+      "indicators": [
+        "Low Haemoglobin (10.2 g/dL)"
+      ],
+      "rationale": "Depleted iron stores and/or reduced haemoglobin warrant confirmatory CBC/iron studies and structured nutrition or clinician follow-up.",
+      "guidelineRefs": [
+        "WHO Ferritin Guideline (2020)",
+        "WHO Haemoglobin Cutoffs (2024)"
+      ],
+      "uncertaintyNote": "Single-point laboratory intake; serial confirmation recommended.",
+      "nonDiagnosticNotice": "Population screening signal only — not a medical diagnosis of anaemia.",
+      "humanReviewRequired": true,
+      "dataOrigin": "SIMULATED",
+      "observedAt": "2026-11-12T06:16:33.919Z",
+      "contributingObservations": [
+        {
+          "id": "OBS-SYN-005",
+          "metricLabel": "Haemoglobin (Hb)",
+          "valueDisplay": "10.2 g/dL",
+          "unit": "g/dL",
+          "qualityFlag": "VALID",
+          "dataOrigin": "SIMULATED",
+          "recordedAt": "2026-11-12T06:16:33.919Z"
+        }
+      ],
+      "status": "OPEN",
+      "detectedAt": "2026-11-17T03:43:29.822Z"
+    },
+    {
+      "id": "SIG-CMD-PART-SYN-CMD-02",
+      "participantId": "PART-SYN-CMD-02",
+      "participantAlias": "Cohort Member CMD-002 (Synthetic)",
+      "cohort": "Cardiometabolic Health",
+      "region": "Urban Core Hub",
+      "domain": "Cardiometabolic",
+      "riskTier": "MODERATE",
+      "priorityScore": 50,
+      "indicators": [
+        "Stage 1 BP Range (138/88 mmHg)",
+        "Borderline Glycation HbA1c (6.1%)"
+      ],
+      "rationale": "Combined vascular pressure and glycaemic indicators point to elevated cardiometabolic follow-up priority under AHA/ACC and ADA preventive benchmarks.",
+      "guidelineRefs": [
+        "AHA/ACC 2024 BP Guideline",
+        "ADA Standards of Care 2026",
+        "KDIGO 2024"
+      ],
+      "uncertaintyNote": "Multi-marker screening score; interpret alongside clinical history.",
+      "nonDiagnosticNotice": "Preventive risk stratification only — not a medical diagnosis of hypertension or diabetes.",
+      "humanReviewRequired": true,
+      "dataOrigin": "SIMULATED",
+      "observedAt": "2026-11-11T03:15:00.961Z",
+      "contributingObservations": [
+        {
+          "id": "OBS-SYN-010",
+          "metricLabel": "Blood Pressure (Sys/Dia)",
+          "valueDisplay": "138/88 mmHg",
+          "unit": "mmHg",
+          "qualityFlag": "VALID",
+          "dataOrigin": "SIMULATED",
+          "recordedAt": "2026-11-11T03:15:00.961Z"
+        },
+        {
+          "id": "OBS-SYN-011",
+          "metricLabel": "Hemoglobin A1c (HbA1c)",
+          "valueDisplay": "6.1 %",
+          "unit": "%",
+          "qualityFlag": "VALID",
+          "dataOrigin": "SIMULATED",
+          "recordedAt": "2026-11-11T03:15:00.961Z"
+        }
+      ],
+      "status": "OPEN",
+      "detectedAt": "2026-11-17T03:43:29.822Z"
+    },
+    {
+      "id": "SIG-BLD-PART-SYN-BLD-02",
+      "participantId": "PART-SYN-BLD-02",
+      "participantAlias": "Cohort Member BLD-002 (Synthetic)",
+      "cohort": "Blood Health",
+      "region": "District 1 Clinic",
+      "domain": "Blood Health & Anaemia",
+      "riskTier": "MODERATE",
+      "priorityScore": 42,
+      "indicators": [
+        "Low Serum Ferritin (12 ng/mL)"
+      ],
+      "rationale": "Depleted iron stores and/or reduced haemoglobin warrant confirmatory CBC/iron studies and structured nutrition or clinician follow-up.",
+      "guidelineRefs": [
+        "WHO Ferritin Guideline (2020)",
+        "WHO Haemoglobin Cutoffs (2024)"
+      ],
+      "uncertaintyNote": "Single-point laboratory intake; serial confirmation recommended.",
+      "nonDiagnosticNotice": "Population screening signal only — not a medical diagnosis of anaemia.",
+      "humanReviewRequired": true,
+      "dataOrigin": "SIMULATED",
+      "observedAt": "2026-11-11T06:16:33.919Z",
+      "contributingObservations": [
+        {
+          "id": "OBS-SYN-003",
+          "metricLabel": "Serum Ferritin",
+          "valueDisplay": "12 ng/mL",
+          "unit": "ng/mL",
+          "qualityFlag": "VALID",
+          "dataOrigin": "SIMULATED",
+          "recordedAt": "2026-11-11T06:16:33.919Z"
+        }
+      ],
+      "status": "OPEN",
+      "detectedAt": "2026-11-17T03:43:29.822Z"
+    },
+    {
+      "id": "SIG-CMD-PART-SYN-CMD-06",
+      "participantId": "PART-SYN-CMD-06",
+      "participantAlias": "Cohort Member CMD-006 (Synthetic)",
+      "cohort": "Cardiometabolic Health",
+      "region": "Rural Outreach South",
+      "domain": "Cardiometabolic",
+      "riskTier": "MODERATE",
+      "priorityScore": 42,
+      "indicators": [
+        "Elevated Blood Pressure (144/90 mmHg)"
+      ],
+      "rationale": "Combined vascular pressure and glycaemic indicators point to elevated cardiometabolic follow-up priority under AHA/ACC and ADA preventive benchmarks.",
+      "guidelineRefs": [
+        "AHA/ACC 2024 BP Guideline",
+        "ADA Standards of Care 2026",
+        "KDIGO 2024"
+      ],
+      "uncertaintyNote": "Multi-marker screening score; interpret alongside clinical history.",
+      "nonDiagnosticNotice": "Preventive risk stratification only — not a medical diagnosis of hypertension or diabetes.",
+      "humanReviewRequired": true,
+      "dataOrigin": "SIMULATED",
+      "observedAt": "2026-11-10T03:15:00.961Z",
+      "contributingObservations": [
+        {
+          "id": "OBS-SYN-016",
+          "metricLabel": "Blood Pressure (Sys/Dia)",
+          "valueDisplay": "144/90 mmHg",
+          "unit": "mmHg",
+          "qualityFlag": "VALID",
+          "dataOrigin": "SIMULATED",
+          "recordedAt": "2026-11-10T03:15:00.961Z"
+        }
+      ],
+      "status": "OPEN",
+      "detectedAt": "2026-11-17T03:43:29.822Z"
+    },
+    {
+      "id": "SIG-CMD-PART-SYN-MAT-01",
+      "participantId": "PART-SYN-MAT-01",
+      "participantAlias": "Cohort Member MAT-001 (Synthetic)",
+      "cohort": "Maternal Health",
+      "region": "River Ward Maternal",
+      "domain": "Cardiometabolic",
+      "riskTier": "MODERATE",
+      "priorityScore": 42,
+      "indicators": [
+        "Elevated Blood Pressure (142/92 mmHg)"
+      ],
+      "rationale": "Combined vascular pressure and glycaemic indicators point to elevated cardiometabolic follow-up priority under AHA/ACC and ADA preventive benchmarks.",
+      "guidelineRefs": [
+        "AHA/ACC 2024 BP Guideline",
+        "ADA Standards of Care 2026",
+        "KDIGO 2024"
+      ],
+      "uncertaintyNote": "Multi-marker screening score; interpret alongside clinical history.",
+      "nonDiagnosticNotice": "Preventive risk stratification only — not a medical diagnosis of hypertension or diabetes.",
+      "humanReviewRequired": true,
+      "dataOrigin": "SIMULATED",
+      "observedAt": "2026-11-16T03:15:00.961Z",
+      "contributingObservations": [
+        {
+          "id": "OBS-SYN-018",
+          "metricLabel": "Blood Pressure (Sys/Dia)",
+          "valueDisplay": "142/92 mmHg",
+          "unit": "mmHg",
+          "qualityFlag": "VALID",
+          "dataOrigin": "SIMULATED",
+          "recordedAt": "2026-11-16T03:15:00.961Z"
+        }
+      ],
+      "status": "OPEN",
+      "detectedAt": "2026-11-17T03:43:29.822Z"
+    },
+    {
+      "id": "SIG-MAT-PART-SYN-MAT-02",
+      "participantId": "PART-SYN-MAT-02",
+      "participantAlias": "Cohort Member MAT-002 (Synthetic)",
+      "cohort": "Maternal Health",
+      "region": "River Ward Maternal",
+      "domain": "Maternal & Perinatal",
+      "riskTier": "MODERATE",
+      "priorityScore": 38,
+      "indicators": [
+        "Maternal Haemoglobin Below 11.0 g/dL (10.4 g/dL)"
+      ],
+      "rationale": "Maternal biomarker or antenatal care schedule indicator signals timely midwife/obstetric care navigation.",
+      "guidelineRefs": [
+        "WHO Antenatal Care Recommendations (2016)",
+        "WHO Haemoglobin Cutoffs (2024)"
+      ],
+      "uncertaintyNote": "Requires verification of gestational week and clinic visit attendance.",
+      "nonDiagnosticNotice": "Care-coordination priority flag — not a medical diagnosis; clinician review required.",
+      "humanReviewRequired": true,
+      "dataOrigin": "SIMULATED",
+      "observedAt": "2026-11-14T03:15:00.961Z",
+      "contributingObservations": [
+        {
+          "id": "OBS-SYN-019",
+          "metricLabel": "Haemoglobin (Hb)",
+          "valueDisplay": "10.4 g/dL",
+          "unit": "g/dL",
+          "qualityFlag": "VALID",
+          "dataOrigin": "SIMULATED",
+          "recordedAt": "2026-11-14T03:15:00.961Z"
+        }
+      ],
+      "status": "OPEN",
+      "detectedAt": "2026-11-17T03:43:29.822Z"
+    },
+    {
+      "id": "SIG-MAT-PART-SYN-MAT-03",
+      "participantId": "PART-SYN-MAT-03",
+      "participantAlias": "Cohort Member MAT-003 (Synthetic)",
+      "cohort": "Maternal Health",
+      "region": "River Ward Maternal",
+      "domain": "Maternal & Perinatal",
+      "riskTier": "LOW",
+      "priorityScore": 34,
+      "indicators": [
+        "Overdue Antenatal Visit (+10 days)"
+      ],
+      "rationale": "Maternal biomarker or antenatal care schedule indicator signals timely midwife/obstetric care navigation.",
+      "guidelineRefs": [
+        "WHO Antenatal Care Recommendations (2016)",
+        "WHO Haemoglobin Cutoffs (2024)"
+      ],
+      "uncertaintyNote": "Requires verification of gestational week and clinic visit attendance.",
+      "nonDiagnosticNotice": "Care-coordination priority flag — not a medical diagnosis; clinician review required.",
+      "humanReviewRequired": true,
+      "dataOrigin": "SIMULATED",
+      "observedAt": "2026-11-13T03:15:00.961Z",
+      "contributingObservations": [
+        {
+          "id": "OBS-SYN-020",
+          "metricLabel": "Antenatal Care Schedule Interval",
+          "valueDisplay": "10 days overdue",
+          "unit": "days overdue",
+          "qualityFlag": "VALID",
+          "dataOrigin": "SIMULATED",
+          "recordedAt": "2026-11-13T03:15:00.961Z"
+        }
+      ],
+      "status": "OPEN",
+      "detectedAt": "2026-11-17T03:43:29.822Z"
+    },
+    {
+      "id": "SIG-BLD-PART-SYN-BLD-03",
+      "participantId": "PART-SYN-BLD-03",
+      "participantAlias": "Cohort Member BLD-003 (Synthetic)",
+      "cohort": "Blood Health",
+      "region": "District 1 Clinic",
+      "domain": "Blood Health & Anaemia",
+      "riskTier": "LOW",
+      "priorityScore": 26,
+      "indicators": [
+        "Low Serum Ferritin (26 ng/mL)"
+      ],
+      "rationale": "Depleted iron stores and/or reduced haemoglobin warrant confirmatory CBC/iron studies and structured nutrition or clinician follow-up.",
+      "guidelineRefs": [
+        "WHO Ferritin Guideline (2020)",
+        "WHO Haemoglobin Cutoffs (2024)"
+      ],
+      "uncertaintyNote": "Single-point laboratory intake; serial confirmation recommended.",
+      "nonDiagnosticNotice": "Population screening signal only — not a medical diagnosis of anaemia.",
+      "humanReviewRequired": true,
+      "dataOrigin": "SIMULATED",
+      "observedAt": "2026-11-07T06:16:33.919Z",
+      "contributingObservations": [
+        {
+          "id": "OBS-SYN-004",
+          "metricLabel": "Serum Ferritin",
+          "valueDisplay": "26 ng/mL",
+          "unit": "ng/mL",
+          "qualityFlag": "VALID",
+          "dataOrigin": "SIMULATED",
+          "recordedAt": "2026-11-07T06:16:33.919Z"
+        }
+      ],
+      "status": "OPEN",
+      "detectedAt": "2026-11-17T03:43:29.822Z"
+    },
+    {
+      "id": "SIG-CMD-PART-SYN-CMD-04",
+      "participantId": "PART-SYN-CMD-04",
+      "participantAlias": "Cohort Member CMD-004 (Synthetic)",
+      "cohort": "Cardiometabolic Health",
+      "region": "Urban Core Hub",
+      "domain": "Cardiometabolic",
+      "riskTier": "LOW",
+      "priorityScore": 26,
+      "indicators": [
+        "Borderline Glycation HbA1c (5.9%)"
+      ],
+      "rationale": "Combined vascular pressure and glycaemic indicators point to elevated cardiometabolic follow-up priority under AHA/ACC and ADA preventive benchmarks.",
+      "guidelineRefs": [
+        "AHA/ACC 2024 BP Guideline",
+        "ADA Standards of Care 2026",
+        "KDIGO 2024"
+      ],
+      "uncertaintyNote": "Multi-marker screening score; interpret alongside clinical history.",
+      "nonDiagnosticNotice": "Preventive risk stratification only — not a medical diagnosis of hypertension or diabetes.",
+      "humanReviewRequired": true,
+      "dataOrigin": "SIMULATED",
+      "observedAt": "2026-11-07T03:15:00.961Z",
+      "contributingObservations": [
+        {
+          "id": "OBS-SYN-014",
+          "metricLabel": "Hemoglobin A1c (HbA1c)",
+          "valueDisplay": "5.9 %",
+          "unit": "%",
+          "qualityFlag": "VALID",
+          "dataOrigin": "SIMULATED",
+          "recordedAt": "2026-11-07T03:15:00.961Z"
+        }
+      ],
+      "status": "OPEN",
+      "detectedAt": "2026-11-17T03:43:29.822Z"
+    }
+  ],
+  "alerts": [
+    {
+      "summary": "3 of 6 consented participants in the synthetic Blood Health cohort show low ferritin (<30 ng/mL) or Hb <11 g/dL, exceeding the 20% threshold.",
+      "createdAt": "2026-11-14T06:16:33.919Z",
+      "severity": "WATCH",
+      "metricEvidence": "3/6 participants flagged · WHO Ferritin < 30 ng/mL / Hb < 11.5 g/dL",
+      "category": "POPULATION_TREND",
+      "status": "ACKNOWLEDGED",
+      "acknowledgedBy": "Dr. Tran (Population Manager)",
+      "title": "District 1 Clinic: Elevated Iron-Depletion Signal Cluster (50% of Screened Cohort)",
+      "urgentClinicalRedirect": false,
+      "affectedRegion": "District 1 Clinic",
+      "assignedReviewer": "Dr. Tran (Population Manager)",
+      "auditNotes": [
+        {
+          "timestamp": "2026-11-14T06:16:33.919Z",
+          "actor": "Population Rules Engine",
+          "note": "Cluster threshold exceeded across synthetic District 1 cohort."
+        },
+        {
+          "timestamp": "2026-11-15T06:16:33.919Z",
+          "actor": "Dr. Tran (Population Manager)",
+          "note": "Acknowledged; expanding District 1 multilingual iron & nutrition screening invites."
+        }
+      ],
+      "affectedCohort": "Blood Health",
+      "acknowledgedAt": "2026-11-15T06:16:33.919Z",
+      "id": "ALT-SYN-002"
+    },
+    {
+      "title": "Urban Core Hub: Unscheduled Cardiometabolic Follow-Up Queue",
+      "affectedCohort": "Cardiometabolic Health",
+      "assignedReviewer": "Care Navigator Linh",
+      "auditNotes": [
+        {
+          "timestamp": "2026-11-15T06:16:33.919Z",
+          "actor": "Navigation SLA Monitor",
+          "note": "Added to navigator outreach priority list."
+        }
+      ],
+      "status": "OPEN",
+      "metricEvidence": "1 overdue preventive scheduling slot · Avg wait 6 days",
+      "createdAt": "2026-11-15T06:16:33.919Z",
+      "category": "OPERATIONAL_BOTTLENECK",
+      "summary": "Participant SYN-CMD-002 (BP 138/88 mmHg, HbA1c 6.1%) remains in Signal Identified stage > 5 days without confirmed clinic scheduling.",
+      "affectedRegion": "Urban Core Hub",
+      "id": "ALT-SYN-003",
+      "severity": "WATCH",
+      "urgentClinicalRedirect": false
+    },
+    {
+      "auditNotes": [
+        {
+          "timestamp": "2026-11-15T06:16:33.919Z",
+          "actor": "Population Rules Engine",
+          "note": "Flagged for prompt clinician & obstetric care navigator outreach (non-diagnostic)."
+        }
+      ],
+      "title": "Maternal Priority Review: Elevated Gestational BP + Overdue ANC Visit",
+      "affectedRegion": "River Ward Maternal",
+      "metricEvidence": "BP 142/92 mmHg · ANC +22d overdue · Health Alert Mini triage check",
+      "summary": "Consented participant SYN-MAT-001 recorded BP 142/92 mmHg alongside a 22-day overdue antenatal appointment in River Ward Maternal.",
+      "assignedReviewer": "Midwife Coordination Desk",
+      "status": "OPEN",
+      "createdAt": "2026-11-15T06:16:33.919Z",
+      "urgentClinicalRedirect": true,
+      "category": "CLINICAL_REVIEW",
+      "id": "ALT-SYN-001",
+      "affectedCohort": "Maternal Health",
+      "severity": "URGENT_REVIEW"
+    }
+  ],
+  "alertRules": [
+    {
+      "id": "RULE-POP-ANAEMIA",
+      "name": "District Blood Health Cluster (Ferritin < 15 or Hb < 11.0 g/dL >= 20% cohort)",
+      "category": "POPULATION_TREND",
+      "enabled": true,
+      "thresholdDescription": "Triggers watch alert when >= 20% of consented Blood Health cohort shows low ferritin or Hb.",
+      "severity": "WATCH"
+    },
+    {
+      "id": "RULE-CLIN-MATERNAL",
+      "name": "Maternal Gestational BP >= 140/90 + Overdue ANC Review",
+      "category": "CLINICAL_REVIEW",
+      "enabled": true,
+      "thresholdDescription": "Flags immediate clinician & midwife review for elevated gestational BP paired with missed ANC visit.",
+      "severity": "URGENT_REVIEW"
+    },
+    {
+      "id": "RULE-OPS-FOLLOWUP",
+      "name": "Overdue Care Navigation Referral > 7 Days",
+      "category": "OPERATIONAL_BOTTLENECK",
+      "enabled": true,
+      "thresholdDescription": "Alerts care coordination managers when a priority referral stays unscheduled > 7 days.",
+      "severity": "WATCH"
+    }
+  ],
+  "programmes": [
+    {
+      "id": "PROG-MAT-ANC",
+      "invitedCount": 18,
+      "completedCount": 11,
+      "name": "River Ward Maternal Antenatal & Iron Continuity",
+      "operationalCompletionRatePct": 61,
+      "consentedCount": 16,
+      "eligibilityCriteria": "Consented pregnant/postpartum participants within River Ward Maternal catchment",
+      "clinicalOutcomeNote": "Tracked alongside midwife ANC clinic scheduling and maternal Hb monitoring.",
+      "region": "River Ward Maternal",
+      "dataOrigin": "SIMULATED",
+      "screenedCount": 13,
+      "cohort": "Maternal Health",
+      "focusArea": "Maternal Health",
+      "status": "ACTIVE",
+      "overdueCount": 2
+    },
+    {
+      "invitedCount": 28,
+      "eligibilityCriteria": "Consented adults with cuff BP >= 130/80 or Presage optical stress/HRV flag",
+      "clinicalOutcomeNote": "Standardized repeat cuff measurement required before clinician medication decisions.",
+      "id": "PROG-CMD-BP",
+      "region": "Urban Core Hub & Rural Outreach South",
+      "name": "Community Blood Pressure & Cardiorenal Check",
+      "operationalCompletionRatePct": 50,
+      "screenedCount": 18,
+      "completedCount": 14,
+      "overdueCount": 4,
+      "consentedCount": 22,
+      "status": "ACTIVE",
+      "focusArea": "Blood Pressure Screening",
+      "dataOrigin": "SIMULATED",
+      "cohort": "Cardiometabolic Health"
+    },
+    {
+      "screenedCount": 20,
+      "completedCount": 16,
+      "invitedCount": 30,
+      "name": "Urban Cardiometabolic & Prediabetes Early Detection",
+      "operationalCompletionRatePct": 53,
+      "consentedCount": 24,
+      "eligibilityCriteria": "Consented adults 35+ or prior elevated HbA1c / BP screening flag",
+      "id": "PROG-CMD-METABOLIC",
+      "clinicalOutcomeNote": "Operational completion reflects HbA1c lab + structured lifestyle counselling attendance.",
+      "cohort": "Cardiometabolic Health",
+      "status": "ACTIVE",
+      "overdueCount": 4,
+      "dataOrigin": "SIMULATED",
+      "focusArea": "Diabetes Prevention",
+      "region": "Urban Core Hub"
+    },
+    {
+      "status": "ACTIVE",
+      "focusArea": "Anaemia & Iron",
+      "cohort": "Blood Health",
+      "invitedCount": 24,
+      "region": "District 1 Clinic",
+      "name": "District Blood Health & Anaemia Prevention Drive",
+      "operationalCompletionRatePct": 46,
+      "dataOrigin": "SIMULATED",
+      "eligibilityCriteria": "Consented community adults with fatigue signals or reproductive-age screening window",
+      "consentedCount": 19,
+      "clinicalOutcomeNote": "Requires confirmatory serum ferritin & CBC at partner community laboratory.",
+      "overdueCount": 4,
+      "completedCount": 11,
+      "screenedCount": 15,
+      "id": "PROG-BLD-IRON"
+    }
+  ],
+  "referrals": [
+    {
+      "stage": "FOLLOW_UP_IN_PROGRESS",
+      "destinationService": "Urban Core Cardiometabolic Primary Care",
+      "communications": [
+        {
+          "id": "COMM-3",
+          "timestamp": "2026-11-15T06:16:33.919Z",
+          "channel": "IN_CLINIC",
+          "language": "en",
+          "summary": "Initial clinic visit attended; awaiting 30-day home BP cuff check-in.",
+          "actor": "Dr. Chen (Clinician)"
+        }
+      ],
+      "participantId": "PART-SYN-CMD-01",
+      "id": "REF-SYN-003",
+      "appointmentStatus": "ATTENDED",
+      "createdAt": "2026-11-08T06:16:33.919Z",
+      "escalated": false,
+      "navigatorName": "Care Navigator Linh",
+      "region": "Urban Core Hub",
+      "reasonSummary": "BP 154/94 mmHg + HbA1c 6.8% requiring structured clinician care plan",
+      "priority": "PRIORITY",
+      "overdueDays": 0,
+      "appointmentDate": "2026-11-15",
+      "cohort": "Cardiometabolic Health",
+      "participantAlias": "Cohort Member CMD-001 (Synthetic)",
+      "signalId": "SIG-CMD-PART-SYN-CMD-01",
+      "updatedAt": "2026-11-15T06:16:33.919Z"
+    },
+    {
+      "communications": [
+        {
+          "id": "COMM-2",
+          "timestamp": "2026-11-14T06:16:33.919Z",
+          "channel": "SMS",
+          "language": "vi",
+          "summary": "Sent bilingual appointment confirmation and fasting preparation checklist.",
+          "actor": "Care Navigator Linh"
+        }
+      ],
+      "id": "REF-SYN-002",
+      "navigatorName": "Care Navigator Linh",
+      "appointmentDate": "2026-11-20",
+      "createdAt": "2026-11-12T06:16:33.919Z",
+      "participantAlias": "Cohort Member BLD-001 (Synthetic)",
+      "reasonSummary": "Hb 10.4 g/dL + Serum Ferritin 11 ng/mL confirmed on screening",
+      "stage": "REFERRAL_ISSUED",
+      "destinationService": "District 1 Haematology & Nutrition Desk",
+      "signalId": "SIG-BLD-PART-SYN-BLD-01",
+      "appointmentStatus": "SCHEDULED",
+      "updatedAt": "2026-11-14T06:16:33.919Z",
+      "priority": "EXPEDITED",
+      "cohort": "Blood Health",
+      "participantId": "PART-SYN-BLD-01",
+      "region": "District 1 Clinic",
+      "overdueDays": 0,
+      "escalated": false
+    },
+    {
+      "priority": "EXPEDITED",
+      "region": "District 1 Clinic",
+      "appointmentStatus": "PENDING_SCHEDULING",
+      "signalId": "SIG-BLD-PART-SYN-BLD-02",
+      "destinationService": "District 1 Community Health Nurse",
+      "id": "REF-SYN-004",
+      "communications": [],
+      "createdAt": "2026-11-08T06:16:33.919Z",
+      "participantId": "PART-SYN-BLD-02",
+      "cohort": "Blood Health",
+      "participantAlias": "Cohort Member BLD-002 (Synthetic)",
+      "overdueDays": 8,
+      "reasonSummary": "Ferritin 12 ng/mL with fatigue reported via Health Alert Mini",
+      "escalated": true,
+      "navigatorName": "Unassigned",
+      "stage": "HUMAN_REVIEW",
+      "updatedAt": "2026-11-11T06:16:33.919Z"
+    },
+    {
+      "communications": [
+        {
+          "id": "COMM-1",
+          "timestamp": "2026-11-15T06:16:33.919Z",
+          "channel": "VOICE",
+          "language": "vi",
+          "summary": "Attempted Vietnamese outreach call to confirm preferred clinic transport window.",
+          "actor": "Care Navigator Mai"
+        }
+      ],
+      "stage": "REFERRAL_ISSUED",
+      "overdueDays": 2,
+      "createdAt": "2026-11-14T06:16:33.919Z",
+      "destinationService": "River Ward Obstetric & Midwifery Clinic",
+      "priority": "PRIORITY",
+      "participantId": "PART-SYN-MAT-01",
+      "signalId": "SIG-MAT-PART-SYN-MAT-01",
+      "navigatorName": "Care Navigator Mai",
+      "participantAlias": "Cohort Member MAT-001 (Synthetic)",
+      "reasonSummary": "Gestational BP 142/92 mmHg + ANC appointment 22 days overdue",
+      "region": "River Ward Maternal",
+      "updatedAt": "2026-11-15T06:16:33.919Z",
+      "escalated": true,
+      "appointmentStatus": "PENDING_SCHEDULING",
+      "cohort": "Maternal Health",
+      "id": "REF-SYN-001"
+    },
+    {
+      "signalId": "SIG-BLD-PART-SYN-BLD-03",
+      "overdueDays": 0,
+      "region": "District 1 Clinic",
+      "priority": "STANDARD",
+      "escalated": false,
+      "participantAlias": "Cohort Member BLD-003 (Synthetic)",
+      "reasonSummary": "Completed repeat iron-panel assessment and dietary follow-up.",
+      "updatedAt": "2026-11-07T06:16:33.919Z",
+      "appointmentDate": "2026-11-07",
+      "cohort": "Blood Health",
+      "communications": [
+        {
+          "id": "COMM-4",
+          "timestamp": "2026-11-07T06:16:33.919Z",
+          "channel": "PORTAL",
+          "language": "vi",
+          "summary": "Closed-loop follow-up verified with clinic nurse.",
+          "actor": "Care Navigator Linh"
+        }
+      ],
+      "navigatorName": "Care Navigator Linh",
+      "stage": "RESOLVED",
+      "participantId": "PART-SYN-BLD-03",
+      "destinationService": "District 1 Clinic",
+      "createdAt": "2026-10-27T06:16:33.919Z",
+      "id": "REF-SYN-005",
+      "appointmentStatus": "COMPLETED"
+    }
+  ],
+  "engagementTemplates": [
+    {
+      "id": "ENG-BLD-01",
+      "title": "Blood Health & Iron Screening Invitation (Plain Language)",
+      "cohort": "Blood Health",
+      "channel": "SMS",
+      "targetLanguage": "bilingual",
+      "status": "APPROVED_TO_SEND",
+      "approvedBy": "Population Health Manager",
+      "approvedAt": "2026-11-14T06:16:33.919Z",
+      "recipientCount": 14,
+      "messageEn": "Hello from District 1 Community Health. Your recent check-in suggests checking your iron and haemoglobin levels could help explain low energy. Book a free 10-minute screening check at District 1 Clinic this week. Reply HELP or visit the clinic desk.",
+      "messageVi": "Xin chào từ Trạm Y tế Cộng đồng Quận 1. Kết quả theo dõi gần đây cho thấy bạn nên kiểm tra lại sắt huyết thanh và huyết sắc tố (Hb). Vui lòng đặt lịch xét nghiệm nhanh 10 phút miễn phí trong tuần này. Liên hệ bàn hướng dẫn nếu cần hỗ trợ.",
+      "voicePromptEn": "Community health update: checking your iron and haemoglobin takes ten minutes at District 1 Clinic and helps your care team support your energy.",
+      "voicePromptVi": "Thông báo sức khỏe cộng đồng: kiểm tra sắt và huyết sắc tố chỉ mất mười phút tại Trạm Y tế Quận 1 để bác sĩ hỗ trợ kịp thời.",
+      "readingLevelNote": "Grade 6 plain-language accessibility verified; human send confirmation required."
+    },
+    {
+      "id": "ENG-MAT-01",
+      "title": "Maternal Antenatal Check-In & Transport Support Reminder",
+      "cohort": "Maternal Health",
+      "channel": "VOICE_OUTREACH",
+      "targetLanguage": "bilingual",
+      "status": "REVIEWED",
+      "recipientCount": 6,
+      "messageEn": "River Ward Maternal Care reminder: Staying on schedule with your antenatal blood pressure and blood check protects both you and your baby. If transport or clinic hours are difficult, our Care Navigator can arrange a morning home-visit slot.",
+      "messageVi": "Nhắc lịch Chăm sóc Thai kỳ Phường Sông: Khám thai định kỳ và đo huyết áp, kiểm tra thiếu máu giúp bảo vệ an toàn cho cả mẹ và bé. Nếu gặp khó khăn đi lại, điều phối viên có thể hỗ trợ sắp xếp lịch khám buổi sáng.",
+      "voicePromptEn": "Friendly reminder from River Ward Maternal Care: your antenatal visit is ready to schedule, and support is available if you need transport.",
+      "voicePromptVi": "Lời nhắc từ Chăm sóc Thai kỳ Phường Sông: đã đến lịch khám thai định kỳ, chúng tôi luôn sẵn sàng hỗ trợ sắp xếp đi lại nếu bạn cần.",
+      "readingLevelNote": "Culturally supportive non-alarmist tone; requires Population Manager / Clinician approval before dispatch."
+    },
+    {
+      "id": "ENG-CMD-01",
+      "title": "Cardiometabolic Prevention & Home BP Monitoring Guide",
+      "cohort": "Cardiometabolic Health",
+      "channel": "COMMUNITY_PORTAL",
+      "targetLanguage": "bilingual",
+      "status": "DRAFT",
+      "recipientCount": 18,
+      "messageEn": "Urban Core Health Hub: Small daily habits and timely blood pressure and HbA1c checks lower long-term heart and metabolic strain. Sit quietly for 5 minutes before checking blood pressure and bring your log to your follow-up.",
+      "messageVi": "Trung tâm Sức khỏe Đô thị: Duy trì thói quen vận động nhẹ và kiểm tra huyết áp, đường huyết HbA1c định kỳ giúp bảo vệ tim mạch lâu dài. Hãy nghỉ ngơi 5 phút trước khi đo huyết áp và mang sổ theo dõi khi tái khám.",
+      "voicePromptEn": "Cardiometabolic tip: rest quietly for five minutes before measuring blood pressure and share your readings with your care team.",
+      "voicePromptVi": "Mẹo sức khỏe tim mạch: hãy ngồi nghỉ yên 5 phút trước khi đo huyết áp và chia sẻ kết quả với nhân viên y tế.",
+      "readingLevelNote": "Draft waiting human clinical & communications sign-off."
+    }
+  ],
+  "auditLogs": [
+    {
+      "id": "AUD-MWK4YEWB-PNZG",
+      "dataMinimisationApplied": true,
+      "timestamp": "2026-11-17T03:31:32.459Z",
+      "outcome": "ALLOWED",
+      "actorRole": "platform_admin",
+      "action": "PDPL_RIGHT_TO_ERASURE",
+      "targetId": "PART-MWK4XMMN",
+      "actorId": "zenieverse@gmail.com",
+      "targetType": "Participant",
+      "reason": "Erased participant observations, risk signals, and referrals for PART-MWK4XMMN under PDPL retention policy."
+    },
+    {
+      "actorRole": "platform_admin",
+      "reason": "Created care navigation pathway for REG-3580 -> CLINIC-AUDIT-MWK4XKAD.",
+      "targetType": "Referral",
+      "timestamp": "2026-11-17T03:30:55.825Z",
+      "dataMinimisationApplied": true,
+      "actorId": "zenieverse@gmail.com",
+      "action": "CREATE_REFERRAL",
+      "targetId": "REF-MWK4XMMP",
+      "outcome": "ALLOWED",
+      "id": "AUD-MWK4XMMP-TM2H"
+    },
+    {
+      "actorId": "zenieverse@gmail.com",
+      "id": "AUD-MWK4XMMN-EFXU",
+      "reason": "Registered consented participant in Cardiometabolic Health (District 1 Clinic).",
+      "actorRole": "platform_admin",
+      "outcome": "ALLOWED",
+      "timestamp": "2026-11-17T03:30:55.823Z",
+      "targetType": "Participant",
+      "targetId": "PART-MWK4XMMN",
+      "action": "CREATE_PARTICIPANT",
+      "dataMinimisationApplied": true
+    },
+    {
+      "dataMinimisationApplied": true,
+      "targetType": "Participant",
+      "id": "AUD-MWK4MPHX-CZY3",
+      "targetId": "PART-MWK4LQ59",
+      "action": "PDPL_RIGHT_TO_ERASURE",
+      "reason": "Erased participant observations, risk signals, and referrals for PART-MWK4LQ59 under PDPL retention policy.",
+      "outcome": "ALLOWED",
+      "actorRole": "platform_admin",
+      "timestamp": "2026-11-17T03:22:26.325Z",
+      "actorId": "zenieverse@gmail.com"
+    },
+    {
+      "action": "UPDATE_PARTICIPANT_CONSENT",
+      "targetId": "PART-MWK4LQ59",
+      "targetType": "ConsentRecord",
+      "id": "AUD-MWK4M7GD-PO0G",
+      "dataMinimisationApplied": true,
+      "timestamp": "2026-11-17T03:22:02.941Z",
+      "outcome": "ALLOWED",
+      "actorRole": "platform_admin",
+      "actorId": "zenieverse@gmail.com",
+      "reason": "Consent status updated to ACTIVE; analytics & AI context updated immediately."
+    },
+    {
+      "timestamp": "2026-11-17T03:21:40.519Z",
+      "reason": "Created care navigation pathway for REG-5302 -> SYNTHETIC-LIVE-VERIFY-R2 Clinic.",
+      "actorRole": "platform_admin",
+      "actorId": "zenieverse@gmail.com",
+      "action": "CREATE_REFERRAL",
+      "targetId": "REF-MWK4LQ5J",
+      "dataMinimisationApplied": true,
+      "id": "AUD-MWK4LQ5J-PSGY",
+      "targetType": "Referral",
+      "outcome": "ALLOWED"
+    },
+    {
+      "actorId": "zenieverse@gmail.com",
+      "targetType": "Observation",
+      "id": "AUD-MWK4LQ5G-2K9B",
+      "dataMinimisationApplied": true,
+      "reason": "Ingested Hemoglobin A1c (HbA1c) (6.9 %, quality=VALID, origin=IMPORTED) for REG-5302.",
+      "timestamp": "2026-11-17T03:21:40.516Z",
+      "outcome": "ALLOWED",
+      "actorRole": "platform_admin",
+      "action": "INGEST_HEALTH_SIGNAL",
+      "targetId": "OBS-MWK4LQ5G-UAL"
+    },
+    {
+      "targetId": "PART-MWK4LQ59",
+      "dataMinimisationApplied": true,
+      "action": "UPDATE_PARTICIPANT_CONSENT",
+      "targetType": "ConsentRecord",
+      "id": "AUD-MWK4LQ5D-YPGG",
+      "actorRole": "platform_admin",
+      "outcome": "ALLOWED",
+      "reason": "Consent status updated to ACTIVE; analytics & AI context updated immediately.",
+      "timestamp": "2026-11-17T03:21:40.513Z",
+      "actorId": "zenieverse@gmail.com"
+    },
+    {
+      "actorRole": "platform_admin",
+      "id": "AUD-MWK4LQ5A-O15S",
+      "timestamp": "2026-11-17T03:21:40.510Z",
+      "targetType": "Participant",
+      "reason": "Registered consented participant in Cardiometabolic Health (District 1 Clinic).",
+      "targetId": "PART-MWK4LQ59",
+      "actorId": "zenieverse@gmail.com",
+      "action": "CREATE_PARTICIPANT",
+      "dataMinimisationApplied": true,
+      "outcome": "ALLOWED"
+    },
+    {
+      "actorRole": "platform_admin",
+      "targetId": "PART-MWK4DUQN",
+      "reason": "Erased participant observations, risk signals, and referrals for PART-MWK4DUQN under PDPL retention policy.",
+      "timestamp": "2026-11-17T03:16:13.493Z",
+      "targetType": "Participant",
+      "dataMinimisationApplied": true,
+      "id": "AUD-MWK4EPTH-57GX",
+      "actorId": "service-actor",
+      "outcome": "ALLOWED",
+      "action": "PDPL_RIGHT_TO_ERASURE"
+    },
+    {
+      "actorId": "service-actor",
+      "reason": "Consent status updated to ACTIVE; analytics & AI context updated immediately.",
+      "timestamp": "2026-11-17T03:15:49.482Z",
+      "actorRole": "platform_admin",
+      "targetId": "PART-MWK4DUQN",
+      "outcome": "ALLOWED",
+      "dataMinimisationApplied": true,
+      "id": "AUD-MWK4E7AI-1B0M",
+      "targetType": "ConsentRecord",
+      "action": "UPDATE_PARTICIPANT_CONSENT"
+    },
+    {
+      "reason": "Created care navigation pathway for REG-7904 -> SYNTHETIC-LIVE-VERIFY Clinic.",
+      "actorId": "service-actor",
+      "dataMinimisationApplied": true,
+      "targetId": "REF-MWK4DUQW",
+      "timestamp": "2026-11-17T03:15:33.224Z",
+      "actorRole": "care_navigator",
+      "outcome": "ALLOWED",
+      "targetType": "Referral",
+      "action": "CREATE_REFERRAL",
+      "id": "AUD-MWK4DUQW-H0P6"
+    },
+    {
+      "actorId": "service-actor",
+      "id": "AUD-MWK4DUQU-B5F3",
+      "outcome": "ALLOWED",
+      "actorRole": "clinician",
+      "reason": "Ingested Hemoglobin A1c (HbA1c) (6.9 %, quality=VALID, origin=IMPORTED) for REG-7904.",
+      "timestamp": "2026-11-17T03:15:33.222Z",
+      "action": "INGEST_HEALTH_SIGNAL",
+      "targetType": "Observation",
+      "dataMinimisationApplied": true,
+      "targetId": "OBS-MWK4DUQU-OYK"
+    },
+    {
+      "reason": "Consent status updated to ACTIVE; analytics & AI context updated immediately.",
+      "dataMinimisationApplied": true,
+      "targetId": "PART-MWK4DUQN",
+      "timestamp": "2026-11-17T03:15:33.220Z",
+      "actorRole": "platform_admin",
+      "actorId": "service-actor",
+      "id": "AUD-MWK4DUQS-H4MI",
+      "outcome": "ALLOWED",
+      "targetType": "ConsentRecord",
+      "action": "UPDATE_PARTICIPANT_CONSENT"
+    },
+    {
+      "action": "REVOKE_PARTICIPANT_CONSENT",
+      "actorRole": "platform_admin",
+      "timestamp": "2026-11-17T03:15:33.218Z",
+      "targetType": "ConsentRecord",
+      "targetId": "PART-MWK4DUQN",
+      "outcome": "ALLOWED",
+      "actorId": "service-actor",
+      "id": "AUD-MWK4DUQQ-TWU0",
+      "reason": "Consent status updated to REVOKED; analytics & AI context updated immediately.",
+      "dataMinimisationApplied": true
+    },
+    {
+      "action": "CREATE_PARTICIPANT",
+      "targetId": "PART-MWK4DUQN",
+      "outcome": "ALLOWED",
+      "id": "AUD-MWK4DUQN-463Z",
+      "dataMinimisationApplied": true,
+      "targetType": "Participant",
+      "actorId": "service-actor",
+      "timestamp": "2026-11-17T03:15:33.215Z",
+      "reason": "Registered consented participant in Cardiometabolic Health (District 1 Clinic).",
+      "actorRole": "platform_admin"
+    },
+    {
+      "targetId": "DEMO-COHORT-2026",
+      "action": "LOAD_SYNTHETIC_DEMO_DATASET",
+      "actorRole": "platform_admin",
+      "timestamp": "2026-11-17T03:15:00.960Z",
+      "outcome": "ALLOWED",
+      "dataMinimisationApplied": true,
+      "targetType": "PopulationRegistry",
+      "actorId": "system-seed",
+      "id": "AUD-INIT-001",
+      "reason": "Initialized 3 competition demo cohorts (Blood Health, Cardiometabolic, Maternal Health) with synthetic data."
+    },
+    {
+      "timestamp": "2026-11-16T03:15:00.961Z",
+      "reason": "Participant withdrew analytics consent; excluded from cohort aggregation & AI synthesis.",
+      "targetType": "ConsentRecord",
+      "actorRole": "population_health_manager",
+      "actorId": "mgr-district1",
+      "targetId": "PART-SYN-REV-01",
+      "id": "AUD-INIT-002",
+      "dataMinimisationApplied": true,
+      "outcome": "ALLOWED",
+      "action": "REVOKE_PARTICIPANT_CONSENT"
+    }
+  ],
+  "aiSyntheses": []
+}

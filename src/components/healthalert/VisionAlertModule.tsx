@@ -29,7 +29,8 @@ import {
   Flame,
   Activity,
   Heart,
-  FileText
+  FileText,
+  Sun
 } from 'lucide-react';
 import { 
   VisionAlertProcessResult, 
@@ -44,18 +45,24 @@ import {
 } from '../../engine/visionAlert/syntheticFixtures';
 import { VisionAlertClientService } from '../../engine/visionAlert/visionAlertClientService';
 import { HealthAlertIntakeData } from '../../types';
+import { SolarFilamentLabModule } from '../solarfilament/SolarFilamentLabModule';
 
 export interface VisionAlertModuleProps {
   currentIntake: HealthAlertIntakeData;
   onImportToHealthAlert: (updatedIntake: HealthAlertIntakeData) => void;
   onClose?: () => void;
+  onNavigateToSolarFilament?: () => void;
 }
 
 export const VisionAlertModule: React.FC<VisionAlertModuleProps> = ({
   currentIntake,
   onImportToHealthAlert,
-  onClose
+  onClose,
+  onNavigateToSolarFilament
 }) => {
+  // Vision Alert Mode: 'clinical' (Health Monitor Reading) | 'solar_filament' (Kaggle 2026 Solar Filament Lab)
+  const [visionMode, setVisionMode] = useState<'clinical' | 'solar_filament'>('clinical');
+
   // Capture mode: 'camera' | 'upload' | 'preset'
   const [captureMode, setCaptureMode] = useState<'camera' | 'upload' | 'preset'>('preset');
   const [deviceTypeHint, setDeviceTypeHint] = useState<VisionDeviceType>('BLOOD_PRESSURE_MONITOR');
@@ -300,6 +307,53 @@ export const VisionAlertModule: React.FC<VisionAlertModuleProps> = ({
     onImportToHealthAlert(updated);
   };
 
+  // Render Solar Filament Lab embedded inside Vision Alert when selected
+  if (visionMode === 'solar_filament') {
+    return (
+      <div className="space-y-4">
+        {/* Top Switcher Bar */}
+        <div className="bg-slate-900/95 text-white rounded-2xl p-4 sm:p-5 border border-slate-800 shadow-xl flex flex-wrap items-center justify-between gap-4">
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              onClick={() => setVisionMode('clinical')}
+              className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white text-xs font-bold transition flex items-center gap-2 cursor-pointer border border-slate-700 shadow-xs"
+            >
+              <RotateCcw className="w-3.5 h-3.5 text-teal-400" />
+              <span>Return to Clinical Health Monitor Reading</span>
+            </button>
+            <span className="text-slate-600 hidden sm:inline">|</span>
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                <Sun className="w-3.5 h-3.5 text-amber-400" />
+                <span>Vision Alert: Solar Filament Lab</span>
+              </span>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-teal-500/20 text-teal-300 border border-teal-500/30">
+                OpenCV 5 + Physics Pipeline
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            {onClose && (
+              <button
+                onClick={onClose}
+                className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition cursor-pointer"
+              >
+                Close Vision Alert
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Embedded Solar Filament Lab Module */}
+        <SolarFilamentLabModule
+          embeddedInVisionAlert={true}
+          onBackToClinicalReading={() => setVisionMode('clinical')}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="bg-slate-900/95 text-white rounded-3xl p-6 sm:p-8 border border-slate-800 shadow-2xl space-y-6">
       {/* Hidden processing canvas */}
@@ -328,14 +382,79 @@ export const VisionAlertModule: React.FC<VisionAlertModuleProps> = ({
           </p>
         </div>
 
-        {onClose && (
-          <button
-            onClick={onClose}
-            className="self-start md:self-center px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition cursor-pointer"
-          >
-            Close Vision Alert
-          </button>
-        )}
+        <div className="flex flex-wrap items-center gap-2 self-start md:self-center">
+          {/* Mode Switcher Buttons */}
+          <div className="flex items-center p-1 bg-slate-950/80 rounded-xl border border-slate-800">
+            <button
+              onClick={() => setVisionMode('clinical')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
+                visionMode === 'clinical'
+                  ? 'bg-amber-500 text-slate-950 shadow-xs'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              🩺 Clinical Reading
+            </button>
+            <button
+              onClick={() => setVisionMode('solar_filament')}
+              className="px-3 py-1.5 rounded-lg text-xs font-bold text-amber-300 hover:bg-amber-500/10 transition cursor-pointer flex items-center gap-1.5"
+            >
+              <Sun className="w-3.5 h-3.5 text-amber-400" />
+              <span>Solar Filament Lab</span>
+              <span className="px-1.5 py-0.2 rounded-full text-[9px] font-mono font-black bg-amber-500/30 text-amber-200">
+                2026
+              </span>
+            </button>
+          </div>
+
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition cursor-pointer"
+            >
+              Close Vision Alert
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Solar Filament Mode Extension Banner (Kaggle 2026 Challenge) */}
+      <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-950/70 via-slate-900 to-amber-900/30 border border-amber-500/40 shadow-md flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="flex items-start gap-3">
+          <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center shrink-0 text-amber-400">
+            <Sun className="w-5 h-5 animate-pulse" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold uppercase tracking-wider text-amber-400">
+                Specialized Physical AI Mode
+              </span>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-500/30 text-amber-200 border border-amber-400/40">
+                Kaggle 2026
+              </span>
+            </div>
+            <h4 className="text-sm font-bold text-white mt-0.5">
+              Solar Filament Lab — 2048×2048 Full-Disk H-alpha Panoptic Segmentation
+            </h4>
+            <p className="text-xs text-slate-300 max-w-2xl mt-0.5">
+              Extends Vision Alert’s OpenCV 5 pipeline to astrophysics: theoretical limb darkening correction ($u=0.62$), multiscale Hessian tubeness filters, and official Panoptic Quality ($PQ$) instance evaluation.
+            </p>
+          </div>
+        </div>
+
+        <button
+          onClick={() => {
+            if (onNavigateToSolarFilament) {
+              onNavigateToSolarFilament();
+            }
+            setVisionMode('solar_filament');
+          }}
+          className="shrink-0 px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-xs flex items-center gap-1.5 shadow-md shadow-amber-500/20 transition cursor-pointer"
+        >
+          <Sun className="w-4 h-4" />
+          <span>Launch Solar Filament Lab</span>
+          <ArrowRight className="w-3.5 h-3.5" />
+        </button>
       </div>
 
       {/* Mode Selector & Input Controls */}

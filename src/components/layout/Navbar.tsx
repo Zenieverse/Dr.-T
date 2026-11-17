@@ -35,7 +35,11 @@ import {
   Hammer,
   Flame,
   MapPin,
-  Gamepad2
+  Gamepad2,
+  Sun,
+  Rocket,
+  Users,
+  UserCheck
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -50,6 +54,8 @@ interface NavbarProps {
   openDemoJourney: () => void;
   openBirthdayModal?: () => void;
   openFeaturedVideo?: () => void;
+  openGuestAccess?: () => void;
+  authDisplayLabel?: string | null;
 }
 
 const LANGUAGES: Array<{ code: LanguageCode; label: string; flag: string }> = [
@@ -74,6 +80,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   openDemoJourney,
   openBirthdayModal,
   openFeaturedVideo,
+  openGuestAccess,
+  authDisplayLabel,
 }) => {
   const unreadCount = notifications.filter(n => !n.read).length;
 
@@ -95,6 +103,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: 'chatquestlive', label: 'ChatQuest Live', icon: <Gamepad2 className="w-4 h-4 text-fuchsia-500" />, badge: 'Twitch' },
     { id: 'healthalert', label: 'Health Alert Mini', icon: <BellRing className="w-4 h-4 text-rose-500" />, badge: 'Mini' },
     { id: 'futurehealth', label: 'Future Health', icon: <HeartPulse className="w-4 h-4 text-teal-500" />, badge: 'Challenge 2026' },
+    { id: 'population-health', label: 'Population Health', icon: <Users className="w-4 h-4 text-teal-600" />, badge: 'FHC 2026' },
     { id: 'buildwithai', label: 'Build With AI', icon: <Hammer className="w-4 h-4 text-indigo-600" />, badge: 'Workspace' },
     { id: 'memorylantern', label: 'Lantern Keeper', icon: <Flame className="w-4 h-4 text-amber-400" />, badge: 'Personal AI' },
     { id: 'threehats', label: 'Three Hats', icon: <Compass className="w-4 h-4 text-violet-400" />, badge: 'Roles' },
@@ -119,6 +128,8 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: 'privacy', label: 'Privacy', icon: <ShieldCheck className="w-4 h-4 text-indigo-500" /> },
     { id: 'x402', label: 'x402 Pay-Per-Request', icon: <Coins className="w-4 h-4 text-amber-500" />, badge: 'Bazaar & Challenge' },
     { id: 'economy', label: 'Agent Economy', icon: <Zap className="w-4 h-4 text-amber-500" /> },
+    { id: 'solarfilament', label: '☀️ Solar Filament Lab', icon: <Sun className="w-4 h-4 text-amber-500" />, badge: 'Kaggle PQ' },
+    { id: 'buildarena', label: '🚀 BuildArena S02', icon: <Rocket className="w-4 h-4 text-cyan-500" />, badge: 'Zenith-01' },
     { id: 'gcp', label: 'Google Cloud & Firestore', icon: <Cloud className="w-4 h-4 text-sky-500" />, badge: 'GCP' },
     { id: 'settings', label: 'Settings', icon: <Settings className="w-4 h-4 text-slate-400" /> },
   ];
@@ -234,6 +245,25 @@ export const Navbar: React.FC<NavbarProps> = ({
               </div>
             </div>
 
+            {/* Guest / Session Access Control */}
+            {openGuestAccess && (
+              <button
+                type="button"
+                onClick={openGuestAccess}
+                className={`flex items-center space-x-1.5 px-2.5 py-1.5 rounded-xl text-xs font-bold border transition cursor-pointer ${
+                  authDisplayLabel
+                    ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border-emerald-200'
+                    : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-200'
+                }`}
+                title={authDisplayLabel ? `Signed in as ${authDisplayLabel}` : 'Continue as Guest or Sign In'}
+              >
+                <UserCheck className={`w-3.5 h-3.5 ${authDisplayLabel ? 'text-emerald-600' : 'text-teal-600'}`} />
+                <span className="hidden lg:inline max-w-[110px] truncate">
+                  {authDisplayLabel || 'Guest Mode'}
+                </span>
+              </button>
+            )}
+
             {/* Notification Center Trigger */}
             <button
               onClick={openNotifications}
@@ -292,8 +322,14 @@ export const Navbar: React.FC<NavbarProps> = ({
                   return 'bg-gradient-to-r from-indigo-600 to-blue-600 text-white shadow-md shadow-indigo-500/25 ring-1 ring-indigo-300/40';
                 case 'economy':
                   return 'bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 shadow-md shadow-amber-500/25 font-black ring-1 ring-amber-300/50';
+                case 'solarfilament':
+                  return 'bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 font-black shadow-md shadow-amber-500/25 ring-1 ring-amber-300/40';
+                case 'buildarena':
+                  return 'bg-gradient-to-r from-cyan-600 to-indigo-600 text-white shadow-md shadow-cyan-500/25 ring-1 ring-cyan-300/40';
                 case 'gcp':
                   return 'bg-gradient-to-r from-sky-500 to-blue-600 text-white shadow-md shadow-sky-500/25 ring-1 ring-sky-300/40';
+                case 'population-health':
+                  return 'bg-gradient-to-r from-teal-700 to-emerald-600 text-white shadow-md shadow-teal-500/25 ring-1 ring-teal-300/40';
                 case 'settings':
                   return 'bg-gradient-to-r from-slate-600 to-slate-700 text-white shadow-md shadow-slate-500/20';
                 default:

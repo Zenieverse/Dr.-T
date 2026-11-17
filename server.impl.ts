@@ -81,9 +81,41 @@ import { paypalService } from './src/server/paypalService';
 import { PayFlowAiServerService } from './src/server/payflowAiServerService';
 import { DebtFreeAiServerService } from './src/server/debtFreeAiServerService';
 import { PresageServerService } from './src/server/presageServerService';
+import { solarFilamentServerService } from './src/server/solarFilamentServerService';
+import { BuildArenaServerService } from './src/server/buildArenaServerService';
+import { BuildArenaArtifactService } from './src/server/buildArenaArtifactService';
+import {
+  PopulationHealthService,
+  PopulationServiceContext,
+  AuthorizationError as PopAuthError,
+  ValidationError as PopValidationError,
+} from './src/server/populationHealthService';
+import {
+  authenticatePopulationHeaders,
+  mintGuestDemoToken,
+  checkRateLimit,
+  HttpAuthError,
+  RateLimitError,
+} from './src/server/populationHealthAuth';
+import { probePopulationFirestorePersistence } from './src/server/populationHealthFirestoreStore';
+import { GeminiCircuitBreaker } from './src/server/geminiCircuitBreaker';
+import {
+  ProductionConfigurationError,
+  resolveServerFirebaseConfig,
+  validateStartupConfiguration,
+} from './src/server/runtimeEnvironment';
+
+function resolveListenPort(): number {
+  const idx = process.argv.indexOf('--port');
+  if (idx >= 0 && process.argv[idx + 1]) {
+    const cliPort = Number(process.argv[idx + 1]);
+    if (Number.isFinite(cliPort) && cliPort > 0) return cliPort;
+  }
+  return Number(process.env.PORT) || 3000;
+}
 
 const app = express();
-const PORT = Number(process.env.PORT) || 3000;
+const PORT = resolveListenPort();
 
 app.use(cors());
 app.use(express.json({ limit: '20mb' }));
@@ -117,17 +149,22 @@ app.get('/api/health', (req, res) => {
 
 // Google Cloud Infrastructure Services API
 app.get('/api/cloud/infrastructure-status', (req, res) => {
+  const cfg = resolveServerFirebaseConfig(process.env, { skipStrictEnvValidation: true });
+  const gcpProject = cfg.projectId;
+  const rawRegion = (process.env.DRT_CLOUD_REGION || process.env.GOOGLE_CLOUD_LOCATION || '').trim();
+  const safeRegion = /^[a-z]+-[a-z]+\d+$/.test(rawRegion) ? rawRegion : 'asia-southeast1';
   res.json({
     status: 'HEALTHY',
+    environment: cfg.environment,
     timestamp: new Date().toISOString(),
-    gcpProjectId: 'gen-lang-client-0611153209',
-    region: 'asia-southeast1',
+    gcpProjectId: gcpProject,
+    region: safeRegion,
     services: {
       cloudRun: {
-        serviceName: 'dr-t-biomedical-platform',
-        region: 'asia-southeast1',
-        url: 'https://ais-dev-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app',
-        containerPort: 3000,
+        serviceName: process.env.K_SERVICE || 'dr-t-biomedical-platform',
+        region: safeRegion,
+        url: process.env.APP_URL || 'https://ais-dev-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app',
+        containerPort: PORT,
         memoryAllocated: '2 GiB',
         cpuAllocation: '2 vCPU',
         autoScaling: '0 - 10 instances (Scale-to-Zero Enabled)',
@@ -136,7 +173,7 @@ app.get('/api/cloud/infrastructure-status', (req, res) => {
         uptimePercentage: 99.98,
       },
       cloudFirestore: {
-        databaseId: 'ai-studio-drt-2e1619d9-9932-4538-9b6c-26b489ebfec2',
+        databaseId: cfg.databaseId,
         tier: 'Native Multi-Region Firestore',
         mode: 'Datastore/Firestore Hybrid',
         collections: ['users', 'healthRecords', 'consultations', 'skinAnalyses', 'cloudAuditLogs'],
@@ -148,9 +185,9 @@ app.get('/api/cloud/infrastructure-status', (req, res) => {
       },
       cloudPubSub: {
         topics: [
-          { name: 'projects/gen-lang-client-0611153209/topics/telehealth-vitals-stream', throughput: '1.2k msg/min', status: 'READY' },
-          { name: 'projects/gen-lang-client-0611153209/topics/clinical-safety-alerts', throughput: '45 msg/hr', status: 'READY' },
-          { name: 'projects/gen-lang-client-0611153209/topics/fhir-hl7-interop-sync', throughput: '320 msg/min', status: 'READY' },
+          { name: `projects/${gcpProject}/topics/telehealth-vitals-stream`, throughput: '1.2k msg/min', status: 'READY' },
+          { name: `projects/${gcpProject}/topics/clinical-safety-alerts`, throughput: '45 msg/hr', status: 'READY' },
+          { name: `projects/${gcpProject}/topics/fhir-hl7-interop-sync`, throughput: '320 msg/min', status: 'READY' },
         ],
         subscriptions: [
           { name: 'sub-ehr-sync-worker', ackDeadlineSeconds: 30, deadLetterConfig: 'topics/clinical-dlq' },
@@ -159,8 +196,8 @@ app.get('/api/cloud/infrastructure-status', (req, res) => {
         status: 'ONLINE',
       },
       cloudStorage: {
-        bucketName: 'gen-lang-client-0611153209.firebasestorage.app',
-        location: 'asia-southeast1',
+        bucketName: `${gcpProject}.firebasestorage.app`,
+        location: safeRegion,
         storageClass: 'STANDARD',
         encryption: 'Google-managed encryption key (CMEK ready)',
         corsEnabled: true,
@@ -5324,15 +5361,736 @@ app.post('/api/presage/wellness-insights', async (req, res) => {
 // ChatQuest Live — isolated Twitch audience participation routes
 registerChatQuestRoutes(app);
 
+// ========================================================
+// SOLAR FILAMENT LAB — KAGGLE 2026 SEGMENTATION & PQ API
+// ========================================================
+
+app.get('/api/solarfilament/overview', (_req, res) => {
+  try {
+    return res.json(solarFilamentServerService.getCompetitionOverview());
+  } catch (err: any) {
+    return res.status(500).json({ error: err?.message || 'Failed to load Solar Filament overview' });
+  }
+});
+
+app.get('/api/solarfilament/images', (req, res) => {
+  try {
+    const split = req.query.split as 'TRAIN' | 'VALIDATION' | 'TEST' | undefined;
+    return res.json({ images: solarFilamentServerService.getImages(split) });
+  } catch (err: any) {
+    return res.status(500).json({ error: err?.message || 'Failed to load solar images' });
+  }
+});
+
+app.get('/api/solarfilament/experiments', (_req, res) => {
+  try {
+    return res.json({ experiments: solarFilamentServerService.getExperiments() });
+  } catch (err: any) {
+    return res.status(500).json({ error: err?.message || 'Failed to load experiments' });
+  }
+});
+
+app.post('/api/solarfilament/experiments', (req, res) => {
+  try {
+    const created = solarFilamentServerService.addExperiment(req.body);
+    return res.json({ success: true, experiment: created });
+  } catch (err: any) {
+    return res.status(400).json({ success: false, error: err?.message || 'Failed to save experiment' });
+  }
+});
+
+app.post('/api/solarfilament/segment', (req, res) => {
+  try {
+    const { imageId, params } = req.body || {};
+    if (!imageId) {
+      return res.status(400).json({ success: false, error: 'imageId is required' });
+    }
+    const result = solarFilamentServerService.runSegmentation(imageId, params);
+    return res.json({ success: true, result });
+  } catch (err: any) {
+    return res.status(400).json({ success: false, error: err?.message || 'Segmentation failed' });
+  }
+});
+
+app.post('/api/solarfilament/evaluate', (req, res) => {
+  try {
+    const { predictedInstances = [], groundTruthInstances = [] } = req.body || {};
+    const evaluation = solarFilamentServerService.evaluatePredictions(predictedInstances, groundTruthInstances);
+    return res.json({ success: true, evaluation });
+  } catch (err: any) {
+    return res.status(400).json({ success: false, error: err?.message || 'Evaluation failed' });
+  }
+});
+
+app.post('/api/solarfilament/assistant', async (req, res) => {
+  try {
+    const { prompt, context } = req.body || {};
+    if (!prompt || typeof prompt !== 'string' || !prompt.trim()) {
+      return res.status(400).json({ success: false, error: 'Prompt is required.' });
+    }
+    const result = await solarFilamentServerService.consultResearchAssistant(prompt, context);
+    return res.json({ success: true, result });
+  } catch (err: any) {
+    return res.status(500).json({ success: false, error: err?.message || 'Assistant query failed' });
+  }
+});
+
+app.post('/api/solarfilament/dataset/upload', (req, res) => {
+  try {
+    const image = solarFilamentServerService.importDatasetFile(req.body);
+    return res.json({ success: true, image });
+  } catch (err: any) {
+    return res.status(400).json({ success: false, error: err?.message || 'Dataset import failed' });
+  }
+});
+
+app.get('/api/solarfilament/kaggle/status', (_req, res) => {
+  try {
+    return res.json(solarFilamentServerService.getKaggleConnectionStatus());
+  } catch (err: any) {
+    return res.status(500).json({ error: err?.message || 'Failed to check Kaggle status' });
+  }
+});
+
+app.post('/api/solarfilament/kaggle/credentials', (req, res) => {
+  try {
+    const { username, key } = req.body || {};
+    const status = solarFilamentServerService.configureKaggleCredentials(username, key);
+    return res.json({ success: true, status });
+  } catch (err: any) {
+    return res.status(400).json({ success: false, error: err?.message || 'Failed to save Kaggle credentials' });
+  }
+});
+
+app.get('/api/solarfilament/submission/csv', (req, res) => {
+  try {
+    const expId = req.query.experimentId as string | undefined;
+    const generated = solarFilamentServerService.generateKaggleSubmission(expId);
+    if (!generated.validation.isValid) {
+      return res.status(422).json({
+        success: false,
+        error: 'Generated submission failed contract validation',
+        validation: generated.validation,
+      });
+    }
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', 'attachment; filename="submission.csv"');
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+    res.setHeader('X-Solar-Test-Images-Processed', String(generated.coverage.processedImages));
+    res.setHeader('X-Solar-Total-Instances', String(generated.coverage.totalFilamentInstances));
+    return res.send(generated.csvContent);
+  } catch (err: any) {
+    return res.status(500).json({ success: false, error: err?.message || 'Failed to generate submission CSV' });
+  }
+});
+
+app.get('/api/solarfilament/submission/coverage', (req, res) => {
+  try {
+    const expId = req.query.experimentId as string | undefined;
+    const generated = solarFilamentServerService.generateKaggleSubmission(expId);
+    return res.json({
+      success: true,
+      validation: generated.validation,
+      coverage: generated.coverage,
+      diskStatus: solarFilamentServerService.inspectLocalTestDatasetStatus(),
+    });
+  } catch (err: any) {
+    return res.status(500).json({ success: false, error: err?.message || 'Failed to inspect submission coverage' });
+  }
+});
+
+app.get('/api/solarfilament/submission/pdf', (_req, res) => {
+  const candidates = [
+    path.join(process.cwd(), 'public', 'Solar_Filament_Technical_Report.pdf'),
+    path.join(process.cwd(), 'submission', 'Solar_Filament_Technical_Report.pdf'),
+    path.join(process.cwd(), 'dist', 'Solar_Filament_Technical_Report.pdf'),
+  ];
+  const found = candidates.find(p => fs.existsSync(p));
+  if (!found) {
+    return res.status(404).json({ error: 'Solar_Filament_Technical_Report.pdf not found' });
+  }
+  res.setHeader('Content-Type', 'application/pdf');
+  res.setHeader('Content-Disposition', 'attachment; filename="Solar_Filament_Technical_Report.pdf"');
+  return res.sendFile(found);
+});
+
+// ========================================================
+// BUILDARENA S02 — MISSION CONTROL & ARTIFACT API ROUTES
+// ========================================================
+
+app.get('/api/buildarena/status', async (_req, res) => {
+  try {
+    const service = BuildArenaServerService.getInstance();
+    const bridge = await service.getBridgeStatus();
+    return res.json({ bridge, tools: BuildArenaServerService.MCP_TOOLS });
+  } catch (err: any) {
+    return res.status(500).json({ error: err?.message || 'BuildArena status error' });
+  }
+});
+
+app.get('/api/buildarena/experiments', (_req, res) => {
+  try {
+    const service = BuildArenaServerService.getInstance();
+    return res.json({ experiments: service.getExperiments() });
+  } catch (err: any) {
+    return res.status(500).json({ error: err?.message || 'BuildArena experiments error' });
+  }
+});
+
+app.get('/api/buildarena/artifacts', (_req, res) => {
+  try {
+    const artifactService = BuildArenaArtifactService.getInstance();
+    return res.json({ artifacts: artifactService.discoverArtifacts() });
+  } catch (err: any) {
+    return res.status(500).json({ error: err?.message || 'Artifact discovery error' });
+  }
+});
+
+app.post('/api/buildarena/artifacts/upload', (req, res) => {
+  try {
+    const { filename, contentBase64 } = req.body || {};
+    if (!filename || !contentBase64) {
+      return res.status(400).json({ success: false, error: 'filename and contentBase64 are required' });
+    }
+    const safeName = path.basename(String(filename));
+    const dir = path.join(process.cwd(), 'submission');
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(path.join(dir, safeName), Buffer.from(String(contentBase64), 'base64'));
+    return res.json({ success: true, message: `Artifact ${safeName} uploaded successfully.` });
+  } catch (err: any) {
+    return res.status(500).json({ success: false, error: err?.message || 'Artifact upload error' });
+  }
+});
+
+app.delete('/api/buildarena/artifacts/:filename', (req, res) => {
+  try {
+    const safeName = path.basename(String(req.params.filename));
+    const target = path.join(process.cwd(), 'submission', safeName);
+    if (fs.existsSync(target)) {
+      fs.unlinkSync(target);
+      return res.json({ success: true, message: `Deleted ${safeName}` });
+    }
+    return res.status(404).json({ success: false, error: `Artifact ${safeName} not found in submission/` });
+  } catch (err: any) {
+    return res.status(500).json({ success: false, error: err?.message || 'Artifact delete error' });
+  }
+});
+
+app.get('/api/buildarena/artifacts/validation', (_req, res) => {
+  try {
+    const artifactService = BuildArenaArtifactService.getInstance();
+    return res.json({ report: artifactService.generateValidationReport() });
+  } catch (err: any) {
+    return res.status(500).json({ error: err?.message || 'Artifact validation error' });
+  }
+});
+
+app.get('/api/buildarena/artifacts/telemetry-analysis', (_req, res) => {
+  try {
+    const artifactService = BuildArenaArtifactService.getInstance();
+    return res.json({ telemetry: artifactService.analyzeTrajectoryCsv() });
+  } catch (err: any) {
+    return res.status(500).json({ error: err?.message || 'Telemetry analysis error' });
+  }
+});
+
+app.post('/api/buildarena/copilot/chat', async (req, res) => {
+  try {
+    const { prompt, currentDesign } = req.body || {};
+    if (!prompt) {
+      return res.status(400).json({ error: 'prompt is required' });
+    }
+    const service = BuildArenaServerService.getInstance();
+    const result = await service.generateCopilotAdvice(prompt, currentDesign, getGemini() || undefined);
+    return res.json(result);
+  } catch (err: any) {
+    return res.status(500).json({ error: err?.message || 'Copilot chat error' });
+  }
+});
+
+app.get('/api/buildarena/submission/pdf', (_req, res) => {
+  const target = path.join(process.cwd(), 'public', 'Zenith-01_Submission_Writeup.pdf');
+  if (!fs.existsSync(target)) {
+    return res.status(404).json({ error: 'Zenith-01_Submission_Writeup.pdf not found' });
+  }
+  res.setHeader('Content-Type', 'application/pdf');
+  res.setHeader('Content-Disposition', 'attachment; filename="Zenith-01_Submission_Writeup.pdf"');
+  return res.sendFile(target);
+});
+
+app.get('/api/buildarena/submission/bundle', (_req, res) => {
+  const target = path.join(process.cwd(), 'public', 'submission.tgz');
+  if (!fs.existsSync(target)) {
+    return res.status(404).json({ error: 'Submission bundle not found' });
+  }
+  res.setHeader('Content-Type', 'application/gzip');
+  res.setHeader('Content-Disposition', 'attachment; filename="submission.tgz"');
+  return res.sendFile(target);
+});
+
+// ============================================================================
+// DR. T — COMMUNITY HEALTH SIGNAL INTELLIGENCE (FUTURE HEALTH CHALLENGE 2026)
+// ============================================================================
+app.use('/api/population-health', (_req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Cache-Control', 'no-store');
+  next();
+});
+
+function getClientIpKey(req: express.Request): string {
+  const fwd = req.headers['x-forwarded-for'];
+  const first = typeof fwd === 'string' ? fwd.split(',')[0].trim() : '';
+  return first || req.ip || 'local';
+}
+
+async function authenticatePopRequest(req: express.Request): Promise<{
+  role: ReturnType<PopulationHealthService['parseRole']>;
+  ctx: PopulationServiceContext;
+}> {
+  checkRateLimit(`pop-api:${getClientIpKey(req)}`, 120, 60_000);
+  await PopulationHealthService.getInstance().ensurePersistenceReady();
+  const authHeader =
+    typeof req.headers.authorization === 'string' ? req.headers.authorization : undefined;
+  const headerRole =
+    typeof req.headers['x-population-role'] === 'string'
+      ? req.headers['x-population-role']
+      : undefined;
+  const queryRole = typeof req.query.role === 'string' ? req.query.role : undefined;
+
+  const authCtx = await authenticatePopulationHeaders({
+    authorizationHeader: authHeader,
+    requestedRoleHeader: headerRole || queryRole,
+  });
+
+  // Refresh cached Firestore availability probe non-blockingly
+  void probePopulationFirestorePersistence(false);
+
+  return {
+    role: authCtx.effectiveRole,
+    ctx: {
+      actorId: authCtx.actorId,
+      verifiedMaxRole: authCtx.verifiedMaxRole,
+      authMode: authCtx.authMode,
+      guestSessionId: authCtx.guestSessionId,
+    },
+  };
+}
+
+function sendPopError(res: express.Response, err: unknown) {
+  if (err instanceof HttpAuthError) {
+    return res.status(err.statusCode).json({ error: err.message, code: err.code });
+  }
+  if (err instanceof RateLimitError) {
+    return res.status(429).json({ error: err.message, code: 'RATE_LIMITED' });
+  }
+  if (err instanceof PopAuthError) {
+    return res.status(403).json({ error: err.message, code: 'FORBIDDEN' });
+  }
+  if (err instanceof PopValidationError) {
+    return res.status(400).json({ error: err.message, code: 'VALIDATION_ERROR' });
+  }
+  const msg = err instanceof Error ? err.message : 'Unexpected server error';
+  return res.status(500).json({ error: msg, code: 'INTERNAL_ERROR' });
+}
+
+async function flushPopSyncIfNonGuest(ctx: PopulationServiceContext): Promise<void> {
+  if (ctx.authMode !== 'GUEST_SANDBOX' && !ctx.guestSessionId) {
+    await PopulationHealthService.getInstance().flushFirestoreSync();
+  }
+}
+
+app.get('/api/population-health/health', async (req, res) => {
+  try {
+    checkRateLimit(`pop-health:${getClientIpKey(req)}`, 60, 60_000);
+    await PopulationHealthService.getInstance().ensurePersistenceReady();
+    const persistenceStatus = await probePopulationFirestorePersistence(
+      req.query.refresh === '1'
+    );
+    const runtimeCfg = resolveServerFirebaseConfig(process.env, { skipStrictEnvValidation: true });
+    const hasGeminiKey = Boolean(process.env.GEMINI_API_KEY);
+    return res.json({
+      status: 'ok',
+      module: 'population-health',
+      environment: runtimeCfg.environment,
+      isSyntheticOnly: runtimeCfg.isSyntheticOnly,
+      hasGeminiKey,
+      geminiDiagnostics: GeminiCircuitBreaker.getDiagnostics('gemini-3.8-flash', hasGeminiKey),
+      persistenceStatus,
+      connectors: PopulationHealthService.getInstance().getConnectorStatuses(),
+      timestamp: new Date().toISOString(),
+    });
+  } catch (err) {
+    return sendPopError(res, err);
+  }
+});
+
+app.post('/api/population-health/guest-session', (req, res) => {
+  try {
+    checkRateLimit(`pop-guest-mint:${getClientIpKey(req)}`, 30, 60_000);
+    const minted = mintGuestDemoToken();
+    return res.status(201).json({
+      token: minted.token,
+      sessionId: minted.sessionId,
+      authMode: 'GUEST_SANDBOX',
+      role: 'guest_demo',
+      expiresInSeconds: minted.expiresInSeconds,
+    });
+  } catch (err) {
+    return sendPopError(res, err);
+  }
+});
+
+app.get('/api/population-health/dashboard', async (req, res) => {
+  try {
+    const { role, ctx } = await authenticatePopRequest(req);
+    const dateRange = (req.query.dateRange as '30d' | '90d' | '180d' | 'all') || '90d';
+    const cohort = typeof req.query.cohort === 'string' ? req.query.cohort : 'ALL';
+    const region = typeof req.query.region === 'string' ? req.query.region : 'ALL';
+    const payload = PopulationHealthService.getInstance().getDashboard(
+      role,
+      { dateRange, cohort, region },
+      ctx
+    );
+    return res.json(payload);
+  } catch (err) {
+    return sendPopError(res, err);
+  }
+});
+
+app.post('/api/population-health/participants', async (req, res) => {
+  try {
+    const { role, ctx } = await authenticatePopRequest(req);
+    const participant = PopulationHealthService.getInstance().addParticipant(
+      role,
+      req.body || {},
+      ctx
+    );
+    await flushPopSyncIfNonGuest(ctx);
+    return res.status(201).json({ participant });
+  } catch (err) {
+    return sendPopError(res, err);
+  }
+});
+
+app.patch('/api/population-health/participants/:id/consent', async (req, res) => {
+  try {
+    const { role, ctx } = await authenticatePopRequest(req);
+    const participant = PopulationHealthService.getInstance().updateParticipantConsent(
+      role,
+      req.params.id,
+      req.body?.status,
+      req.body?.scopes,
+      ctx
+    );
+    await flushPopSyncIfNonGuest(ctx);
+    return res.json({ participant });
+  } catch (err) {
+    return sendPopError(res, err);
+  }
+});
+
+app.delete('/api/population-health/participants/:id', async (req, res) => {
+  try {
+    const { role, ctx } = await authenticatePopRequest(req);
+    const result = PopulationHealthService.getInstance().eraseParticipantData(
+      role,
+      req.params.id,
+      ctx
+    );
+    await flushPopSyncIfNonGuest(ctx);
+    return res.json(result);
+  } catch (err) {
+    return sendPopError(res, err);
+  }
+});
+
+app.post('/api/population-health/observations', async (req, res) => {
+  try {
+    const { role, ctx } = await authenticatePopRequest(req);
+    const result = PopulationHealthService.getInstance().ingestObservation(
+      role,
+      req.body || {},
+      ctx
+    );
+    await flushPopSyncIfNonGuest(ctx);
+    return res.status(201).json(result);
+  } catch (err) {
+    return sendPopError(res, err);
+  }
+});
+
+app.post('/api/population-health/integrations/health-alert-bridge', async (req, res) => {
+  try {
+    const { role, ctx } = await authenticatePopRequest(req);
+    const { participantId, intake } = req.body || {};
+    const result = PopulationHealthService.getInstance().ingestHealthAlertBridge(
+      role,
+      participantId,
+      intake,
+      ctx
+    );
+    await flushPopSyncIfNonGuest(ctx);
+    return res.status(201).json(result);
+  } catch (err) {
+    return sendPopError(res, err);
+  }
+});
+
+app.post('/api/population-health/integrations/presage-bridge', async (req, res) => {
+  try {
+    const { role, ctx } = await authenticatePopRequest(req);
+    const { participantId, vitals } = req.body || {};
+    const result = PopulationHealthService.getInstance().ingestPresageBridge(
+      role,
+      participantId,
+      vitals || {},
+      ctx
+    );
+    await flushPopSyncIfNonGuest(ctx);
+    return res.status(201).json(result);
+  } catch (err) {
+    return sendPopError(res, err);
+  }
+});
+
+app.post('/api/population-health/risk-signals/:id/status', async (req, res) => {
+  try {
+    const { role, ctx } = await authenticatePopRequest(req);
+    const signal = PopulationHealthService.getInstance().reviewRiskSignal(
+      role,
+      req.params.id,
+      req.body?.status || 'ACKNOWLEDGED',
+      ctx
+    );
+    await flushPopSyncIfNonGuest(ctx);
+    return res.json({ signal });
+  } catch (err) {
+    return sendPopError(res, err);
+  }
+});
+
+app.patch('/api/population-health/alerts/:id', async (req, res) => {
+  try {
+    const { role, ctx } = await authenticatePopRequest(req);
+    const alert = PopulationHealthService.getInstance().updateAlertStatus(
+      role,
+      req.params.id,
+      req.body || {},
+      ctx
+    );
+    await flushPopSyncIfNonGuest(ctx);
+    return res.json({ alert });
+  } catch (err) {
+    return sendPopError(res, err);
+  }
+});
+
+app.patch('/api/population-health/alert-rules/:id', async (req, res) => {
+  try {
+    const { role, ctx } = await authenticatePopRequest(req);
+    const rule = PopulationHealthService.getInstance().toggleAlertRule(
+      role,
+      req.params.id,
+      Boolean(req.body?.enabled),
+      ctx
+    );
+    await flushPopSyncIfNonGuest(ctx);
+    return res.json({ rule });
+  } catch (err) {
+    return sendPopError(res, err);
+  }
+});
+
+app.post('/api/population-health/referrals', async (req, res) => {
+  try {
+    const { role, ctx } = await authenticatePopRequest(req);
+    const referral = PopulationHealthService.getInstance().createReferral(
+      role,
+      req.body || {},
+      ctx
+    );
+    await flushPopSyncIfNonGuest(ctx);
+    return res.status(201).json({ referral });
+  } catch (err) {
+    return sendPopError(res, err);
+  }
+});
+
+app.patch('/api/population-health/referrals/:id', async (req, res) => {
+  try {
+    const { role, ctx } = await authenticatePopRequest(req);
+    const referral = PopulationHealthService.getInstance().advanceReferral(
+      role,
+      req.params.id,
+      req.body || {},
+      ctx
+    );
+    await flushPopSyncIfNonGuest(ctx);
+    return res.json({ referral });
+  } catch (err) {
+    return sendPopError(res, err);
+  }
+});
+
+app.post('/api/population-health/programmes/:id/action', async (req, res) => {
+  try {
+    const { role, ctx } = await authenticatePopRequest(req);
+    const programme = PopulationHealthService.getInstance().updateProgrammeAction(
+      role,
+      req.params.id,
+      req.body?.action,
+      ctx
+    );
+    await flushPopSyncIfNonGuest(ctx);
+    return res.json({ programme });
+  } catch (err) {
+    return sendPopError(res, err);
+  }
+});
+
+app.post('/api/population-health/engagement/:id/gate', async (req, res) => {
+  try {
+    const { role, ctx } = await authenticatePopRequest(req);
+    const template = PopulationHealthService.getInstance().gateEngagementTemplate(
+      role,
+      req.params.id,
+      req.body?.action,
+      ctx
+    );
+    await flushPopSyncIfNonGuest(ctx);
+    return res.json({ template });
+  } catch (err) {
+    return sendPopError(res, err);
+  }
+});
+
+app.post('/api/population-health/ai/synthesize', async (req, res) => {
+  try {
+    const { role, ctx } = await authenticatePopRequest(req);
+    checkRateLimit(`pop-ai:${ctx.actorId || getClientIpKey(req)}`, 20, 60_000);
+    const synthesis = await PopulationHealthService.getInstance().runAiResearchQuery(
+      role,
+      String(req.body?.query || ''),
+      getGemini(),
+      ctx
+    );
+    await flushPopSyncIfNonGuest(ctx);
+    return res.status(201).json({ synthesis });
+  } catch (err) {
+    return sendPopError(res, err);
+  }
+});
+
+app.post('/api/population-health/ai/:id/approve', async (req, res) => {
+  try {
+    const { role, ctx } = await authenticatePopRequest(req);
+    const synthesis = PopulationHealthService.getInstance().approveAiSynthesis(
+      role,
+      req.params.id,
+      req.body?.decision === 'REJECTED' ? 'REJECTED' : 'APPROVED',
+      ctx
+    );
+    await flushPopSyncIfNonGuest(ctx);
+    return res.json({ synthesis });
+  } catch (err) {
+    return sendPopError(res, err);
+  }
+});
+
+app.patch('/api/population-health/governance/k-threshold', async (req, res) => {
+  try {
+    const { role, ctx } = await authenticatePopRequest(req);
+    const result = PopulationHealthService.getInstance().updateGovernanceThreshold(
+      role,
+      Number(req.body?.kThreshold),
+      ctx
+    );
+    await flushPopSyncIfNonGuest(ctx);
+    return res.json(result);
+  } catch (err) {
+    return sendPopError(res, err);
+  }
+});
+
+app.get('/api/population-health/export', async (req, res) => {
+  try {
+    const { role, ctx } = await authenticatePopRequest(req);
+    const format = req.query.format === 'json' ? 'json' : 'csv';
+    const dateRange = (req.query.dateRange as '30d' | '90d' | '180d' | 'all') || '90d';
+    const cohort = typeof req.query.cohort === 'string' ? req.query.cohort : 'ALL';
+    const region = typeof req.query.region === 'string' ? req.query.region : 'ALL';
+    const file = PopulationHealthService.getInstance().exportDeidentifiedReport(
+      role,
+      format,
+      { dateRange, cohort, region },
+      ctx
+    );
+    res.setHeader('Content-Type', file.contentType);
+    res.setHeader('Content-Disposition', `attachment; filename="${file.filename}"`);
+    return res.send(file.body);
+  } catch (err) {
+    return sendPopError(res, err);
+  }
+});
+
+app.post('/api/population-health/demo/load', async (req, res) => {
+  try {
+    const { role, ctx } = await authenticatePopRequest(req);
+    const payload = PopulationHealthService.getInstance().loadSyntheticDemo(role, ctx);
+    await flushPopSyncIfNonGuest(ctx);
+    return res.json(payload);
+  } catch (err) {
+    return sendPopError(res, err);
+  }
+});
+
+app.post('/api/population-health/demo/reset', async (req, res) => {
+  try {
+    const { role, ctx } = await authenticatePopRequest(req);
+    const payload = PopulationHealthService.getInstance().resetDemoToClean(role, ctx);
+    await flushPopSyncIfNonGuest(ctx);
+    return res.json(payload);
+  } catch (err) {
+    return sendPopError(res, err);
+  }
+});
+
 // Setup Vite or Static serving
 async function setupApp() {
+  let startupDiagnostics: ReturnType<typeof validateStartupConfiguration>;
+  try {
+    startupDiagnostics = validateStartupConfiguration(process.env);
+  } catch (err) {
+    const msg =
+      err instanceof ProductionConfigurationError
+        ? err.message
+        : err instanceof Error
+          ? err.message
+          : 'Invalid runtime configuration';
+    console.error(`[Dr. T Startup BLOCKED] ${msg}`);
+    process.exit(1);
+    return;
+  }
+
+  console.log(
+    `🔐 Dr. T Runtime Config Verified: env=${startupDiagnostics.environment} project=${startupDiagnostics.projectId} db=${startupDiagnostics.databaseId} source=${startupDiagnostics.configSource} guestSecret=${startupDiagnostics.guestTokenSecretSource}`
+  );
+
+  const persistencePromise = PopulationHealthService.getInstance()
+    .initializeDurablePersistence()
+    .catch(() => undefined);
+
   const distPath = path.join(process.cwd(), 'dist');
   const hasDist = fs.existsSync(path.join(distPath, 'index.html'));
-  const isDev = process.env.npm_lifecycle_event === 'dev' && process.env.NODE_ENV !== 'production';
+  const isDev =
+    (process.env.npm_lifecycle_event === 'dev' || process.argv.includes('--port')) &&
+    process.env.NODE_ENV !== 'production';
   const isProduction = !isDev && (
     process.env.NODE_ENV === 'production' ||
     Boolean(process.env.K_SERVICE) ||
-    Boolean(process.env.PORT && process.env.PORT !== '3000') ||
+    PORT !== 3000 ||
     hasDist
   );
 
@@ -5356,6 +6114,8 @@ async function setupApp() {
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`🩺 Dr. T Platform Server running on http://0.0.0.0:${PORT} (Mode: ${isProduction ? 'Production Static' : 'Vite Dev'})`);
   });
+
+  void persistencePromise;
 }
 
 setupApp();

@@ -34,7 +34,10 @@ import { CommandPalette } from './components/layout/CommandPalette';
 import { NotificationDrawer } from './components/layout/NotificationDrawer';
 import { VoiceModeOverlay } from './components/drt/VoiceModeOverlay';
 import { DemoJourneyModal } from './components/demo/DemoJourneyModal';
+import { User } from 'firebase/auth';
+import { subscribeAuthState } from './services/firebase';
 import { BirthdayModal } from './components/celebration/BirthdayModal';
+import { GuestAccessModal } from './components/layout/GuestAccessModal';
 import { GlobalYouTubeOverlay, VideoDisplayMode } from './components/video/GlobalYouTubeOverlay';
 
 // 10 Platform Modules
@@ -72,6 +75,9 @@ import { ThreeHatsModule } from './components/threehats/ThreeHatsModule';
 import { StreetVendorsMapModule } from './components/streetvendors/StreetVendorsMapModule';
 import { GatherGlowModule } from './components/gatherglow/GatherGlowModule';
 import { PresageSenseModule } from './components/presagesense/PresageSenseModule';
+import { SolarFilamentLabModule } from './components/solarfilament/SolarFilamentLabModule';
+import { BuildArenaModule } from './components/buildarena/BuildArenaModule';
+import { PopulationHealthModule } from './components/populationhealth/PopulationHealthModule';
 import { SettingsPage } from './components/settings/SettingsPage';
 
 export function App() {
@@ -80,13 +86,23 @@ export function App() {
     try {
       if (typeof window !== 'undefined') {
         const params = new URLSearchParams(window.location.search);
-        const queryTab = params.get('tab') as NavTab | null;
-        if (queryTab) return queryTab;
+        const queryTab = params.get('tab')?.trim().toLowerCase();
+        if (queryTab) {
+          if (['buildarena', 'build-arena', 'buildarenas02', 'missioncontrol'].includes(queryTab)) return 'buildarena';
+          if (['solarfilament', 'solar-filament', 'solarfilamentlab', 'solar', 'filament'].includes(queryTab)) return 'solarfilament';
+          if (['population-health', 'populationhealth', 'population_health', 'community-health', 'chsi'].includes(queryTab)) return 'population-health';
+          return queryTab as NavTab;
+        }
 
-        const raw = window.location.hash.replace('#', '').toLowerCase();
+        let raw = window.location.hash.replace(/^#\/?/, '').replace(/\/$/, '').toLowerCase().trim();
+        if (raw.includes('?')) raw = raw.split('?')[0];
+        if (raw.includes('&')) raw = raw.split('&')[0];
         if (raw) {
           if (raw === 'presage' || raw === 'presagesense' || raw === 'smartspectra') return 'presagesense';
           if (raw.startsWith('healthalert')) return 'healthalert';
+          if (['buildarena', 'build-arena', 'buildarenas02', 'missioncontrol'].includes(raw)) return 'buildarena';
+          if (['solarfilament', 'solar-filament', 'solarfilamentlab', 'solar', 'filament'].includes(raw)) return 'solarfilament';
+          if (['population-health', 'populationhealth', 'population_health', 'community-health', 'chsi'].includes(raw)) return 'population-health';
           return raw as NavTab;
         }
       }
@@ -108,7 +124,9 @@ export function App() {
   const [isNotificationDrawerOpen, setIsNotificationDrawerOpen] = useState<boolean>(false);
   const [isVoiceModeOpen, setIsVoiceModeOpen] = useState<boolean>(false);
   const [isDemoJourneyOpen, setIsDemoJourneyOpen] = useState<boolean>(false);
-  const [isBirthdayModalOpen, setIsBirthdayModalOpen] = useState<boolean>(true);
+  const [isBirthdayModalOpen, setIsBirthdayModalOpen] = useState<boolean>(() => getInitialTab() === 'drt');
+  const [isGuestAccessModalOpen, setIsGuestAccessModalOpen] = useState<boolean>(false);
+  const [authUser, setAuthUser] = useState<User | null>(null);
   const [isLoadingChat, setIsLoadingChat] = useState<boolean>(false);
 
   // Global Featured Video State (Default Mode: floating, user-initiated)
@@ -129,12 +147,20 @@ export function App() {
 
   React.useEffect(() => {
     const handleHashChange = () => {
-      const raw = window.location.hash.replace('#', '').toLowerCase();
+      let raw = window.location.hash.replace(/^#\/?/, '').replace(/\/$/, '').toLowerCase().trim();
+      if (raw.includes('?')) raw = raw.split('?')[0];
+      if (raw.includes('&')) raw = raw.split('&')[0];
       let targetTab = raw as NavTab;
       if (raw === 'presage' || raw === 'presagesense' || raw === 'smartspectra') {
         targetTab = 'presagesense';
       } else if (raw.startsWith('healthalert')) {
         targetTab = 'healthalert';
+      } else if (['buildarena', 'build-arena', 'buildarenas02', 'missioncontrol'].includes(raw)) {
+        targetTab = 'buildarena';
+      } else if (['solarfilament', 'solar-filament', 'solarfilamentlab', 'solar', 'filament'].includes(raw)) {
+        targetTab = 'solarfilament';
+      } else if (['population-health', 'populationhealth', 'population_health', 'community-health', 'chsi'].includes(raw)) {
+        targetTab = 'population-health';
       }
       if (targetTab && targetTab !== activeTab) {
         setActiveTab(targetTab);
@@ -158,15 +184,22 @@ export function App() {
     return () => window.removeEventListener('drt-open-featured-video', handleOpenVideo);
   }, [videoDisplayMode]);
 
-  // Global tab navigation event listener
+  // Global tab navigation & guest access modal event listeners
   React.useEffect(() => {
+    const unsubAuth = subscribeAuthState((u) => setAuthUser(u));
     const handleNavTab = (e: any) => {
       if (e.detail?.tab) {
         setActiveTab(e.detail.tab as NavTab);
       }
     };
+    const handleOpenGuestAccess = () => setIsGuestAccessModalOpen(true);
     window.addEventListener('drt-navigate-tab', handleNavTab);
-    return () => window.removeEventListener('drt-navigate-tab', handleNavTab);
+    window.addEventListener('drt-open-guest-access', handleOpenGuestAccess);
+    return () => {
+      unsubAuth();
+      window.removeEventListener('drt-navigate-tab', handleNavTab);
+      window.removeEventListener('drt-open-guest-access', handleOpenGuestAccess);
+    };
   }, []);
 
   // Initial Socratic Chat History
@@ -405,6 +438,8 @@ export function App() {
         openVoiceMode={() => setIsVoiceModeOpen(true)}
         openDemoJourney={() => setIsDemoJourneyOpen(true)}
         openBirthdayModal={() => setIsBirthdayModalOpen(true)}
+        openGuestAccess={() => setIsGuestAccessModalOpen(true)}
+        authDisplayLabel={authUser ? (authUser.displayName || authUser.email || 'Signed In') : null}
         openFeaturedVideo={() => {
           setIsFeaturedVideoOpen(true);
           if (videoDisplayMode === 'minimized') {
@@ -569,6 +604,13 @@ export function App() {
           <FutureHealthChallengeModule setActiveTab={setActiveTab} />
         )}
 
+        {activeTab === 'population-health' && (
+          <PopulationHealthModule
+            setActiveTab={setActiveTab}
+            currentLanguage={currentLanguage === 'vi' ? 'vi' : 'en'}
+          />
+        )}
+
         {activeTab === 'stcool' && (
           <HealthAlertCompanionModule setActiveTab={setActiveTab} />
         )}
@@ -604,6 +646,14 @@ export function App() {
               setActiveTab('healthalert');
             }}
           />
+        )}
+
+        {activeTab === 'solarfilament' && (
+          <SolarFilamentLabModule />
+        )}
+
+        {activeTab === 'buildarena' && (
+          <BuildArenaModule />
         )}
 
         {activeTab === 'gcp' && (
@@ -657,6 +707,13 @@ export function App() {
       <BirthdayModal
         isOpen={isBirthdayModalOpen}
         onClose={() => setIsBirthdayModalOpen(false)}
+      />
+
+      <GuestAccessModal
+        isOpen={isGuestAccessModalOpen}
+        onClose={() => setIsGuestAccessModalOpen(false)}
+        authUser={authUser}
+        onContinueAsGuest={() => setIsGuestAccessModalOpen(false)}
       />
 
       {/* Global YouTube Featured Video Overlay (Mounted Once at Root Level) */}

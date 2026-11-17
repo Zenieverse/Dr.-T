@@ -1,0 +1,76 @@
+{
+  "project": "Dr. T Mission Control",
+  "competition": "BuildArena S02 — Human AI Engineering Challenge",
+  "track": "Build with Agent",
+  "mode": "Copilot",
+  "mission": "Deliver. Separate. Return.",
+  "generatedAt": "2026-11-09T03:12:12.435Z",
+  "machineName": "Zenith-01",
+  "finalRunId": "run-s02-z01-final-03",
+  "totalSizeBytes": 45531,
+  "files": [
+    {
+      "filename": "Zenith-01.bsg",
+      "sizeBytes": 4944,
+      "sha256": "063e43384033bfc1e310ddccf7f8188042d8c68bafdad53d8011d65ded608a32",
+      "provenance": "submission/Zenith-01.bsg",
+      "validationStatus": "VERIFIED"
+    },
+    {
+      "filename": "build_history.json",
+      "sizeBytes": 2330,
+      "sha256": "696f331af5a2b6528d7fa7e2cc995c6791f175f6b6b6e57c31e85f344c1c2bfa",
+      "provenance": "submission/build_history.json",
+      "validationStatus": "VERIFIED"
+    },
+    {
+      "filename": "trajectory.csv",
+      "sizeBytes": 1712,
+      "sha256": "fdfc28e2169e02f06f22bf4dece9bb9563c478d8295ffb3dc0925cfd8ee458b1",
+      "provenance": "submission/trajectory.csv",
+      "validationStatus": "VERIFIED"
+    },
+    {
+      "filename": "zenith01_controller.py",
+      "sizeBytes": 2999,
+      "sha256": "5a9a4b3008b68beef655df5050e747c72ea5614abff96f6149a6cea97e7daddc",
+      "provenance": "submission/zenith01_controller.py",
+      "validationStatus": "VERIFIED"
+    },
+    {
+      "filename": "CONTROL.md",
+      "sizeBytes": 5998,
+      "sha256": "6b8880436b102e06441d7da76752cd1a0bdde9d2df8fab9dd1cd6822f352dbe0",
+      "provenance": "submission/CONTROL.md",
+      "validationStatus": "VERIFIED"
+    },
+    {
+      "filename": "chat_transcript.md",
+      "sizeBytes": 3027,
+      "sha256": "fa99f22a22a22fe7d7f5ccc6fdf1bbdef927968cc89d39fe249bcd1768c4f63d",
+      "provenance": "submission/chat_transcript.md",
+      "validationStatus": "VERIFIED"
+    },
+    {
+      "filename": "ZENITH_01_SUBMISSION_WRITEUP.md",
+      "sizeBytes": 10175,
+      "sha256": "8a002ff515a678165a76410266035c3f309362d6958c587878197258b58cb521",
+      "provenance": "submission/ZENITH_01_SUBMISSION_WRITEUP.md",
+      "validationStatus": "VERIFIED"
+    },
+    {
+      "filename": "BUILDARENA_S02_SUBMISSION_CHECKLIST.md",
+      "sizeBytes": 3805,
+      "sha256": "d960e4e6fc987dc8492aac13c3da54f6c7fffb9ef6b223c31e0ccf2922e0f3a9",
+      "provenance": "submission/BUILDARENA_S02_SUBMISSION_CHECKLIST.md",
+      "validationStatus": "VERIFIED"
+    },
+    {
+      "filename": "Zenith-01_Submission_Writeup.pdf",
+      "sizeBytes": 10541,
+      "sha256": "ae9e91280343043586c742aa8a5340ea51f5b85d7d23d790b90812de493e660f",
+      "provenance": "submission/Zenith-01_Submission_Writeup.pdf",
+      "validationStatus": "VERIFIED"
+    }
+  ]
+}

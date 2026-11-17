@@ -171,6 +171,26 @@ function runFirestoreSecurityTests() {
   const catchAllMatch = rules.match(/match\s+\/\{.*?=\*\*\}/);
   assert(!catchAllMatch, 'No recursive catch-all wildcard ({document=**}) bypassing collection rules');
 
+  // TEST 17: Population Health collections enforce RBAC, owner isolation, and immutable logs
+  const popPartBlock = rules.match(/match\s+\/population_participants\/\{participantId\}\s*\{([\s\S]*?)\}/)?.[1] || '';
+  const popConsentBlock = rules.match(/match\s+\/population_consents\/\{consentId\}\s*\{([\s\S]*?)\}/)?.[1] || '';
+  const popAuditBlock = rules.match(/match\s+\/population_audit_logs\/\{logId\}\s*\{([\s\S]*?)\}/)?.[1] || '';
+  assert(
+    popPartBlock.includes('hasPopStaffRole()') &&
+      popPartBlock.includes('resource.data.userId == request.auth.uid'),
+    'Population participants require owner UID or verified staff claim'
+  );
+  assert(
+    popConsentBlock.includes('allow delete: if false'),
+    'Population consent history disallows deletion'
+  );
+  assert(
+    popAuditBlock.includes('allow read: if hasPopStaffRole()') &&
+      popAuditBlock.includes('allow update, delete: if false') &&
+      popAuditBlock.includes("hasAll(['userId', 'action', 'timestamp'])"),
+    'Population audit logs enforce staff-only read, field validation, and immutable append-only history'
+  );
+
   console.log('\n----------------------------------------------------');
   console.log(`SUMMARY: ${passed} PASSED, ${failed} FAILED`);
   console.log('----------------------------------------------------');

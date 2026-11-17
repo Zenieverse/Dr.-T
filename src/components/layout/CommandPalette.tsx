@@ -47,7 +47,9 @@ import {
   CheckCircle2,
   Camera,
   Flame,
-  DollarSign
+  DollarSign,
+  Sun,
+  Rocket
 } from 'lucide-react';
 
 interface CommandPaletteProps {
@@ -114,6 +116,27 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
           icon: <Camera className="w-4 h-4 text-amber-500" />,
           action: () => {
             setActiveTab('healthalert');
+            onClose();
+          }
+        }
+      ]
+    },
+    {
+      category: '🌍 Population Health (Future Health Challenge 2026)',
+      items: [
+        {
+          label: 'Population Health — Community Health Signal Intelligence (12 Workspaces)',
+          icon: <Users className="w-4 h-4 text-teal-600" />,
+          action: () => {
+            setActiveTab('population-health');
+            onClose();
+          }
+        },
+        {
+          label: 'Population Health — Screening, Care Navigation & k-Anonymity Governance',
+          icon: <ShieldCheck className="w-4 h-4 text-emerald-600" />,
+          action: () => {
+            setActiveTab('population-health');
             onClose();
           }
         }
@@ -727,6 +750,8 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         { label: 'Global x402 Challenge Competition Leaderboard', icon: <Trophy className="w-4 h-4 text-amber-400" />, action: () => { setActiveTab('x402'); onClose(); window.dispatchEvent(new CustomEvent('x402-navigate', { detail: { subTab: 'leaderboard' } })); } },
         { label: 'Algorand MainNet Real Payment Settlement Ledger', icon: <Coins className="w-4 h-4 text-emerald-400" />, action: () => { setActiveTab('x402'); onClose(); window.dispatchEvent(new CustomEvent('x402-navigate', { detail: { subTab: 'ledger' } })); } },
         { label: 'Agent Economy & x402 Micro-Transaction Marketplace', icon: <Zap className="w-4 h-4 text-amber-500" />, action: () => { setActiveTab('economy'); onClose(); } },
+        { label: 'Solar Filament Lab — Kaggle 2026 Segmentation & PQ Workspace', icon: <Sun className="w-4 h-4 text-amber-500" />, action: () => { setActiveTab('solarfilament'); onClose(); } },
+        { label: 'BuildArena S02 — Zenith-01 Aerospace Mission Control', icon: <Rocket className="w-4 h-4 text-cyan-500" />, action: () => { setActiveTab('buildarena'); onClose(); } },
         { label: 'Google Cloud Infrastructure & Firestore Hub', icon: <Cloud className="w-4 h-4 text-sky-500" />, action: () => { setActiveTab('gcp'); onClose(); } },
         { label: 'Platform & AI Model Configuration Settings', icon: <Settings className="w-4 h-4 text-slate-500" />, action: () => { setActiveTab('settings'); onClose(); } },
       ],

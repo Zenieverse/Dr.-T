@@ -83,6 +83,23 @@ if (!loaded) {
     fs.copyFileSync('dist/index.html', path.join(staticDir, 'index.html'));
   }
 
+  if (fs.existsSync('submission')) {
+    fs.cpSync('submission', path.join(staticDir, 'submission'), { recursive: true });
+    if (fs.existsSync('submission/zenith01_kaggle_submission.zip')) {
+      fs.copyFileSync('submission/zenith01_kaggle_submission.zip', path.join('dist', 'zenith01_kaggle_submission.zip'));
+      fs.copyFileSync('submission/zenith01_kaggle_submission.zip', path.join(staticDir, 'zenith01_kaggle_submission.zip'));
+    }
+    if (fs.existsSync('submission/Zenith-01_Submission_Writeup.pdf')) {
+      fs.copyFileSync('submission/Zenith-01_Submission_Writeup.pdf', path.join('dist', 'Zenith-01_Submission_Writeup.pdf'));
+      fs.copyFileSync('submission/Zenith-01_Submission_Writeup.pdf', path.join(staticDir, 'Zenith-01_Submission_Writeup.pdf'));
+    }
+    if (fs.existsSync('public/download.html')) {
+      fs.copyFileSync('public/download.html', path.join('dist', 'download.html'));
+      fs.copyFileSync('public/download.html', path.join(staticDir, 'download.html'));
+    }
+    console.log('✅ Synchronized submission/ artifacts (ZIP, PDF, download.html) to dist/ and staticDir');
+  }
+
   console.log('✅ Synchronized .next/ build artifacts (BUILD_ID, standalone, static, server)');
   console.log('🎉 All build artifact targets (dist, build, .next) are populated and verified non-empty.');
 }

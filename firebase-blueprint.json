@@ -212,6 +212,85 @@
         "createdAt": { "type": "string", "description": "Creation timestamp" },
         "updatedAt": { "type": "string", "description": "Last updated timestamp" }
       }
+    },
+    "PopulationParticipant": {
+      "collection": "population_participants",
+      "fields": {
+        "id": { "type": "string", "description": "Pseudonymous participant ID" },
+        "userId": { "type": "string", "description": "Authorized steward UID" },
+        "syntheticCode": { "type": "string", "description": "De-identified cohort code" },
+        "cohort": { "type": "string", "description": "Blood Health | Cardiometabolic Health | Maternal Health" },
+        "region": { "type": "string", "description": "Community clinic or catchment region" },
+        "consentStatus": { "type": "string", "description": "ACTIVE | REVOKED | PENDING | EXPIRED" },
+        "riskTier": { "type": "string", "description": "ROUTINE | MONITOR | ELEVATED | PRIORITY_FOLLOWUP" },
+        "createdAt": { "type": "string", "description": "ISO timestamp" }
+      }
+    },
+    "PopulationConsent": {
+      "collection": "population_consents",
+      "fields": {
+        "id": { "type": "string", "description": "Consent record ID" },
+        "userId": { "type": "string", "description": "Authorized steward UID" },
+        "participantId": { "type": "string", "description": "Pseudonymous participant ID" },
+        "status": { "type": "string", "description": "ACTIVE | REVOKED | PENDING | EXPIRED" },
+        "scopes": { "type": "array", "description": "Approved processing scopes" },
+        "updatedAt": { "type": "string", "description": "ISO timestamp" }
+      }
+    },
+    "PopulationObservation": {
+      "collection": "population_observations",
+      "fields": {
+        "id": { "type": "string", "description": "Observation ID" },
+        "userId": { "type": "string", "description": "Authorized steward UID" },
+        "participantId": { "type": "string", "description": "Pseudonymous participant ID" },
+        "metricType": { "type": "string", "description": "Standardized biometric or screening metric" },
+        "qualityFlag": { "type": "string", "description": "VALID | OUTLIER_FLAGGED | STALE | MISSING_UNIT" },
+        "dataOrigin": { "type": "string", "description": "LIVE | IMPORTED | SIMULATED | UNAVAILABLE" },
+        "recordedAt": { "type": "string", "description": "ISO timestamp" }
+      }
+    },
+    "PopulationAlert": {
+      "collection": "population_alerts",
+      "fields": {
+        "id": { "type": "string", "description": "Alert ID" },
+        "userId": { "type": "string", "description": "Authorized steward UID" },
+        "category": { "type": "string", "description": "POPULATION_TREND | CLINICAL_REVIEW | OPERATIONAL_BOTTLENECK" },
+        "severity": { "type": "string", "description": "INFO | WATCH | URGENT_REVIEW" },
+        "status": { "type": "string", "description": "OPEN | ACKNOWLEDGED | ESCALATED | RESOLVED" },
+        "createdAt": { "type": "string", "description": "ISO timestamp" }
+      }
+    },
+    "PopulationProgramme": {
+      "collection": "population_programmes",
+      "fields": {
+        "id": { "type": "string", "description": "Programme ID" },
+        "userId": { "type": "string", "description": "Authorized steward UID" },
+        "name": { "type": "string", "description": "Preventive programme name" },
+        "status": { "type": "string", "description": "ACTIVE | PLANNED | PAUSED" },
+        "updatedAt": { "type": "string", "description": "ISO timestamp" }
+      }
+    },
+    "PopulationReferral": {
+      "collection": "population_referrals",
+      "fields": {
+        "id": { "type": "string", "description": "Referral ID" },
+        "userId": { "type": "string", "description": "Authorized steward UID" },
+        "participantId": { "type": "string", "description": "Pseudonymous participant ID" },
+        "stage": { "type": "string", "description": "6-stage Care Navigation workflow state" },
+        "appointmentStatus": { "type": "string", "description": "Appointment status" },
+        "updatedAt": { "type": "string", "description": "ISO timestamp" }
+      }
+    },
+    "PopulationAuditLog": {
+      "collection": "population_audit_logs",
+      "fields": {
+        "id": { "type": "string", "description": "Audit log ID" },
+        "userId": { "type": "string", "description": "Actor UID" },
+        "actorRole": { "type": "string", "description": "RBAC role at time of action" },
+        "action": { "type": "string", "description": "Audited action" },
+        "outcome": { "type": "string", "description": "ALLOWED | DENIED" },
+        "timestamp": { "type": "string", "description": "ISO timestamp" }
+      }
     }
   }
 }

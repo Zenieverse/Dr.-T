@@ -559,6 +559,7 @@ medical diagnosis, prescription, or clinical evaluation.
             setCurrentStep('review');
           }}
           onClose={() => setActiveMode('guided')}
+          onNavigateToSolarFilament={() => setActiveTab('solarfilament')}
         />
       )}
 

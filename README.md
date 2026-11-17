@@ -12,17 +12,24 @@
 [![Gather & Glow](https://img.shields.io/badge/Gather%20%26%20Glow-AI%20Event%20Planner-F59E0B.svg)](https://github.com/Zenieverse/Dr.-T)
 [![Hedera](https://img.shields.io/badge/Hedera-HCS%20Provenance-222222.svg)](https://hedera.com/)
 [![PayPal AI Hackathon](https://img.shields.io/badge/PayPal%20AI%20Hackathon-MicroBiz%20PayFlow%20%2B%20DebtFree-003087.svg?logo=paypal)](docs/PAYPAL_AI_HACKATHON_SUBMISSION.md)
+[![Presage SmartSpectra Challenge 2026](https://img.shields.io/badge/Presage%20SmartSpectra%20Challenge%202026-Camera%20rPPG%20Wellness-06B6D4.svg)](docs/PRESAGE_SMARTSPECTRA_CHALLENGE_SUBMISSION.md)
+[![BuildArena S02](https://img.shields.io/badge/BuildArena%20S02-Deliver.%20Separate.%20Return.-7C3AED.svg?logo=kaggle)](docs/BUILDARENA_S02_MISSION_CONTROL.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-> **Dr. T** is a multi-dimensional platform unifying clinical informatics, Socratic health intelligence, grassroots economic empowerment (**MicroBiz** & **StreetVendorsMap**), personal role architecture (**Three Hats**), AI event architecture (**Gather & Glow**), and permission-governed memory intelligence (**Lantern Keeper** powered by NVIDIA Nemotron & Nebius Token Factory).
+> **Dr. T** is a multi-dimensional platform unifying clinical informatics, Socratic health intelligence, camera-powered contactless physiological wellness sensing (**Presage Sense**), aerospace mission control & simulation engineering (**BuildArena S02**), grassroots economic empowerment (**MicroBiz** & **StreetVendorsMap**), personal role architecture (**Three Hats**), AI event architecture (**Gather & Glow**), and permission-governed memory intelligence (**Lantern Keeper** powered by NVIDIA Nemotron & Nebius Token Factory).
 
 ---
 
 ## 🌐 Live Deployments & Repository
 
-* **Development App**: [https://ais-dev-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app](https://ais-dev-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app)
 * **Shared Production Preview**: [https://ais-pre-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app](https://ais-pre-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app)
+* **BuildArena S02 Mission Control Deep Link**: [https://ais-pre-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app/#buildarena](https://ais-pre-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app/#buildarena)
+* **Presage Sense Live Route**: [https://ais-pre-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app/#healthalert-presage](https://ais-pre-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app/#healthalert-presage)
+* **Presage Sense Standalone Deep Link**: [https://ais-pre-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app/#presagesense](https://ais-pre-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app/#presagesense)
+* **Development App**: [https://ais-dev-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app](https://ais-dev-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app)
 * **GitHub Repository**: [https://github.com/Zenieverse/Dr.-T](https://github.com/Zenieverse/Dr.-T)
+* **BuildArena S02 Dossier**: [`docs/BUILDARENA_S02_MISSION_CONTROL.md`](docs/BUILDARENA_S02_MISSION_CONTROL.md)
+* **Challenge Submission Dossier**: [`docs/PRESAGE_SMARTSPECTRA_CHALLENGE_SUBMISSION.md`](docs/PRESAGE_SMARTSPECTRA_CHALLENGE_SUBMISSION.md)
 
 ---
 

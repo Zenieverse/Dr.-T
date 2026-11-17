@@ -393,6 +393,93 @@ service cloud.firestore {
       );
       allow delete: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
     }
+
+    // ----------------------------------------------------
+    // BUILDARENA S02 — MISSION CONTROL EXPERIMENTS
+    // Human-AI Engineering Challenge 2026: Deliver. Separate. Return.
+    // Public transparency for competition audit & scoring logs
+    // ----------------------------------------------------
+    match /buildarena_experiments/{experimentId} {
+      allow read: if true;
+      allow create: if isAuthenticated() || isAdmin();
+      allow update: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow delete: if isAdmin();
+    }
+
+    // ----------------------------------------------------
+    // COMMUNITY HEALTH SIGNAL INTELLIGENCE (FUTURE HEALTH 2026)
+    // Role-based access, owner isolation, and immutable audit trail
+    // ----------------------------------------------------
+    function hasPopStaffRole() {
+      return isAuthenticated() && (
+        isAdmin() ||
+        request.auth.token.populationRole in [
+          'platform_admin',
+          'programme_manager',
+          'population_health_manager',
+          'clinician',
+          'care_navigator'
+        ]
+      );
+    }
+
+    match /population_participants/{participantId} {
+      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || hasPopStaffRole());
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      allow update: if isAuthenticated() && (
+        (resource.data.userId == request.auth.uid && request.resource.data.userId == resource.data.userId) ||
+        hasPopStaffRole()
+      );
+      allow delete: if isAdmin();
+    }
+
+    match /population_consents/{consentId} {
+      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || hasPopStaffRole());
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      allow update: if isAuthenticated() && (
+        (resource.data.userId == request.auth.uid && request.resource.data.userId == resource.data.userId) ||
+        hasPopStaffRole()
+      );
+      allow delete: if false; // Consent history preserved for compliance
+    }
+
+    match /population_observations/{observationId} {
+      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || hasPopStaffRole());
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      allow update: if isAuthenticated() && (
+        (resource.data.userId == request.auth.uid && request.resource.data.userId == resource.data.userId) ||
+        hasPopStaffRole()
+      );
+      allow delete: if isAdmin();
+    }
+
+    match /population_alerts/{alertId} {
+      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || hasPopStaffRole());
+      allow create: if hasPopStaffRole() && request.resource.data.userId == request.auth.uid;
+      allow update: if hasPopStaffRole() && request.resource.data.userId == resource.data.userId;
+      allow delete: if isAdmin();
+    }
+
+    match /population_programmes/{programmeId} {
+      allow read: if isAuthenticated();
+      allow create, update: if hasPopStaffRole();
+      allow delete: if isAdmin();
+    }
+
+    match /population_referrals/{referralId} {
+      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || hasPopStaffRole());
+      allow create: if hasPopStaffRole() && request.resource.data.userId == request.auth.uid;
+      allow update: if hasPopStaffRole() && request.resource.data.userId == resource.data.userId;
+      allow delete: if isAdmin();
+    }
+
+    match /population_audit_logs/{logId} {
+      allow read: if hasPopStaffRole();
+      allow create: if isAuthenticated() &&
+        request.resource.data.userId == request.auth.uid &&
+        request.resource.data.keys().hasAll(['userId', 'action', 'timestamp']);
+      allow update, delete: if false; // Immutable governance audit trail
+    }
   }
 }
 

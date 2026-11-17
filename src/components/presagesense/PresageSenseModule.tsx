@@ -26,7 +26,8 @@ import {
   Meh, 
   Flame,
   SunMedium,
-  Check
+  Check,
+  Copy
 } from 'lucide-react';
 import { 
   PresageVitalsData, 

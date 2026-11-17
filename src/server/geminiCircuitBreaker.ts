@@ -11,8 +11,49 @@ interface CircuitBreakerState {
 }
 
 const circuitBreakers: Map<string, CircuitBreakerState> = new Map();
+const modelLastStatus: Map<
+  string,
+  { state: 'LIVE_AI' | 'DETERMINISTIC_FALLBACK' | 'UNAVAILABLE'; reason: string; updatedAt: string }
+> = new Map();
 
 export class GeminiCircuitBreaker {
+  public static getDiagnostics(
+    model = 'gemini-3.8-flash',
+    hasApiKey = false
+  ): {
+    model: string;
+    status: 'LIVE_AI' | 'DETERMINISTIC_FALLBACK' | 'UNAVAILABLE';
+    circuitOpen: boolean;
+    reason: string;
+    updatedAt?: string;
+  } {
+    if (!hasApiKey) {
+      return {
+        model,
+        status: 'UNAVAILABLE',
+        circuitOpen: false,
+        reason: 'GEMINI_API_KEY not configured in runtime environment.',
+      };
+    }
+    const last = modelLastStatus.get(model);
+    const open = this.isCircuitOpen(model);
+    if (!last) {
+      return {
+        model,
+        status: 'LIVE_AI',
+        circuitOpen: open,
+        reason: 'Configured and ready (no failures recorded in current process).',
+      };
+    }
+    return {
+      model,
+      status: last.state,
+      circuitOpen: open,
+      reason: last.reason,
+      updatedAt: last.updatedAt,
+    };
+  }
+
   /**
    * Checks whether the circuit breaker is open (cooldown active after 429 quota exhaustion or timeouts).
    */
@@ -44,13 +85,24 @@ export class GeminiCircuitBreaker {
    * Evaluates an error from Gemini and trips the circuit breaker if it is a quota or timeout issue.
    */
   public static recordFailure(model: string, err: any): void {
-    const errMsg = String(err?.message || err || '');
+    const errMsg = String(err?.message || err || '').slice(0, 220);
+    const status = err?.status || err?.code || '';
     const is429 = errMsg.includes('429') || 
                   errMsg.includes('quota') || 
                   errMsg.includes('RESOURCE_EXHAUSTED') || 
                   err?.status === 'RESOURCE_EXHAUSTED' ||
                   err?.code === 429;
     const isTimeout = errMsg.includes('timed out') || errMsg.includes('timeout');
+
+    modelLastStatus.set(model, {
+      state: 'DETERMINISTIC_FALLBACK',
+      reason: is429
+        ? 'Quota limit (429/RESOURCE_EXHAUSTED) -> Deterministic fallback engaged.'
+        : isTimeout
+          ? `Timeout (${errMsg}) -> Deterministic fallback engaged.`
+          : `Remote inference error${status ? ` (${status})` : ''}: ${errMsg || 'Unknown error'} -> Deterministic fallback engaged.`,
+      updatedAt: new Date().toISOString(),
+    });
 
     if (is429) {
       let cooldown = 300; // default 5 minutes
@@ -80,6 +132,13 @@ export class GeminiCircuitBreaker {
     timeoutMs = 2500
   ): Promise<string | null> {
     if (!geminiClient || this.isCircuitOpen(model)) {
+      if (!geminiClient) {
+        modelLastStatus.set(model, {
+          state: 'UNAVAILABLE',
+          reason: 'Gemini client unavailable; deterministic engine active.',
+          updatedAt: new Date().toISOString(),
+        });
+      }
       return null;
     }
 
@@ -98,8 +157,18 @@ export class GeminiCircuitBreaker {
       ]);
 
       if (aiResponse && aiResponse.text) {
+        modelLastStatus.set(model, {
+          state: 'LIVE_AI',
+          reason: `Verified live response from ${model}.`,
+          updatedAt: new Date().toISOString(),
+        });
         return aiResponse.text.trim();
       }
+      modelLastStatus.set(model, {
+        state: 'DETERMINISTIC_FALLBACK',
+        reason: 'Empty response from model; deterministic fallback engaged.',
+        updatedAt: new Date().toISOString(),
+      });
       return null;
     } catch (err: any) {
       this.recordFailure(model, err);

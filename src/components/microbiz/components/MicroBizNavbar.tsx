@@ -190,9 +190,9 @@ export const MicroBizNavbar: FC<MicroBizNavbarProps> = ({
               </div>
             ) : (
               <div className="flex items-center space-x-1.5">
-                <span className="hidden lg:inline-flex items-center px-2 py-1 rounded-lg text-[10px] font-mono bg-slate-100 text-slate-600 border border-slate-200">
-                  <UserIcon className="w-3 h-3 mr-1 text-slate-400" />
-                  <span>Sandbox Mode</span>
+                <span className="hidden lg:inline-flex items-center px-2 py-1 rounded-lg text-[10px] font-mono bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  <UserIcon className="w-3 h-3 mr-1 text-emerald-600" />
+                  <span>{isVi ? 'Chế độ Khách' : 'Guest Mode'}</span>
                 </span>
                 {onSignIn && (
                   <button
@@ -201,7 +201,7 @@ export const MicroBizNavbar: FC<MicroBizNavbarProps> = ({
                     className="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition flex items-center space-x-1.5 shadow-xs cursor-pointer shrink-0"
                   >
                     <LogIn className="w-3.5 h-3.5" />
-                    <span>{isVi ? 'Đăng nhập Google' : 'Sign In'}</span>
+                    <span>{isVi ? 'Khách / Đăng nhập' : 'Guest / Sign In'}</span>
                   </button>
                 )}
               </div>

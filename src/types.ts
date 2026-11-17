@@ -27,6 +27,7 @@ export type NavTab =
   | 'lifeweave'
   | 'hedera'
   | 'futurehealth'
+  | 'population-health'
   | 'healthalert'
   | 'stcool'
   | 'microbiz'
@@ -37,6 +38,8 @@ export type NavTab =
   | 'streetvendorsmap'
   | 'gatherglow'
   | 'presagesense'
+  | 'solarfilament'
+  | 'buildarena'
   | 'gcp'
   | 'settings';
 

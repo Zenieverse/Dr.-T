@@ -198,8 +198,12 @@ export const MicroBizApp: FC<MicroBizAppProps> = ({
         setSearchQuery={setSearchQuery}
         currentUser={currentUser}
         isAuthenticated={isAuthenticated}
-        onSignIn={async () => {
-          await signInWithGoogle();
+        onSignIn={() => {
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('drt-open-guest-access'));
+          } else {
+            void signInWithGoogle();
+          }
         }}
         onSignOut={async () => {
           await signOutUser();

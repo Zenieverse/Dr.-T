@@ -361,7 +361,7 @@ export class PayFlowService {
     const userId = this.getCurrentUserId();
     const stored = getSafeStorage<PayFlowInvoice[]>(
       `${STORAGE_KEYS.INVOICES}_${userId}`,
-      userId === 'default' ? SEED_INVOICES : []
+      SEED_INVOICES.map(inv => ({ ...inv, userId }))
     );
 
     try {
@@ -660,7 +660,7 @@ export class PayFlowService {
     const userId = this.getCurrentUserId();
     const stored = getSafeStorage<PayFlowTransaction[]>(
       `${STORAGE_KEYS.TRANSACTIONS}_${userId}`,
-      userId === 'default' ? SEED_TRANSACTIONS : []
+      SEED_TRANSACTIONS.map(txn => ({ ...txn, userId }))
     );
 
     try {
@@ -735,7 +735,7 @@ export class PayFlowService {
     const userId = this.getCurrentUserId();
     const stored = getSafeStorage<PayFlowExpense[]>(
       `${STORAGE_KEYS.EXPENSES}_${userId}`,
-      userId === 'default' ? SEED_EXPENSES : []
+      SEED_EXPENSES.map(exp => ({ ...exp, userId }))
     );
 
     try {

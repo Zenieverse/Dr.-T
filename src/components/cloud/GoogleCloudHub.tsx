@@ -27,9 +27,11 @@ import {
   consultationService, 
   cloudAuditService, 
   FirestoreHealthRecord,
+  subscribeAuthState,
+  auth,
   db
 } from '../../services/firebase';
-import firebaseConfig from '../../../firebase-applet-config.json';
+import { firebaseRuntimeConfig as firebaseConfig } from '../../config/firebaseRuntimeConfig';
 
 export const GoogleCloudHub: React.FC = () => {
   const [infraStatus, setInfraStatus] = useState<any>(null);
@@ -93,16 +95,28 @@ export const GoogleCloudHub: React.FC = () => {
     }
   };
 
+  const [isCloudAuthenticated, setIsCloudAuthenticated] = useState<boolean>(!!auth.currentUser);
+
   useEffect(() => {
     fetchInfraStatus();
-    
-    // Subscribe to live Firestore records
-    const unsub = healthRecordsService.subscribeRecords('user_demo_zen', (records) => {
-      setFirestoreRecords(records);
+
+    let unsubRecords = () => {};
+    const bindRecords = (uid?: string | null) => {
+      unsubRecords();
+      unsubRecords = healthRecordsService.subscribeRecords(uid || 'guest_demo', (records) => {
+        setFirestoreRecords(records);
+      });
+    };
+
+    bindRecords(auth.currentUser?.uid);
+    const unsubAuth = subscribeAuthState((u) => {
+      setIsCloudAuthenticated(!!u);
+      bindRecords(u?.uid);
     });
 
     return () => {
-      if (typeof unsub === 'function') unsub();
+      unsubAuth();
+      if (typeof unsubRecords === 'function') unsubRecords();
     };
   }, []);
 
@@ -112,18 +126,21 @@ export const GoogleCloudHub: React.FC = () => {
 
     setIsSavingRecord(true);
     try {
+      const activeUid = auth.currentUser?.uid || 'guest_demo';
       const docId = await healthRecordsService.addRecord({
-        userId: 'user_demo_zen',
+        userId: activeUid,
         type: newType,
         title: newTitle,
         value: newValue,
         category: newType === 'lab' ? 'Metabolic & Biomarkers' : 'Clinical Stream',
         severity: newSeverity,
         timestamp: new Date().toISOString(),
-        notes: 'Synchronized directly with Google Cloud Firestore database.',
+        notes: auth.currentUser
+          ? 'Synchronized directly with Google Cloud Firestore database.'
+          : 'Saved in local Guest Sandbox storage (no login required).',
       });
 
-      // Audit log to Firestore
+      // Audit log to Firestore when signed in
       await cloudAuditService.logCloudEvent({
         service: 'Firestore',
         event: `Created record: ${newTitle} (ID: ${docId})`,
@@ -131,7 +148,11 @@ export const GoogleCloudHub: React.FC = () => {
         latencyMs: 24,
       });
 
-      setSaveSuccessMsg(`Document committed to Firestore! (ID: ${docId})`);
+      setSaveSuccessMsg(
+        auth.currentUser
+          ? `Document committed to Firestore! (ID: ${docId})`
+          : `Saved to Guest Sandbox! (ID: ${docId})`
+      );
       setNewTitle('');
       setTimeout(() => setSaveSuccessMsg(''), 4000);
     } catch (err: any) {
@@ -194,7 +215,7 @@ export const GoogleCloudHub: React.FC = () => {
                 Google Cloud Platform • Production Active
               </span>
               <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
-                <Check className="w-3 h-3 mr-1" /> Firestore Connected
+                <Check className="w-3 h-3 mr-1" /> {isCloudAuthenticated ? 'Firestore Synced' : 'Guest Sandbox Active'}
               </span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white font-display">
@@ -790,25 +811,31 @@ service cloud.firestore {
     function isAuthenticated() {
       return request.auth != null;
     }
-    
-    // User profile access
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // User profile access (owner or verified admin)
     match /users/{userId} {
-      allow read, write: if true;
+      allow read, create, update: if isOwner(userId);
     }
 
-    // Health & clinical records
+    // Health & clinical records (owner-isolated)
     match /healthRecords/{recordId} {
-      allow read, write: if true;
+      allow read, update, delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
     }
 
-    // Consultation sessions
+    // Consultation sessions (patient or assigned clinician)
     match /consultations/{consultationId} {
-      allow read, write: if true;
+      allow read, update: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
     }
 
-    // Skin analyses
+    // Skin analyses (owner-isolated)
     match /skinAnalyses/{analysisId} {
-      allow read, write: if true;
+      allow read, update: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
     }
   }
 }`}
