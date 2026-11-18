@@ -37,7 +37,16 @@ export default defineConfig(({ mode }) => {
   const validated = validateSoundGardenPublicBuildEnv(mergedEnv);
   const outDirAbs = path.resolve(process.cwd(), 'dist-soundgarden');
 
+  const rawBase = (mergedEnv.VITE_SOUNDGARDEN_BASE || '/').trim();
+  const normalizedBase = rawBase.endsWith('/') ? rawBase : `${rawBase}/`;
+  if (!/^\/([A-Za-z0-9._-]+\/)*$/.test(normalizedBase)) {
+    throw new Error(
+      `[Living Sound Garden Public Build BLOCKED] Invalid VITE_SOUNDGARDEN_BASE='${rawBase}'. Expected a root-relative path such as '/' or '/Dr.-T/'.`
+    );
+  }
+
   return {
+    base: normalizedBase,
     // CRITICAL: Exclude unrelated Dr. T /public artifacts (datasets, PDFs, portraits)
     publicDir: false,
     // Restrict exposed env prefix so accidental VITE_FIREBASE_* keys never leak into client JS

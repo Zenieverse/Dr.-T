@@ -367,6 +367,25 @@ async function run() {
     for (const [key, expectedVal] of Object.entries(SOUNDGARDEN_PUBLIC_SECURITY_HEADERS)) {
       assert.equal(mapped[key], expectedVal, `Header mismatch in firebase.soundgarden.json for ${key}`);
     }
+
+    // Verify root vercel.json deploys ONLY dist-soundgarden with identical canonical WebXR security headers
+    const vercelCfgPath = path.join(ROOT, 'vercel.json');
+    const vercelCfg = JSON.parse(fs.readFileSync(vercelCfgPath, 'utf8'));
+    assert.equal(vercelCfg.outputDirectory, 'dist-soundgarden');
+    assert.ok(String(vercelCfg.buildCommand).includes('VITE_RUNTIME_ENV=public_judging'));
+    assert.ok(String(vercelCfg.buildCommand).includes('VITE_SYNTHETIC_ONLY=true'));
+    assert.ok(String(vercelCfg.buildCommand).includes('npm run build:soundgarden:public'));
+    const vercelGlobalRule = vercelCfg.headers.find((h: any) => h.source === '/(.*)');
+    assert.ok(vercelGlobalRule, 'Expected global /(.*) header rule in vercel.json');
+    const vercelMapped: Record<string, string> = {};
+    for (const pair of vercelGlobalRule.headers) {
+      vercelMapped[pair.key] = pair.value;
+    }
+    const vercelAudit = validatePublicReleaseHeaders(vercelMapped);
+    assert.equal(vercelAudit.ok, true, `vercel.json header errors: ${vercelAudit.errors.join('; ')}`);
+    for (const [key, expectedVal] of Object.entries(SOUNDGARDEN_PUBLIC_SECURITY_HEADERS)) {
+      assert.equal(vercelMapped[key], expectedVal, `Header mismatch in vercel.json for ${key}`);
+    }
   });
 
   // 5. Local loopback static HTTP release server smoke test
