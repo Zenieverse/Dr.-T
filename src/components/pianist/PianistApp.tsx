@@ -20,6 +20,7 @@ import { TeacherParentView } from './components/TeacherParentView';
 import { CurriculumBrowser } from './components/CurriculumBrowser';
 import { PianistOnboardingModal } from './components/PianistOnboardingModal';
 import { TouchGrassStudio } from './touchgrass/TouchGrassStudio';
+import { LivingSoundGardenModule } from './soundgarden/LivingSoundGardenModule';
 import { pianoAudio } from './audio/pianoAudio';
 
 import { 
@@ -44,7 +45,8 @@ import {
   Disc,
   Compass,
   Trees,
-  Footprints
+  Footprints,
+  Flower2
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -124,6 +126,7 @@ export const PianistApp: React.FC<PianistAppProps> = ({ initialSubTab = 'home' }
   // Nav items configuration
   const navItems: Array<{ id: PianistSubTab; label: string; icon: React.ReactNode; badge?: string }> = [
     { id: 'home', label: 'Today', icon: <Home className="w-4 h-4" /> },
+    { id: 'living-sound-garden', label: '🌸 Living Sound Garden', icon: <Flower2 className="w-4 h-4 text-amber-400" />, badge: 'Quest VR' },
     { id: 'touch-grass', label: '🌿 Touch Grass', icon: <Trees className="w-4 h-4 text-emerald-400" />, badge: 'Outdoor' },
     { id: 'grand-piano', label: 'Grand Piano', icon: <Piano className="w-4 h-4 text-amber-400" />, badge: 'Concert' },
     { id: 'keyboard', label: 'Free Piano', icon: <Piano className="w-4 h-4" /> },
@@ -254,7 +257,13 @@ export const PianistApp: React.FC<PianistAppProps> = ({ initialSubTab = 'home' }
       </header>
 
       {/* Main Feature Viewport */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
+      <main
+        className={
+          activeSubTab === 'living-sound-garden'
+            ? 'flex-1 w-full px-3 sm:px-4 py-3'
+            : 'flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 space-y-6'
+        }
+      >
         {/* SUBTAB: HOME / TODAY'S MISSION */}
         {activeSubTab === 'home' && (
           <div className="space-y-6">
@@ -277,6 +286,14 @@ export const PianistApp: React.FC<PianistAppProps> = ({ initialSubTab = 'home' }
 
                 {/* Primary & Secondary CTAs */}
                 <div className="mt-6 flex flex-wrap items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setActiveSubTab('living-sound-garden')}
+                    className="px-5 py-3.5 rounded-2xl bg-amber-400/15 hover:bg-amber-400/25 text-amber-200 font-bold text-xs border border-amber-400/45 transition flex items-center space-x-2"
+                  >
+                    <Flower2 className="w-4 h-4 text-amber-300" />
+                    <span>LIVING SOUND GARDEN (3D / QUEST VR)</span>
+                  </button>
                   <button
                     type="button"
                     onClick={() => setActiveSubTab('touch-grass')}
@@ -398,10 +415,19 @@ export const PianistApp: React.FC<PianistAppProps> = ({ initialSubTab = 'home' }
           </div>
         )}
 
+        {/* SUBTAB: LIVING SOUND GARDEN (SPATIAL VR & HAND-TRACKED MUSICAL GARDEN) */}
+        {activeSubTab === 'living-sound-garden' && (
+          <LivingSoundGardenModule
+            embedded
+            onOpenTouchGrass={() => setActiveSubTab('touch-grass')}
+          />
+        )}
+
         {/* SUBTAB: TOUCH GRASS (OUTDOOR MISSIONS) */}
         {(activeSubTab === 'touch-grass' || activeSubTab === 'outdoor') && (
           <TouchGrassStudio
             onOpenPiano={() => setActiveSubTab('keyboard')}
+            onOpenSoundGarden={() => setActiveSubTab('living-sound-garden')}
             onSetTargetNotes={(notes) => setTargetKeyboardNotes(notes)}
             onXpEarned={handleEarnXp}
           />

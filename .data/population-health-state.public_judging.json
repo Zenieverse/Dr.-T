@@ -1,0 +1,85 @@
+{
+  "demoActive": false,
+  "kThreshold": 5,
+  "participants": [],
+  "consents": [],
+  "observations": [],
+  "riskSignals": [],
+  "alerts": [],
+  "alertRules": [
+    {
+      "id": "RULE-POP-ANAEMIA",
+      "name": "District Blood Health Cluster (Ferritin < 15 or Hb < 11.0 g/dL >= 20% cohort)",
+      "category": "POPULATION_TREND",
+      "enabled": true,
+      "thresholdDescription": "Triggers watch alert when >= 20% of consented Blood Health cohort shows low ferritin or Hb.",
+      "severity": "WATCH"
+    },
+    {
+      "id": "RULE-CLIN-MATERNAL",
+      "name": "Maternal Gestational BP >= 140/90 + Overdue ANC Review",
+      "category": "CLINICAL_REVIEW",
+      "enabled": true,
+      "thresholdDescription": "Flags immediate clinician & midwife review for elevated gestational BP paired with missed ANC visit.",
+      "severity": "URGENT_REVIEW"
+    },
+    {
+      "id": "RULE-OPS-FOLLOWUP",
+      "name": "Overdue Care Navigation Referral > 7 Days",
+      "category": "OPERATIONAL_BOTTLENECK",
+      "enabled": true,
+      "thresholdDescription": "Alerts care coordination managers when a priority referral stays unscheduled > 7 days.",
+      "severity": "WATCH"
+    }
+  ],
+  "programmes": [],
+  "referrals": [],
+  "engagementTemplates": [
+    {
+      "id": "ENG-BLD-01",
+      "title": "Blood Health & Iron Screening Invitation (Plain Language)",
+      "cohort": "Blood Health",
+      "channel": "SMS",
+      "targetLanguage": "bilingual",
+      "status": "APPROVED_TO_SEND",
+      "approvedBy": "Population Health Manager",
+      "approvedAt": "2026-11-15T14:53:36.167Z",
+      "recipientCount": 14,
+      "messageEn": "Hello from District 1 Community Health. Your recent check-in suggests checking your iron and haemoglobin levels could help explain low energy. Book a free 10-minute screening check at District 1 Clinic this week. Reply HELP or visit the clinic desk.",
+      "messageVi": "Xin chào từ Trạm Y tế Cộng đồng Quận 1. Kết quả theo dõi gần đây cho thấy bạn nên kiểm tra lại sắt huyết thanh và huyết sắc tố (Hb). Vui lòng đặt lịch xét nghiệm nhanh 10 phút miễn phí trong tuần này. Liên hệ bàn hướng dẫn nếu cần hỗ trợ.",
+      "voicePromptEn": "Community health update: checking your iron and haemoglobin takes ten minutes at District 1 Clinic and helps your care team support your energy.",
+      "voicePromptVi": "Thông báo sức khỏe cộng đồng: kiểm tra sắt và huyết sắc tố chỉ mất mười phút tại Trạm Y tế Quận 1 để bác sĩ hỗ trợ kịp thời.",
+      "readingLevelNote": "Grade 6 plain-language accessibility verified; human send confirmation required."
+    },
+    {
+      "id": "ENG-MAT-01",
+      "title": "Maternal Antenatal Check-In & Transport Support Reminder",
+      "cohort": "Maternal Health",
+      "channel": "VOICE_OUTREACH",
+      "targetLanguage": "bilingual",
+      "status": "REVIEWED",
+      "recipientCount": 6,
+      "messageEn": "River Ward Maternal Care reminder: Staying on schedule with your antenatal blood pressure and blood check protects both you and your baby. If transport or clinic hours are difficult, our Care Navigator can arrange a morning home-visit slot.",
+      "messageVi": "Nhắc lịch Chăm sóc Thai kỳ Phường Sông: Khám thai định kỳ và đo huyết áp, kiểm tra thiếu máu giúp bảo vệ an toàn cho cả mẹ và bé. Nếu gặp khó khăn đi lại, điều phối viên có thể hỗ trợ sắp xếp lịch khám buổi sáng.",
+      "voicePromptEn": "Friendly reminder from River Ward Maternal Care: your antenatal visit is ready to schedule, and support is available if you need transport.",
+      "voicePromptVi": "Lời nhắc từ Chăm sóc Thai kỳ Phường Sông: đã đến lịch khám thai định kỳ, chúng tôi luôn sẵn sàng hỗ trợ sắp xếp đi lại nếu bạn cần.",
+      "readingLevelNote": "Culturally supportive non-alarmist tone; requires Population Manager / Clinician approval before dispatch."
+    },
+    {
+      "id": "ENG-CMD-01",
+      "title": "Cardiometabolic Prevention & Home BP Monitoring Guide",
+      "cohort": "Cardiometabolic Health",
+      "channel": "COMMUNITY_PORTAL",
+      "targetLanguage": "bilingual",
+      "status": "DRAFT",
+      "recipientCount": 18,
+      "messageEn": "Urban Core Health Hub: Small daily habits and timely blood pressure and HbA1c checks lower long-term heart and metabolic strain. Sit quietly for 5 minutes before checking blood pressure and bring your log to your follow-up.",
+      "messageVi": "Trung tâm Sức khỏe Đô thị: Duy trì thói quen vận động nhẹ và kiểm tra huyết áp, đường huyết HbA1c định kỳ giúp bảo vệ tim mạch lâu dài. Hãy nghỉ ngơi 5 phút trước khi đo huyết áp và mang sổ theo dõi khi tái khám.",
+      "voicePromptEn": "Cardiometabolic tip: rest quietly for five minutes before measuring blood pressure and share your readings with your care team.",
+      "voicePromptVi": "Mẹo sức khỏe tim mạch: hãy ngồi nghỉ yên 5 phút trước khi đo huyết áp và chia sẻ kết quả với nhân viên y tế.",
+      "readingLevelNote": "Draft waiting human clinical & communications sign-off."
+    }
+  ],
+  "auditLogs": [],
+  "aiSyntheses": []
+}

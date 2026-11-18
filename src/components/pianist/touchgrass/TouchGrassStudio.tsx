@@ -45,13 +45,15 @@ import {
   Sparkle,
   Sliders,
   ExternalLink,
-  BookOpen
+  BookOpen,
+  Flower2
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { GrandPianoWorkspace } from '../grandpiano/components/GrandPianoWorkspace';
 
 interface TouchGrassStudioProps {
   onOpenPiano?: () => void;
+  onOpenSoundGarden?: () => void;
   onSetTargetNotes?: (notes: string[]) => void;
   onXpEarned?: (xp: number) => void;
   initialSubView?: 'hub' | 'walk-demo' | 'grand-piano' | 'rhythm-hunt' | 'melody-hunt' | 'sound-map' | 'rhythm-walk' | 'silence';
@@ -174,6 +176,7 @@ const INITIAL_SOUND_MAP_POINTS: SoundMapPoint[] = [
 
 export const TouchGrassStudio: React.FC<TouchGrassStudioProps> = ({
   onOpenPiano,
+  onOpenSoundGarden,
   onSetTargetNotes,
   onXpEarned,
   initialSubView
@@ -520,6 +523,17 @@ export const TouchGrassStudio: React.FC<TouchGrassStudioProps> = ({
               <Compass className="w-4 h-4" />
               <span>START OUTDOOR MISSION (60s WALK)</span>
             </button>
+
+            {onOpenSoundGarden && (
+              <button
+                type="button"
+                onClick={onOpenSoundGarden}
+                className="px-5 py-3.5 rounded-2xl bg-amber-400/15 hover:bg-amber-400/25 text-amber-200 font-bold text-xs border border-amber-400/40 transition flex items-center space-x-2"
+              >
+                <Flower2 className="w-4 h-4 text-amber-300" />
+                <span>ENTER LIVING SOUND GARDEN (3D / QUEST VR)</span>
+              </button>
+            )}
 
             {onOpenPiano && (
               <button

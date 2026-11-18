@@ -32,6 +32,23 @@ import {
   db
 } from '../../services/firebase';
 import { firebaseRuntimeConfig as firebaseConfig } from '../../config/firebaseRuntimeConfig';
+import { checkFrontendBackendEnvAgreement } from '../../config/clientFirebaseValidation';
+
+function getInfraBadgeClasses(state?: string): string {
+  switch (state) {
+    case 'Verified':
+      return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+    case 'Configured':
+      return 'bg-sky-50 text-sky-700 border-sky-200';
+    case 'Simulated':
+      return 'bg-purple-50 text-purple-700 border-purple-200';
+    case 'Unavailable':
+      return 'bg-rose-50 text-rose-700 border-rose-200';
+    case 'Not verified':
+    default:
+      return 'bg-amber-50 text-amber-800 border-amber-200';
+  }
+}
 
 export const GoogleCloudHub: React.FC = () => {
   const [infraStatus, setInfraStatus] = useState<any>(null);
@@ -48,7 +65,7 @@ export const GoogleCloudHub: React.FC = () => {
   const [isSavingRecord, setIsSavingRecord] = useState(false);
   const [saveSuccessMsg, setSaveSuccessMsg] = useState('');
 
-  // PubSub state
+  // PubSub state (Simulated in-app dispatcher)
   const [selectedTopic, setSelectedTopic] = useState('telehealth-vitals-stream');
   const [sampleEventData, setSampleEventData] = useState(
     JSON.stringify({
@@ -61,20 +78,18 @@ export const GoogleCloudHub: React.FC = () => {
     }, null, 2)
   );
   const [isPublishing, setIsPublishing] = useState(false);
-  const [pubSubLogs, setPubSubLogs] = useState<Array<{ id: string; topic: string; latency: number; time: string; status: string }>>([
+  const [pubSubLogs, setPubSubLogs] = useState<Array<{ id: string; topic: string; time: string; status: string }>>([
     {
-      id: 'msg_9a2f1b_init',
+      id: 'sim_msg_init_stream',
       topic: 'telehealth-vitals-stream',
-      latency: 12,
       time: new Date(Date.now() - 1000 * 60 * 3).toLocaleTimeString(),
-      status: 'ACKNOWLEDGED'
+      status: 'SIMULATED_ACK'
     },
     {
-      id: 'msg_3c8e4d_alert',
+      id: 'sim_msg_init_alert',
       topic: 'clinical-safety-alerts',
-      latency: 14,
       time: new Date(Date.now() - 1000 * 60 * 8).toLocaleTimeString(),
-      status: 'ACKNOWLEDGED'
+      status: 'SIMULATED_ACK'
     }
   ]);
 
@@ -187,9 +202,8 @@ export const GoogleCloudHub: React.FC = () => {
           {
             id: data.messageId,
             topic: data.topic,
-            latency: data.simulatedDeliveryLatencyMs,
             time: new Date().toLocaleTimeString(),
-            status: data.ackStatus,
+            status: data.ackStatus || 'SIMULATED_ACK',
           },
           ...prev.slice(0, 15),
         ]);
@@ -201,28 +215,47 @@ export const GoogleCloudHub: React.FC = () => {
     }
   };
 
+  const envAgreement = infraStatus
+    ? checkFrontendBackendEnvAgreement(firebaseConfig, infraStatus)
+    : { agrees: true };
+  const cloudRunInfo = infraStatus?.services?.cloudRun;
+  const firestoreInfo = infraStatus?.services?.cloudFirestore;
+  const pubSubInfo = infraStatus?.services?.cloudPubSub;
+  const geminiInfo = infraStatus?.services?.vertexAiGenAi;
+  const safetyInfo = infraStatus?.runtimeSafety;
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 animate-in fade-in duration-300">
-      
+
+      {!envAgreement.agrees && (
+        <div className="p-4 rounded-2xl bg-rose-50 border border-rose-300 text-rose-900 text-xs flex items-center space-x-3">
+          <AlertCircle className="w-5 h-5 shrink-0 text-rose-600" />
+          <div>
+            <strong>Frontend / Backend Configuration Mismatch:</strong> {envAgreement.mismatchReason}
+          </div>
+        </div>
+      )}
+
       {/* Header Banner */}
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-sky-950 to-slate-900 border border-sky-800/40 p-6 sm:p-8 text-white shadow-xl">
         <div className="absolute -right-12 -bottom-12 w-64 h-64 bg-sky-500/10 rounded-full blur-3xl pointer-events-none" />
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2 max-w-2xl">
-            <div className="flex items-center space-x-2">
+            <div className="flex flex-wrap items-center gap-2">
               <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-sky-500/20 text-sky-300 border border-sky-400/30">
                 <Cloud className="w-3.5 h-3.5 mr-1" />
-                Google Cloud Platform • Production Active
+                Env: {(infraStatus?.environment || firebaseConfig.environment).toUpperCase()}
               </span>
               <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
-                <Check className="w-3 h-3 mr-1" /> {isCloudAuthenticated ? 'Firestore Synced' : 'Guest Sandbox Active'}
+                <Check className="w-3 h-3 mr-1" />
+                Firestore: {firestoreInfo?.state || 'Not verified'} ({isCloudAuthenticated ? 'Signed In' : 'Guest Sandbox'})
               </span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white font-display">
               Google Cloud Infrastructure & Firestore Hub
             </h1>
             <p className="text-slate-300 text-xs sm:text-sm leading-relaxed">
-              Real-time telemetry, live Firestore database persistence, Cloud Run container autoscaling, Pub/Sub clinical streaming event topics, and multi-agent Kubernetes orchestrations.
+              Operational status inspector distinguishing live verified Firestore persistence from configured runtime services, unverified cloud bindings, and simulated pipelines.
             </p>
           </div>
 
@@ -311,26 +344,30 @@ export const GoogleCloudHub: React.FC = () => {
                 <div className="p-2 rounded-xl bg-sky-50 text-sky-600">
                   <Server className="w-5 h-5" />
                 </div>
-                <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-mono font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                  ACTIVE
+                <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-mono font-bold border ${getInfraBadgeClasses(cloudRunInfo?.state)}`}>
+                  {cloudRunInfo?.state || 'Not verified'}
                 </span>
               </div>
               <div>
                 <h2 className="text-sm font-bold text-slate-900 font-display">Google Cloud Run</h2>
-                <p className="text-xs text-slate-500">Fully Managed Serverless Container</p>
+                <p className="text-xs text-slate-500">Managed Container Runtime</p>
               </div>
               <div className="pt-2 border-t border-slate-100 space-y-1 text-xs font-mono">
                 <div className="flex justify-between text-slate-600">
                   <span>Region:</span>
-                  <span className="font-semibold text-slate-900">asia-southeast1</span>
+                  <span className="font-semibold text-slate-900">{cloudRunInfo?.region || 'Not verified'}</span>
                 </div>
                 <div className="flex justify-between text-slate-600">
                   <span>Port Ingress:</span>
-                  <span className="font-semibold text-slate-900">3000 (Internal)</span>
+                  <span className="font-semibold text-slate-900">{cloudRunInfo?.containerPort || 3000}</span>
                 </div>
-                <div className="flex justify-between text-slate-600">
-                  <span>Auto-Scale:</span>
-                  <span className="font-semibold text-emerald-600">0 - 10 instances</span>
+                <div className="flex justify-between text-slate-600 gap-2">
+                  <span>Scaling:</span>
+                  <span className="font-semibold text-slate-800 truncate" title={cloudRunInfo?.scalingPolicy}>
+                    {cloudRunInfo?.scalingVerificationStatus === 'verified_single_instance'
+                      ? 'Verified max=1'
+                      : 'Not verified'}
+                  </span>
                 </div>
               </div>
             </div>
@@ -341,28 +378,32 @@ export const GoogleCloudHub: React.FC = () => {
                 <div className="p-2 rounded-xl bg-amber-50 text-amber-600">
                   <Database className="w-5 h-5" />
                 </div>
-                <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-mono font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                  SYNCED
+                <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-mono font-bold border ${getInfraBadgeClasses(firestoreInfo?.state)}`}>
+                  {firestoreInfo?.state || 'Not verified'}
                 </span>
               </div>
               <div>
                 <h2 className="text-sm font-bold text-slate-900 font-display">Cloud Firestore</h2>
-                <p className="text-xs text-slate-500">NoSQL Real-Time Document Store</p>
+                <p className="text-xs text-slate-500">{firestoreInfo?.persistenceMode || 'NoSQL Document Store'}</p>
               </div>
               <div className="pt-2 border-t border-slate-100 space-y-1 text-xs font-mono">
                 <div className="flex justify-between text-slate-600">
                   <span>Database ID:</span>
                   <span className="font-semibold text-slate-900 truncate max-w-[110px]" title={firebaseConfig.firestoreDatabaseId}>
-                    {firebaseConfig.firestoreDatabaseId || '(default)'}
+                    {firestoreInfo?.databaseId || firebaseConfig.firestoreDatabaseId || 'Not verified'}
                   </span>
                 </div>
                 <div className="flex justify-between text-slate-600">
-                  <span>P50 Latency:</span>
-                  <span className="font-semibold text-emerald-600">14 ms</span>
+                  <span>Probe Latency:</span>
+                  <span className="font-semibold text-slate-900">
+                    {typeof firestoreInfo?.probeLatencyMs === 'number'
+                      ? `${firestoreInfo.probeLatencyMs} ms`
+                      : 'Not verified'}
+                  </span>
                 </div>
                 <div className="flex justify-between text-slate-600">
-                  <span>Active Collections:</span>
-                  <span className="font-semibold text-slate-900">5 Registered</span>
+                  <span>Config Source:</span>
+                  <span className="font-semibold text-slate-900">{firestoreInfo?.configSource || 'Not verified'}</span>
                 </div>
               </div>
             </div>
@@ -373,61 +414,100 @@ export const GoogleCloudHub: React.FC = () => {
                 <div className="p-2 rounded-xl bg-purple-50 text-purple-600">
                   <Radio className="w-5 h-5" />
                 </div>
-                <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-mono font-bold bg-purple-50 text-purple-700 border border-purple-200">
-                  ONLINE
+                <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-mono font-bold border ${getInfraBadgeClasses(pubSubInfo?.state || 'Simulated')}`}>
+                  {pubSubInfo?.state || 'Simulated'}
                 </span>
               </div>
               <div>
-                <h2 className="text-sm font-bold text-slate-900 font-display">Google Cloud Pub/Sub</h2>
-                <p className="text-xs text-slate-500">Global Asynchronous Event Broker</p>
+                <h2 className="text-sm font-bold text-slate-900 font-display">Cloud Pub/Sub Pipeline</h2>
+                <p className="text-xs text-slate-500">Simulated In-App Event Dispatcher</p>
               </div>
               <div className="pt-2 border-t border-slate-100 space-y-1 text-xs font-mono">
                 <div className="flex justify-between text-slate-600">
-                  <span>Active Topics:</span>
-                  <span className="font-semibold text-slate-900">3 Topics</span>
+                  <span>Broker Mode:</span>
+                  <span className="font-semibold text-purple-700">Simulated</span>
                 </div>
                 <div className="flex justify-between text-slate-600">
-                  <span>Delivery Success:</span>
-                  <span className="font-semibold text-purple-600">99.99%</span>
+                  <span>Topics Configured:</span>
+                  <span className="font-semibold text-slate-900">{pubSubInfo?.topics?.length ?? 3} Local</span>
                 </div>
                 <div className="flex justify-between text-slate-600">
-                  <span>Dead Letter Queue:</span>
-                  <span className="font-semibold text-slate-900">Enabled</span>
+                  <span>Storage Bucket:</span>
+                  <span className="font-semibold text-amber-700">
+                    {infraStatus?.services?.cloudStorage?.state || 'Not verified'}
+                  </span>
                 </div>
               </div>
             </div>
 
-            {/* GKE Swarm Orchestrator Card */}
+            {/* Gemini / Agent Runtime Card */}
             <div className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs space-y-3">
               <div className="flex items-center justify-between">
                 <div className="p-2 rounded-xl bg-teal-50 text-teal-600">
                   <Cpu className="w-5 h-5" />
                 </div>
-                <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-mono font-bold bg-teal-50 text-teal-700 border border-teal-200">
-                  7 AGENTS
+                <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-mono font-bold border ${getInfraBadgeClasses(geminiInfo?.state)}`}>
+                  {geminiInfo?.state || 'Not verified'}
                 </span>
               </div>
               <div>
-                <h2 className="text-sm font-bold text-slate-900 font-display">GKE Clinical Swarm</h2>
-                <p className="text-xs text-slate-500">Autopilot Microservices Grid</p>
+                <h2 className="text-sm font-bold text-slate-900 font-display">Gemini & Swarm Runtime</h2>
+                <p className="text-xs text-slate-500">In-Process Express Orchestration</p>
               </div>
               <div className="pt-2 border-t border-slate-100 space-y-1 text-xs font-mono">
                 <div className="flex justify-between text-slate-600">
-                  <span>Kubernetes:</span>
-                  <span className="font-semibold text-slate-900">v1.30 Autopilot</span>
+                  <span>GKE Cluster:</span>
+                  <span className="font-semibold text-purple-700">
+                    {infraStatus?.services?.gkeMicroservices?.state || 'Simulated'}
+                  </span>
                 </div>
                 <div className="flex justify-between text-slate-600">
-                  <span>Service Mesh:</span>
-                  <span className="font-semibold text-teal-600">Istio mTLS</span>
+                  <span>Primary Model:</span>
+                  <span className="font-semibold text-slate-900">{geminiInfo?.primaryModel || 'gemini-3.8-flash'}</span>
                 </div>
                 <div className="flex justify-between text-slate-600">
-                  <span>Model Gateway:</span>
-                  <span className="font-semibold text-slate-900">Gemini 3.7 Flash</span>
+                  <span>API Key:</span>
+                  <span className="font-semibold text-slate-900">
+                    {geminiInfo ? (geminiInfo.hasApiKey ? 'Configured' : 'Unavailable') : 'Not verified'}
+                  </span>
                 </div>
               </div>
             </div>
 
           </div>
+
+          {/* Honest Runtime Safety & Containment Strip */}
+          {safetyInfo && (
+            <div className="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-xs grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+              <div>
+                <div className="font-mono text-[10px] uppercase text-slate-500">Multi-Instance Containment</div>
+                <div className="font-semibold text-slate-900 mt-0.5">
+                  {safetyInfo.multiInstanceSafety?.status || 'Not verified'}
+                </div>
+                <div className="text-[11px] text-slate-600 mt-0.5">
+                  {safetyInfo.multiInstanceSafety?.reason}
+                </div>
+              </div>
+              <div>
+                <div className="font-mono text-[10px] uppercase text-slate-500">Rate Limiter Scope</div>
+                <div className="font-semibold text-slate-900 mt-0.5">
+                  {safetyInfo.rateLimiterScope} (not globally enforced)
+                </div>
+                <div className="text-[11px] text-slate-600 mt-0.5">
+                  In-process sliding window bucket per container instance.
+                </div>
+              </div>
+              <div>
+                <div className="font-mono text-[10px] uppercase text-slate-500">IAM & Secrets Governance</div>
+                <div className="font-semibold text-slate-900 mt-0.5">
+                  Secrets: {infraStatus?.services?.secretManagerStatus?.state || 'Not verified'} • IAM: {infraStatus?.services?.iamStatus?.state || 'Not verified'}
+                </div>
+                <div className="text-[11px] text-slate-600 mt-0.5">
+                  {infraStatus?.services?.iamStatus?.note}
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Architecture Diagram Interactive Flow */}
           <div className="p-6 rounded-3xl bg-white border border-slate-200/80 shadow-xs space-y-6">
@@ -437,7 +517,7 @@ export const GoogleCloudHub: React.FC = () => {
                 <span>Google Cloud Integrated Healthcare Architecture</span>
               </h2>
               <p className="text-xs text-slate-500">
-                End-to-end data pipeline from client device through Cloud Run proxy, Gemini AI orchestration, Firestore state persistence, and Pub/Sub event distribution.
+                End-to-end data pipeline from client device through Express/Cloud Run proxy, Gemini AI orchestration, Firestore state persistence, and simulated Pub/Sub event previews.
               </p>
             </div>
 
@@ -450,33 +530,33 @@ export const GoogleCloudHub: React.FC = () => {
                   <span>Web / Mobile Ingress</span>
                 </div>
                 <p className="text-[11px] text-slate-600">
-                  React 18 + Vite client running in secure iFrame sandbox with Voice & 3D AR camera input.
+                  React 18 + Vite client running in secure iFrame sandbox with explicit environment binding.
                 </p>
-                <div className="text-[10px] font-mono text-slate-400">Port 3000 Ingress</div>
+                <div className="text-[10px] font-mono text-slate-400">Env: {firebaseConfig.environment}</div>
               </div>
 
               {/* Step 2 */}
               <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-2xs space-y-2">
                 <div className="flex items-center space-x-2 text-indigo-700 font-bold text-xs">
                   <div className="w-5 h-5 rounded-full bg-indigo-100 flex items-center justify-center text-[10px]">2</div>
-                  <span>Google Cloud Run</span>
+                  <span>Express / Cloud Run</span>
                 </div>
                 <p className="text-[11px] text-slate-600">
-                  Express API server proxying Gemini 3.7 Flash calls and evaluating 4-tier clinical safety rules.
+                  Express API server enforcing fail-closed startup guards, RBAC tokens, and Gemini proxy calls.
                 </p>
-                <div className="text-[10px] font-mono text-slate-400">Scale-to-Zero Container</div>
+                <div className="text-[10px] font-mono text-slate-400">{cloudRunInfo?.state || 'Not verified'}</div>
               </div>
 
               {/* Step 3 */}
               <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-2xs space-y-2">
                 <div className="flex items-center space-x-2 text-purple-700 font-bold text-xs">
                   <div className="w-5 h-5 rounded-full bg-purple-100 flex items-center justify-center text-[10px]">3</div>
-                  <span>7-Agent Swarm</span>
+                  <span>Agent Orchestrator</span>
                 </div>
                 <p className="text-[11px] text-slate-600">
-                  Parallel specialist agents (Dr. Med, Research, Edu, Ops, Data, Safety, Lead Orchestrator).
+                  In-process multi-agent orchestration backed by Gemini 3.8 Flash and deterministic safety fallbacks.
                 </p>
-                <div className="text-[10px] font-mono text-slate-400">Disagreement Arbiter</div>
+                <div className="text-[10px] font-mono text-slate-400">{geminiInfo?.state || 'Unavailable'}</div>
               </div>
 
               {/* Step 4 */}
@@ -486,21 +566,21 @@ export const GoogleCloudHub: React.FC = () => {
                   <span>Cloud Firestore</span>
                 </div>
                 <p className="text-[11px] text-slate-600">
-                  Durable NoSQL state store for clinical timeline, SOAP notes, lab telemetry, and skin scores.
+                  Durable NoSQL state store for health telemetry, consents, referrals, and immutable audit entries.
                 </p>
-                <div className="text-[10px] font-mono text-slate-400">Real-Time Listeners</div>
+                <div className="text-[10px] font-mono text-slate-400">{firestoreInfo?.state || 'Not verified'}</div>
               </div>
 
               {/* Step 5 */}
               <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-2xs space-y-2">
                 <div className="flex items-center space-x-2 text-teal-700 font-bold text-xs">
                   <div className="w-5 h-5 rounded-full bg-teal-100 flex items-center justify-center text-[10px]">5</div>
-                  <span>Cloud Pub/Sub</span>
+                  <span>Pub/Sub Preview</span>
                 </div>
                 <p className="text-[11px] text-slate-600">
-                  Real-time event fanout to EHR systems, clinical warning dispatchers, and HL7 FHIR sync workers.
+                  Simulated event fanout stream for HL7/FHIR integration demonstrations (no live broker calls).
                 </p>
-                <div className="text-[10px] font-mono text-slate-400">At-Least-Once Delivery</div>
+                <div className="text-[10px] font-mono text-purple-600">Simulated</div>
               </div>
 
             </div>
@@ -510,20 +590,24 @@ export const GoogleCloudHub: React.FC = () => {
               <div className="flex items-center justify-between text-slate-400 text-[11px] border-b border-slate-800 pb-2">
                 <span className="flex items-center space-x-1.5 text-sky-400">
                   <Terminal className="w-3.5 h-3.5" />
-                  <span>gcloud active-config --project={firebaseConfig.projectId}</span>
+                  <span>runtime-config --project={firebaseConfig.projectId}</span>
                 </span>
-                <span className="text-emerald-400 font-bold">STATUS: LIVE</span>
+                <span className="text-sky-300 font-bold">
+                  FIRESTORE: {firestoreInfo?.state?.toUpperCase() || 'NOT VERIFIED'}
+                </span>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
                 <div>
+                  <span className="text-slate-500">RUNTIME_ENV:</span> {infraStatus?.environment || firebaseConfig.environment}<br />
                   <span className="text-slate-500">PROJECT_ID:</span> {firebaseConfig.projectId}<br />
-                  <span className="text-slate-500">FIRESTORE_DB_ID:</span> {firebaseConfig.firestoreDatabaseId || '(default)'}<br />
+                  <span className="text-slate-500">FIRESTORE_DB_ID:</span> {firebaseConfig.firestoreDatabaseId || 'Not verified'}<br />
                   <span className="text-slate-500">STORAGE_BUCKET:</span> {firebaseConfig.storageBucket}<br />
                 </div>
                 <div>
                   <span className="text-slate-500">AUTH_DOMAIN:</span> {firebaseConfig.authDomain}<br />
-                  <span className="text-slate-500">CLOUD_REGION:</span> asia-southeast1 (Singapore)<br />
-                  <span className="text-slate-500">APP_ID:</span> {firebaseConfig.appId}
+                  <span className="text-slate-500">CLOUD_REGION:</span> {infraStatus?.region || 'Not verified'}<br />
+                  <span className="text-slate-500">APP_ID:</span> {firebaseConfig.appId}<br />
+                  <span className="text-slate-500">RATE_LIMITER:</span> {safetyInfo?.rateLimiterScope || 'process_local_best_effort'}
                 </div>
               </div>
             </div>
@@ -712,9 +796,9 @@ export const GoogleCloudHub: React.FC = () => {
                   onChange={(e) => setSelectedTopic(e.target.value)}
                   className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-500 text-slate-800 font-mono text-xs"
                 >
-                  <option value="telehealth-vitals-stream">projects/gen-lang-client-0611153209/topics/telehealth-vitals-stream</option>
-                  <option value="clinical-safety-alerts">projects/gen-lang-client-0611153209/topics/clinical-safety-alerts</option>
-                  <option value="fhir-hl7-interop-sync">projects/gen-lang-client-0611153209/topics/fhir-hl7-interop-sync</option>
+                  <option value="telehealth-vitals-stream">projects/{firebaseConfig.projectId}/topics/telehealth-vitals-stream</option>
+                  <option value="clinical-safety-alerts">projects/{firebaseConfig.projectId}/topics/clinical-safety-alerts</option>
+                  <option value="fhir-hl7-interop-sync">projects/{firebaseConfig.projectId}/topics/fhir-hl7-interop-sync</option>
                 </select>
               </div>
 
@@ -734,7 +818,7 @@ export const GoogleCloudHub: React.FC = () => {
                 className="w-full py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold transition flex items-center justify-center space-x-2 shadow-sm shadow-purple-700/20 disabled:opacity-50"
               >
                 <Send className="w-4 h-4" />
-                <span>{isPublishing ? 'Publishing Event...' : 'Publish to Google Cloud Pub/Sub'}</span>
+                <span>{isPublishing ? 'Simulating Publish...' : 'Simulate Event Dispatch (Pub/Sub)'}</span>
               </button>
             </div>
           </div>
@@ -745,14 +829,14 @@ export const GoogleCloudHub: React.FC = () => {
               <div>
                 <h2 className="text-base font-bold text-slate-900 font-display flex items-center space-x-2">
                   <TrendingUp className="w-5 h-5 text-emerald-600" />
-                  <span>Topic Delivery & ACK Stream</span>
+                  <span>Topic Delivery & ACK Stream (Simulated)</span>
                 </h2>
                 <p className="text-xs text-slate-500">
-                  Simulated subscriber consumption and latency acknowledgments.
+                  Simulated in-app subscriber consumption preview (does not contact live Google Cloud Pub/Sub).
                 </p>
               </div>
-              <span className="px-2 py-0.5 rounded-full text-[11px] font-mono font-bold bg-emerald-100 text-emerald-800">
-                99.99% ACK
+              <span className="px-2 py-0.5 rounded-full text-[11px] font-mono font-bold bg-purple-100 text-purple-800">
+                Simulated
               </span>
             </div>
 
@@ -765,12 +849,12 @@ export const GoogleCloudHub: React.FC = () => {
                   <div className="space-y-0.5">
                     <div className="flex items-center space-x-2">
                       <span className="font-bold text-slate-900">{log.topic}</span>
-                      <span className="text-[10px] text-emerald-600 font-bold bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">
+                      <span className="text-[10px] text-purple-700 font-bold bg-purple-50 px-1.5 py-0.2 rounded border border-purple-200">
                         {log.status}
                       </span>
                     </div>
                     <div className="text-[10px] text-slate-500">
-                      MsgID: {log.id} • Latency: {log.latency} ms
+                      MsgID: {log.id} • Mode: Simulated
                     </div>
                   </div>
                   <span className="text-[10px] text-slate-400">{log.time}</span>
@@ -788,10 +872,10 @@ export const GoogleCloudHub: React.FC = () => {
           <div>
             <h2 className="text-base font-bold text-slate-900 font-display flex items-center space-x-2">
               <ShieldCheck className="w-5 h-5 text-indigo-600" />
-              <span>Deployed Firestore Security Rules & GCP IAM Audit</span>
+              <span>Firestore Security Rules & Compliance Reference</span>
             </h2>
             <p className="text-xs text-slate-500">
-              Hardened role-based access control protecting clinical schemas and user privacy under HIPAA/GDPR constraints.
+              Repository security rules protecting clinical schemas and user privacy; live rule deployment status is verified out-of-band via Firebase CLI.
             </p>
           </div>
 
@@ -799,9 +883,9 @@ export const GoogleCloudHub: React.FC = () => {
             {/* Rules Viewer */}
             <div className="space-y-2">
               <div className="flex items-center justify-between text-xs font-bold text-slate-700">
-                <span>firestore.rules (Deployed to Cloud)</span>
-                <span className="text-[10px] font-mono text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded">
-                  Status: Deployed
+                <span>firestore.rules (Repository Policy Preview)</span>
+                <span className="text-[10px] font-mono text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                  Live Status: Not verified
                 </span>
               </div>
               <pre className="p-4 rounded-2xl bg-slate-900 text-emerald-300 font-mono text-xs overflow-x-auto border border-slate-800 leading-relaxed max-h-[320px]">

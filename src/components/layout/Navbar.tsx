@@ -39,7 +39,8 @@ import {
   Sun,
   Rocket,
   Users,
-  UserCheck
+  UserCheck,
+  Flower2
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -96,6 +97,7 @@ export const Navbar: React.FC<NavbarProps> = ({
       ) 
     },
     { id: 'pianist', label: '🎹 Pianist', icon: <Piano className="w-4 h-4 text-teal-400" />, badge: 'Adaptive' },
+    { id: 'living-sound-garden', label: '🌸 Living Sound Garden', icon: <Flower2 className="w-4 h-4 text-amber-400" />, badge: 'Quest VR' },
     { id: 'touchgrass', label: '🌿 Touch Grass', icon: <Trees className="w-4 h-4 text-emerald-400" />, badge: 'Outdoor' },
     { id: 'bridge', label: 'Health Bridge', icon: <Stethoscope className="w-4 h-4 text-rose-500" />, badge: '11 Pillars' },
     // Backward-compatibility alias for legacy stcool and HealthAlert Companion references:

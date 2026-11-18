@@ -305,6 +305,7 @@ const GUEST_PREVIEWABLE_ROLES = new Set<CanonicalPopulationRole>([
 export async function authenticatePopulationHeaders(params: {
   authorizationHeader?: string;
   requestedRoleHeader?: string;
+  requestedGuestSessionIdHeader?: string;
 }): Promise<AuthenticatedPopulationContext> {
   const authHeader = (params.authorizationHeader || '').trim();
   if (!authHeader.startsWith('Bearer ')) {
@@ -329,6 +330,13 @@ export async function authenticatePopulationHeaders(params: {
 
   if (token.startsWith('gdemo.')) {
     const guestPayload = verifyGuestDemoToken(token);
+    const reqSid = params.requestedGuestSessionIdHeader?.trim();
+    if (reqSid && reqSid !== guestPayload.sid) {
+      throw new HttpAuthError(
+        403,
+        'Cross-session guest sandbox access blocked: session header mismatch.'
+      );
+    }
     if (requestedRole) {
       const requestedCanon = canonicalizeRole(requestedRole);
       if (!GUEST_PREVIEWABLE_ROLES.has(requestedCanon)) {
@@ -390,8 +398,38 @@ export async function authenticatePopulationHeaders(params: {
 }
 
 // ============================================================================
-// Sliding-Window Rate Limiter & Input Sanitization
+// Privileged Server-Side Reset Token Verifier (Public Judging / Staging / Prod)
 // ============================================================================
+export function verifyPrivilegedResetToken(
+  providedToken: string | undefined,
+  env: NodeJS.ProcessEnv = process.env
+): { ok: boolean; reason?: string } {
+  const configured = (env.DRT_JUDGING_RESET_TOKEN || env.DRT_ADMIN_RESET_TOKEN || '').trim();
+  if (!configured || configured.length < 16) {
+    return {
+      ok: false,
+      reason: 'Privileged reset token is not configured on server (DRT_JUDGING_RESET_TOKEN / DRT_ADMIN_RESET_TOKEN, min 16 chars).',
+    };
+  }
+  const provided = (providedToken || '').trim();
+  if (!provided) {
+    return { ok: false, reason: 'Missing X-DrT-Admin-Reset-Token header.' };
+  }
+  const a = Buffer.from(provided, 'utf8');
+  const b = Buffer.from(configured, 'utf8');
+  if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) {
+    return { ok: false, reason: 'Invalid privileged reset token.' };
+  }
+  return { ok: true };
+}
+
+// ============================================================================
+// Sliding-Window Rate Limiter (Process-Local Best Effort Only)
+// ============================================================================
+export const RATE_LIMITER_SCOPE = 'process_local_best_effort' as const;
+export const RATE_LIMITER_GLOBALLY_ENFORCED = false as const;
+
+// Best-effort in-process limiter; does NOT coordinate across multiple Cloud Run instances.
 const rateLimitBuckets = new Map<string, number[]>();
 
 export function checkRateLimit(
@@ -404,7 +442,7 @@ export function checkRateLimit(
   const timestamps = (rateLimitBuckets.get(bucketKey) || []).filter((ts) => ts > cutoff);
   if (timestamps.length >= maxRequests) {
     throw new RateLimitError(
-      `Rate limit exceeded for '${bucketKey}' (${maxRequests} requests per ${Math.round(windowMs / 1000)}s).`
+      `Rate limit exceeded (${maxRequests} requests per ${Math.round(windowMs / 1000)}s; process-local limiter).`
     );
   }
   timestamps.push(now);

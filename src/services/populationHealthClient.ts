@@ -25,12 +25,16 @@ import {
 } from '../types/populationHealth';
 import { HealthAlertIntakeData } from '../types';
 import { getFirebaseIdToken } from './firebase';
+import { firebaseRuntimeConfig } from '../config/firebaseRuntimeConfig';
+import { checkFrontendBackendEnvAgreement } from '../config/clientFirebaseValidation';
 
 const GUEST_TOKEN_KEY = 'drt_pop_guest_sandbox_token_v1';
+const GUEST_SID_KEY = 'drt_pop_guest_sandbox_sid_v1';
 const SESSION_MODE_KEY = 'drt_pop_auth_mode_v1'; // 'guest' | 'firebase'
 
 let memoryGuestToken: string | null = null;
-let pendingMintPromise: Promise<string> | null = null;
+let memoryGuestSid: string | null = null;
+let pendingMintPromise: Promise<{ token: string; sessionId: string | null }> | null = null;
 
 function readStoredGuestToken(): string | null {
   try {
@@ -43,14 +47,31 @@ function readStoredGuestToken(): string | null {
   return memoryGuestToken;
 }
 
-function writeStoredGuestToken(token: string | null): void {
+function readStoredGuestSid(): string | null {
+  try {
+    if (typeof window !== 'undefined' && window.sessionStorage) {
+      return window.sessionStorage.getItem(GUEST_SID_KEY) || memoryGuestSid;
+    }
+  } catch {
+    // ignore storage restriction
+  }
+  return memoryGuestSid;
+}
+
+function writeStoredGuestToken(token: string | null, sessionId: string | null = null): void {
   memoryGuestToken = token;
+  memoryGuestSid = sessionId;
   try {
     if (typeof window !== 'undefined' && window.sessionStorage) {
       if (token) {
         window.sessionStorage.setItem(GUEST_TOKEN_KEY, token);
       } else {
         window.sessionStorage.removeItem(GUEST_TOKEN_KEY);
+      }
+      if (sessionId) {
+        window.sessionStorage.setItem(GUEST_SID_KEY, sessionId);
+      } else {
+        window.sessionStorage.removeItem(GUEST_SID_KEY);
       }
     }
   } catch {
@@ -80,22 +101,26 @@ export function setPreferredAuthMode(mode: 'guest' | 'firebase'): void {
   }
 }
 
-export async function mintNewGuestSandboxSession(): Promise<string> {
+async function mintNewGuestSessionInternal(): Promise<{ token: string; sessionId: string | null }> {
   if (pendingMintPromise) return pendingMintPromise;
   pendingMintPromise = (async () => {
     const res = await fetch('/api/population-health/guest-session', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'X-DrT-Client-Env': firebaseRuntimeConfig.environment,
+      },
     });
     if (!res.ok) {
       throw new Error(`Unable to initialize Guest Sandbox session (${res.status}).`);
     }
-    const data = (await res.json()) as { token?: string };
+    const data = (await res.json()) as { token?: string; sessionId?: string };
     if (!data?.token) {
       throw new Error('Guest Sandbox session endpoint did not return a token.');
     }
-    writeStoredGuestToken(data.token);
-    return data.token;
+    const sid = data.sessionId || null;
+    writeStoredGuestToken(data.token, sid);
+    return { token: data.token, sessionId: sid };
   })();
 
   try {
@@ -105,20 +130,29 @@ export async function mintNewGuestSandboxSession(): Promise<string> {
   }
 }
 
-async function resolveBearerToken(): Promise<{ token: string; isGuest: boolean }> {
+export async function mintNewGuestSandboxSession(): Promise<string> {
+  const minted = await mintNewGuestSessionInternal();
+  return minted.token;
+}
+
+async function resolveBearerToken(): Promise<{
+  token: string;
+  isGuest: boolean;
+  guestSessionId: string | null;
+}> {
   const pref = getPreferredAuthMode();
   if (pref === 'firebase') {
     const fbToken = await getFirebaseIdToken();
     if (fbToken) {
-      return { token: fbToken, isGuest: false };
+      return { token: fbToken, isGuest: false, guestSessionId: null };
     }
   }
   const existingGuest = readStoredGuestToken();
   if (existingGuest) {
-    return { token: existingGuest, isGuest: true };
+    return { token: existingGuest, isGuest: true, guestSessionId: readStoredGuestSid() };
   }
-  const fresh = await mintNewGuestSandboxSession();
-  return { token: fresh, isGuest: true };
+  const fresh = await mintNewGuestSessionInternal();
+  return { token: fresh.token, isGuest: true, guestSessionId: fresh.sessionId };
 }
 
 async function popFetch<T>(
@@ -126,26 +160,29 @@ async function popFetch<T>(
   role: PopulationRole,
   options?: RequestInit
 ): Promise<T> {
-  const { token, isGuest } = await resolveBearerToken();
+  const { token, isGuest, guestSessionId } = await resolveBearerToken();
 
-  const doRequest = (bearer: string) =>
+  const doRequest = (bearer: string, sid: string | null) =>
     fetch(url, {
       ...options,
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${bearer}`,
         'X-Population-Role': role,
+        'X-DrT-Client-Env': firebaseRuntimeConfig.environment,
+        'X-DrT-Client-Db': firebaseRuntimeConfig.firestoreDatabaseId,
+        ...(isGuest && sid ? { 'X-Guest-Session-Id': sid } : {}),
         ...(options?.headers || {}),
       },
     });
 
-  let res = await doRequest(token);
+  let res = await doRequest(token, guestSessionId);
 
   // If guest sandbox token expired or server restarted with new HMAC secret, re-mint once
   if (res.status === 401 && isGuest) {
-    writeStoredGuestToken(null);
-    const refreshed = await mintNewGuestSandboxSession();
-    res = await doRequest(refreshed);
+    writeStoredGuestToken(null, null);
+    const refreshed = await mintNewGuestSessionInternal();
+    res = await doRequest(refreshed.token, refreshed.sessionId);
   }
 
   if (!res.ok) {
@@ -442,20 +479,23 @@ export const populationHealthClient = {
     if (filters?.cohort) params.set('cohort', filters.cohort);
     if (filters?.region) params.set('region', filters.region);
 
-    const { token, isGuest } = await resolveBearerToken();
-    const doFetch = (bearer: string) =>
+    const { token, isGuest, guestSessionId } = await resolveBearerToken();
+    const doFetch = (bearer: string, sid: string | null) =>
       fetch(`/api/population-health/export?${params.toString()}`, {
         headers: {
           Authorization: `Bearer ${bearer}`,
           'X-Population-Role': role,
+          'X-DrT-Client-Env': firebaseRuntimeConfig.environment,
+          'X-DrT-Client-Db': firebaseRuntimeConfig.firestoreDatabaseId,
+          ...(isGuest && sid ? { 'X-Guest-Session-Id': sid } : {}),
         },
       });
 
-    let res = await doFetch(token);
+    let res = await doFetch(token, guestSessionId);
     if (res.status === 401 && isGuest) {
-      writeStoredGuestToken(null);
-      const refreshed = await mintNewGuestSandboxSession();
-      res = await doFetch(refreshed);
+      writeStoredGuestToken(null, null);
+      const refreshed = await mintNewGuestSessionInternal();
+      res = await doFetch(refreshed.token, refreshed.sessionId);
     }
 
     if (!res.ok) {
@@ -481,6 +521,21 @@ export const populationHealthClient = {
     anchor.click();
     anchor.remove();
     URL.revokeObjectURL(url);
+  },
+
+  async verifyEnvironmentAgreement(): Promise<{ agrees: boolean; mismatchReason?: string }> {
+    try {
+      const res = await fetch('/api/population-health/health');
+      if (!res.ok) return { agrees: true };
+      const data = await res.json();
+      return checkFrontendBackendEnvAgreement(firebaseRuntimeConfig, {
+        environment: data.environment,
+        gcpProjectId: data.projectId,
+        persistenceStatus: data.persistenceStatus,
+      });
+    } catch {
+      return { agrees: true };
+    }
   },
 
   loadDemo(role: PopulationRole): Promise<PopulationHealthDashboardPayload> {

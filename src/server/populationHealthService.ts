@@ -43,7 +43,11 @@ import {
 } from './populationHealthEngine';
 import { buildSyntheticDemoDataset } from './populationHealthDemoData';
 import { evaluateHealthAlertHeuristics, validateHealthAlertRequest } from './healthAlertService';
-import { resolveRuntimeEnvironment } from './runtimeEnvironment';
+import {
+  DrTRuntimeEnvironment,
+  isNonDevIsolatedEnvironment,
+  resolveRuntimeEnvironment,
+} from './runtimeEnvironment';
 import { PresageServerService } from './presageServerService';
 import { GeminiCircuitBreaker } from './geminiCircuitBreaker';
 import { canonicalizeRole, sanitizeText } from './populationHealthAuth';
@@ -161,7 +165,45 @@ export interface PopulationServiceContext {
   verifiedMaxRole?: CanonicalPopulationRole;
   authMode?: 'VERIFIED_FIREBASE_USER' | 'GUEST_SANDBOX' | 'ISOLATED_TEST';
   guestSessionId?: string;
+  privilegedResetVerified?: boolean;
 }
+
+export interface PopulationRoutePolicyEntry {
+  method: 'GET' | 'POST' | 'PATCH' | 'DELETE';
+  path: string;
+  category:
+    | 'PUBLIC_HEALTH'
+    | 'GUEST_MINT'
+    | 'READ_ONLY'
+    | 'WRITE_MUTATION'
+    | 'ADMIN_RESET_OR_SEED';
+  publicJudgingRule: string;
+}
+
+export const POPULATION_HEALTH_ROUTE_INVENTORY: PopulationRoutePolicyEntry[] = [
+  { method: 'GET', path: '/api/population-health/health', category: 'PUBLIC_HEALTH', publicJudgingRule: 'Allowed (redacted status only)' },
+  { method: 'POST', path: '/api/population-health/guest-session', category: 'GUEST_MINT', publicJudgingRule: 'Allowed (mints ephemeral signed gdemo.* token)' },
+  { method: 'GET', path: '/api/population-health/dashboard', category: 'READ_ONLY', publicJudgingRule: 'Allowed for authenticated or Guest Sandbox' },
+  { method: 'GET', path: '/api/population-health/export', category: 'READ_ONLY', publicJudgingRule: 'Allowed (de-identified k-anonymity export)' },
+  { method: 'POST', path: '/api/population-health/participants', category: 'WRITE_MUTATION', publicJudgingRule: 'GUEST_SANDBOX synthetic-only; VERIFIED_FIREBASE_USER blocked (403)' },
+  { method: 'PATCH', path: '/api/population-health/participants/:id/consent', category: 'WRITE_MUTATION', publicJudgingRule: 'GUEST_SANDBOX in-memory only; VERIFIED_FIREBASE_USER blocked (403)' },
+  { method: 'DELETE', path: '/api/population-health/participants/:id', category: 'WRITE_MUTATION', publicJudgingRule: 'Blocked for GUEST_SANDBOX & shared DB in public_judging (403)' },
+  { method: 'POST', path: '/api/population-health/observations', category: 'WRITE_MUTATION', publicJudgingRule: 'GUEST_SANDBOX synthetic-only (dataOrigin=SIMULATED); VERIFIED_FIREBASE_USER blocked (403)' },
+  { method: 'POST', path: '/api/population-health/integrations/health-alert-bridge', category: 'WRITE_MUTATION', publicJudgingRule: 'GUEST_SANDBOX synthetic-only; VERIFIED_FIREBASE_USER blocked (403)' },
+  { method: 'POST', path: '/api/population-health/integrations/presage-bridge', category: 'WRITE_MUTATION', publicJudgingRule: 'GUEST_SANDBOX synthetic-only (isLiveHardware!=true); VERIFIED_FIREBASE_USER blocked (403)' },
+  { method: 'POST', path: '/api/population-health/risk-signals/:id/status', category: 'WRITE_MUTATION', publicJudgingRule: 'GUEST_SANDBOX in-memory only; VERIFIED_FIREBASE_USER blocked (403)' },
+  { method: 'PATCH', path: '/api/population-health/alerts/:id', category: 'WRITE_MUTATION', publicJudgingRule: 'GUEST_SANDBOX in-memory only; VERIFIED_FIREBASE_USER blocked (403)' },
+  { method: 'PATCH', path: '/api/population-health/alert-rules/:id', category: 'WRITE_MUTATION', publicJudgingRule: 'GUEST_SANDBOX in-memory only; VERIFIED_FIREBASE_USER blocked (403)' },
+  { method: 'POST', path: '/api/population-health/referrals', category: 'WRITE_MUTATION', publicJudgingRule: 'GUEST_SANDBOX synthetic-only; VERIFIED_FIREBASE_USER blocked (403)' },
+  { method: 'PATCH', path: '/api/population-health/referrals/:id', category: 'WRITE_MUTATION', publicJudgingRule: 'GUEST_SANDBOX synthetic-only; VERIFIED_FIREBASE_USER blocked (403)' },
+  { method: 'POST', path: '/api/population-health/programmes/:id/action', category: 'WRITE_MUTATION', publicJudgingRule: 'GUEST_SANDBOX in-memory only; VERIFIED_FIREBASE_USER blocked (403)' },
+  { method: 'POST', path: '/api/population-health/engagement/:id/gate', category: 'WRITE_MUTATION', publicJudgingRule: 'GUEST_SANDBOX in-memory only; VERIFIED_FIREBASE_USER blocked (403)' },
+  { method: 'POST', path: '/api/population-health/ai/synthesize', category: 'WRITE_MUTATION', publicJudgingRule: 'GUEST_SANDBOX in-memory only; VERIFIED_FIREBASE_USER blocked (403)' },
+  { method: 'POST', path: '/api/population-health/ai/:id/approve', category: 'WRITE_MUTATION', publicJudgingRule: 'GUEST_SANDBOX in-memory only; VERIFIED_FIREBASE_USER blocked (403)' },
+  { method: 'PATCH', path: '/api/population-health/governance/k-threshold', category: 'WRITE_MUTATION', publicJudgingRule: 'Blocked for GUEST_SANDBOX & shared DB in public_judging (403)' },
+  { method: 'POST', path: '/api/population-health/demo/load', category: 'ADMIN_RESET_OR_SEED', publicJudgingRule: 'Blocked for guests/public; requires platform_admin + X-DrT-Admin-Reset-Token' },
+  { method: 'POST', path: '/api/population-health/demo/reset', category: 'ADMIN_RESET_OR_SEED', publicJudgingRule: 'Blocked for guests/public; requires platform_admin + X-DrT-Admin-Reset-Token' },
+];
 
 interface PersistedState {
   demoActive: boolean;
@@ -217,8 +259,13 @@ export class PopulationHealthService {
   >();
 
   private constructor(customFilePath?: string, firestoreOptions?: FirestoreAdapterOptions) {
+    const envMode = resolveRuntimeEnvironment();
+    const defaultFileName =
+      envMode === 'development'
+        ? 'population-health-state.json'
+        : `population-health-state.${envMode}.json`;
     this.stateFilePath =
-      customFilePath || path.join(process.cwd(), '.data', 'population-health-state.json');
+      customFilePath || path.join(process.cwd(), '.data', defaultFileName);
     this.firestoreOptions = firestoreOptions;
     this.state = this.loadOrInitializeState();
   }
@@ -319,7 +366,14 @@ export class PopulationHealthService {
         return { firestoreLive: true, hydratedFromFirestore: true };
       }
 
-      // First boot on empty database: seed cleanly via idempotent batched upsert
+      // First boot on empty database: outside development, refuse automatic demo seeding
+      // unless DRT_SEED_DEMO_ON_EMPTY='true' is explicitly opted in.
+      const envMode = resolveRuntimeEnvironment();
+      if (isNonDevIsolatedEnvironment(envMode) && process.env.DRT_SEED_DEMO_ON_EMPTY !== 'true') {
+        return { firestoreLive: true, hydratedFromFirestore: false };
+      }
+
+      // First boot on empty database (development or explicit opt-in): seed via batched upsert
       await store.syncSnapshot(this.state);
       return { firestoreLive: true, hydratedFromFirestore: false };
     } catch (err) {
@@ -394,12 +448,12 @@ export class PopulationHealthService {
     } catch (err) {
       console.warn('[PopulationHealthService] State load fallback to synthetic seed:', err);
     }
-    // Never auto-seed synthetic demo cohorts into an empty production clinical database
-    // unless DRT_SEED_DEMO_ON_EMPTY='true' is explicitly requested.
+    // Never auto-seed synthetic demo cohorts into an empty non-development database
+    // (staging / production / public_judging) unless DRT_SEED_DEMO_ON_EMPTY='true'.
     const envMode = resolveRuntimeEnvironment();
-    if (envMode === 'production' && process.env.DRT_SEED_DEMO_ON_EMPTY !== 'true') {
+    if (isNonDevIsolatedEnvironment(envMode) && process.env.DRT_SEED_DEMO_ON_EMPTY !== 'true') {
       const defaults = this.buildDemoState(false);
-      const cleanProd: PersistedState = {
+      const cleanIsolated: PersistedState = {
         demoActive: false,
         kThreshold: defaults.kThreshold,
         participants: [],
@@ -414,8 +468,8 @@ export class PopulationHealthService {
         auditLogs: [],
         aiSyntheses: [],
       };
-      this.persistState(cleanProd);
-      return cleanProd;
+      this.persistState(cleanIsolated);
+      return cleanIsolated;
     }
 
     const fresh = this.buildDemoState(false);
@@ -559,6 +613,133 @@ export class PopulationHealthService {
         `Access denied for role '${role}': permission '${permission}' required.`
       );
     }
+  }
+
+  private enforcePublicJudgingWriteGuard(
+    targetState: PersistedState,
+    isGuestSandbox: boolean,
+    role: PopulationRole,
+    actorId: string,
+    action: string,
+    targetType: string,
+    targetId: string,
+    syntheticFlags?: {
+      dataOrigin?: unknown;
+      isLiveHardware?: unknown;
+      isSynthetic?: unknown;
+      realPatient?: unknown;
+    }
+  ): void {
+    const envMode = resolveRuntimeEnvironment();
+    if (envMode !== 'public_judging') return;
+
+    if (!isGuestSandbox) {
+      this.recordAudit(
+        targetState,
+        false,
+        role,
+        actorId,
+        action,
+        targetType,
+        targetId,
+        'DENIED',
+        '[public_judging] Blocked authenticated write against shared judging database; interactive demos must use Guest Sandbox.'
+      );
+      throw new AuthorizationError(
+        '[public_judging] Shared judging database is read-only for authenticated users. Switch to Guest Sandbox mode for isolated synthetic interactive demos.'
+      );
+    }
+
+    if (syntheticFlags) {
+      const origin =
+        typeof syntheticFlags.dataOrigin === 'string'
+          ? syntheticFlags.dataOrigin.trim().toUpperCase()
+          : '';
+      const nonSyntheticOrigin = origin !== '' && origin !== 'SIMULATED';
+      const liveHardware = syntheticFlags.isLiveHardware === true;
+      const nonSyntheticFlag =
+        syntheticFlags.isSynthetic === false || syntheticFlags.realPatient === true;
+
+      if (nonSyntheticOrigin || liveHardware || nonSyntheticFlag) {
+        this.recordAudit(
+          targetState,
+          true,
+          role,
+          actorId,
+          action,
+          targetType,
+          targetId,
+          'DENIED',
+          '[public_judging] Blocked non-synthetic, live-hardware, or real-patient write payload (raw payload redacted).'
+        );
+        throw new AuthorizationError(
+          '[public_judging] Only synthetic simulated payloads (dataOrigin=SIMULATED) are permitted in public judging mode.'
+        );
+      }
+    }
+  }
+
+  private rejectWithRedactedAuditOnPII(
+    targetState: PersistedState,
+    isGuestSandbox: boolean,
+    role: PopulationRole,
+    actorId: string,
+    action: string,
+    targetType: string,
+    targetId: string,
+    message: string
+  ): never {
+    this.recordAudit(
+      targetState,
+      isGuestSandbox,
+      role,
+      actorId,
+      action,
+      targetType,
+      targetId,
+      'DENIED',
+      'Rejected write payload violating direct personal identifier minimisation policy (raw payload redacted).'
+    );
+    throw new ValidationError(message);
+  }
+
+  private getEffectivePermissions(
+    role: PopulationRole,
+    ctx?: PopulationServiceContext
+  ): PopulationPermission[] {
+    const base = ROLE_PERMISSIONS[role] || [];
+    const envMode = resolveRuntimeEnvironment();
+    if (envMode === 'public_judging') {
+      const isGuest = Boolean(ctx?.guestSessionId || ctx?.authMode === 'GUEST_SANDBOX');
+      if (!isGuest) {
+        // Shared public_judging DB is read-only for regular/authenticated endpoints.
+        return base.filter(
+          (p) => p === 'VIEW_AGGREGATE' || p === 'VIEW_PARTICIPANTS' || p === 'EXPORT_REPORTS'
+        );
+      }
+      // Guests cannot run /demo/reset or /demo/load in public_judging.
+      return base.filter((p) => p !== 'RESET_DEMO');
+    }
+    if (isNonDevIsolatedEnvironment(envMode)) {
+      const canPrivilegedReset =
+        canonicalizeRole(role) === 'platform_admin' && ctx?.privilegedResetVerified === true;
+      return canPrivilegedReset ? base : base.filter((p) => p !== 'RESET_DEMO');
+    }
+    return base;
+  }
+
+  public getPublicJudgingPolicySummary(envMode: DrTRuntimeEnvironment = resolveRuntimeEnvironment()) {
+    return {
+      environment: envMode,
+      sharedDatabaseWriteMode:
+        envMode === 'public_judging' ? 'read_only_for_public_writes' : 'normal_rbac',
+      guestSandboxWriteMode:
+        envMode === 'public_judging' ? 'in_memory_synthetic_only' : 'in_memory_sandbox',
+      demoSeedAndResetRequiresAdminToken: isNonDevIsolatedEnvironment(envMode),
+      emptyDatabaseAutoSeedEnabled:
+        !isNonDevIsolatedEnvironment(envMode) || process.env.DRT_SEED_DEMO_ON_EMPTY === 'true',
+      routes: POPULATION_HEALTH_ROUTE_INVENTORY,
+    };
   }
 
   private recomputeAllSignals(targetState: PersistedState = this.state): void {
@@ -831,7 +1012,7 @@ export class PopulationHealthService {
         verifiedMaxRole: ctx?.verifiedMaxRole || canonicalizeRole(role),
         authMode: ctx?.authMode || (isGuestSandbox ? 'GUEST_SANDBOX' : 'ISOLATED_TEST'),
         isGuestSandbox,
-        permissions: ROLE_PERMISSIONS[role],
+        permissions: this.getEffectivePermissions(role, ctx),
         piiRedacted,
       },
       filtersApplied: {
@@ -932,6 +1113,9 @@ export class PopulationHealthService {
       consentGiven: boolean;
       scopes?: ConsentScope[];
       notes?: string;
+      dataOrigin?: DataProvenance;
+      isSynthetic?: boolean;
+      realPatient?: boolean;
     },
     ctx?: PopulationServiceContext
   ): PopulationParticipant {
@@ -946,6 +1130,20 @@ export class PopulationHealthService {
       'NEW',
       actorLabel
     );
+    this.enforcePublicJudgingWriteGuard(
+      state,
+      isGuestSandbox,
+      role,
+      actorLabel,
+      'CREATE_PARTICIPANT',
+      'Participant',
+      'NEW',
+      {
+        dataOrigin: input.dataOrigin,
+        isSynthetic: input.isSynthetic,
+        realPatient: input.realPatient,
+      }
+    );
 
     const cleanAlias = sanitizeText(input.displayAlias, 80);
     const cleanNotes = sanitizeText(input.notes, 320);
@@ -954,8 +1152,19 @@ export class PopulationHealthService {
     if (!cleanAlias || cleanAlias.length < 2) {
       throw new ValidationError('Participant alias is required.');
     }
-    if (containsDirectIdentifier(cleanAlias) || containsDirectIdentifier(cleanNotes)) {
-      throw new ValidationError(
+    if (
+      containsDirectIdentifier(cleanAlias) ||
+      containsDirectIdentifier(cleanNotes) ||
+      containsDirectIdentifier(cleanRegion)
+    ) {
+      this.rejectWithRedactedAuditOnPII(
+        state,
+        isGuestSandbox,
+        role,
+        actorLabel,
+        'CREATE_PARTICIPANT',
+        'Participant',
+        'NEW',
         'Direct personal identifiers (email, phone, Vietnamese CCCD, SSN) are blocked by privacy minimisation rules.'
       );
     }
@@ -1048,6 +1257,15 @@ export class PopulationHealthService {
       participantId,
       actorLabel
     );
+    this.enforcePublicJudgingWriteGuard(
+      state,
+      isGuestSandbox,
+      role,
+      actorLabel,
+      'UPDATE_CONSENT',
+      'ConsentRecord',
+      participantId
+    );
 
     const participant = state.participants.find((p) => p.id === participantId);
     if (!participant) {
@@ -1107,6 +1325,15 @@ export class PopulationHealthService {
       participantId,
       actorLabel
     );
+    this.enforcePublicJudgingWriteGuard(
+      state,
+      isGuestSandbox,
+      role,
+      actorLabel,
+      'PDPL_RIGHT_TO_ERASURE',
+      'Participant',
+      participantId
+    );
 
     const exists = state.participants.some((p) => p.id === participantId);
     if (!exists) {
@@ -1158,6 +1385,9 @@ export class PopulationHealthService {
       unit?: string;
       recordedAt?: string;
       provenanceNote?: string;
+      isSynthetic?: boolean;
+      realPatient?: boolean;
+      isLiveHardware?: boolean;
     },
     ctx?: PopulationServiceContext
   ): { observation: HealthSignalObservation; riskSignals: PopulationRiskSignal[] } {
@@ -1171,6 +1401,21 @@ export class PopulationHealthService {
       'Observation',
       input.participantId,
       actorLabel
+    );
+    this.enforcePublicJudgingWriteGuard(
+      state,
+      isGuestSandbox,
+      role,
+      actorLabel,
+      'INGEST_HEALTH_SIGNAL',
+      'Observation',
+      input.participantId,
+      {
+        dataOrigin: input.dataOrigin,
+        isLiveHardware: input.isLiveHardware,
+        isSynthetic: input.isSynthetic,
+        realPatient: input.realPatient,
+      }
     );
 
     const participant = state.participants.find((p) => p.id === input.participantId);
@@ -1198,7 +1443,14 @@ export class PopulationHealthService {
     const cleanValueDisplay = sanitizeText(input.valueDisplay, 80);
 
     if (containsDirectIdentifier(cleanNote) || containsDirectIdentifier(cleanValueDisplay)) {
-      throw new ValidationError(
+      this.rejectWithRedactedAuditOnPII(
+        state,
+        isGuestSandbox,
+        role,
+        actorLabel,
+        'INGEST_HEALTH_SIGNAL',
+        'Observation',
+        input.participantId,
         'Direct personal identifiers are prohibited in health signal fields.'
       );
     }
@@ -1289,7 +1541,11 @@ export class PopulationHealthService {
   public ingestHealthAlertBridge(
     role: PopulationRole,
     participantId: string,
-    intake: Partial<HealthAlertIntakeData>,
+    intake: Partial<HealthAlertIntakeData> & {
+      dataOrigin?: DataProvenance;
+      isSynthetic?: boolean;
+      realPatient?: boolean;
+    },
     ctx?: PopulationServiceContext
   ) {
     const { state, isGuestSandbox, actorLabel } = this.getTargetState(ctx);
@@ -1303,6 +1559,38 @@ export class PopulationHealthService {
       participantId,
       actorLabel
     );
+    this.enforcePublicJudgingWriteGuard(
+      state,
+      isGuestSandbox,
+      role,
+      actorLabel,
+      'BRIDGE_HEALTH_ALERT_MINI',
+      'Integration',
+      participantId,
+      {
+        dataOrigin: intake?.dataOrigin,
+        isSynthetic: intake?.isSynthetic,
+        realPatient: intake?.realPatient,
+      }
+    );
+
+    if (
+      containsDirectIdentifier(intake?.patientAlias) ||
+      containsDirectIdentifier(intake?.primaryConcern) ||
+      (Array.isArray(intake?.symptoms) &&
+        intake.symptoms.some((s) => containsDirectIdentifier(String(s))))
+    ) {
+      this.rejectWithRedactedAuditOnPII(
+        state,
+        isGuestSandbox,
+        role,
+        actorLabel,
+        'BRIDGE_HEALTH_ALERT_MINI',
+        'Integration',
+        participantId,
+        'Direct personal identifiers are prohibited in Health Alert bridge intake fields.'
+      );
+    }
 
     const participant = state.participants.find((p) => p.id === participantId);
     if (!participant) {
@@ -1460,6 +1748,9 @@ export class PopulationHealthService {
       hrvRmssdMs?: number;
       isLiveHardware?: boolean;
       cameraConsentVerified?: boolean;
+      dataOrigin?: DataProvenance;
+      isSynthetic?: boolean;
+      realPatient?: boolean;
     },
     ctx?: PopulationServiceContext
   ) {
@@ -1473,6 +1764,21 @@ export class PopulationHealthService {
       'Integration',
       participantId,
       actorLabel
+    );
+    this.enforcePublicJudgingWriteGuard(
+      state,
+      isGuestSandbox,
+      role,
+      actorLabel,
+      'BRIDGE_PRESAGE_OPTICAL',
+      'Integration',
+      participantId,
+      {
+        dataOrigin: vitals?.dataOrigin,
+        isLiveHardware: vitals?.isLiveHardware,
+        isSynthetic: vitals?.isSynthetic,
+        realPatient: vitals?.realPatient,
+      }
     );
 
     const status = PresageServerService.getInstance().getStatus();
@@ -1567,6 +1873,15 @@ export class PopulationHealthService {
       signalId,
       actorLabel
     );
+    this.enforcePublicJudgingWriteGuard(
+      state,
+      isGuestSandbox,
+      role,
+      actorLabel,
+      'REVIEW_RISK_SIGNAL',
+      'RiskSignal',
+      signalId
+    );
 
     const signal = state.riskSignals.find((s) => s.id === signalId);
     if (!signal) {
@@ -1611,6 +1926,15 @@ export class PopulationHealthService {
       'Alert',
       alertId,
       actorLabel
+    );
+    this.enforcePublicJudgingWriteGuard(
+      state,
+      isGuestSandbox,
+      role,
+      actorLabel,
+      'UPDATE_POPULATION_ALERT',
+      'Alert',
+      alertId
     );
 
     const alert = state.alerts.find((a) => a.id === alertId);
@@ -1663,6 +1987,15 @@ export class PopulationHealthService {
       ruleId,
       actorLabel
     );
+    this.enforcePublicJudgingWriteGuard(
+      state,
+      isGuestSandbox,
+      role,
+      actorLabel,
+      'TOGGLE_ALERT_RULE',
+      'AlertRule',
+      ruleId
+    );
     const rule = state.alertRules.find((r) => r.id === ruleId);
     if (!rule) throw new ValidationError(`Alert rule ${ruleId} not found.`);
     rule.enabled = enabled;
@@ -1702,6 +2035,15 @@ export class PopulationHealthService {
       input.participantId,
       actorLabel
     );
+    this.enforcePublicJudgingWriteGuard(
+      state,
+      isGuestSandbox,
+      role,
+      actorLabel,
+      'CREATE_REFERRAL',
+      'Referral',
+      input.participantId
+    );
     const participant = state.participants.find((p) => p.id === input.participantId);
     if (!participant) throw new ValidationError(`Participant ${input.participantId} not found.`);
     if (participant.consentStatus !== 'ACTIVE') {
@@ -1711,7 +2053,16 @@ export class PopulationHealthService {
     }
     const cleanReason = sanitizeText(input.reasonSummary, 240);
     if (containsDirectIdentifier(cleanReason)) {
-      throw new ValidationError('Direct personal identifiers are not permitted in referral summary.');
+      this.rejectWithRedactedAuditOnPII(
+        state,
+        isGuestSandbox,
+        role,
+        actorLabel,
+        'CREATE_REFERRAL',
+        'Referral',
+        input.participantId,
+        'Direct personal identifiers are not permitted in referral summary.'
+      );
     }
 
     const now = new Date().toISOString();
@@ -1776,6 +2127,15 @@ export class PopulationHealthService {
       referralId,
       actorLabel
     );
+    this.enforcePublicJudgingWriteGuard(
+      state,
+      isGuestSandbox,
+      role,
+      actorLabel,
+      'UPDATE_REFERRAL',
+      'Referral',
+      referralId
+    );
 
     const ref = state.referrals.find((r) => r.id === referralId);
     if (!ref) throw new ValidationError(`Referral ${referralId} not found.`);
@@ -1792,7 +2152,16 @@ export class PopulationHealthService {
     if (payload.communicationNote && payload.communicationNote.trim()) {
       const cleanComm = sanitizeText(payload.communicationNote, 240);
       if (containsDirectIdentifier(cleanComm)) {
-        throw new ValidationError('Direct personal identifiers are blocked in communication logs.');
+        this.rejectWithRedactedAuditOnPII(
+          state,
+          isGuestSandbox,
+          role,
+          actorLabel,
+          'UPDATE_REFERRAL',
+          'Referral',
+          referralId,
+          'Direct personal identifiers are blocked in communication logs.'
+        );
       }
       ref.communications.push({
         id: `COMM-${Date.now().toString(36).toUpperCase()}`,
@@ -1843,6 +2212,15 @@ export class PopulationHealthService {
       programmeId,
       actorLabel
     );
+    this.enforcePublicJudgingWriteGuard(
+      state,
+      isGuestSandbox,
+      role,
+      actorLabel,
+      'UPDATE_PROGRAMME',
+      'Programme',
+      programmeId
+    );
     const prog = state.programmes.find((p) => p.id === programmeId);
     if (!prog) throw new ValidationError(`Programme ${programmeId} not found.`);
 
@@ -1889,6 +2267,15 @@ export class PopulationHealthService {
       'EngagementTemplate',
       templateId,
       actorLabel
+    );
+    this.enforcePublicJudgingWriteGuard(
+      state,
+      isGuestSandbox,
+      role,
+      actorLabel,
+      `ENGAGEMENT_${action}`,
+      'EngagementTemplate',
+      templateId
     );
     const tpl = state.engagementTemplates.find((t) => t.id === templateId);
     if (!tpl) throw new ValidationError(`Engagement template ${templateId} not found.`);
@@ -1939,13 +2326,31 @@ export class PopulationHealthService {
       'QUERY',
       actorLabel
     );
+    this.enforcePublicJudgingWriteGuard(
+      state,
+      isGuestSandbox,
+      role,
+      actorLabel,
+      'RUN_AI_RESEARCH_SYNTHESIS',
+      'AiAssistant',
+      'QUERY'
+    );
 
     const cleanQuery = sanitizeText(query, 400);
     if (!cleanQuery || cleanQuery.length < 3) {
       throw new ValidationError('Research query must be at least 3 characters.');
     }
     if (containsDirectIdentifier(cleanQuery)) {
-      throw new ValidationError('Direct personal identifiers are not allowed in AI research prompts.');
+      this.rejectWithRedactedAuditOnPII(
+        state,
+        isGuestSandbox,
+        role,
+        actorLabel,
+        'RUN_AI_RESEARCH_SYNTHESIS',
+        'AiAssistant',
+        'QUERY',
+        'Direct personal identifiers are not allowed in AI research prompts.'
+      );
     }
 
     const consented = state.participants.filter((p) => p.consentStatus === 'ACTIVE');
@@ -2089,6 +2494,15 @@ Respond in JSON with exactly:
       synthesisId,
       actorLabel
     );
+    this.enforcePublicJudgingWriteGuard(
+      state,
+      isGuestSandbox,
+      role,
+      actorLabel,
+      `AI_SYNTHESIS_${decision}`,
+      'AiAssistant',
+      synthesisId
+    );
     const item = state.aiSyntheses.find((s) => s.id === synthesisId);
     if (!item) throw new ValidationError(`AI synthesis ${synthesisId} not found.`);
     item.humanApprovalStatus = decision;
@@ -2123,6 +2537,15 @@ Respond in JSON with exactly:
       'Governance',
       'K_THRESHOLD',
       actorLabel
+    );
+    this.enforcePublicJudgingWriteGuard(
+      state,
+      isGuestSandbox,
+      role,
+      actorLabel,
+      'UPDATE_K_ANONYMITY_THRESHOLD',
+      'Governance',
+      'K_THRESHOLD'
     );
     const k = Math.min(20, Math.max(3, Math.round(Number(kThreshold) || 5)));
     state.kThreshold = k;
@@ -2212,6 +2635,35 @@ Respond in JSON with exactly:
     };
   }
 
+  private enforcePrivilegedDemoResetGuard(
+    targetState: PersistedState,
+    isGuestSandbox: boolean,
+    role: PopulationRole,
+    actorLabel: string,
+    action: string,
+    ctx?: PopulationServiceContext
+  ): void {
+    const envMode = resolveRuntimeEnvironment();
+    if (!isNonDevIsolatedEnvironment(envMode)) return;
+    const canon = canonicalizeRole(role);
+    if (isGuestSandbox || canon !== 'platform_admin' || !ctx?.privilegedResetVerified) {
+      this.recordAudit(
+        targetState,
+        isGuestSandbox,
+        role,
+        actorLabel,
+        action,
+        'DemoDataset',
+        'RESTRICTED',
+        'DENIED',
+        `[${envMode}] Rejected unprivileged demo/reset request (requires platform_admin + server-side reset token).`
+      );
+      throw new AuthorizationError(
+        `[${envMode}] Demo dataset load/reset requires platform_admin authority and a verified X-DrT-Admin-Reset-Token.`
+      );
+    }
+  }
+
   public loadSyntheticDemo(
     role: PopulationRole,
     ctx?: PopulationServiceContext
@@ -2226,6 +2678,14 @@ Respond in JSON with exactly:
       'DemoDataset',
       'ALL',
       actorLabel
+    );
+    this.enforcePrivilegedDemoResetGuard(
+      state,
+      isGuestSandbox,
+      role,
+      actorLabel,
+      'LOAD_SYNTHETIC_DEMO',
+      ctx
     );
     const priorAuditLogs = state.auditLogs;
     const demoState = this.buildDemoState(isGuestSandbox);
@@ -2268,6 +2728,14 @@ Respond in JSON with exactly:
       'DemoDataset',
       'CLEAN',
       actorLabel
+    );
+    this.enforcePrivilegedDemoResetGuard(
+      state,
+      isGuestSandbox,
+      role,
+      actorLabel,
+      'RESET_DEMO_CLEAN',
+      ctx
     );
     const priorAuditLogs = state.auditLogs;
     const cleanSeed = this.buildDemoState(isGuestSandbox);

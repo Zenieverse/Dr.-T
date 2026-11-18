@@ -78,6 +78,7 @@ import { PresageSenseModule } from './components/presagesense/PresageSenseModule
 import { SolarFilamentLabModule } from './components/solarfilament/SolarFilamentLabModule';
 import { BuildArenaModule } from './components/buildarena/BuildArenaModule';
 import { PopulationHealthModule } from './components/populationhealth/PopulationHealthModule';
+import { LivingSoundGardenModule } from './components/pianist/soundgarden/LivingSoundGardenModule';
 import { SettingsPage } from './components/settings/SettingsPage';
 
 export function App() {
@@ -91,6 +92,7 @@ export function App() {
           if (['buildarena', 'build-arena', 'buildarenas02', 'missioncontrol'].includes(queryTab)) return 'buildarena';
           if (['solarfilament', 'solar-filament', 'solarfilamentlab', 'solar', 'filament'].includes(queryTab)) return 'solarfilament';
           if (['population-health', 'populationhealth', 'population_health', 'community-health', 'chsi'].includes(queryTab)) return 'population-health';
+          if (['living-sound-garden', 'sound-garden', 'soundgarden', 'livingsoundgarden'].includes(queryTab)) return 'living-sound-garden';
           return queryTab as NavTab;
         }
 
@@ -103,6 +105,7 @@ export function App() {
           if (['buildarena', 'build-arena', 'buildarenas02', 'missioncontrol'].includes(raw)) return 'buildarena';
           if (['solarfilament', 'solar-filament', 'solarfilamentlab', 'solar', 'filament'].includes(raw)) return 'solarfilament';
           if (['population-health', 'populationhealth', 'population_health', 'community-health', 'chsi'].includes(raw)) return 'population-health';
+          if (['living-sound-garden', 'sound-garden', 'soundgarden', 'livingsoundgarden'].includes(raw)) return 'living-sound-garden';
           return raw as NavTab;
         }
       }
@@ -161,6 +164,8 @@ export function App() {
         targetTab = 'solarfilament';
       } else if (['population-health', 'populationhealth', 'population_health', 'community-health', 'chsi'].includes(raw)) {
         targetTab = 'population-health';
+      } else if (['living-sound-garden', 'sound-garden', 'soundgarden', 'livingsoundgarden'].includes(raw)) {
+        targetTab = 'living-sound-garden';
       }
       if (targetTab && targetTab !== activeTab) {
         setActiveTab(targetTab);
@@ -449,7 +454,7 @@ export function App() {
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 pb-16">
+      <main className={activeTab === 'living-sound-garden' ? 'flex-1 pb-0' : 'flex-1 pb-16'}>
         {activeTab === 'chatquestlive' && <ChatQuestLiveModule />}
 
         {activeTab === 'drt' && (
@@ -468,6 +473,12 @@ export function App() {
 
         {activeTab === 'pianist' && (
           <PianistApp />
+        )}
+
+        {activeTab === 'living-sound-garden' && (
+          <LivingSoundGardenModule
+            onOpenTouchGrass={() => setActiveTab('touchgrass')}
+          />
         )}
 
         {activeTab === 'touchgrass' && (

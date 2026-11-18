@@ -94,16 +94,33 @@ import {
   authenticatePopulationHeaders,
   mintGuestDemoToken,
   checkRateLimit,
+  verifyPrivilegedResetToken,
+  RATE_LIMITER_SCOPE,
+  RATE_LIMITER_GLOBALLY_ENFORCED,
   HttpAuthError,
   RateLimitError,
 } from './src/server/populationHealthAuth';
 import { probePopulationFirestorePersistence } from './src/server/populationHealthFirestoreStore';
 import { GeminiCircuitBreaker } from './src/server/geminiCircuitBreaker';
 import {
+  getMultiInstanceSafetyDiagnostics,
+  PROCESS_LOCAL_STATE_INVENTORY,
   ProductionConfigurationError,
+  RedactedRuntimeDiagnostics,
   resolveServerFirebaseConfig,
-  validateStartupConfiguration,
+  verifyStartupConfigurationAsync,
 } from './src/server/runtimeEnvironment';
+
+let verifiedStartupDiagnostics: RedactedRuntimeDiagnostics | null = null;
+
+class HttpEnvMismatchError extends Error {
+  public readonly statusCode = 409;
+  public readonly code = 'ENV_MISMATCH';
+  constructor(message: string) {
+    super(message);
+    this.name = 'HttpEnvMismatchError';
+  }
+}
 
 function resolveListenPort(): number {
   const idx = process.argv.indexOf('--port');
@@ -147,98 +164,136 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Google Cloud Infrastructure Services API
-app.get('/api/cloud/infrastructure-status', (req, res) => {
+// Google Cloud Infrastructure Services API (Strict Operational Honesty)
+app.get('/api/cloud/infrastructure-status', async (req, res) => {
   const cfg = resolveServerFirebaseConfig(process.env, { skipStrictEnvValidation: true });
   const gcpProject = cfg.projectId;
   const rawRegion = (process.env.DRT_CLOUD_REGION || process.env.GOOGLE_CLOUD_LOCATION || '').trim();
-  const safeRegion = /^[a-z]+-[a-z]+\d+$/.test(rawRegion) ? rawRegion : 'asia-southeast1';
+  const verifiedRegion = /^[a-z]+-[a-z]+\d+$/.test(rawRegion) ? rawRegion : null;
+  const popPersistence = await probePopulationFirestorePersistence(req.query.refresh === '1');
+  const safetySummary =
+    verifiedStartupDiagnostics?.multiInstanceSafety ||
+    getMultiInstanceSafetyDiagnostics(process.env);
+  const hasGeminiKey = Boolean(process.env.GEMINI_API_KEY);
+  const geminiDiag = GeminiCircuitBreaker.getDiagnostics('gemini-3.8-flash', hasGeminiKey);
+
+  const cloudRunState =
+    safetySummary.verificationSource === 'cloud_run_admin_api'
+      ? 'Verified'
+      : process.env.K_SERVICE
+        ? 'Configured'
+        : 'Not verified';
+  const firestoreState =
+    popPersistence.mode === 'FIRESTORE_LIVE' ? 'Verified' : 'Unavailable';
+
   res.json({
-    status: 'HEALTHY',
+    status: firestoreState === 'Verified' ? 'VERIFIED_WITH_SIMULATED_COMPONENTS' : 'LOCAL_OR_DEGRADED',
     environment: cfg.environment,
+    isSyntheticOnly: cfg.isSyntheticOnly,
     timestamp: new Date().toISOString(),
     gcpProjectId: gcpProject,
-    region: safeRegion,
+    region: verifiedRegion || 'Not verified',
+    regionStatus: verifiedRegion ? 'Configured' : 'Not verified',
     services: {
       cloudRun: {
-        serviceName: process.env.K_SERVICE || 'dr-t-biomedical-platform',
-        region: safeRegion,
-        url: process.env.APP_URL || 'https://ais-dev-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app',
+        state: cloudRunState,
+        serviceName: process.env.K_SERVICE || 'Not verified (local runtime)',
+        region: verifiedRegion || 'Not verified',
+        url: (process.env.APP_URL || '').trim() || 'Not verified',
         containerPort: PORT,
-        memoryAllocated: '2 GiB',
-        cpuAllocation: '2 vCPU',
-        autoScaling: '0 - 10 instances (Scale-to-Zero Enabled)',
-        status: 'ACTIVE_RUNNING',
-        coldStartP99Ms: 420,
-        uptimePercentage: 99.98,
+        scalingPolicy:
+          safetySummary.verifiedInfrastructureMaxInstances !== null
+            ? `Verified maxInstanceCount=${safetySummary.verifiedInfrastructureMaxInstances} (Cloud Run Admin API)`
+            : safetySummary.declaredMaxInstances !== null
+              ? `Declared CLOUD_RUN_MAX_INSTANCES=${safetySummary.declaredMaxInstances} (Not verified via Cloud Run Admin API)`
+              : 'Not verified',
+        multiInstanceSafe: safetySummary.multiInstanceSafe,
+        scalingVerificationStatus: safetySummary.status,
       },
       cloudFirestore: {
-        databaseId: cfg.databaseId,
-        tier: 'Native Multi-Region Firestore',
-        mode: 'Datastore/Firestore Hybrid',
-        collections: ['users', 'healthRecords', 'consultations', 'skinAnalyses', 'cloudAuditLogs'],
-        realtimeListenersActive: true,
-        securityRulesVersion: 'v2 (Deployed)',
-        status: 'CONNECTED',
-        readLatencyP50Ms: 14,
-        writeLatencyP50Ms: 28,
+        state: firestoreState,
+        persistenceMode: popPersistence.mode,
+        projectId: popPersistence.firestoreProjectId,
+        databaseId: popPersistence.firestoreDatabaseId,
+        configSource: cfg.configSource,
+        probeLatencyMs: typeof popPersistence.latencyMs === 'number' ? popPersistence.latencyMs : null,
+        collections: [
+          'users',
+          'healthRecords',
+          'consultations',
+          'skinAnalyses',
+          'cloudAuditLogs',
+          'pop_participants',
+          'pop_consents',
+          'pop_observations',
+          'pop_alerts',
+          'pop_referrals',
+          'pop_programmes',
+          'pop_audit_logs',
+          'pop_ai_syntheses',
+        ],
+        securityRulesStatus: 'Not verified at runtime (repository firestore.rules)',
       },
       cloudPubSub: {
+        state: 'Simulated',
+        mode: 'Simulated in-app event dispatcher (no live GCP Pub/Sub broker calls)',
         topics: [
-          { name: `projects/${gcpProject}/topics/telehealth-vitals-stream`, throughput: '1.2k msg/min', status: 'READY' },
-          { name: `projects/${gcpProject}/topics/clinical-safety-alerts`, throughput: '45 msg/hr', status: 'READY' },
-          { name: `projects/${gcpProject}/topics/fhir-hl7-interop-sync`, throughput: '320 msg/min', status: 'READY' },
+          { name: `projects/${gcpProject}/topics/telehealth-vitals-stream`, state: 'Simulated' },
+          { name: `projects/${gcpProject}/topics/clinical-safety-alerts`, state: 'Simulated' },
+          { name: `projects/${gcpProject}/topics/fhir-hl7-interop-sync`, state: 'Simulated' },
         ],
-        subscriptions: [
-          { name: 'sub-ehr-sync-worker', ackDeadlineSeconds: 30, deadLetterConfig: 'topics/clinical-dlq' },
-          { name: 'sub-wearables-anomaly-detector', ackDeadlineSeconds: 20, deadLetterConfig: 'none' },
-        ],
-        status: 'ONLINE',
       },
       cloudStorage: {
-        bucketName: `${gcpProject}.firebasestorage.app`,
-        location: safeRegion,
-        storageClass: 'STANDARD',
-        encryption: 'Google-managed encryption key (CMEK ready)',
-        corsEnabled: true,
-        status: 'READY',
+        state: 'Not verified',
+        bucketName: gcpProject ? `${gcpProject}.firebasestorage.app` : 'Not verified',
+        location: verifiedRegion || 'Not verified',
       },
       gkeMicroservices: {
-        clusterName: 'drt-clinical-swarm-gke',
-        nodePools: 'gke-autopilot-medical-inference',
-        orchestrator: 'Kubernetes v1.30',
-        activeAgentPods: 7, // 7 Swarm agents
-        serviceMesh: 'Istio mTLS Enabled',
-        status: 'RUNNING',
+        state: 'Simulated',
+        mode: 'In-process Node/Express orchestration (no live GKE cluster calls)',
       },
       vertexAiGenAi: {
-        primaryModel: 'gemini-3.7-flash',
-        agentFramework: 'Antigravity Multi-Agent Orchestrator',
-        status: 'OPERATIONAL',
+        state: hasGeminiKey
+          ? geminiDiag.circuitOpen
+            ? 'Unavailable'
+            : 'Configured'
+          : 'Unavailable',
+        primaryModel: 'gemini-3.8-flash',
+        hasApiKey: hasGeminiKey,
+        circuitBreaker: geminiDiag,
+      },
+      iamStatus: {
+        state: 'Not verified',
+        note: 'Runtime IAM role bindings are checked offline via gcloud preflight, not asserted from UI.',
+      },
+      secretManagerStatus: {
+        state: cfg.guestTokenSecretSource === 'env_secret_manager' ? 'Configured' : 'Not verified',
+        guestTokenSecretSource: cfg.guestTokenSecretSource,
       },
     },
-    metrics: {
-      activeSessions: 184,
-      avgInferenceLatencyMs: 640,
-      pubsubEventDeliverySuccessRate: 99.99,
-      firestoreDocumentOperationsToday: 4812,
-    }
+    runtimeSafety: {
+      multiInstanceSafety: safetySummary,
+      rateLimiterScope: RATE_LIMITER_SCOPE,
+      rateLimiterGloballyEnforced: RATE_LIMITER_GLOBALLY_ENFORCED,
+      processLocalStateInventory: PROCESS_LOCAL_STATE_INVENTORY,
+    },
   });
 });
 
-// Google Cloud Pub/Sub Publish Clinical Event Endpoint
+// Google Cloud Pub/Sub Publish Clinical Event Endpoint (Explicitly Simulated)
 app.post('/api/cloud/pubsub/publish', (req, res) => {
-  const { topic = 'telehealth-vitals-stream', payload } = req.body;
-  const messageId = 'msg_' + Math.random().toString(36).substring(2, 12) + '_' + Date.now();
-  
+  const { topic = 'telehealth-vitals-stream' } = req.body || {};
+  const messageId = 'sim_msg_' + Math.random().toString(36).substring(2, 12) + '_' + Date.now();
+
   res.json({
     success: true,
+    mode: 'Simulated',
+    isSimulated: true,
     messageId,
     topic,
     publishedAt: new Date().toISOString(),
-    ackStatus: 'ACKNOWLEDGED',
-    simulatedDeliveryLatencyMs: Math.floor(Math.random() * 15) + 8,
-    details: 'Clinical payload dispatched to Google Cloud Pub/Sub topic stream.'
+    ackStatus: 'SIMULATED_ACK',
+    details: 'Simulated in-app Pub/Sub dispatch only (no live GCP Pub/Sub topic message published).',
   });
 });
 
@@ -5650,6 +5705,27 @@ async function authenticatePopRequest(req: express.Request): Promise<{
   ctx: PopulationServiceContext;
 }> {
   checkRateLimit(`pop-api:${getClientIpKey(req)}`, 120, 60_000);
+
+  const serverCfg = resolveServerFirebaseConfig(process.env, { skipStrictEnvValidation: true });
+  const clientEnv =
+    typeof req.headers['x-drt-client-env'] === 'string'
+      ? req.headers['x-drt-client-env'].trim().toLowerCase()
+      : '';
+  if (clientEnv && clientEnv !== serverCfg.environment) {
+    throw new HttpEnvMismatchError(
+      `Environment mismatch blocked: client '${clientEnv}' cannot target server '${serverCfg.environment}'.`
+    );
+  }
+  const clientDb =
+    typeof req.headers['x-drt-client-db'] === 'string'
+      ? req.headers['x-drt-client-db'].trim()
+      : '';
+  if (clientDb && clientDb !== serverCfg.databaseId) {
+    throw new HttpEnvMismatchError(
+      `Database mismatch blocked: client Firebase DB does not match server target DB.`
+    );
+  }
+
   await PopulationHealthService.getInstance().ensurePersistenceReady();
   const authHeader =
     typeof req.headers.authorization === 'string' ? req.headers.authorization : undefined;
@@ -5658,10 +5734,20 @@ async function authenticatePopRequest(req: express.Request): Promise<{
       ? req.headers['x-population-role']
       : undefined;
   const queryRole = typeof req.query.role === 'string' ? req.query.role : undefined;
+  const guestSessionHeader =
+    typeof req.headers['x-guest-session-id'] === 'string'
+      ? req.headers['x-guest-session-id']
+      : undefined;
+  const adminResetHeader =
+    typeof req.headers['x-drt-admin-reset-token'] === 'string'
+      ? req.headers['x-drt-admin-reset-token']
+      : undefined;
+  const resetCheck = verifyPrivilegedResetToken(adminResetHeader, process.env);
 
   const authCtx = await authenticatePopulationHeaders({
     authorizationHeader: authHeader,
     requestedRoleHeader: headerRole || queryRole,
+    requestedGuestSessionIdHeader: guestSessionHeader,
   });
 
   // Refresh cached Firestore availability probe non-blockingly
@@ -5674,11 +5760,15 @@ async function authenticatePopRequest(req: express.Request): Promise<{
       verifiedMaxRole: authCtx.verifiedMaxRole,
       authMode: authCtx.authMode,
       guestSessionId: authCtx.guestSessionId,
+      privilegedResetVerified: resetCheck.ok,
     },
   };
 }
 
 function sendPopError(res: express.Response, err: unknown) {
+  if (err instanceof HttpEnvMismatchError) {
+    return res.status(409).json({ error: err.message, code: err.code });
+  }
   if (err instanceof HttpAuthError) {
     return res.status(err.statusCode).json({ error: err.message, code: err.code });
   }
@@ -5710,15 +5800,28 @@ app.get('/api/population-health/health', async (req, res) => {
     );
     const runtimeCfg = resolveServerFirebaseConfig(process.env, { skipStrictEnvValidation: true });
     const hasGeminiKey = Boolean(process.env.GEMINI_API_KEY);
+    const safetySummary =
+      verifiedStartupDiagnostics?.multiInstanceSafety ||
+      getMultiInstanceSafetyDiagnostics(process.env);
     return res.json({
       status: 'ok',
       module: 'population-health',
       environment: runtimeCfg.environment,
+      projectId: runtimeCfg.projectId,
+      databaseId: runtimeCfg.databaseId,
       isSyntheticOnly: runtimeCfg.isSyntheticOnly,
       hasGeminiKey,
       geminiDiagnostics: GeminiCircuitBreaker.getDiagnostics('gemini-3.8-flash', hasGeminiKey),
       persistenceStatus,
       connectors: PopulationHealthService.getInstance().getConnectorStatuses(),
+      runtimeSafety: {
+        multiInstanceSafety: safetySummary,
+        rateLimiterScope: RATE_LIMITER_SCOPE,
+        rateLimiterGloballyEnforced: RATE_LIMITER_GLOBALLY_ENFORCED,
+        publicJudgingPolicy: PopulationHealthService.getInstance().getPublicJudgingPolicySummary(
+          runtimeCfg.environment
+        ),
+      },
       timestamp: new Date().toISOString(),
     });
   } catch (err) {
@@ -6059,9 +6162,10 @@ app.post('/api/population-health/demo/reset', async (req, res) => {
 
 // Setup Vite or Static serving
 async function setupApp() {
-  let startupDiagnostics: ReturnType<typeof validateStartupConfiguration>;
+  let startupDiagnostics: RedactedRuntimeDiagnostics;
   try {
-    startupDiagnostics = validateStartupConfiguration(process.env);
+    startupDiagnostics = await verifyStartupConfigurationAsync(process.env);
+    verifiedStartupDiagnostics = startupDiagnostics;
   } catch (err) {
     const msg =
       err instanceof ProductionConfigurationError
@@ -6075,7 +6179,7 @@ async function setupApp() {
   }
 
   console.log(
-    `🔐 Dr. T Runtime Config Verified: env=${startupDiagnostics.environment} project=${startupDiagnostics.projectId} db=${startupDiagnostics.databaseId} source=${startupDiagnostics.configSource} guestSecret=${startupDiagnostics.guestTokenSecretSource}`
+    `🔐 Dr. T Runtime Config Verified: env=${startupDiagnostics.environment} project=${startupDiagnostics.projectId} db=${startupDiagnostics.databaseId} source=${startupDiagnostics.configSource} guestSecret=${startupDiagnostics.guestTokenSecretSource} scaling=${startupDiagnostics.multiInstanceSafety.status}`
   );
 
   const persistencePromise = PopulationHealthService.getInstance()
@@ -6118,4 +6222,8 @@ async function setupApp() {
   void persistencePromise;
 }
 
-setupApp();
+if (process.env.DRT_SKIP_SERVER_LISTEN !== '1') {
+  setupApp();
+}
+
+export { app };

@@ -168,7 +168,7 @@ check('Production refuses startup when POPULATION_GUEST_TOKEN_SECRET is missing 
   );
 });
 
-check('Production refuses unsafe multi-instance cache config without explicit opt-in', () => {
+check('Production refuses CLOUD_RUN_MAX_INSTANCES=4 AND fails closed when CLOUD_RUN_MAX_INSTANCES=1 is only an unverified env var', () => {
   assert.throws(
     () =>
       validateStartupConfiguration({
@@ -180,27 +180,65 @@ check('Production refuses unsafe multi-instance cache config without explicit op
       }),
     ProductionConfigurationError
   );
-});
-
-check('public_judging enforces DRT_SYNTHETIC_ONLY=true and dedicated non-dev database', () => {
+  // Env var alone cannot prove Cloud Run infrastructure scaling
   assert.throws(
     () =>
       validateStartupConfiguration({
-        DRT_RUNTIME_ENV: 'public_judging',
-        GOOGLE_CLOUD_PROJECT: 'drt-judging-project',
-        FIRESTORE_DATABASE_ID: 'drt-judging-db',
+        DRT_RUNTIME_ENV: 'production',
+        GOOGLE_CLOUD_PROJECT: 'drt-prod-project',
+        FIRESTORE_DATABASE_ID: 'drt-prod-clinical-db',
         POPULATION_GUEST_TOKEN_SECRET: SECRET_SENTINEL,
-        DRT_SYNTHETIC_ONLY: 'false',
+        CLOUD_RUN_MAX_INSTANCES: '1',
       }),
     ProductionConfigurationError
   );
-  const ok = validateStartupConfiguration({
-    DRT_RUNTIME_ENV: 'public_judging',
-    GOOGLE_CLOUD_PROJECT: 'drt-judging-project',
-    FIRESTORE_DATABASE_ID: 'drt-judging-synthetic-2026',
-    POPULATION_GUEST_TOKEN_SECRET: SECRET_SENTINEL,
-    DRT_SYNTHETIC_ONLY: 'true',
-  });
+  // Verified Cloud Run Admin API maxInstanceCount=1 passes
+  const verified = validateStartupConfiguration(
+    {
+      DRT_RUNTIME_ENV: 'production',
+      GOOGLE_CLOUD_PROJECT: 'drt-prod-project',
+      FIRESTORE_DATABASE_ID: 'drt-prod-clinical-db',
+      POPULATION_GUEST_TOKEN_SECRET: SECRET_SENTINEL,
+    },
+    {
+      verifiedInfrastructureMaxInstances: 1,
+      verificationSource: 'cloud_run_admin_api',
+    }
+  );
+  assert.strictEqual(verified.multiInstanceSafety.status, 'verified_single_instance');
+});
+
+check('public_judging enforces DRT_SYNTHETIC_ONLY=true, dedicated non-dev DB, and verified single instance', () => {
+  assert.throws(
+    () =>
+      validateStartupConfiguration(
+        {
+          DRT_RUNTIME_ENV: 'public_judging',
+          GOOGLE_CLOUD_PROJECT: 'drt-judging-project',
+          FIRESTORE_DATABASE_ID: 'drt-judging-db',
+          POPULATION_GUEST_TOKEN_SECRET: SECRET_SENTINEL,
+          DRT_SYNTHETIC_ONLY: 'false',
+        },
+        {
+          verifiedInfrastructureMaxInstances: 1,
+          verificationSource: 'cloud_run_admin_api',
+        }
+      ),
+    ProductionConfigurationError
+  );
+  const ok = validateStartupConfiguration(
+    {
+      DRT_RUNTIME_ENV: 'public_judging',
+      GOOGLE_CLOUD_PROJECT: 'drt-judging-project',
+      FIRESTORE_DATABASE_ID: 'drt-judging-synthetic-2026',
+      POPULATION_GUEST_TOKEN_SECRET: SECRET_SENTINEL,
+      DRT_SYNTHETIC_ONLY: 'true',
+    },
+    {
+      verifiedInfrastructureMaxInstances: 1,
+      verificationSource: 'cloud_run_admin_api',
+    }
+  );
   assert.strictEqual(ok.environment, 'public_judging');
   assert.strictEqual(ok.isSyntheticOnly, true);
   assert.strictEqual(ok.databaseId, 'drt-judging-synthetic-2026');
@@ -224,6 +262,7 @@ check('Valid isolated production config passes without exposing secret values', 
   assert.strictEqual(diag.databaseId, 'drt-prod-clinical-db');
   assert.strictEqual(diag.varsPresent.POPULATION_GUEST_TOKEN_SECRET, true);
   assert.strictEqual(diag.varsPresent.GEMINI_API_KEY, true);
+  assert.strictEqual(diag.multiInstanceSafety.rateLimiterScope, 'process_local_best_effort');
   assert.strictEqual(serialized.includes(SECRET_SENTINEL), false);
   assert.strictEqual(serialized.includes('GEMINI_SECRET_SENTINEL_123456'), false);
 });

@@ -300,12 +300,12 @@ export const PopulationHealthModule: React.FC<PopulationHealthModuleProps> = ({
 
               <button
                 type="button"
-                disabled={!canResetDemo}
+                disabled={!canResetDemo && !isGuestSandbox}
                 onClick={handleResetGuestDemo}
                 className="px-3 py-1.5 text-xs font-medium rounded-lg border border-teal-300 bg-teal-50 text-teal-800 hover:bg-teal-100 disabled:opacity-40 flex items-center gap-1.5 whitespace-nowrap"
               >
                 <Database className="w-3.5 h-3.5" />
-                Load Demo Cohorts
+                {isGuestSandbox ? 'Fresh Guest Demo' : 'Load Demo Cohorts'}
               </button>
 
               <button

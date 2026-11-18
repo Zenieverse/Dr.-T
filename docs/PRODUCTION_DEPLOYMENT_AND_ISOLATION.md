@@ -8,14 +8,14 @@
 
 | File | Previous Behavior | Updated Behavior (Implemented) |
 |---|---|---|
-| `src/server/runtimeEnvironment.ts` *(New)* | Did not exist | Single source of truth resolving `development`, `staging`, `production`, `public_judging`; blocks silent dev fallback outside `development` |
-| `src/server/populationHealthFirestoreStore.ts` | Read `firebase-applet-config.json` first and silently fell back to hardcoded dev constants | Delegates to `resolveServerFirebaseConfig(process.env)` so non-dev envs require explicit `GOOGLE_CLOUD_PROJECT` & non-dev `FIRESTORE_DATABASE_ID` |
-| `src/server/populationHealthAuth.ts` | Read `firebase-applet-config.json` first; silently generated random per-process `GUEST_HMAC_SECRET` | Uses `resolveServerFirebaseConfig()` for Firebase `aud`/`iss` project checks and requires Secret Manager `POPULATION_GUEST_TOKEN_SECRET` (>=32 chars) outside `development` |
-| `src/server/populationHealthService.ts` | Auto-seeded 20 synthetic cohorts on any empty DB | In `production`, initializes clean empty state (`demoActive: false`) unless `DRT_SEED_DEMO_ON_EMPTY=true` is set |
-| `server.impl.ts` | Started directly without DB env check; hardcoded dev strings in `/api/cloud/infrastructure-status` | Calls `validateStartupConfiguration()` synchronously inside `setupApp()` and **exits non-zero** before `app.listen()` on missing/shared dev DB config or missing guest secret |
-| `src/config/firebaseRuntimeConfig.ts` *(New)* | Did not exist | Resolves Vite `VITE_RUNTIME_ENV`, `VITE_FIREBASE_PROJECT_ID`, `VITE_FIRESTORE_DATABASE_ID`; throws if non-dev client build lacks isolated DB or targets dev DB |
-| `src/services/firebase.ts` & `src/components/cloud/GoogleCloudHub.tsx` | Direct static import of `firebase-applet-config.json` | Consumes `firebaseRuntimeConfig` so staging/production/judging frontend builds isolate client Firestore DBs cleanly |
-| `scripts/test-live-firestore-permissions.ts` & `scripts/test-population-health.ts` | Dev permission/unit harness referencing dev config/REST URL mocks | Preserved strictly as local/dev verification harnesses |
+| `src/server/runtimeEnvironment.ts` | Single source of truth resolving `development`, `staging`, `production`, `public_judging`; enforces `isValidGcpProjectId()`, keeps `isNonDevIsolatedEnvironment` completely isolated from `firebase-applet-config.json` (even under `skipStrictEnvValidation`), removes `DRT_ALLOW_MULTI_INSTANCE`, requires **Cloud Run Admin API** verification of `maxInstanceCount === 1` (`verifyCloudRunSingleInstanceFromApi`), and publishes `PROCESS_LOCAL_STATE_INVENTORY` |
+| `src/server/populationHealthFirestoreStore.ts` | Delegates strictly to `resolveServerFirebaseConfig(process.env)` without silent fallback outside `development` |
+| `src/server/populationHealthAuth.ts` | Verifies Firebase RS256 ID tokens, requires `POPULATION_GUEST_TOKEN_SECRET` (`>=32` chars) outside `development`, binds Guest Sandbox `X-Guest-Session-Id` against signed token `sid` (`403` on mismatch), validates `X-DrT-Admin-Reset-Token` via `crypto.timingSafeEqual`, and classifies `rateLimitBuckets` explicitly as `process_local_best_effort` (`RATE_LIMITER_GLOBALLY_ENFORCED = false`) |
+| `src/server/populationHealthService.ts` | Scopes local snapshot fallback by runtime environment; disables empty-DB auto-seed across `staging`, `production`, and `public_judging` unless `DRT_SEED_DEMO_ON_EMPTY=true`; enforces `public_judging` read-only shared DB for authenticated users, synthetic-only Guest Sandbox mutations (`SIMULATED`, zero live hardware/PII), redacted `DENIED` audit logs, and privileged reset token checks across all 22 routes |
+| `server.impl.ts` | Calls `await verifyStartupConfigurationAsync(process.env)` before `app.listen()` (`process.exit(1)` on unverified scaling or config violation); adds `X-DrT-Client-Env`/`X-DrT-Client-Db` (`409 ENV_MISMATCH`) checks; updates `/api/cloud/infrastructure-status` and `/api/population-health/health` with explicit `Verified`/`Configured`/`Not verified`/`Unavailable`/`Simulated` states |
+| `src/config/clientFirebaseValidation.ts` & `vite.config.ts` | Shared Node/browser validator enforcing explicit `VITE_RUNTIME_ENV` during Vite builds (`vite build` fails closed if omitted); FNV-1a fingerprint check prevents bundling dev Firestore DB IDs or `firebase-applet-config.json` (`__DRT_DEV_FIREBASE_CONFIG__ = null`) outside `development`; enforces frontend/backend agreement (`checkFrontendBackendEnvAgreement`) |
+| `src/config/firebaseRuntimeConfig.ts`, `src/components/cloud/GoogleCloudHub.tsx` & `src/services/populationHealthClient.ts` | Consumes validated client config; removes hardcoded regions/metrics/PubSub project strings in UI; sends `X-DrT-Client-Env`, `X-DrT-Client-Db`, and `X-Guest-Session-Id` headers on Population Health API requests and exports |
+| `scripts/test-production-isolation.ts` & `scripts/test-phase2-remediation.ts` | Local/subprocess/Vite-build verification suites (`14/14` + `9/9`) validating fail-closed startup, bundle exclusion, Cloud Run API gating, `public_judging` guards, and status honesty |
 
 ---
 
@@ -29,8 +29,9 @@
 | Silent Fallback to `firebase-applet-config.json` | Allowed | **BLOCKED (Fail-Closed)** | **BLOCKED (Fail-Closed)** | **BLOCKED (Fail-Closed)** |
 | `POPULATION_GUEST_TOKEN_SECRET` | Optional (ephemeral dev CSPRNG) | **MANDATORY (>=32 chars, Secret Manager)** | **MANDATORY (>=32 chars, Secret Manager)** | **MANDATORY (>=32 chars, Secret Manager)** |
 | `DRT_SYNTHETIC_ONLY` | `true` | `true` | `false` | **MANDATORY `true`** |
-| Empty DB Auto-Seed | `true` (20 demo cohorts) | Configurable | **`false` (Clean zero-cohort clinical start)** | `true` (Synthetic showcase only) |
-| Cloud Run Scaling (`max-instances`) | `1` (Dev sandbox) | `1` | `1` *(Required until stateless cache refactor)* | `1` *(Or stateless mode)* |
+| Empty DB Auto-Seed | `true` (20 demo cohorts) | **`false` (Clean empty unless `DRT_SEED_DEMO_ON_EMPTY=true`)** | **`false` (Clean zero-cohort clinical start)** | **`false` unless explicitly seeded (`DRT_SEED_DEMO_ON_EMPTY=true`) or admin reset token** |
+| `VITE_RUNTIME_ENV` Build Guard | `npm run build:dev` (`VITE_RUNTIME_ENV=development`) | **Mandatory `staging`** + all `VITE_FIREBASE_*` | **Mandatory `production`** + all `VITE_FIREBASE_*` | **Mandatory `public_judging`** + `VITE_SYNTHETIC_ONLY=true` + all `VITE_FIREBASE_*` |
+| Cloud Run Scaling Enforcement | Local sandbox | **Cloud Run Admin API verified `maxInstanceCount=1`** | **Cloud Run Admin API verified `maxInstanceCount=1`** | **Cloud Run Admin API verified `maxInstanceCount=1`** |
 
 ---
 
@@ -47,7 +48,12 @@
    ```
 2. **Deploy hardened `firestore.rules` cleanly** to the production project/database (without removing any existing rule guards).
 3. **Create a dedicated least-privilege runtime service account** (`drt-prod-runner@<PROD_PROJECT_ID>.iam.gserviceaccount.com`) holding **only** `roles/datastore.user` and Secret Manager accessor roles (`roles/secretmanager.secretAccessor`) on required secrets.
-4. **Update CI/CD build args** for production builds with `VITE_RUNTIME_ENV=production`, `VITE_FIREBASE_PROJECT_ID=<PROD_PROJECT_ID>`, and `VITE_FIRESTORE_DATABASE_ID=drt-prod-clinical`.
+4. **Update CI/CD build args** explicitly per target environment (`npm run build` fails closed if `VITE_RUNTIME_ENV` or any `VITE_FIREBASE_*` field is missing; use `npm run build:dev` only for local dev bundles):
+   - `VITE_RUNTIME_ENV=production`
+   - `VITE_FIREBASE_PROJECT_ID=<PROD_PROJECT_ID>`
+   - `VITE_FIRESTORE_DATABASE_ID=drt-prod-clinical`
+   - `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_APP_ID`, `VITE_FIREBASE_AUTH_DOMAIN`, `VITE_FIREBASE_STORAGE_BUCKET`, `VITE_FIREBASE_MESSAGING_SENDER_ID`
+   - Note: Current dev Firestore lives in `us-west1`; choose your production DB region deliberately (`asia-southeast1` or `us-west1`) to co-locate Cloud Run compute with Firestore.
 
 ---
 
@@ -70,18 +76,20 @@
 
 ## 5. Multi-Instance Cloud Run Analysis & Scaling Architecture
 
-### Current Architecture Behavior Under `max-instances > 1`
-1. **Guest HMAC Tokens (`gdemo.<payload>.<sig>`):** Resolved safely **if** `POPULATION_GUEST_TOKEN_SECRET` is mounted consistently across all instances via Secret Manager (already enforced fail-closed outside `development`).
-2. **Process-Local Memory Cache (`PopulationHealthService`):**
-   - Primary authenticated state, `guestSandboxes` in-memory map, and sliding-window rate-limiter buckets live inside process RAM on each Cloud Run container.
-   - Under `max-instances > 1` without sticky sessions or shared backing store: writes on Instance A are persisted to Firestore (`FIRESTORE_LIVE`), but Instance B's warm memory cache will serve stale data until restart, and Guest Sandbox tokens routed to Instance B will spawn a fresh sandbox state or fail IP rate-limit consistency.
+### Process-Local State Inventory & Scaling Behavior
+1. **Guest HMAC Tokens (`gdemo.<payload>.<sig>`):** Signed tokens resolve deterministically across instances **when** `POPULATION_GUEST_TOKEN_SECRET` is mounted consistently via Secret Manager (`>=32` chars, fail-closed outside `development`).
+2. **Process-Local Stores (`PROCESS_LOCAL_STATE_INVENTORY` in `src/server/runtimeEnvironment.ts`):**
+   - `PopulationHealthService.state` (`critical_single_instance_required`): write-through cache in Node RAM. Multi-instance Cloud Run scaling would serve stale reads across containers without shared cache invalidation.
+   - `PopulationHealthService.guestSandboxes` (`demo_isolated_session_map`): bounded in-memory sandbox map (`0` Firestore writes); multi-instance routing without affinity would split a judge's session across instances.
+   - `populationHealthAuth.rateLimitBuckets` (`process_local_best_effort`): sliding-window limiter in RAM (`RATE_LIMITER_GLOBALLY_ENFORCED = false`); provides per-container flood protection only, **not** global fleet enforcement (use Cloud Armor WAF for fleet rate limiting).
+   - `populationHealthAuth.certCache` (`safe_public_key_cache`), `cachedProbe` (`process_local_observability`), `GeminiCircuitBreaker.breakers` (`process_local_best_effort`), and optional SSE/module maps (`module_scoped_session_state`).
 
-### Safe Scaling Recommendation
-- **Immediate Safe Production Topology (`IMPLEMENTED GUARDRAIL`):** Pin Cloud Run `--min-instances=0 --max-instances=1 --concurrency=80`. Startup validation explicitly rejects `CLOUD_RUN_MAX_INSTANCES > 1` unless `DRT_ALLOW_MULTI_INSTANCE=true` is passed after full stateless refactoring.
+### Safe Scaling Enforcement (Phase 2 Fail-Closed Model)
+- **Cloud Run Admin API Verification (`IMPLEMENTED GUARDRAIL`):** `verifyStartupConfigurationAsync()` calls `run.googleapis.com/v2/projects/<PROJECT>/locations/<REGION>/services/<K_SERVICE>` using container ADC credentials and refuses startup outside `development` unless `template.scaling.maxInstanceCount === 1`. Self-declared `CLOUD_RUN_MAX_INSTANCES=1` env vars are **not trusted** as proof, and legacy `DRT_ALLOW_MULTI_INSTANCE` overrides have been **removed**. Ensure the Cloud Run runtime SA has read-only `roles/run.viewer` (or deploy `template.scaling.maxInstanceCount=1`) so startup verification can confirm the scaling ceiling.
 - **Future Horizontal-Scale Target Architecture (`PROPOSED`):**
-  1. Replace process-local `this.state` cache reads in `PopulationHealthService` with scoped Firestore reads (`loadFullSnapshot` or collection queries per request / short TTL with Firestore `updateTime` ETags).
-  2. Persist ephemeral Guest Sandbox deltas to short-TTL Firestore subcollections (`population_guest_sandboxes/{sid}`) with Cloud Firestore TTL expiration policies (`expireAt`), removing in-memory instance affinity.
-  3. Move rate limiting (`checkRateLimit`) to Memorystore Redis or Cloud Armor WAF policies.
+  1. Replace process-local `this.state` cache reads in `PopulationHealthService` with scoped Firestore queries + `updateTime`/transaction reads.
+  2. Persist ephemeral Guest Sandbox deltas to TTL-expiring Firestore subcollections (`population_guest_sandboxes/{sid}`) with Cloud Firestore TTL expiration policies.
+  3. Enforce global fleet rate limiting at Cloud Armor / API Gateway / Memorystore Redis in front of Cloud Run (`populationHealthAuth.ts` remains best-effort per container).
 
 ---
 
@@ -106,9 +114,13 @@ To allow public competition evaluators to test `#population-health` cleanly **wi
   - `DRT_SYNTHETIC_ONLY=true`
   - `GOOGLE_CLOUD_PROJECT=<JUDGING_PROJECT_ID>`
   - `FIRESTORE_DATABASE_ID=drt-judging-synthetic-2026` *(Dedicated DB; never dev or prod)*
-  - `POPULATION_GUEST_TOKEN_SECRET` mounted via Secret Manager
-  - `VITE_RUNTIME_ENV=public_judging`, `VITE_FIRESTORE_DATABASE_ID=drt-judging-synthetic-2026`
-- **Access & Safety Controls:** Banner clearly marks synthetic-only showcase; real PII identifiers blocked by `containsDirectIdentifier`; Firestore writes strictly isolated from Guest Sandbox (`HTTP 404` in Firestore); periodic scheduled Cloud Run job resets showcase database to the 20 synthetic cohorts daily.
+  - `POPULATION_GUEST_TOKEN_SECRET` & `DRT_JUDGING_RESET_TOKEN` (`>=24` chars) mounted via Secret Manager
+  - `VITE_RUNTIME_ENV=public_judging`, `VITE_SYNTHETIC_ONLY=true`, `VITE_FIRESTORE_DATABASE_ID=drt-judging-synthetic-2026` (plus explicit `VITE_FIREBASE_*` keys)
+- **Access & Safety Guardrails (`IMPLEMENTED IN CODE`):**
+  - Authenticated Firebase shared-database writes across mutating `/api/population-health/*` routes are rejected (`403 FORBIDDEN`) in `public_judging`.
+  - Guest Sandbox sessions (`X-Guest-Session-Id` verified against signed token `sid`) write exclusively to in-memory ephemeral sandboxes (`0` Firestore writes) and reject non-synthetic payloads (`dataOrigin: 'LIVE' | 'IMPORTED'`, `isLiveHardware: true`, `isSynthetic: false`, `realPatient: true`, direct PII identifiers). Denied attempts emit redacted `DENIED` audit log entries without storing raw PII.
+  - `/api/population-health/demo/load` and `/demo/reset` are blocked for guests/public callers and require `platform_admin` + `X-DrT-Admin-Reset-Token` matched via `crypto.timingSafeEqual`.
+  - `/api/cloud/infrastructure-status` and `/api/population-health/health` explicitly report `Simulated` for in-app Pub/Sub & GKE components and `Not verified` where platform telemetry/IAM is unavailable, enforcing `409 ENV_MISMATCH` if frontend/backend env or DB headers disagree.
 
 ---
 
