@@ -79,6 +79,7 @@ import { SolarFilamentLabModule } from './components/solarfilament/SolarFilament
 import { BuildArenaModule } from './components/buildarena/BuildArenaModule';
 import { PopulationHealthModule } from './components/populationhealth/PopulationHealthModule';
 import { LivingSoundGardenModule } from './components/pianist/soundgarden/LivingSoundGardenModule';
+import { HatBridgeModule } from './components/hatbridge/HatBridgeModule';
 import { SettingsPage } from './components/settings/SettingsPage';
 
 export function App() {
@@ -93,6 +94,7 @@ export function App() {
           if (['solarfilament', 'solar-filament', 'solarfilamentlab', 'solar', 'filament'].includes(queryTab)) return 'solarfilament';
           if (['population-health', 'populationhealth', 'population_health', 'community-health', 'chsi'].includes(queryTab)) return 'population-health';
           if (['living-sound-garden', 'sound-garden', 'soundgarden', 'livingsoundgarden'].includes(queryTab)) return 'living-sound-garden';
+          if (['hatbridge', 'hat-bridge', 'hatbridge-mission-control'].includes(queryTab)) return 'hatbridge';
           return queryTab as NavTab;
         }
 
@@ -106,6 +108,7 @@ export function App() {
           if (['solarfilament', 'solar-filament', 'solarfilamentlab', 'solar', 'filament'].includes(raw)) return 'solarfilament';
           if (['population-health', 'populationhealth', 'population_health', 'community-health', 'chsi'].includes(raw)) return 'population-health';
           if (['living-sound-garden', 'sound-garden', 'soundgarden', 'livingsoundgarden'].includes(raw)) return 'living-sound-garden';
+          if (['hatbridge', 'hat-bridge', 'hatbridge-mission-control'].includes(raw)) return 'hatbridge';
           return raw as NavTab;
         }
       }
@@ -166,6 +169,8 @@ export function App() {
         targetTab = 'population-health';
       } else if (['living-sound-garden', 'sound-garden', 'soundgarden', 'livingsoundgarden'].includes(raw)) {
         targetTab = 'living-sound-garden';
+      } else if (['hatbridge', 'hat-bridge', 'hatbridge-mission-control'].includes(raw)) {
+        targetTab = 'hatbridge';
       }
       if (targetTab && targetTab !== activeTab) {
         setActiveTab(targetTab);
@@ -640,6 +645,12 @@ export function App() {
 
         {activeTab === 'threehats' && (
           <ThreeHatsModule setActiveTab={setActiveTab} />
+        )}
+
+        {activeTab === 'hatbridge' && (
+          <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-6">
+            <HatBridgeModule />
+          </div>
         )}
 
         {activeTab === 'streetvendorsmap' && (

@@ -40,7 +40,8 @@ import {
   Rocket,
   Users,
   UserCheck,
-  Flower2
+  Flower2,
+  Layers
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -109,6 +110,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: 'buildwithai', label: 'Build With AI', icon: <Hammer className="w-4 h-4 text-indigo-600" />, badge: 'Workspace' },
     { id: 'memorylantern', label: 'Lantern Keeper', icon: <Flame className="w-4 h-4 text-amber-400" />, badge: 'Personal AI' },
     { id: 'threehats', label: 'Three Hats', icon: <Compass className="w-4 h-4 text-violet-400" />, badge: 'Roles' },
+    { id: 'hatbridge', label: 'HatBridge', icon: <Layers className="w-4 h-4 text-teal-700" />, badge: 'Mission Control' },
     { id: 'streetvendorsmap', label: 'StreetVendorsMap', icon: <MapPin className="w-4 h-4 text-amber-500" />, badge: 'Gánh Mưu Sinh' },
     { id: 'gatherglow', label: 'Gather & Glow', icon: <Sparkles className="w-4 h-4 text-rose-500" />, badge: 'AI Events' },
     { id: 'deck', label: 'Executive Deck', icon: <Presentation className="w-4 h-4 text-purple-600" />, badge: 'MVP Brief' },
@@ -332,6 +334,8 @@ export const Navbar: React.FC<NavbarProps> = ({
                   return 'bg-gradient-to-r from-sky-500 to-blue-600 text-white shadow-md shadow-sky-500/25 ring-1 ring-sky-300/40';
                 case 'population-health':
                   return 'bg-gradient-to-r from-teal-700 to-emerald-600 text-white shadow-md shadow-teal-500/25 ring-1 ring-teal-300/40';
+                case 'hatbridge':
+                  return 'bg-slate-900 text-white shadow-md shadow-slate-900/25 ring-1 ring-teal-400/50';
                 case 'settings':
                   return 'bg-gradient-to-r from-slate-600 to-slate-700 text-white shadow-md shadow-slate-500/20';
                 default:

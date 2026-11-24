@@ -101,6 +101,7 @@ import {
   RateLimitError,
 } from './src/server/populationHealthAuth';
 import { probePopulationFirestorePersistence } from './src/server/populationHealthFirestoreStore';
+import { registerHatBridgeRoutes } from './src/server/hatbridgeService';
 import { GeminiCircuitBreaker } from './src/server/geminiCircuitBreaker';
 import {
   getMultiInstanceSafetyDiagnostics,
@@ -6159,6 +6160,11 @@ app.post('/api/population-health/demo/reset', async (req, res) => {
     return sendPopError(res, err);
   }
 });
+
+// ============================================================================
+// DR. T — HATBRIDGE API ROUTES (Codegeist 2026)
+// ============================================================================
+registerHatBridgeRoutes(app, getGemini);
 
 // Setup Vite or Static serving
 async function setupApp() {

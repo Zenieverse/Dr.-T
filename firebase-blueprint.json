@@ -291,6 +291,106 @@
         "outcome": { "type": "string", "description": "ALLOWED | DENIED" },
         "timestamp": { "type": "string", "description": "ISO timestamp" }
       }
+    },
+    "HatBridgeRole": {
+      "collection": "hatbridge_roles",
+      "fields": {
+        "id": { "type": "string", "description": "Role unique ID" },
+        "userId": { "type": "string", "description": "Owner Firebase UID" },
+        "name": { "type": "string", "description": "Hat name" },
+        "privacyLevel": { "type": "string", "description": "private_personal | work_team | work_restricted" },
+        "archived": { "type": "boolean", "description": "Archive flag" },
+        "createdAt": { "type": "string", "description": "ISO timestamp" },
+        "updatedAt": { "type": "string", "description": "ISO timestamp" }
+      }
+    },
+    "HatBridgeContextItem": {
+      "collection": "hatbridge_context_items",
+      "fields": {
+        "id": { "type": "string", "description": "Context item ID" },
+        "userId": { "type": "string", "description": "Owner Firebase UID" },
+        "roleId": { "type": "string", "description": "Linked HatBridgeRole ID" },
+        "title": { "type": "string", "description": "Capture title" },
+        "category": { "type": "string", "description": "task | decision | follow_up | meeting_note | reminder | commitment" },
+        "commitmentStatus": { "type": "string", "description": "urgent | important | scheduled | waiting | deferred | completed" },
+        "privacyLevel": { "type": "string", "description": "private_personal | work_team | work_restricted" },
+        "createdAt": { "type": "string", "description": "ISO timestamp" },
+        "updatedAt": { "type": "string", "description": "ISO timestamp" }
+      }
+    },
+    "HatBridgeDecision": {
+      "collection": "hatbridge_decisions",
+      "fields": {
+        "id": { "type": "string", "description": "Decision ID" },
+        "userId": { "type": "string", "description": "Owner Firebase UID" },
+        "roleId": { "type": "string", "description": "Linked HatBridgeRole ID" },
+        "title": { "type": "string", "description": "Decision title" },
+        "status": { "type": "string", "description": "confirmed | waiting_approval | proposed | superseded" },
+        "privacyLevel": { "type": "string", "description": "private_personal | work_team | work_restricted" },
+        "createdAt": { "type": "string", "description": "ISO timestamp" },
+        "updatedAt": { "type": "string", "description": "ISO timestamp" }
+      }
+    },
+    "HatBridgeHandoff": {
+      "collection": "hatbridge_handoffs",
+      "fields": {
+        "id": { "type": "string", "description": "Handoff ID" },
+        "userId": { "type": "string", "description": "Owner Firebase UID" },
+        "fromRoleId": { "type": "string", "description": "Outgoing role ID" },
+        "privacyLevel": { "type": "string", "description": "private_personal | work_team | work_restricted" },
+        "createdAt": { "type": "string", "description": "ISO timestamp" },
+        "updatedAt": { "type": "string", "description": "ISO timestamp" }
+      }
+    },
+    "HatBridgeReentryBrief": {
+      "collection": "hatbridge_reentry_briefs",
+      "fields": {
+        "id": { "type": "string", "description": "Re-entry brief ID" },
+        "userId": { "type": "string", "description": "Owner Firebase UID" },
+        "roleId": { "type": "string", "description": "Resumed role ID" },
+        "status": { "type": "string", "description": "draft | confirmed | saved | dismissed" },
+        "privacyLevel": { "type": "string", "description": "private_personal | work_team | work_restricted" },
+        "createdAt": { "type": "string", "description": "ISO timestamp" },
+        "updatedAt": { "type": "string", "description": "ISO timestamp" }
+      }
+    },
+    "HatBridgeTimeBlock": {
+      "collection": "hatbridge_time_blocks",
+      "fields": {
+        "id": { "type": "string", "description": "Time protection block ID" },
+        "userId": { "type": "string", "description": "Owner Firebase UID" },
+        "category": { "type": "string", "description": "family | rest | appointment | exercise | learning | recovery | unavailable" },
+        "date": { "type": "string", "description": "YYYY-MM-DD" },
+        "protected": { "type": "boolean", "description": "Protected boundary boolean" },
+        "privacyLevel": { "type": "string", "description": "private_personal | work_team | work_restricted" },
+        "createdAt": { "type": "string", "description": "ISO timestamp" }
+      }
+    },
+    "HatBridgePreferences": {
+      "collection": "hatbridge_preferences",
+      "fields": {
+        "userId": { "type": "string", "description": "Owner Firebase UID" },
+        "aiConsentGranted": { "type": "boolean", "description": "Explicit AI consent toggle" },
+        "analyticsEnabled": { "type": "boolean", "description": "Opt-in privacy-safe analytics toggle" },
+        "updatedAt": { "type": "string", "description": "ISO timestamp" }
+      }
+    },
+    "HatBridgeIntegrationState": {
+      "collection": "hatbridge_integrations",
+      "fields": {
+        "userId": { "type": "string", "description": "Owner Firebase UID" },
+        "connectionMode": { "type": "string", "description": "disconnected | live_atlassian_configured | forge_app_linked | sample_sandbox" },
+        "updatedAt": { "type": "string", "description": "ISO timestamp" }
+      }
+    },
+    "HatBridgeAuditEvent": {
+      "collection": "hatbridge_audit_events",
+      "fields": {
+        "id": { "type": "string", "description": "Audit event ID" },
+        "userId": { "type": "string", "description": "Owner Firebase UID" },
+        "action": { "type": "string", "description": "Action identifier" },
+        "timestamp": { "type": "string", "description": "ISO timestamp" }
+      }
     }
   }
 }

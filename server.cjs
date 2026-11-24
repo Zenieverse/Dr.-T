@@ -185436,6 +185436,583 @@ Respond in JSON with exactly:
   }
 };
 
+// src/server/hatbridgeAiService.ts
+var HATBRIDGE_GEMINI_MODEL = "gemini-4-hydrogen";
+var HatBridgeAiConsentError = class extends Error {
+  statusCode = 403;
+  code = "CONSENT_REQUIRED";
+  constructor(message) {
+    super(message);
+    this.name = "HatBridgeAiConsentError";
+  }
+};
+var HatBridgeAiUnavailableError = class extends Error {
+  statusCode = 503;
+  code;
+  constructor(code, message) {
+    super(message);
+    this.name = "HatBridgeAiUnavailableError";
+    this.code = code;
+  }
+};
+function sanitizeAndScopeContextForAi(input) {
+  if (!input.aiConsentGranted) {
+    throw new HatBridgeAiConsentError(
+      "AI consent is not enabled. Enable AI Continuity Consent in HatBridge Settings & Privacy before sending workspace notes to Gemini."
+    );
+  }
+  let redactedPrivateCount = 0;
+  const allowPriv = Boolean(input.allowPrivatePersonal);
+  const filterPriv = (arr) => arr.filter((entry) => {
+    if (entry.privacyLevel === "private_personal" && !allowPriv) {
+      redactedPrivateCount += 1;
+      return false;
+    }
+    return true;
+  });
+  return {
+    scopedRoles: filterPriv(input.roles).slice(0, 20),
+    scopedItems: filterPriv(input.contextItems).slice(0, 40),
+    scopedDecisions: filterPriv(input.decisions).slice(0, 30),
+    scopedHandoffs: filterPriv(input.handoffs).slice(0, 15),
+    redactedPrivateCount
+  };
+}
+var RESPONSE_SCHEMA = {
+  type: Type.OBJECT,
+  properties: {
+    observedFacts: {
+      type: Type.ARRAY,
+      items: { type: Type.STRING },
+      description: "Strictly verified facts present in the supplied HatBridge records."
+    },
+    sourceReferences: {
+      type: Type.ARRAY,
+      items: {
+        type: Type.OBJECT,
+        properties: {
+          label: { type: Type.STRING },
+          type: { type: Type.STRING },
+          id: { type: Type.STRING },
+          url: { type: Type.STRING }
+        },
+        required: ["label", "type"]
+      },
+      description: "Citations referencing actual IDs, Jira keys, Confluence pages, or decision records."
+    },
+    userConfirmedDecisions: {
+      type: Type.ARRAY,
+      items: { type: Type.STRING },
+      description: "Only decisions explicitly marked status=confirmed by the user."
+    },
+    aiSuggestions: {
+      type: Type.ARRAY,
+      items: { type: Type.STRING },
+      description: "Helpful, calm AI suggestions clearly separated from confirmed facts."
+    },
+    missingInformation: {
+      type: Type.ARRAY,
+      items: { type: Type.STRING },
+      description: "Explicit gaps in the supplied context. Never guess or invent missing data."
+    },
+    proposedNextAction: {
+      type: Type.STRING,
+      description: "Single concrete, non-destructive next step grounded in the supplied context."
+    }
+  },
+  required: [
+    "observedFacts",
+    "sourceReferences",
+    "userConfirmedDecisions",
+    "aiSuggestions",
+    "missingInformation",
+    "proposedNextAction"
+  ]
+};
+async function runHatBridgeGeminiReasoning(input, geminiClient, options) {
+  const scoped = sanitizeAndScopeContextForAi(input);
+  if (!geminiClient) {
+    throw new HatBridgeAiUnavailableError(
+      "GEMINI_KEY_MISSING",
+      "GEMINI_API_KEY is not configured on the server. Gemini reasoning is unavailable; you can still use the deterministic local Re-entry Brief builder."
+    );
+  }
+  const timeoutMs = Math.max(250, Math.min(options?.timeoutMs ?? 18e3, 6e4));
+  const systemInstruction = `You are HatBridge Context Navigator inside Dr. T \u2014 HatBridge ("Many Hats. One Life. Nothing Important Lost.").
+CRITICAL RULES:
+1. Ground every single claim strictly in the authorized JSON context below. NEVER invent Jira issues, Confluence pages, deadlines, meetings, or decisions.
+2. If evidence is missing for part of the user's question, list it explicitly inside "missingInformation" and write "Not available in the connected context." where appropriate.
+3. NEVER present an AI suggestion or a "proposed"/"waiting_approval" decision as a user-confirmed decision.
+4. NEVER suggest cancelling or modifying protected personal/family time automatically; require human approval.
+5. Do NOT include any clinical diagnosis or identifiable patient data.`;
+  const contextPayload = {
+    mode: input.mode,
+    activeRole: input.activeRole ? { id: input.activeRole.id, name: input.activeRole.name, priorities: input.activeRole.currentPriorities } : null,
+    redactedPrivateRecordsCount: scoped.redactedPrivateCount,
+    roles: scoped.scopedRoles.map((r45) => ({ id: r45.id, name: r45.name, privacy: r45.privacyLevel, priorities: r45.currentPriorities })),
+    contextItems: scoped.scopedItems.map((i19) => ({
+      id: i19.id,
+      roleId: i19.roleId,
+      title: i19.title,
+      content: i19.content,
+      category: i19.category,
+      status: i19.commitmentStatus,
+      dueDate: i19.dueDate,
+      waitingOn: i19.waitingOnPerson,
+      jiraIssueKey: i19.jiraIssueKey,
+      confluencePageId: i19.confluencePageId
+    })),
+    decisions: scoped.scopedDecisions.map((d20) => ({
+      id: d20.id,
+      roleId: d20.roleId,
+      title: d20.title,
+      decision: d20.decision,
+      reasoning: d20.reasoning,
+      status: d20.status,
+      date: d20.decisionDate,
+      responsiblePerson: d20.responsiblePerson,
+      supportingDocument: d20.supportingDocument,
+      confluencePageId: d20.confluencePageId
+    })),
+    handoffs: scoped.scopedHandoffs.map((h12) => ({
+      id: h12.id,
+      fromRoleId: h12.fromRoleId,
+      situation: h12.currentSituation,
+      remainingWork: h12.remainingWork,
+      nextAction: h12.nextAction,
+      suggestedReturnDate: h12.suggestedReturnDate
+    }))
+  };
+  let timer;
+  try {
+    const generatePromise = geminiClient.models.generateContent({
+      model: HATBRIDGE_GEMINI_MODEL,
+      contents: [
+        {
+          role: "user",
+          parts: [
+            {
+              text: `Task mode: ${input.mode}
+User prompt: ${input.prompt}
+
+Authorized Context JSON:
+${JSON.stringify(contextPayload)}`
+            }
+          ]
+        }
+      ],
+      config: {
+        systemInstruction,
+        responseMimeType: "application/json",
+        responseSchema: RESPONSE_SCHEMA,
+        temperature: 0.2
+      }
+    });
+    const timeoutPromise = new Promise((_2, reject) => {
+      timer = setTimeout(() => {
+        reject(new HatBridgeAiUnavailableError("GEMINI_UPSTREAM_ERROR", "Gemini AI request timed out. Falling back to deterministic local continuity records."));
+      }, timeoutMs);
+    });
+    const response = await Promise.race([generatePromise, timeoutPromise]);
+    const parsed = JSON.parse(response.text || "{}");
+    return {
+      observedFacts: Array.isArray(parsed.observedFacts) ? parsed.observedFacts : [],
+      sourceReferences: Array.isArray(parsed.sourceReferences) ? parsed.sourceReferences : [],
+      userConfirmedDecisions: Array.isArray(parsed.userConfirmedDecisions) ? parsed.userConfirmedDecisions : [],
+      aiSuggestions: Array.isArray(parsed.aiSuggestions) ? parsed.aiSuggestions : [],
+      missingInformation: [
+        ...Array.isArray(parsed.missingInformation) ? parsed.missingInformation : [],
+        ...scoped.redactedPrivateCount > 0 ? [`${scoped.redactedPrivateCount} private_personal item(s) were withheld from AI context per your privacy settings.`] : []
+      ],
+      proposedNextAction: parsed.proposedNextAction || "Review the observed context above before taking action.",
+      generatedBy: "gemini",
+      model: HATBRIDGE_GEMINI_MODEL
+    };
+  } catch (err) {
+    if (err instanceof HatBridgeAiUnavailableError) {
+      throw err;
+    }
+    const cleanMsg = String(err?.message || "Gemini AI request failed upstream.").replace(/AIza[0-9A-Za-z_-]+/g, "[REDACTED]").slice(0, 220);
+    throw new HatBridgeAiUnavailableError("GEMINI_UPSTREAM_ERROR", cleanMsg);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+}
+
+// src/server/hatbridgeAtlassianService.ts
+var AtlassianBoundaryError = class extends Error {
+  statusCode;
+  code;
+  constructor(statusCode, code, message) {
+    super(message);
+    this.name = "AtlassianBoundaryError";
+    this.statusCode = statusCode;
+    this.code = code;
+  }
+};
+var VALID_ATLASSIAN_SITE_REGEX = /^https:\/\/[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9]\.atlassian\.net$/;
+var VALID_CLOUD_ID_REGEX = /^[a-fA-F0-9-]{8,64}$/;
+function validateAtlassianSiteUrl(rawUrl) {
+  if (!rawUrl || typeof rawUrl !== "string") return null;
+  const trimmed = rawUrl.trim().replace(/\/+$/, "");
+  if (!VALID_ATLASSIAN_SITE_REGEX.test(trimmed)) {
+    throw new AtlassianBoundaryError(
+      400,
+      "INVALID_ATLASSIAN_SITE_URL",
+      "Atlassian site URL must be a valid HTTPS *.atlassian.net domain (e.g., https://your-site.atlassian.net)."
+    );
+  }
+  return trimmed;
+}
+function resolveAtlassianConnection(params) {
+  const bearer2 = params?.oauthBearerToken?.trim();
+  const cloudId = params?.oauthCloudId?.trim();
+  if (bearer2 && cloudId) {
+    if (!VALID_CLOUD_ID_REGEX.test(cloudId)) {
+      throw new AtlassianBoundaryError(400, "INVALID_CLOUD_ID", "Invalid Atlassian Cloud ID format.");
+    }
+    const siteUrl = params?.siteUrlHint ? validateAtlassianSiteUrl(params.siteUrlHint) || "" : "";
+    return {
+      mode: "oauth_bearer",
+      siteUrl: siteUrl || `https://api.atlassian.com/ex/jira/${cloudId}`,
+      cloudId,
+      headers: {
+        Authorization: `Bearer ${bearer2}`,
+        Accept: "application/json",
+        "Content-Type": "application/json"
+      },
+      accountLabel: "Atlassian OAuth Bearer Session"
+    };
+  }
+  const envSite = (process.env.ATLASSIAN_SITE_URL || "").trim();
+  const envEmail = (process.env.ATLASSIAN_EMAIL || "").trim();
+  const envToken = (process.env.ATLASSIAN_API_TOKEN || "").trim();
+  if (envSite && envEmail && envToken) {
+    const validatedSite = validateAtlassianSiteUrl(envSite);
+    const basic = Buffer.from(`${envEmail}:${envToken}`).toString("base64");
+    return {
+      mode: "live_env",
+      siteUrl: validatedSite,
+      headers: {
+        Authorization: `Basic ${basic}`,
+        Accept: "application/json",
+        "Content-Type": "application/json"
+      },
+      accountLabel: envEmail
+    };
+  }
+  return {
+    mode: "disconnected",
+    siteUrl: "",
+    headers: {}
+  };
+}
+function assertWorkplaceExportAllowed(privacyLevel) {
+  if (privacyLevel === "private_personal") {
+    throw new AtlassianBoundaryError(
+      403,
+      "PRIVACY_BOUNDARY_VIOLATION",
+      "Private personal/family items cannot be pushed or published to shared Jira or Confluence workspaces."
+    );
+  }
+}
+async function fetchJiraWorkspaceIssues(params) {
+  const { config } = params;
+  if (config.mode === "disconnected") {
+    throw new AtlassianBoundaryError(
+      401,
+      "ATLASSIAN_NOT_CONNECTED",
+      "No live Atlassian Jira connection is configured on the server."
+    );
+  }
+  const f8 = params.fetchImpl || fetch;
+  const jql = (params.jql || "assignee = currentUser() ORDER BY updated DESC").slice(0, 300);
+  const baseUrl = config.mode === "oauth_bearer" && config.cloudId ? `https://api.atlassian.com/ex/jira/${config.cloudId}` : config.siteUrl;
+  const url = `${baseUrl}/rest/api/3/search/jql?jql=${encodeURIComponent(jql)}&maxResults=25&fields=summary,status,priority,assignee,duedate,project`;
+  const resp = await f8(url, { method: "GET", headers: config.headers });
+  if (!resp.ok) {
+    throw new AtlassianBoundaryError(
+      resp.status === 401 || resp.status === 403 ? 401 : 502,
+      "JIRA_API_ERROR",
+      `Jira REST API returned ${resp.status}. Verify workspace scopes and user permissions.`
+    );
+  }
+  const data = await resp.json();
+  const today = (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
+  return (data.issues || []).map((issue) => {
+    const fields = issue.fields || {};
+    const statusName = String(fields.status?.name || "Open");
+    const dueDate = fields.duedate ? String(fields.duedate) : void 0;
+    const isBlocked = /block|wait|hold/i.test(statusName);
+    const isOverdue = Boolean(dueDate && dueDate < today && !/done|closed|resolved/i.test(statusName));
+    const webBase = config.siteUrl.startsWith("https://") && config.siteUrl.includes(".atlassian.net") ? config.siteUrl : "https://home.atlassian.com";
+    return {
+      id: String(issue.id),
+      key: String(issue.key),
+      summary: String(fields.summary || "Untitled issue"),
+      status: statusName,
+      priority: String(fields.priority?.name || "Medium"),
+      assignee: fields.assignee?.displayName ? String(fields.assignee.displayName) : void 0,
+      dueDate,
+      projectKey: String(fields.project?.key || "WORK"),
+      projectName: String(fields.project?.name || "Jira Project"),
+      isOverdue,
+      isBlocked,
+      url: `${webBase}/browse/${issue.key}`,
+      dataOrigin: "live_atlassian"
+    };
+  });
+}
+async function createJiraIssueConfirmed(params) {
+  assertWorkplaceExportAllowed(params.privacyLevel);
+  if (!params.userConfirmed) {
+    throw new AtlassianBoundaryError(
+      400,
+      "USER_CONFIRMATION_REQUIRED",
+      "Explicit user confirmation is required before creating a Jira issue."
+    );
+  }
+  if (params.config.mode === "disconnected") {
+    throw new AtlassianBoundaryError(
+      401,
+      "ATLASSIAN_NOT_CONNECTED",
+      "Cannot create Jira issue: Atlassian Cloud connection is not configured."
+    );
+  }
+  const cleanProject = params.projectKey.trim().toUpperCase();
+  if (!/^[A-Z0-9_]{1,16}$/.test(cleanProject)) {
+    throw new AtlassianBoundaryError(400, "INVALID_PROJECT_KEY", "Invalid Jira project key.");
+  }
+  const cleanSummary = (params.summary || "").trim().slice(0, 200);
+  if (!cleanSummary) {
+    throw new AtlassianBoundaryError(400, "INVALID_SUMMARY", "Jira issue summary cannot be empty.");
+  }
+  const f8 = params.fetchImpl || fetch;
+  const baseUrl = params.config.mode === "oauth_bearer" && params.config.cloudId ? `https://api.atlassian.com/ex/jira/${params.config.cloudId}` : params.config.siteUrl;
+  const body = {
+    fields: {
+      project: { key: cleanProject },
+      summary: cleanSummary,
+      issuetype: { name: params.issueType || "Task" },
+      description: {
+        type: "doc",
+        version: 1,
+        content: [
+          {
+            type: "paragraph",
+            content: [{ type: "text", text: params.description.trim().slice(0, 4e3) || "Created from HatBridge Context Capture." }]
+          }
+        ]
+      }
+    }
+  };
+  const resp = await f8(`${baseUrl}/rest/api/3/issue`, {
+    method: "POST",
+    headers: params.config.headers,
+    body: JSON.stringify(body)
+  });
+  if (!resp.ok) {
+    throw new AtlassianBoundaryError(
+      resp.status === 401 || resp.status === 403 ? 403 : 502,
+      "JIRA_CREATE_FAILED",
+      `Jira issue creation failed with HTTP ${resp.status}.`
+    );
+  }
+  const created = await resp.json();
+  const webBase = params.config.siteUrl.startsWith("https://") && params.config.siteUrl.includes(".atlassian.net") ? params.config.siteUrl : "https://home.atlassian.com";
+  return {
+    id: created.id,
+    key: created.key,
+    url: `${webBase}/browse/${encodeURIComponent(created.key)}`
+  };
+}
+async function searchConfluenceWorkspacePages(params) {
+  const { config } = params;
+  if (config.mode === "disconnected") {
+    throw new AtlassianBoundaryError(
+      401,
+      "ATLASSIAN_NOT_CONNECTED",
+      "No live Atlassian Confluence connection is configured on the server."
+    );
+  }
+  const f8 = params.fetchImpl || fetch;
+  const baseUrl = config.mode === "oauth_bearer" && config.cloudId ? `https://api.atlassian.com/ex/confluence/${config.cloudId}` : config.siteUrl;
+  const qClean = (params.queryText || "").trim().slice(0, 120);
+  const url = qClean ? `${baseUrl}/wiki/rest/api/content/search?cql=${encodeURIComponent(`type = page AND text ~ "${qClean.replace(/"/g, "")}"`)}&limit=20&expand=space,version` : `${baseUrl}/wiki/api/v2/pages?limit=20&sort=-modified-date`;
+  const resp = await f8(url, { method: "GET", headers: config.headers });
+  if (!resp.ok) {
+    throw new AtlassianBoundaryError(
+      resp.status === 401 || resp.status === 403 ? 401 : 502,
+      "CONFLUENCE_API_ERROR",
+      `Confluence REST API returned ${resp.status}.`
+    );
+  }
+  const data = await resp.json();
+  const webBase = config.siteUrl.startsWith("https://") && config.siteUrl.includes(".atlassian.net") ? config.siteUrl : "https://home.atlassian.com";
+  return (data.results || []).map((page) => {
+    const id = String(page.id);
+    const title = String(page.title || "Untitled Confluence Page");
+    const spaceKey = String(page.space?.key || page.spaceId || "SPACE");
+    const webUi = page._links?.webui ? String(page._links.webui) : `/wiki/pages/${id}`;
+    return {
+      id,
+      title,
+      spaceKey,
+      spaceName: String(page.space?.name || spaceKey),
+      excerpt: String(page.excerpt || page.body?.storage?.value || "").replace(/<[^>]+>/g, "").slice(0, 240) || "Authorised Confluence page.",
+      lastUpdated: String(page.version?.when || page.createdAt || (/* @__PURE__ */ new Date()).toISOString()),
+      author: page.version?.by?.displayName ? String(page.version.by.displayName) : void 0,
+      url: webUi.startsWith("http") ? webUi : `${webBase}${webUi.startsWith("/") ? "" : "/"}${webUi}`,
+      isMeetingNote: /meeting|notes|agenda|minutes/i.test(title),
+      dataOrigin: "live_atlassian"
+    };
+  });
+}
+
+// src/server/hatbridgeService.ts
+async function resolveOptionalAuthenticatedUid(req) {
+  const authHeader = (req.headers.authorization || "").trim();
+  if (!authHeader.startsWith("Bearer ")) {
+    return { uid: null, authMode: "unauthenticated" };
+  }
+  const token = authHeader.slice(7).trim();
+  if (!token) {
+    throw new HttpAuthError(401, "Empty Bearer token.");
+  }
+  const claims = await verifyFirebaseIdToken(token);
+  return { uid: claims.sub, authMode: "verified_firebase" };
+}
+function sanitizeErrorText(raw) {
+  return (raw || "").replace(/Bearer\s+[A-Za-z0-9\-._~+/]+=*/gi, "Bearer [REDACTED]").replace(/Basic\s+[A-Za-z0-9+/=]+/gi, "Basic [REDACTED]").slice(0, 240);
+}
+function sendHatBridgeError(res, err) {
+  if (err instanceof HttpAuthError || err instanceof HatBridgeAiConsentError || err instanceof HatBridgeAiUnavailableError || err instanceof AtlassianBoundaryError) {
+    return res.status(err.statusCode).json({ error: sanitizeErrorText(err.message), code: err.code });
+  }
+  if (err instanceof RateLimitError2) {
+    return res.status(429).json({ error: sanitizeErrorText(err.message), code: "RATE_LIMITED" });
+  }
+  const msg = err instanceof Error ? sanitizeErrorText(err.message) : "Internal HatBridge server error";
+  return res.status(500).json({ error: msg, code: "INTERNAL_ERROR" });
+}
+function registerHatBridgeRoutes(app2, getGemini2) {
+  app2.get("/api/hatbridge/status", async (req, res) => {
+    try {
+      const auth = await resolveOptionalAuthenticatedUid(req);
+      const atlassianCfg = resolveAtlassianConnection({
+        oauthBearerToken: typeof req.headers["x-atlassian-access-token"] === "string" ? req.headers["x-atlassian-access-token"] : void 0,
+        oauthCloudId: typeof req.headers["x-atlassian-cloud-id"] === "string" ? req.headers["x-atlassian-cloud-id"] : void 0
+      });
+      return res.json({
+        module: "hatbridge",
+        authMode: auth.authMode,
+        aiAvailable: Boolean(process.env.GEMINI_API_KEY),
+        aiModel: "gemini-4-hydrogen",
+        atlassian: {
+          mode: atlassianCfg.mode,
+          connected: atlassianCfg.mode !== "disconnected",
+          siteUrl: atlassianCfg.siteUrl || null,
+          accountLabel: atlassianCfg.accountLabel || null,
+          forgeManifestPath: "apps/hatbridge-forge/manifest.yml"
+        },
+        privacyPolicy: {
+          phiAllowedInHatBridge: false,
+          privatePersonalSharedWithAtlassian: false,
+          aiRequiresExplicitConsent: true
+        },
+        checkedAt: (/* @__PURE__ */ new Date()).toISOString()
+      });
+    } catch (err) {
+      return sendHatBridgeError(res, err);
+    }
+  });
+  app2.post("/api/hatbridge/ai/reason", async (req, res) => {
+    try {
+      const auth = await resolveOptionalAuthenticatedUid(req);
+      const ipKey = auth.uid || req.ip || "anon";
+      checkRateLimit(`hatbridge-ai:${ipKey}`, 20, 6e4);
+      const body = req.body || {};
+      const result = await runHatBridgeGeminiReasoning(
+        {
+          mode: body.mode || "assistant_query",
+          prompt: sanitizeText(body.prompt, 1200) || "Provide a grounded continuity summary.",
+          aiConsentGranted: Boolean(body.aiConsentGranted),
+          allowPrivatePersonal: Boolean(body.allowPrivatePersonal),
+          activeRole: body.activeRole,
+          roles: Array.isArray(body.roles) ? body.roles : [],
+          contextItems: Array.isArray(body.contextItems) ? body.contextItems : [],
+          decisions: Array.isArray(body.decisions) ? body.decisions : [],
+          handoffs: Array.isArray(body.handoffs) ? body.handoffs : []
+        },
+        getGemini2()
+      );
+      return res.json({ result });
+    } catch (err) {
+      return sendHatBridgeError(res, err);
+    }
+  });
+  app2.get("/api/hatbridge/atlassian/jira/issues", async (req, res) => {
+    try {
+      await resolveOptionalAuthenticatedUid(req);
+      const cfg = resolveAtlassianConnection({
+        oauthBearerToken: typeof req.headers["x-atlassian-access-token"] === "string" ? req.headers["x-atlassian-access-token"] : void 0,
+        oauthCloudId: typeof req.headers["x-atlassian-cloud-id"] === "string" ? req.headers["x-atlassian-cloud-id"] : void 0,
+        siteUrlHint: typeof req.query.siteUrl === "string" ? req.query.siteUrl : void 0
+      });
+      const issues = await fetchJiraWorkspaceIssues({
+        config: cfg,
+        jql: typeof req.query.jql === "string" ? req.query.jql : void 0
+      });
+      return res.json({ issues, source: cfg.mode, siteUrl: cfg.siteUrl });
+    } catch (err) {
+      return sendHatBridgeError(res, err);
+    }
+  });
+  app2.post("/api/hatbridge/atlassian/jira/issue", async (req, res) => {
+    try {
+      const auth = await resolveOptionalAuthenticatedUid(req);
+      if (!auth.uid && process.env.DRT_RUNTIME_ENV === "production") {
+        throw new HttpAuthError(401, "Verified Dr. T authentication required in production.");
+      }
+      const body = req.body || {};
+      const cfg = resolveAtlassianConnection({
+        oauthBearerToken: typeof req.headers["x-atlassian-access-token"] === "string" ? req.headers["x-atlassian-access-token"] : void 0,
+        oauthCloudId: typeof req.headers["x-atlassian-cloud-id"] === "string" ? req.headers["x-atlassian-cloud-id"] : void 0,
+        siteUrlHint: typeof body.siteUrl === "string" ? body.siteUrl : void 0
+      });
+      const created = await createJiraIssueConfirmed({
+        config: cfg,
+        projectKey: String(body.projectKey || ""),
+        summary: sanitizeText(body.summary, 200),
+        description: sanitizeText(body.description, 4e3),
+        issueType: sanitizeText(body.issueType, 40) || "Task",
+        privacyLevel: body.privacyLevel || "work_team",
+        userConfirmed: Boolean(body.userConfirmed)
+      });
+      return res.status(201).json({ issue: created });
+    } catch (err) {
+      return sendHatBridgeError(res, err);
+    }
+  });
+  app2.get("/api/hatbridge/atlassian/confluence/pages", async (req, res) => {
+    try {
+      await resolveOptionalAuthenticatedUid(req);
+      const cfg = resolveAtlassianConnection({
+        oauthBearerToken: typeof req.headers["x-atlassian-access-token"] === "string" ? req.headers["x-atlassian-access-token"] : void 0,
+        oauthCloudId: typeof req.headers["x-atlassian-cloud-id"] === "string" ? req.headers["x-atlassian-cloud-id"] : void 0,
+        siteUrlHint: typeof req.query.siteUrl === "string" ? req.query.siteUrl : void 0
+      });
+      const pages = await searchConfluenceWorkspacePages({
+        config: cfg,
+        queryText: typeof req.query.q === "string" ? req.query.q : void 0
+      });
+      return res.json({ pages, source: cfg.mode, siteUrl: cfg.siteUrl });
+    } catch (err) {
+      return sendHatBridgeError(res, err);
+    }
+  });
+}
+
 // server.impl.ts
 try {
   const envPath = import_path7.default.join(process.cwd(), ".env");
@@ -190774,6 +191351,7 @@ app.post("/api/population-health/demo/reset", async (req, res) => {
     return sendPopError(res, err);
   }
 });
+registerHatBridgeRoutes(app, getGemini);
 async function setupApp() {
   let startupDiagnostics;
   try {

@@ -1,12 +1,12 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
-  "installCommand": "npm install",
+  "installCommand": "npm install --legacy-peer-deps",
   "buildCommand": "VITE_RUNTIME_ENV=public_judging DRT_RUNTIME_ENV=public_judging VITE_SYNTHETIC_ONLY=true DRT_SYNTHETIC_ONLY=true npm run build:soundgarden:public",
   "outputDirectory": "dist-soundgarden",
   "rewrites": [
     {
-      "source": "/(.*)",
+      "source": "/((?!assets/).*)",
       "destination": "/index.html"
     }
   ],

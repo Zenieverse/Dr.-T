@@ -1,0 +1,1093 @@
+# MASTER BUILD PROMPT
+# DR. T — HATBRIDGE
+## Codegeist 2026 | Production-Grade AI Context & Life-Work Continuity Platform
+
+**Project:** Dr. T — HatBridge  
+**Product tagline:** Many Hats. One Life. Nothing Important Lost.  
+**Hackathon:** Codegeist 2026 — Build with Context. Ship with Confidence.  
+**Official competition:** https://codegeist2026.devpost.com/  
+**Official rules:** https://codegeist2026.devpost.com/rules  
+**Existing Dr. T repository:** https://github.com/Zenieverse/Dr.-T  
+**Development environment:** Google AI Studio Build  
+**Primary developer device:** iPad  
+**Target platforms:** Dr. T web application + Atlassian Forge  
+**Proposed category:** Apps for Specialized Industries  
+**Potential bonus:** Best Agents — Rovo/Assignable Agents  
+**Mission:** Build the real product. Preserve Dr. T. Connect genuine work context. Deliver a reliable, installable, market-ready experience.
+
+---
+
+# 1. YOUR ROLE
+
+Act as a principal product engineer, senior full-stack architect, Atlassian Forge specialist, AI product designer, privacy engineer and startup product strategist.
+
+Your mission is to transform the existing Dr. T platform into a polished, commercially credible product called:
+
+# Dr. T — HatBridge
+
+HatBridge helps people who carry multiple professional and personal responsibilities preserve context, resume unfinished work and move between roles without losing important information.
+
+This is not a concept proposal.
+
+This is not a static dashboard.
+
+This is not a generic chatbot.
+
+Build the actual application, integrate it into the existing Dr. T platform, implement the appropriate Atlassian Forge application, connect real supported services, test the code and prepare the project for deployment and Codegeist submission.
+
+Work directly in the existing project source.
+
+Do not stop after creating a plan.
+
+Do not claim completion without implementation and verification.
+
+---
+
+# 2. THE HUMAN STORY
+
+Dr. T is a real-life busy bee who wears many hats simultaneously.
+
+She may be:
+
+- A hospital professional.
+- A clinic practitioner.
+- A university dean.
+- A mother.
+- A daughter of a doctor.
+- A wife.
+- A representative at a medical congress.
+- A researcher.
+- A mentor.
+- A lifelong learner.
+- A person who also needs time for health, rest and personal interests.
+
+Her challenge is not merely having too many tasks.
+
+Her challenge is that every role has different responsibilities, people, decisions, deadlines and expectations.
+
+When she moves from one role to another, she may lose the context of what she was doing, why a decision was made, what remains unfinished and what she must do next.
+
+HatBridge addresses this problem.
+
+## Product promise
+
+**HatBridge helps people switch roles without losing continuity.**
+
+It preserves the right context, at the right time, for the right role—while respecting privacy and protecting personal life.
+
+---
+
+# 3. PRODUCT POSITIONING
+
+Build HatBridge as:
+
+**An AI-powered context-bridging and life-work continuity assistant for multi-role professionals.**
+
+Initial target users:
+
+- Healthcare professionals.
+- Academic leaders.
+- Clinician-educators.
+- Researchers.
+- Professional consultants.
+- Founders.
+- Executives.
+- People managing multiple projects and responsibilities.
+
+Primary problem:
+
+Context switching creates cognitive load, forgotten commitments, duplicated work, missed follow-ups and difficulty resuming unfinished responsibilities.
+
+Primary solution:
+
+A role-aware workspace that connects authorised work information, user-created context and AI-generated re-entry briefs.
+
+The product must deliver measurable practical value.
+
+Do not market it as a medical decision system, a replacement for a personal assistant, or an autonomous life manager.
+
+It is a human-controlled continuity system.
+
+---
+
+# 4. PRESERVE THE EXISTING DR. T PLATFORM
+
+This is an extension of the existing Dr. T application.
+
+Repository:
+
+https://github.com/Zenieverse/Dr.-T
+
+Inspect the actual repository before making changes.
+
+Preserve:
+
+- Existing authentication.
+- Existing user accounts.
+- Existing routes.
+- Existing navigation.
+- Existing backend services.
+- Existing database structures.
+- Existing design system.
+- Existing deployment architecture.
+- Existing module functionality.
+- Existing environment configuration.
+
+Preserve all existing Dr. T modules, including:
+
+- Health Alert Mini.
+- Presage Sense.
+- MicroBiz PayFlow.
+- Vision Alert.
+- PIANIST.
+- Three Hats.
+- MCP Live.
+- ChatQuest Live.
+- Gather & Glow.
+- Other modules currently present in the repository.
+
+Do not remove, rename, replace or break any existing module.
+
+Add HatBridge as a new, isolated module.
+
+Use existing authentication and infrastructure wherever appropriate.
+
+Do not create a separate unrelated Dr. T application.
+
+Do not overwrite unrelated work or existing user changes.
+
+---
+
+# 5. THE CORE PRODUCT EXPERIENCE
+
+Create a dedicated Dr. T navigation entry:
+
+**HatBridge — Life & Work Mission Control**
+
+The interface must feel like a premium productivity product that users could realistically adopt in their daily lives.
+
+The design should be elegant, calm, clear and emotionally intelligent.
+
+Avoid excessive gamification, noisy dashboards, unnecessary animations and generic AI chat layouts.
+
+## Main navigation
+
+Create the following sections:
+
+1. My Hats
+2. Today Bridge
+3. Re-entry Brief
+4. Context Capture
+5. Decision Memory
+6. Handoffs
+7. Time Protection
+8. Atlassian Workspace
+9. AI Assistant
+10. Settings & Privacy
+
+Use responsive navigation appropriate for iPad, mobile and desktop.
+
+---
+
+# 6. MY HATS — ROLE MANAGEMENT
+
+Create a role-management system.
+
+A Hat represents a distinct responsibility or life context.
+
+Initial suggested hats:
+
+- Hospital.
+- Clinic.
+- University / Dean.
+- Family / Mother.
+- Family / Daughter.
+- Family / Wife.
+- Congress / Professional Events.
+- Research.
+- Learning.
+- Personal Wellbeing.
+
+Users must be able to create, edit, reorder, archive and customise their own hats.
+
+Each hat should have:
+
+- Name.
+- Icon.
+- Colour or visual identity.
+- Description.
+- Goals.
+- Current priorities.
+- Related tasks.
+- Related documents.
+- Relevant contacts.
+- Active projects.
+- Recent decisions.
+- Unfinished work.
+- Preferred AI context.
+- Privacy classification.
+
+Do not force every user to adopt Dr. T's personal roles.
+
+The product must be reusable by other multi-role professionals.
+
+Users must be able to switch roles quickly.
+
+A role switch must not erase the previous role's context.
+
+---
+
+# 7. TODAY BRIDGE — CROSS-ROLE DAILY OVERVIEW
+
+Build a daily overview that connects responsibilities without overwhelming the user.
+
+Display:
+
+- Today's important commitments.
+- Upcoming deadlines.
+- Priority tasks.
+- Unfinished work.
+- Meetings.
+- Important follow-ups.
+- Personal commitments.
+- Protected time.
+- Context that needs attention.
+
+Provide a clear distinction between:
+
+- Urgent.
+- Important.
+- Scheduled.
+- Waiting.
+- Deferred.
+- Completed.
+
+The system should identify possible conflicts across roles.
+
+Example:
+
+A university meeting overlaps with a clinic commitment.
+
+The application should explain the conflict and offer a suggested resolution.
+
+It must not automatically cancel, reschedule or modify commitments without user approval.
+
+Provide a concise daily briefing.
+
+Avoid creating an unrealistic productivity schedule.
+
+The system should respect human limits and personal wellbeing.
+
+---
+
+# 8. THE SIGNATURE FEATURE — RE-ENTRY BRIEF
+
+This is the central product feature.
+
+When a user returns to a role after switching away, HatBridge should help them resume without reconstructing the entire situation.
+
+Create a polished Re-entry Brief.
+
+Each brief should answer:
+
+1. What was I working on?
+2. What was the last meaningful update?
+3. What decisions have already been made?
+4. What remains unfinished?
+5. Who is waiting for a response?
+6. What is the next meaningful action?
+7. What can safely wait?
+8. Is there a deadline or commitment I should not miss?
+
+Example:
+
+**Welcome back to Dean mode.**
+
+You last reviewed the faculty meeting agenda.
+
+The budget decision remains open.
+
+The next action is to review the two options in the linked Confluence page before Thursday's meeting.
+
+Your family commitment this evening is protected.
+
+The brief must use actual available context.
+
+Do not fabricate activities, decisions, deadlines or relationships.
+
+If information is missing, clearly say:
+
+"Not available in the connected context."
+
+Allow the user to:
+
+- Confirm the brief.
+- Edit it.
+- Save it.
+- Dismiss it.
+- Convert an item into a task.
+- Open the source.
+- Ask the AI assistant for clarification.
+
+A Re-entry Brief must be concise, actionable and trustworthy.
+
+---
+
+# 9. CONTEXT CAPTURE
+
+Implement rapid context capture.
+
+Users should be able to save a thought before switching roles.
+
+Support:
+
+- Text capture.
+- Optional voice input where browser and device support it.
+- Quick task capture.
+- Decision capture.
+- Follow-up capture.
+- Meeting note capture.
+- Personal reminder capture.
+
+Every capture must allow the user to select a hat.
+
+Provide a quick capture interface accessible from the main dashboard.
+
+The user should be able to capture an item in a few seconds.
+
+Do not require a long form.
+
+Provide optional fields:
+
+- Title.
+- Content.
+- Role.
+- Category.
+- Priority.
+- Due date.
+- Related project.
+- Related Jira issue.
+- Related Confluence page.
+- Privacy level.
+
+The application must clearly show where each captured item is stored.
+
+---
+
+# 10. DECISION MEMORY
+
+Build a structured decision-memory system.
+
+A decision record should contain:
+
+- Decision title.
+- Decision.
+- Reasoning.
+- Date.
+- Responsible person.
+- Relevant role.
+- Source.
+- Supporting document.
+- Related task.
+- Follow-up date.
+- Status.
+- Revision history.
+
+Users should be able to search decisions across their authorised contexts.
+
+AI should answer questions such as:
+
+"Why did I choose this option?"
+
+"What did we agree at the last meeting?"
+
+"Which decision is still waiting for approval?"
+
+"Show me the latest decision related to this project."
+
+Answers must cite the actual source records or links.
+
+If the evidence is insufficient, the assistant must say so.
+
+Do not invent a decision or present an AI suggestion as a confirmed human decision.
+
+---
+
+# 11. HANDOFFS AND ROLE TRANSITIONS
+
+Implement a context handoff workflow.
+
+Before switching away from a role, the user may create a handoff.
+
+A handoff can contain:
+
+- Current situation.
+- Completed work.
+- Remaining work.
+- Important decisions.
+- Outstanding questions.
+- Dependencies.
+- Next action.
+- Relevant links.
+- Suggested return date.
+
+Handoffs must be editable and user-controlled.
+
+Provide a simple transition:
+
+**Finish this context → Save handoff → Switch role.**
+
+The system should make it easy to resume later.
+
+Do not require users to write long summaries.
+
+AI can generate a draft from available authorised context, but the user must be able to review and edit it.
+
+---
+
+# 12. TIME PROTECTION AND HUMAN WELLBEING
+
+HatBridge must not optimise a person into exhaustion.
+
+Create a Time Protection feature.
+
+Users can mark:
+
+- Family time.
+- Rest.
+- Personal appointments.
+- Exercise.
+- Learning.
+- Recovery.
+- Unavailable periods.
+
+The system should recognise protected time when proposing schedules.
+
+It should not automatically fill every empty calendar slot.
+
+Provide a gentle workload overview.
+
+Warn the user when the planned day appears overloaded.
+
+Do not use guilt, streak pressure or manipulative productivity language.
+
+The product's success metric is not the number of tasks completed.
+
+It is whether users can make meaningful progress while preserving attention, autonomy and personal life.
+
+---
+
+# 13. ATLASSIAN FORGE — COMPETITION REQUIREMENT
+
+Codegeist 2026 requires a genuine Atlassian Forge application that integrates with at least one Atlassian product or platform capability.
+
+Official documentation:
+
+https://developer.atlassian.com/platform/forge/getting-started/
+
+The project must not be only a standalone React dashboard.
+
+Create a real Forge application in the existing repository.
+
+Suggested directory:
+
+`apps/hatbridge-forge/`
+
+Inspect the current repository structure and choose the correct integration location.
+
+## Required Forge deliverables
+
+Create and maintain:
+
+- `manifest.yml`
+- Forge frontend resources.
+- Forge backend functions or resolvers.
+- Required UI modules.
+- Authentication and permission configuration.
+- Jira integration.
+- Confluence integration.
+- Rovo integration where supported.
+- Installation and configuration documentation.
+- Local development instructions.
+- Judge installation instructions.
+
+Use supported Forge modules and APIs.
+
+Do not invent module names, permissions, endpoints or SDK methods.
+
+Consult the current official Atlassian documentation before implementing unfamiliar interfaces.
+
+## Jira integration
+
+Connect to authorised Jira data.
+
+Support:
+
+- Viewing assigned issues.
+- Viewing relevant project tasks.
+- Creating a task from a context capture.
+- Linking a task to a HatBridge role.
+- Viewing task status.
+- Identifying overdue or blocked tasks.
+- Linking a Re-entry Brief to relevant issues.
+
+All task creation and modification must require appropriate user confirmation.
+
+Do not expose Jira data to users who lack permission.
+
+## Confluence integration
+
+Connect to authorised Confluence content.
+
+Support:
+
+- Searching relevant pages.
+- Linking decisions to pages.
+- Viewing meeting notes.
+- Retrieving project context.
+- Summarising authorised documents.
+- Opening the original source.
+
+Do not copy restricted content into a public or unrelated data store.
+
+Preserve source permissions.
+
+## Real Atlassian context
+
+The application must use actual connected Jira or Confluence data when available.
+
+A disconnected or unconfigured state must be clearly displayed.
+
+Provide a demo mode only as a separate, clearly labelled experience.
+
+Never display demo data as live connected data.
+
+---
+
+# 14. ROVO AI AGENT — BONUS-PRIZE OPPORTUNITY
+
+Investigate and implement a genuine Rovo agent if the current Forge environment supports it.
+
+Potential agent:
+
+**HatBridge Context Navigator**
+
+Purpose:
+
+Help users resume work, understand authorised project context and prepare role transitions.
+
+The agent may:
+
+- Summarise relevant Jira issues.
+- Find related Confluence decisions.
+- Prepare a Re-entry Brief.
+- Identify open follow-ups.
+- Explain task dependencies.
+- Draft a context handoff.
+- Suggest the next action based on evidence.
+
+The agent must:
+
+- Respect Atlassian permissions.
+- Use authorised workspace data.
+- Cite sources.
+- Distinguish facts from suggestions.
+- Avoid making unapproved changes.
+- Never fabricate tasks or decisions.
+
+Implement the appropriate official Forge Rovo module only after verifying its current schema.
+
+Do not claim eligibility for a bonus prize merely because an AI chatbot exists.
+
+The project must contain the actual required Forge module and demonstrate it working.
+
+---
+
+# 15. AI ARCHITECTURE
+
+Use the existing Dr. T AI infrastructure where appropriate.
+
+Prefer server-side AI calls.
+
+Never expose API keys in browser code.
+
+Use the Gemini infrastructure already supported by the project.
+
+If a Gemini API key is required, use the supported server-side secret configuration.
+
+The AI system should support structured outputs for:
+
+- Re-entry Briefs.
+- Context handoffs.
+- Decision summaries.
+- Daily briefings.
+- Task suggestions.
+- Role-specific explanations.
+
+Every AI response must be grounded in the actual context supplied to it.
+
+Use a clear output structure:
+
+- Observed facts.
+- Source references.
+- User-confirmed decisions.
+- AI-generated suggestions.
+- Missing information.
+- Proposed next action.
+
+Do not allow AI to silently modify source records.
+
+Do not claim that the AI remembers information that was not actually saved or retrieved.
+
+---
+
+# 16. PRODUCT QUALITY AND USER EXPERIENCE
+
+Create a complete, premium product experience.
+
+Design direction:
+
+- Elegant.
+- Minimal.
+- Professional.
+- Human-centred.
+- Calm.
+- Accessible.
+- Responsive.
+
+Use the existing Dr. T visual identity and design system.
+
+Do not redesign the entire platform unnecessarily.
+
+The HatBridge interface should have:
+
+- Clear typography.
+- Consistent spacing.
+- Responsive cards.
+- Strong information hierarchy.
+- Useful empty states.
+- Accessible colour contrast.
+- Keyboard support.
+- Clear loading states.
+- Error states.
+- Confirmation states.
+- Helpful onboarding.
+
+Support iPad first, then mobile and desktop.
+
+Do not create a desktop-only layout.
+
+Avoid excessive charts and decorative statistics.
+
+Every screen must serve a real user task.
+
+---
+
+# 17. SECURITY, PRIVACY AND DATA GOVERNANCE
+
+This product may contain sensitive professional and personal information.
+
+Implement privacy by design.
+
+Required safeguards:
+
+- Existing Dr. T authentication.
+- User-owned records.
+- Server-side authorisation.
+- Secure API credentials.
+- Input validation.
+- Safe error handling.
+- Data minimisation.
+- Clear consent.
+- User-controlled retention.
+- Deletion and export where appropriate.
+- Audit records for important changes.
+- Separation of personal and workplace contexts.
+- Respect for Atlassian permissions.
+
+Do not store identifiable patient data in HatBridge.
+
+Do not use patient records as AI context.
+
+Do not place private family information in shared Jira or Confluence spaces.
+
+Do not send private notes to third-party AI services without clear disclosure and appropriate user consent.
+
+Never make private information visible to another user merely because the user shares a team or workspace.
+
+---
+
+# 18. DATABASE AND BACKEND
+
+Inspect the existing Dr. T backend and reuse its established architecture.
+
+Create isolated HatBridge data structures.
+
+Suggested entities:
+
+- `hatbridge_roles`
+- `hatbridge_context_items`
+- `hatbridge_handoffs`
+- `hatbridge_decisions`
+- `hatbridge_reentry_briefs`
+- `hatbridge_preferences`
+- `hatbridge_integrations`
+- `hatbridge_audit_events`
+
+Adapt these names to the existing database conventions.
+
+Every record must have:
+
+- Stable ID.
+- Owner.
+- Creation timestamp.
+- Update timestamp.
+- Appropriate privacy classification.
+- Source reference where applicable.
+
+Do not create duplicate authentication systems.
+
+Do not create a second database if the existing architecture can support the feature safely.
+
+---
+
+# 19. MARKET-READY PRODUCT REQUIREMENTS
+
+Build for real users, not only hackathon judges.
+
+Include:
+
+- Onboarding.
+- Role setup.
+- Sample workflow.
+- Real integration setup.
+- Privacy settings.
+- User preferences.
+- Search.
+- Error recovery.
+- Export.
+- Deletion.
+- Help and documentation.
+- Clear subscription-ready architecture without implementing fake billing.
+
+Do not add fake testimonials.
+
+Do not display fabricated customer numbers.
+
+Do not create false claims about productivity improvement.
+
+Do not claim that the product is clinically validated.
+
+Do not claim marketplace publication until it has actually been submitted or approved.
+
+The interface should be commercially credible and ready for controlled pilot testing.
+
+---
+
+# 20. ANALYTICS AND PRODUCT EVALUATION
+
+Create privacy-conscious product analytics.
+
+Possible metrics:
+
+- Time to resume a task.
+- Re-entry Brief usefulness rating.
+- Number of confirmed context handoffs.
+- Missed follow-ups prevented, when genuinely measurable.
+- User-reported context-switching burden.
+- AI correction rate.
+- AI suggestion acceptance rate.
+- Integration reliability.
+
+Do not collect unnecessary sensitive content.
+
+Do not claim that a metric proves productivity improvement without an appropriate evaluation.
+
+Allow users to disable optional analytics.
+
+---
+
+# 21. TESTING AND QUALITY ASSURANCE
+
+Test the actual application.
+
+Required tests:
+
+- Existing Dr. T regression tests.
+- HatBridge navigation.
+- Role creation and editing.
+- Context capture.
+- Context retrieval.
+- Re-entry Brief generation.
+- Decision-memory search.
+- Handoff workflow.
+- Time protection.
+- Authentication.
+- Record ownership.
+- Privacy boundaries.
+- Jira connection.
+- Confluence connection.
+- Forge installation.
+- Rovo agent functionality if implemented.
+- Error handling.
+- Responsive iPad layout.
+- Production build.
+
+Run the repository's actual:
+
+- Test suite.
+- Lint.
+- TypeScript checks.
+- Production build.
+
+Do not weaken tests.
+
+Do not remove unrelated functionality to obtain a passing build.
+
+If a test fails, diagnose and fix the real issue.
+
+---
+
+# 22. DOCUMENTATION
+
+Create or update:
+
+`docs/HATBRIDGE_PRODUCT.md`
+
+`docs/HATBRIDGE_ARCHITECTURE.md`
+
+`docs/HATBRIDGE_PRIVACY.md`
+
+`docs/HATBRIDGE_FORGE_SETUP.md`
+
+`docs/HATBRIDGE_JUDGE_INSTALLATION.md`
+
+`docs/HATBRIDGE_CODEGEIST_SUBMISSION.md`
+
+Document:
+
+- Product purpose.
+- Target users.
+- Architecture.
+- Dr. T integration.
+- Forge integration.
+- Jira and Confluence permissions.
+- Rovo agent.
+- Setup.
+- Testing.
+- Deployment.
+- Security.
+- Known limitations.
+- Judge installation.
+
+---
+
+# 23. CODEGEIST 2026 SUBMISSION PREPARATION
+
+Prepare the project for:
+
+https://codegeist2026.devpost.com/
+
+The official competition requires a working Forge application, an installation link for judges, a public YouTube demonstration under five minutes, a category selection and an explanation of the technology requirement.
+
+Create submission materials.
+
+## Proposed category
+
+Apps for Specialized Industries.
+
+Position HatBridge for healthcare professionals and academic leaders managing complex responsibilities.
+
+## Potential bonus
+
+Best Agents — Rovo/Assignable Agents.
+
+Only select this if the required Forge Rovo module is genuinely implemented.
+
+## Required submission assets
+
+Prepare:
+
+- Project title.
+- Tagline.
+- Short description.
+- Full project description.
+- Technology explanation.
+- Installation instructions.
+- Forge installation link.
+- Public demo video outline.
+- Screenshots.
+- GitHub repository link.
+- Bonus-prize explanation where applicable.
+
+Do not submit automatically.
+
+Prepare the final materials for user review.
+
+---
+
+# 24. GITHUB AND DEPLOYMENT
+
+If this project is connected to GitHub:
+
+- Inspect the current branch.
+- Inspect uncommitted changes.
+- Preserve unrelated work.
+- Implement HatBridge in the existing project.
+- Review the diff.
+- Run tests.
+- Run the production build.
+- Commit only relevant changes.
+- Push only to the appropriate branch when authorised.
+
+Do not force-push.
+
+Do not overwrite unrelated changes.
+
+Do not claim that the Forge app is installed or published unless it has been verified.
+
+Use the existing Dr. T deployment architecture for the web module.
+
+Use the official Forge deployment and sharing process for the Atlassian application.
+
+Clearly distinguish:
+
+- Implemented.
+- Tested.
+- Deployed.
+- Connected.
+- Verified with real data.
+- Blocked by external setup.
+
+---
+
+# 25. EXECUTION ORDER
+
+Do not stop at planning.
+
+Proceed in this order:
+
+## Phase 1 — Inspect
+
+Inspect the complete existing Dr. T application.
+
+Identify:
+
+- Framework.
+- Routes.
+- Navigation.
+- Authentication.
+- Backend.
+- Database.
+- Design system.
+- Existing tests.
+- GitHub status.
+
+Report the architecture briefly, then continue.
+
+## Phase 2 — Build the Dr. T module
+
+Implement:
+
+- HatBridge navigation.
+- My Hats.
+- Today Bridge.
+- Context Capture.
+- Re-entry Brief.
+- Decision Memory.
+- Handoffs.
+- Time Protection.
+- Settings and Privacy.
+
+Use actual persisted data.
+
+## Phase 3 — Build the Forge application
+
+Create the actual Forge project.
+
+Implement:
+
+- Manifest.
+- UI.
+- Jira integration.
+- Confluence integration.
+- Permissions.
+- Backend.
+- Installation documentation.
+
+## Phase 4 — Implement AI
+
+Add grounded AI summaries and context handoffs.
+
+Implement Rovo agent support if the official platform allows it.
+
+## Phase 5 — Test
+
+Run the actual application and tests.
+
+Fix failures.
+
+Verify responsive behaviour.
+
+Verify that existing Dr. T modules still work.
+
+## Phase 6 — Prepare submission
+
+Create the Codegeist submission materials.
+
+Prepare the judge installation workflow.
+
+Prepare the demo video script.
+
+## Phase 7 — Final report
+
+Provide a concise, truthful report containing:
+
+- What was implemented.
+- What was tested.
+- What is deployed.
+- What is connected.
+- What requires external credentials.
+- What remains blocked.
+- Relevant GitHub commit.
+- Actual deployment URL.
+- Actual Forge installation link, if available.
+
+---
+
+# 26. FINAL ACCEPTANCE CRITERIA
+
+The project is complete only when:
+
+1. HatBridge exists as a real Dr. T feature.
+2. Existing Dr. T modules remain functional.
+3. Users can create and switch roles.
+4. Context can be captured and persisted.
+5. Re-entry Briefs use actual saved or connected information.
+6. Decision Memory works.
+7. Handoffs work.
+8. Time Protection works.
+9. The Forge application is implemented.
+10. At least one genuine Atlassian integration works.
+11. The application respects permissions and privacy.
+12. The product is responsive on iPad.
+13. Tests and production build pass.
+14. Documentation is complete.
+15. Codegeist submission materials are prepared.
+16. No operational claim is made without verification.
+
+**BUILD THE REAL PRODUCT NOW.**
+
+Do not produce only a mockup.
+
+Do not replace Dr. T.
+
+Do not invent integrations.
+
+Do not fabricate AI results.
+
+Do not stop after planning.
+
+Deliver a functional, trustworthy and commercially credible extension of Dr. T—one that helps the real person behind the many hats live and work with greater clarity, continuity and freedom.
+
+**HatBridge: Many Hats. One Life. Nothing Important Lost.**

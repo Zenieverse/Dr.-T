@@ -49,7 +49,9 @@ import {
   Flame,
   DollarSign,
   Sun,
-  Rocket
+  Rocket,
+  Layers,
+  GitBranch
 } from 'lucide-react';
 
 interface CommandPaletteProps {
@@ -208,6 +210,35 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
           icon: <Compass className="w-4 h-4 text-violet-400" />,
           action: () => {
             setActiveTab('threehats');
+            onClose();
+          }
+        }
+      ]
+    },
+    {
+      category: '🧭 Dr. T — HatBridge: Life & Work Mission Control (Codegeist 2026)',
+      items: [
+        {
+          label: 'HatBridge — My Hats, Today Bridge & Cross-Role Continuity',
+          icon: <Layers className="w-4 h-4 text-teal-600" />,
+          action: () => {
+            setActiveTab('hatbridge');
+            onClose();
+          }
+        },
+        {
+          label: 'HatBridge — 8-Question Re-entry Brief, Decision Memory & Role Handoffs',
+          icon: <GitBranch className="w-4 h-4 text-slate-700" />,
+          action: () => {
+            setActiveTab('hatbridge');
+            onClose();
+          }
+        },
+        {
+          label: 'HatBridge — Time Protection & Atlassian Jira / Confluence Workspace',
+          icon: <ShieldCheck className="w-4 h-4 text-emerald-600" />,
+          action: () => {
+            setActiveTab('hatbridge');
             onClose();
           }
         }

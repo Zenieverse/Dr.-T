@@ -36,6 +36,7 @@ export type NavTab =
   | 'buildwithai'
   | 'memorylantern'
   | 'threehats'
+  | 'hatbridge'
   | 'streetvendorsmap'
   | 'gatherglow'
   | 'presagesense'

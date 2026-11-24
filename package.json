@@ -20,6 +20,7 @@
     "test:payflow": "tsx scripts/test-microbiz-payflow.ts",
     "test:debtfree": "tsx scripts/test-payflow-debtfree.ts",
     "test:threehats": "tsx scripts/test-three-hats.ts",
+    "test:hatbridge": "tsx scripts/test-hatbridge.ts",
     "test:streetvendors": "tsx scripts/test-street-vendors.ts",
     "test:gatherglow": "tsx scripts/test-gather-and-glow.ts",
     "hedera:harness": "tsx hedera_harness/harness_runner.ts",

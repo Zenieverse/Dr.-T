@@ -1,0 +1,23 @@
+{
+  "name": "hatbridge-forge",
+  "version": "1.0.0",
+  "description": "Dr. T — HatBridge Atlassian Forge App (Jira, Confluence & Rovo Context Navigator) for Codegeist 2026",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "build": "tsc",
+    "build:ui": "npx esbuild ui/src/main.ts --bundle --format=esm --outfile=static/hatbridge-ui/app.js",
+    "validate:manifest": "node scripts/validate-manifest.mjs"
+  },
+  "dependencies": {
+    "@forge/api": "^8.5.0",
+    "@forge/bridge": "^7.4.0",
+    "@forge/kvs": "^2.1.3",
+    "@forge/resolver": "^2.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.0",
+    "typescript": "~5.8.2"
+  }
+}
