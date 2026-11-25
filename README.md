@@ -4,7 +4,8 @@
 [![React](https://img.shields.io/badge/React-18.3-61dafb.svg?logo=react)](https://react.dev/)
 [![Vite](https://img.shields.io/badge/Vite-6.1-646CFF.svg?logo=vite)](https://vitejs.dev/)
 [![Firebase](https://img.shields.io/badge/Firebase-Firestore%20%26%20Auth-FFCA28.svg?logo=firebase)](https://firebase.google.com/)
-[![Gemini](https://img.shields.io/badge/Google%20GenAI-Gemini%203.8%20Flash-8E75B2.svg?logo=google)](https://ai.google.dev/)
+[![Gemini](https://img.shields.io/badge/Google%20GenAI-Gemini-8E75B2.svg?logo=google)](https://ai.google.dev/)
+[![Atlassian Forge](https://img.shields.io/badge/Codegeist%202026-Atlassian%20Forge%20%7C%20HatBridge-0052CC.svg?logo=atlassian)](docs/HATBRIDGE_CODEGEIST_SUBMISSION.md)
 [![NVIDIA Nemotron](https://img.shields.io/badge/NVIDIA-Nemotron--4--340B-76B900.svg?logo=nvidia)](https://build.nvidia.com/)
 [![Nebius](https://img.shields.io/badge/Nebius-Token%20Factory-00D4B2.svg)](https://nebius.com/token-factory)
 [![MCP](https://img.shields.io/badge/MCP-2025--11--25%20Streamable%20HTTP-00A4A6.svg)](https://modelcontextprotocol.io/)
@@ -16,20 +17,22 @@
 [![BuildArena S02](https://img.shields.io/badge/BuildArena%20S02-Deliver.%20Separate.%20Return.-7C3AED.svg?logo=kaggle)](docs/BUILDARENA_S02_MISSION_CONTROL.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-> **Dr. T** is a multi-dimensional platform unifying clinical informatics, Socratic health intelligence, camera-powered contactless physiological wellness sensing (**Presage Sense**), aerospace mission control & simulation engineering (**BuildArena S02**), grassroots economic empowerment (**MicroBiz** & **StreetVendorsMap**), personal role architecture (**Three Hats**), AI event architecture (**Gather & Glow**), and permission-governed memory intelligence (**Lantern Keeper** powered by NVIDIA Nemotron & Nebius Token Factory).
+> **Dr. T** is a multi-dimensional platform unifying clinical informatics, population health intelligence, Socratic health AI, contactless wellness sensing (**Presage Sense**), multi-role Atlassian context continuity (**HatBridge** + Forge/Jira/Confluence/Rovo), aerospace simulation engineering (**BuildArena S02**), grassroots economic empowerment (**MicroBiz** & **StreetVendorsMap**), personal role architecture (**Three Hats**), AI event architecture (**Gather & Glow**), interactive spatial music (**Living Sound Garden**), and permission-governed memory intelligence (**Lantern Keeper**).
 
 ---
 
 ## 🌐 Live Deployments & Repository
 
 * **Shared Production Preview**: [https://ais-pre-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app](https://ais-pre-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app)
+* **Development App**: [https://ais-dev-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app](https://ais-dev-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app)
+* **HatBridge Deep Link (Codegeist 2026)**: [https://ais-pre-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app/?tab=hatbridge](https://ais-pre-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app/?tab=hatbridge)
 * **BuildArena S02 Mission Control Deep Link**: [https://ais-pre-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app/#buildarena](https://ais-pre-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app/#buildarena)
 * **Presage Sense Live Route**: [https://ais-pre-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app/#healthalert-presage](https://ais-pre-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app/#healthalert-presage)
 * **Presage Sense Standalone Deep Link**: [https://ais-pre-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app/#presagesense](https://ais-pre-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app/#presagesense)
-* **Development App**: [https://ais-dev-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app](https://ais-dev-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app)
 * **GitHub Repository**: [https://github.com/Zenieverse/Dr.-T](https://github.com/Zenieverse/Dr.-T)
+* **HatBridge Codegeist 2026 Dossier**: [`docs/HATBRIDGE_CODEGEIST_SUBMISSION.md`](docs/HATBRIDGE_CODEGEIST_SUBMISSION.md)
 * **BuildArena S02 Dossier**: [`docs/BUILDARENA_S02_MISSION_CONTROL.md`](docs/BUILDARENA_S02_MISSION_CONTROL.md)
-* **Challenge Submission Dossier**: [`docs/PRESAGE_SMARTSPECTRA_CHALLENGE_SUBMISSION.md`](docs/PRESAGE_SMARTSPECTRA_CHALLENGE_SUBMISSION.md)
+* **Presage Submission Dossier**: [`docs/PRESAGE_SMARTSPECTRA_CHALLENGE_SUBMISSION.md`](docs/PRESAGE_SMARTSPECTRA_CHALLENGE_SUBMISSION.md)
 
 ---
 
@@ -38,18 +41,18 @@
 Dr. T connects clinical medicine, grassroots livelihoods, life balance, and verifiable trust across integrated modules:
 
 ```
-┌────────────────────────────────────────────────────────────────────────┐
-│                              🩺 DR. T                                  │
-├───────────────────┬───────────────────┬────────────────────────────────┤
-│  HEALTH & CLINIC  │   GRASSROOTS BIZ  │   TRUST, ROLES & CELEBRATIONS  │
-│  • Socratic Triage│  • MicroBiz Feed  │  • Gather & Glow (AI Planner)🌟│
-│  • Biomarker R4   │  • Courses & Quiz │  • Three Hats (Many Roles) 🎩  │
-│  • SOAP Notes     │  • Storefronts    │  • Lantern Keeper AI 🏮        │
-│  • 360° Copilot   │  • Bookkeeping    │  • StreetVendorsMap 🥢         │
-│  • Health Bridge  │  • OCR Scanner    │  • Pianist & Touch Grass 🌿    │
-│  • Vision Alert 👁️│  • Gemini AI Hub  │  • Hedera Commons (HCS / HPK)  │
-│  • Alexa+ MCP 🔔  │  • MicroBiz Bridge│  • x402 Pay-Per-Request Bazaar │
-└───────────────────┴───────────────────┴────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────┐
+│                               🩺 DR. T                                  │
+├───────────────────┬───────────────────┬─────────────────────────────────┤
+│  HEALTH & CLINIC  │   GRASSROOTS BIZ  │   ROLES, ATLASSIAN & CREATIVE   │
+│  • Socratic Triage│  • MicroBiz Feed  │  • HatBridge + Forge/Rovo (2026)│
+│  • Population Hlth│  • PayFlow + Debt │  • Three Hats (Many Roles) 🎩   │
+│  • Presage Sense  │  • Courses & Quiz │  • Gather & Glow (AI Planner) 🌟│
+│  • Vision Alert 👁️│  • Storefronts    │  • Lantern Keeper AI 🏮         │
+│  • Health Alert 🔔│  • Bookkeeping    │  • StreetVendorsMap 🥢          │
+│  • 360° Copilot   │  • OCR Scanner    │  • Pianist & Living Sound Garden│
+│  • Alexa+ MCP     │  • Gemini AI Hub  │  • BuildArena S02 & Hedera HCS  │
+└───────────────────┴───────────────────┴─────────────────────────────────┘
 ```
 
 ---
@@ -91,6 +94,21 @@ Navigation Tab: `Three Hats` (`threehats`)
   5. *Realistic Calibration*: Gentle adjustments for the coming cycle.
   6. *Concrete Commitments*: Setting achievable micro-actions.
 * **Data Sovereignty & Memory Gate**: Export role maps and reflections to JSON or formatted Markdown journals. Explicit user permission is strictly required before saving reflection summaries to **Memory Lantern**.
+
+### 2b. 🪪 Dr. T — HatBridge (Codegeist 2026 | Atlassian Forge, Jira, Confluence & Rovo)
+Navigation Tab: `HatBridge` (`hatbridge`) | Deep Links: `?tab=hatbridge` & `#hatbridge` | Forge App: [`apps/hatbridge-forge/`](apps/hatbridge-forge/)
+
+*Tagline: **Many Hats. One Life. Nothing Important Lost.***
+* **Submission & Setup Dossiers**: [`docs/HATBRIDGE_CODEGEIST_SUBMISSION.md`](docs/HATBRIDGE_CODEGEIST_SUBMISSION.md) · [`docs/HATBRIDGE_FORGE_SETUP.md`](docs/HATBRIDGE_FORGE_SETUP.md) · [`docs/HATBRIDGE_JUDGE_INSTALLATION.md`](docs/HATBRIDGE_JUDGE_INSTALLATION.md) · [`docs/HATBRIDGE_RELEASE_CHECKLIST.md`](docs/HATBRIDGE_RELEASE_CHECKLIST.md)
+* **Dual Connected Experience**:
+  * **Dr. T HatBridge Web App**: Personal multi-role mission control featuring **My Hats**, **Today Bridge**, **Context Capture**, **Decision Memory**, **Handoffs**, **Time Protection**, and the 8-question **Re-entry Brief** with strict 4-bucket provenance separation (**Verified Source Information**, **User-Recorded Information**, **AI-Generated Suggestions**, and **Missing / Unavailable Context**).
+  * **HatBridge Atlassian Forge Companion (`apps/hatbridge-forge/`, `nodejs22.x`)**:
+    * **Jira Modules**: `jira:issuePanel` (`hatbridge-jira-issue-panel`) & `jira:globalPage` (`hatbridge-jira-hub`) via `api.asUser()` with explicit confirmation required before any Jira issue write (`confirmedByUser === true`) and `@forge/bridge` `router.open()` navigation.
+    * **Confluence Modules**: `confluence:globalPage` (`hatbridge-confluence-hub`) & `confluence:contentAction` (`hatbridge-confluence-decision-link`) for capturing pages and recording source-attributed decisions.
+    * **Rovo Agent (`hatbridge-context-navigator`)**: Configured with 4 dedicated action handlers (`getReentryBrief`, `searchAuthorizedDecisions`, `prepareRoleHandoff`, `suggestNextAction`) scoped strictly to verified Forge user accounts (`context.principal.accountId || context.accountId`) while keeping `private_personal` entries isolated from workplace payloads.
+    * **Optional Server-Side Gemini Reasoning (`gemini-4-hydrogen`)**: Consent-gated synthesis on `/api/hatbridge/ai/reason` with `18s` timeout protection, key/PII redaction, and deterministic offline fallback when `GEMINI_API_KEY` is unset.
+* **Implementation Disclosure**: All Forge manifests, TypeScript resolvers, Custom UI (`@forge/bridge`), Rovo handlers, and REST endpoints are implemented and pass local validation (`validate-manifest.mjs`, Forge/UI `tsc`, `npm run test:hatbridge`). Live `forge register`, `forge lint`, `forge deploy`, and `forge install` onto an Atlassian Cloud site require `@forge/cli` and developer credentials outside the sandbox.
+
 
 ### 3. 🌟 Gather & Glow — AI-Powered Event Planning Assistant (Final Production Release)
 Navigation Tab: `Gather & Glow` (`gatherglow`) | Deep Link: `#gatherglow`
@@ -238,51 +256,53 @@ Navigation Tab: `Health Alert Mini` (`healthalert`)
 
 ---
 
-### 8. 🎹 PIANIST & Touch Grass 🌿
+### 8. 🎹 PIANIST, Touch Grass 🌿 & Living Sound Garden
 * **Adaptive Grand Piano (`GrandPianoWorkspace.tsx`)**: Additive physical modeling synthesis with realistic overtones and damper pedal simulation.
 * **88-Key Repertoire Guided Player (`ClassicalTrackPlayer.tsx`)**: Note-by-note synchronization for classical pieces including Richard Clayderman's "Always", Chopin, and Bach.
-* **Touch Grass Outdoor Acoustics (`TouchGrassStudio.tsx`)**: Converts real-world ambient sound frequencies into musical melodic contours.
+* **Touch Grass & Living Sound Garden (`LivingSoundGardenModule.tsx`)**: Converts outdoor ambient acoustics and spatial WebXR soundscapes into interactive musical environments (`sound-garden.html`).
 
 ---
 
-### 9. 🛡️ Hedera Commons, x402 & Decentralized Provenance
-* **Hedera Consensus Service (HCS)**: Submits RFC 8785 canonical JSON hashes to Hedera topics for verifiable audit logs.
-* **x402 Pay-Per-Request Studio**: Machine-to-machine micropayment service on Algorand MainNet with GoPlausible facilitator and Bazaar discovery.
+### 9. 🧬 Population Health, ChatQuest Live, BuildArena S02 & Decentralized Provenance
+* **Population Health (`population-health`)**: Cohort analytics, preventive screening guidance, and strict privacy guardrails (`npm run test:population-health`).
+* **BuildArena S02 (`#buildarena`)**: Aerospace mission control and simulation engineering (`npm run test:buildarena`).
+* **ChatQuest Live (`chatquestlive`)**: Real-time interactive story and communication engine (`npm run test:chatquest`).
+* **Hedera Consensus Service (HCS) & x402**: Submits RFC 8785 canonical JSON hashes to Hedera topics for verifiable audit logs alongside Algorand MainNet x402 micropayments.
 
 ---
 
 ## 🔒 Security, Privacy & Data Isolation
 
 1. **Authenticated User Isolation**:
-   * Firebase Authentication (`subscribeAuthState`) manages identity without placeholder fallbacks.
-   * Firestore security rules (`firestore.rules`) enforce user ownership across `/memory_lantern_memories`, `/three_hats_roles`, `/lantern_keeper_actions`, `/microbiz_finances`, and `/buildwithai_projects`.
+   * Firebase Authentication manages identity without placeholder fallbacks.
+   * Firestore security rules (`firestore.rules`) enforce owner-only access (`userId == request.auth.uid`) across Dr. T collections including `/memory_lantern_memories`, `/three_hats_roles`, `/hatbridge_*`, `/lantern_keeper_actions`, `/microbiz_finances`, and `/buildwithai_projects`.
 2. **Ephemeral Guest Sandbox**:
    * Unauthenticated guests use randomized sandbox keys stored locally in the browser; guest data cannot read or overwrite production Firestore documents.
 3. **Zero Credential Exposure**:
-   * `GEMINI_API_KEY` and `NEBIUS_API_KEY` reside exclusively in server-side environment variables and are never bundled into client JavaScript.
-4. **Mandatory Payment Disclosures**:
-   * Automated credit card charging is disabled across all storefronts to protect local artisans.
+   * `GEMINI_API_KEY`, `ATLASSIAN_API_TOKEN`, `PAYPAL_CLIENT_SECRET`, and `NEBIUS_API_KEY` reside exclusively in server-side environment variables and are never bundled into client JavaScript.
+4. **Fail-Closed Production Environment Gate**:
+   * Standalone production Vite builds enforce `VITE_RUNTIME_ENV=production` and valid Firebase production `VITE_*` configuration before shipping.
 
 ---
 
-## 🧪 Comprehensive Test & Verification Results
+## 🧪 Verified Test & Build Status
 
-All automated test suites pass with 100% success:
+Recent verification runs executed in this workspace:
 
-| Test Suite | Command | Assertions | Status |
+| Check / Suite | Command | Result | Status |
 | :--- | :--- | :---: | :---: |
-| **All Platform Suites Combined** | `npm test` | **460+ / 460+** | ✅ **PASS** |
-| **Gather & Glow AI Event Planner** | `npm run test:gatherglow` | **61 / 61** | ✅ **PASS** |
-| **StreetVendorsMap Suite** | `npm run test:streetvendors` | **22 / 22** | ✅ **PASS** |
-| **Three Hats Life Balance Suite** | `npm run test:threehats` | **29 / 29** | ✅ **PASS** |
-| **Lantern Keeper & Memory Lantern** | `npx tsx scripts/test-memory-lantern.ts` | **62 / 62** | ✅ **PASS** |
-| **Vision Alert Verification Suite** | `npx tsx scripts/test-vision-alert.ts` | **51 / 51** | ✅ **PASS** |
-| **Build With AI Suite** | `npx tsx scripts/test-build-with-ai.ts` | **40 / 40** | ✅ **PASS** |
-| **MCP Agent & Protocol Suite** | `npx tsx scripts/test-mcp-agent.ts` | **28 / 28** | ✅ **PASS** |
-| **Firestore Security Rules Suite** | `npx tsx scripts/test-firestore-security-rules.ts` | **25 / 25** | ✅ **PASS** |
-| **TypeScript Compilation** | `npm run lint` (`tsc --noEmit`) | **0 Errors** | ✅ **PASS** |
-| **Production Build** | `npm run build` | **Clean Bundle** | ✅ **PASS** |
-| **Firestore Rules Deployment** | Deployed to project `gen-lang-client-0611153209` | **Live** | ✅ **PASS** |
+| **HatBridge Web & Bridge Suite** | `npm run test:hatbridge` | **12 / 12 assertions** | ✅ **PASS** |
+| **Forge Manifest Validation** | `node apps/hatbridge-forge/scripts/validate-manifest.mjs` | **5 fns · 4 Rovo actions · 6 scopes** | ✅ **PASS** |
+| **Forge Backend & UI Typecheck** | `npx tsc --noEmit -p apps/hatbridge-forge/tsconfig.json` (+ UI `--strict`) | **0 Errors** | ✅ **PASS** |
+| **Population Health Suite** | `npm run test:population-health` | **62 / 62 assertions** | ✅ **PASS** |
+| **Living Sound Garden Release** | `npm run test:soundgarden:release` | **6 / 6 checks** | ✅ **PASS** |
+| **Production Isolation Audit** | `npx tsx scripts/test-production-isolation.ts` | **14 / 14 checks** | ✅ **PASS** |
+| **Phase 2 Security Remediation** | `npx tsx scripts/test-phase2-remediation.ts` | **10 / 10 checks** | ✅ **PASS** |
+| **Firestore Security Rules Suite** | `npx tsx scripts/test-firestore-security-rules.ts` | **Owner ACL verified** | ✅ **PASS** |
+| **TypeScript Check** | `npm run lint` (`tsc --noEmit`) | **0 Errors** | ✅ **PASS** |
+| **Development Build & Bundle** | `npm run build:dev` | **dist, build, .next synced** | ✅ **PASS** |
+
+*Note: Standalone Forge cloud deployment (`forge deploy` / `forge install`) requires `@forge/cli` and Atlassian developer credentials; `VITE_RUNTIME_ENV=production npm run build` requires production Firebase `VITE_*` configuration.*
 
 ---
 
@@ -314,15 +334,20 @@ The application will be accessible at `http://localhost:3000`.
 ### Common Scripts
 
 ```bash
-npm run dev                  # Start full-stack Express server with Vite middleware
-npm run build                # Production build & server bundling
-npm run lint                 # Type check with tsc --noEmit
-npm test                     # Run all 15 test suites (324 assertions)
-npm run test:payflow         # Run MicroBiz PayFlow test suite (34 assertions)
-npm run test:debtfree        # Run PayFlow DebtFree community relief suite (34 assertions)
-npm run test:gatherglow      # Run Gather & Glow AI event planner test suite (87 assertions)
-npm run test:streetvendors   # Run StreetVendorsMap bilingual & shipper suite (18 assertions)
-npm run test:threehats       # Run Three Hats role mapping and ritual suite (16 assertions)
+npm run dev                     # Start full-stack Express server with Vite middleware
+npm run build:dev               # Development Vite + esbuild server bundle
+npm run build                   # Production Vite + esbuild bundle (requires VITE_RUNTIME_ENV=production & Firebase config)
+npm run lint                    # Type check with tsc --noEmit
+npm run test:hatbridge          # Run Dr. T HatBridge continuity & provenance tests
+npm run test:population-health  # Run Population Health verification suite
+npm run test:soundgarden:release# Verify Living Sound Garden WebXR release bundle
+npm run test:buildarena         # Run BuildArena S02 mission control suite
+npm run test:presage            # Run Presage Sense wellness suite
+npm run test:payflow            # Run MicroBiz PayFlow test suite
+npm run test:debtfree           # Run PayFlow DebtFree community relief suite
+npm run test:gatherglow         # Run Gather & Glow AI event planner suite
+npm run test:streetvendors      # Run StreetVendorsMap suite
+npm run test:chatquest          # Run ChatQuest Live unit & integration tests
 ```
 
 ---
@@ -331,60 +356,53 @@ npm run test:threehats       # Run Three Hats role mapping and ritual suite (16 
 
 ```
 ├── .env.example                               # Environment template (zero secrets)
+├── apps/
+│   └── hatbridge-forge/                       # Codegeist 2026 Atlassian Forge app (Jira, Confluence, Rovo)
+│       ├── manifest.yml                       # Forge manifest (nodejs22.x, 5 fns, 4 Rovo actions, 6 scopes)
+│       ├── src/                               # Forge resolvers, Rovo actions & ACL storage
+│       ├── ui/src/                            # Custom UI using @forge/bridge
+│       └── scripts/validate-manifest.mjs      # Local Forge manifest integrity verifier
+├── docs/                                      # Competition dossiers, setup & privacy specs
+│   ├── HATBRIDGE_CODEGEIST_SUBMISSION.md      # Codegeist 2026 Devpost submission draft
+│   ├── HATBRIDGE_FORGE_SETUP.md               # Forge CLI deployment & env setup guide
+│   ├── HATBRIDGE_JUDGE_INSTALLATION.md        # Judge setup & 9-step demo script
+│   └── HATBRIDGE_RELEASE_CHECKLIST.md         # Release readiness checklist
 ├── firebase-applet-config.json                # Firebase client configuration
-├── firestore.rules                            # Firestore security rules
-├── package.json                               # Dependencies and test scripts
-├── server.impl.ts                             # Express server, Nebius, MCP & Gemini routes
+├── firebase-blueprint.json                    # Firestore schema blueprint
+├── firestore.rules                            # Firestore owner-isolated security rules
+├── package.json                               # Dependencies and npm scripts
+├── server.impl.ts                             # Express server, HatBridge, MCP, PayPal & Gemini routes
 ├── server.ts                                  # Server launcher
 ├── scripts/
-│   ├── test-gather-and-glow.ts                # Gather & Glow test suite (61 assertions)
-│   ├── test-street-vendors.ts                 # StreetVendorsMap test suite (22 assertions)
-│   ├── test-three-hats.ts                     # Three Hats test suite (29 assertions)
-│   ├── test-memory-lantern.ts                 # Lantern Keeper test suite (62 assertions)
-│   ├── test-vision-alert.ts                   # Vision Alert test suite (51 assertions)
-│   ├── test-build-with-ai.ts                  # Build With AI test suite (40 assertions)
+│   ├── test-hatbridge.ts                      # HatBridge tests
+│   ├── test-population-health.ts              # Population Health tests
+│   ├── test-production-isolation.ts           # Production isolation audit
+│   ├── test-phase2-remediation.ts             # Phase 2 security & build matrix audit
+│   ├── test-gather-and-glow.ts                # Gather & Glow test suite
+│   ├── test-street-vendors.ts                 # StreetVendorsMap test suite
+│   ├── test-memory-lantern.ts                 # Lantern Keeper test suite
+│   ├── test-vision-alert.ts                   # Vision Alert test suite
 │   └── test-firestore-security-rules.ts       # Firestore RBAC validation
 ├── src/
 │   ├── App.tsx                                # Main application router
 │   ├── main.tsx                               # React DOM entry point
 │   ├── types.ts                               # Central navigation and platform types
 │   ├── components/
-│   │   ├── layout/
-│   │   │   ├── Navbar.tsx                     # Top navigation with tabs & search
-│   │   │   └── CommandPalette.tsx             # Cmd+K quick navigation palette
+│   │   ├── hatbridge/                         # Dr. T HatBridge Mission Control & 8-Q Re-entry Brief
 │   │   ├── gatherglow/                        # Gather & Glow AI Event Planner
-│   │   │   ├── GatherGlowModule.tsx           # Main event orchestrator & navigation
-│   │   │   ├── components/                    # 10 specialized celebration subviews
-│   │   │   ├── services/                      # Firestore sync, exports & MicroBiz bridge
-│   │   │   ├── initialData.ts                 # Preloaded wedding & gala event blueprints
-│   │   │   └── types.ts                       # Event, budget, task & AI plan contracts
 │   │   ├── streetvendors/                     # StreetVendorsMap (Gánh Mưu Sinh)
-│   │   │   ├── StreetVendorsMapModule.tsx     # Main container with city filters
-│   │   │   ├── InteractiveVendorsMap.tsx      # Radar map & vendor cards
-│   │   │   ├── ShipperDeliveryModal.tsx       # Grab & Green SM driver instructions
-│   │   │   ├── CommunityContributeModal.tsx   # Patron vendor nomination modal
-│   │   │   ├── StreetVendorsFooter.tsx        # Non-commercial attribution footer
-│   │   │   ├── translations.ts                # 92 bilingual translation keys
-│   │   │   ├── vendorsData.ts                 # 12 curated vendor profiles
-│   │   │   └── types.ts                       # Vendor & delivery data contracts
 │   │   ├── threehats/                         # Three Hats (Many Roles)
-│   │   │   ├── ThreeHatsModule.tsx            # Main life balance container
-│   │   │   ├── RoleMapCanvas.tsx              # Interactive role visualizer
-│   │   │   ├── WeeklyReflectionModal.tsx      # 6-step reflection ritual
-│   │   │   ├── ThreeHatsCompanionModal.tsx    # Permission-gated AI companion
-│   │   │   └── types.ts                       # Three Hats contracts & starter roles
 │   │   ├── lantern/                           # Lantern Keeper AI
-│   │   │   ├── MemoryLanternModule.tsx        # Memory vault & narrative studio
-│   │   │   ├── skills/                        # Reusable personal skills
-│   │   │   └── services/                      # Memory retrieval & audit ledger
 │   │   ├── healthalert/                       # HealthAlert Companion & Vision Alert
-│   │   ├── microbiz/                          # MicroBiz artisan platform
-│   │   └── pianist/                           # Adaptive Grand Piano & Touch Grass
+│   │   ├── microbiz/                          # MicroBiz artisan & PayFlow platform
+│   │   ├── populationhealth/                  # Population Health platform
+│   │   └── pianist/                           # Adaptive Grand Piano, Touch Grass & Living Sound Garden
 │   └── server/
-│       ├── gatherGlowServerService.ts         # Gemini 3.8 Flash event architect & fallback
+│       ├── hatbridgeAiService.ts              # Consent-gated Gemini reasoning (gemini-4-hydrogen) + fallback
+│       ├── hatbridgeAtlassianService.ts       # Server-side Jira/Confluence REST bridge (confirmed writes)
+│       ├── gatherGlowServerService.ts         # Gather & Glow event architect & fallback
 │       ├── nebiusNemotronService.ts           # Nebius Token Factory & NVIDIA adapter
-│       ├── memoryLanternServerService.ts      # Gemma 2 open-weight narrative adapter
-│       └── buildWithAiServerService.ts        # Gemini 3.8 Flash proxy with timeout
+│       └── memoryLanternServerService.ts      # Memory Lantern narrative adapter
 ```
 
 ---
