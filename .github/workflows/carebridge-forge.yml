@@ -1,0 +1,70 @@
+name: CareBridge Forge Verification
+
+on:
+  pull_request:
+    paths:
+      - 'apps/carebridge-forge/**'
+      - '.github/workflows/carebridge-forge.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'apps/carebridge-forge/**'
+      - '.github/workflows/carebridge-forge.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: carebridge-forge-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/carebridge-forge
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/carebridge-forge/package-lock.json
+
+      - name: Install locked Forge dependencies
+        run: npm ci
+
+      - name: Type-check Forge handlers
+        run: npm run typecheck
+
+      - name: Build Forge Custom UI bundle
+        run: npm run build:ui
+
+      - name: Check Rovo agent and function-key limits
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const text = fs.readFileSync('manifest.yml', 'utf8');
+          const agent = text.match(/rovo:agent:\s*\n[\s\S]*?\n\s+name:\s*(.+)/);
+          if (!agent) throw new Error('Rovo agent name missing');
+          const name = agent[1].trim();
+          if (name.length < 1 || name.length > 30) throw new Error(`Rovo agent name must be 1–30 chars; got ${name.length}`);
+          const block = text.match(/\n  function:\n([\s\S]*?)\nresources:/);
+          if (!block) throw new Error('modules.function block missing');
+          const keys = [...block[1].matchAll(/- key:\s*([a-z0-9-]+)/g)].map(x => x[1]);
+          if (keys.length < 1) throw new Error('No Forge function keys found');
+          const tooLong = keys.filter(k => k.length > 23);
+          if (tooLong.length) throw new Error(`Forge function keys exceed 23 chars: ${tooLong.join(', ')}`);
+          console.log(`PASS: Rovo agent "${name}" (${name.length} chars); ${keys.length} function keys <=23 chars.`);
+          NODE
+
+      - name: Explain registration-dependent manifest gate
+        if: always()
+        run: |
+          echo "The full local manifest validator intentionally requires a registered CareBridge app ID."
+          echo "Forge lint, registration, deployment and installation require an authenticated Forge CLI session and are not performed by this CI workflow."
