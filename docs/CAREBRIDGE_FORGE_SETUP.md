@@ -109,3 +109,14 @@ To re-deploy manually from a local or Codespaces Firebase CLI session:
 firebase deploy --only firestore:rules --project gen-lang-client-0611153209
 ```
 
+
+
+## Post-Merge Codespaces Handoff — 2026-11-26
+
+The Google AI Studio Build runtime used for recent checks is `/app/applet`, which has no `.git` directory and no `@forge/cli`. Do not attempt Git pushes or Forge lifecycle commands from that container.
+
+The verified remote baseline is `main` at `83a2b3490ea5625c62ce53a71da084776f79c4c5`. The intended branch is `chore/carebridge-post-merge-verification`. For this release handoff, synchronize and review the CareBridge service and documentation changes on that branch, then run Forge authentication, inspect existing registrations/installations, register only if needed, replace only the CareBridge manifest ID, validate/lint, deploy to development, and install on `zenieverse.atlassian.net` for supported Jira Service Management and Confluence products. Preserve HatBridge's separate app ID.
+
+Production build is blocked until the deployment platform provides explicit `VITE_RUNTIME_ENV=production` and approved non-development `VITE_FIREBASE_PROJECT_ID`, `VITE_FIRESTORE_DATABASE_ID`, `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_APP_ID`, and `VITE_FIREBASE_MESSAGING_SENDER_ID`. Never use the development Firestore database as production configuration or bypass the fail-closed validator.
+
+The server status field `githubTokenConfigured` is a boolean readiness indicator only. The real `GITHUB_TOKEN`, if used, must be injected through the server runtime's supported secret mechanism; a readiness flag alone does not establish that authenticated GitHub operations have been tested.
