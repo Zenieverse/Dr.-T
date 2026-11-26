@@ -66,3 +66,10 @@ Dr. T — CareBridge pairs a responsive iPad- and desktop-ready **8-section Care
    - `npm run test:hatbridge` (`12/12`), `npx tsx scripts/test-health-alert.ts` (`46/46`), `npm run test:population-health` (`62/62`), `npm run test:presage` (all groups passing)
    - `node apps/carebridge-forge/scripts/validate-manifest.mjs` & `npm --prefix apps/carebridge-forge run typecheck`
 3. **Technical Safety Disclosure:** CareBridge is a non-diagnostic administrative care-navigation and follow-up coordination tool. It does not provide medical advice, diagnosis, triage, or prescriptions, and is not certified as a HIPAA-covered EHR system.
+
+
+## Release Verification Status — 2026-11-26
+
+The merged baseline PR #5 is verified at `83a2b3490ea5625c62ce53a71da084776f79c4c5`. The project reports passing local CareBridge, HatBridge, Health Alert, Population Health, Presage, Firestore security, lint/typecheck, Forge UI build/typecheck/manifest validation, and development build checks from Google AI Studio Build. Live read-only Atlassian verification reported Connected, and CR2-1 was preserved in To Do status.
+
+**Not yet released:** the Forge app remains unregistered/un-deployed/un-installed until the interactive Forge CLI lifecycle is completed from GitHub Codespaces. Production build and signed-in browser walkthrough remain outstanding. Bonus-category eligibility that depends on a live deployed/installed Rovo agent must not be claimed until that deployment is verified.
