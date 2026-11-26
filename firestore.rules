@@ -589,7 +589,78 @@ service cloud.firestore {
         && request.resource.data.keys().hasAll(['id', 'userId', 'action', 'timestamp']);
       allow update, delete: if false; // Immutable user continuity audit history
     }
+
+    // ----------------------------------------------------
+    // CAREBRIDGE — HEALTHCARE COORDINATION & JSM BRIDGE (CODEGEIST 2026)
+    // Strictly owner-isolated collections; immutable audit history.
+    // ----------------------------------------------------
+    function isCareBridgeValidPriority(priority) {
+      return priority in ['routine', 'soon', 'time_sensitive'];
+    }
+
+    function isCareBridgeValidStatus(status) {
+      return status in ['open', 'scheduled', 'waiting_external', 'completed', 'deferred'];
+    }
+
+    match /carebridge_tasks/{taskId} {
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow create: if isAuthenticated()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.contextRef is string
+        && request.resource.data.contextRef.size() >= 1
+        && request.resource.data.contextRef.size() <= 160
+        && request.resource.data.description is string
+        && request.resource.data.description.size() >= 1
+        && request.resource.data.description.size() <= 600
+        && isCareBridgeValidPriority(request.resource.data.priority)
+        && isCareBridgeValidStatus(request.resource.data.status);
+      allow update: if isAuthenticated()
+        && resource.data.userId == request.auth.uid
+        && request.resource.data.userId == resource.data.userId
+        && request.resource.data.description is string
+        && request.resource.data.description.size() >= 1
+        && request.resource.data.description.size() <= 600
+        && isCareBridgeValidPriority(request.resource.data.priority)
+        && isCareBridgeValidStatus(request.resource.data.status);
+      allow delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+    }
+
+    match /carebridge_briefs/{briefId} {
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow create: if isAuthenticated()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.currentNavigationContext is string
+        && request.resource.data.currentNavigationContext.size() <= 240;
+      allow update: if isAuthenticated()
+        && resource.data.userId == request.auth.uid
+        && request.resource.data.userId == resource.data.userId;
+      allow delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+    }
+
+    match /carebridge_consents/{userId} {
+      allow read: if isOwner(userId);
+      allow create, update: if isOwner(userId)
+        && request.resource.data.userId == userId
+        && request.resource.data.retentionPolicy in ['30_days', '90_days', '365_days', 'manual_only'];
+      allow delete: if isOwner(userId);
+    }
+
+    match /carebridge_integrations/{userId} {
+      allow read: if isOwner(userId);
+      allow create, update: if isOwner(userId)
+        && request.resource.data.userId == userId;
+      allow delete: if isOwner(userId);
+    }
+
+    match /carebridge_audit_logs/{logId} {
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow create: if isAuthenticated()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.keys().hasAll(['id', 'userId', 'category', 'action', 'outcome', 'timestamp']);
+      allow update, delete: if false; // Immutable CareBridge compliance audit trail
+    }
   }
 }
+
 
 

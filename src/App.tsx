@@ -80,6 +80,7 @@ import { BuildArenaModule } from './components/buildarena/BuildArenaModule';
 import { PopulationHealthModule } from './components/populationhealth/PopulationHealthModule';
 import { LivingSoundGardenModule } from './components/pianist/soundgarden/LivingSoundGardenModule';
 import { HatBridgeModule } from './components/hatbridge/HatBridgeModule';
+import { CareBridgeModule } from './components/carebridge/CareBridgeModule';
 import { SettingsPage } from './components/settings/SettingsPage';
 
 export function App() {
@@ -95,6 +96,7 @@ export function App() {
           if (['population-health', 'populationhealth', 'population_health', 'community-health', 'chsi'].includes(queryTab)) return 'population-health';
           if (['living-sound-garden', 'sound-garden', 'soundgarden', 'livingsoundgarden'].includes(queryTab)) return 'living-sound-garden';
           if (['hatbridge', 'hat-bridge', 'hatbridge-mission-control'].includes(queryTab)) return 'hatbridge';
+          if (['carebridge', 'care-bridge', 'carebridge-navigator'].includes(queryTab)) return 'carebridge';
           return queryTab as NavTab;
         }
 
@@ -109,6 +111,7 @@ export function App() {
           if (['population-health', 'populationhealth', 'population_health', 'community-health', 'chsi'].includes(raw)) return 'population-health';
           if (['living-sound-garden', 'sound-garden', 'soundgarden', 'livingsoundgarden'].includes(raw)) return 'living-sound-garden';
           if (['hatbridge', 'hat-bridge', 'hatbridge-mission-control'].includes(raw)) return 'hatbridge';
+          if (['carebridge', 'care-bridge', 'carebridge-navigator'].includes(raw)) return 'carebridge';
           return raw as NavTab;
         }
       }
@@ -171,6 +174,8 @@ export function App() {
         targetTab = 'living-sound-garden';
       } else if (['hatbridge', 'hat-bridge', 'hatbridge-mission-control'].includes(raw)) {
         targetTab = 'hatbridge';
+      } else if (['carebridge', 'care-bridge', 'carebridge-navigator'].includes(raw)) {
+        targetTab = 'carebridge';
       }
       if (targetTab && targetTab !== activeTab) {
         setActiveTab(targetTab);
@@ -651,6 +656,10 @@ export function App() {
           <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-6">
             <HatBridgeModule />
           </div>
+        )}
+
+        {activeTab === 'carebridge' && (
+          <CareBridgeModule setActiveTab={setActiveTab} />
         )}
 
         {activeTab === 'streetvendorsmap' && (

@@ -391,6 +391,62 @@
         "action": { "type": "string", "description": "Action identifier" },
         "timestamp": { "type": "string", "description": "ISO timestamp" }
       }
+    },
+    "CareBridgeTask": {
+      "collection": "carebridge_tasks",
+      "fields": {
+        "id": { "type": "string", "description": "Task identifier (CB-TSK-...)" },
+        "userId": { "type": "string", "description": "Owner Firebase UID" },
+        "contextRef": { "type": "string", "description": "User-owned care-navigation context reference" },
+        "description": { "type": "string", "description": "Non-diagnostic administrative follow-up description" },
+        "priority": { "type": "string", "description": "routine | soon | time_sensitive" },
+        "dueDate": { "type": "string", "description": "Due date YYYY-MM-DD" },
+        "responsibleAssignee": { "type": "string", "description": "Responsible person or team" },
+        "status": { "type": "string", "description": "open | scheduled | waiting_external | completed | deferred" },
+        "createdAt": { "type": "string", "description": "ISO timestamp" },
+        "updatedAt": { "type": "string", "description": "ISO timestamp" }
+      }
+    },
+    "CareBridgeBrief": {
+      "collection": "carebridge_briefs",
+      "fields": {
+        "id": { "type": "string", "description": "Care Re-entry Brief ID" },
+        "userId": { "type": "string", "description": "Owner Firebase UID" },
+        "currentNavigationContext": { "type": "string", "description": "Current care-navigation focus" },
+        "generatedAt": { "type": "string", "description": "ISO timestamp" }
+      }
+    },
+    "CareBridgeConsent": {
+      "collection": "carebridge_consents",
+      "fields": {
+        "userId": { "type": "string", "description": "Owner Firebase UID" },
+        "jsmMinimalSyncConsent": { "type": "boolean", "description": "Consent to create minimized JSM requests" },
+        "confluenceReadConsent": { "type": "boolean", "description": "Consent to read authorized Confluence pages" },
+        "rovoAssistantConsent": { "type": "boolean", "description": "Consent to run Rovo care navigation summaries" },
+        "geminiSynthesisConsent": { "type": "boolean", "description": "Consent to run server-side Gemini summaries" },
+        "retentionPolicy": { "type": "string", "description": "30_days | 90_days | 365_days | manual_only" },
+        "updatedAt": { "type": "string", "description": "ISO timestamp" }
+      }
+    },
+    "CareBridgeIntegration": {
+      "collection": "carebridge_integrations",
+      "fields": {
+        "userId": { "type": "string", "description": "Owner Firebase UID" },
+        "connectionMode": { "type": "string", "description": "disconnected | live_atlassian_configured | forge_app_linked | sample_sandbox" },
+        "updatedAt": { "type": "string", "description": "ISO timestamp" }
+      }
+    },
+    "CareBridgeAuditLog": {
+      "collection": "carebridge_audit_logs",
+      "fields": {
+        "id": { "type": "string", "description": "Immutable audit event ID" },
+        "userId": { "type": "string", "description": "Owner Firebase UID" },
+        "category": { "type": "string", "description": "task | jsm | confluence | rovo_ai | privacy | system" },
+        "action": { "type": "string", "description": "Action identifier" },
+        "outcome": { "type": "string", "description": "allowed | blocked | error" },
+        "timestamp": { "type": "string", "description": "ISO timestamp" }
+      }
     }
   }
 }
+

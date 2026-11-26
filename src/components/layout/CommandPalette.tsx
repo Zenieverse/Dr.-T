@@ -245,6 +245,35 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       ]
     },
     {
+      category: '🩺 Dr. T — CareBridge: Healthcare Continuity & JSM (Codegeist 2026)',
+      items: [
+        {
+          label: 'CareBridge — Care Overview & Non-Emergency Follow-Up Coordination',
+          icon: <Stethoscope className="w-4 h-4 text-teal-700" />,
+          action: () => {
+            setActiveTab('carebridge');
+            onClose();
+          }
+        },
+        {
+          label: 'CareBridge — Jira Service Management Requests & Confluence Knowledge Hub',
+          icon: <FileCheck className="w-4 h-4 text-teal-600" />,
+          action: () => {
+            setActiveTab('carebridge');
+            onClose();
+          }
+        },
+        {
+          label: 'CareBridge — Rovo Healthcare Assistant & 4-Bucket Care Re-entry Brief',
+          icon: <Bot className="w-4 h-4 text-slate-700" />,
+          action: () => {
+            setActiveTab('carebridge');
+            onClose();
+          }
+        }
+      ]
+    },
+    {
       category: '🥢 StreetVendorsMap — Gánh Mưu Sinh (Community Initiative)',
       items: [
         {

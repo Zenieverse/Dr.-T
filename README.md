@@ -26,11 +26,13 @@
 * **Shared Production Preview**: [https://ais-pre-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app](https://ais-pre-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app)
 * **Development App**: [https://ais-dev-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app](https://ais-dev-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app)
 * **HatBridge Deep Link (Codegeist 2026)**: [https://ais-pre-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app/?tab=hatbridge](https://ais-pre-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app/?tab=hatbridge)
+* **CareBridge Deep Link (Codegeist 2026 — Specialized Industries)**: [https://ais-pre-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app/?tab=carebridge](https://ais-pre-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app/?tab=carebridge)
 * **BuildArena S02 Mission Control Deep Link**: [https://ais-pre-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app/#buildarena](https://ais-pre-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app/#buildarena)
 * **Presage Sense Live Route**: [https://ais-pre-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app/#healthalert-presage](https://ais-pre-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app/#healthalert-presage)
 * **Presage Sense Standalone Deep Link**: [https://ais-pre-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app/#presagesense](https://ais-pre-4s4jvpipr3mh3mz6x2hpfp-393352619239.asia-southeast1.run.app/#presagesense)
 * **GitHub Repository**: [https://github.com/Zenieverse/Dr.-T](https://github.com/Zenieverse/Dr.-T)
 * **HatBridge Codegeist 2026 Dossier**: [`docs/HATBRIDGE_CODEGEIST_SUBMISSION.md`](docs/HATBRIDGE_CODEGEIST_SUBMISSION.md)
+* **CareBridge Codegeist 2026 Dossier**: [`docs/CAREBRIDGE_CODEGEIST_SUBMISSION.md`](docs/CAREBRIDGE_CODEGEIST_SUBMISSION.md)
 * **BuildArena S02 Dossier**: [`docs/BUILDARENA_S02_MISSION_CONTROL.md`](docs/BUILDARENA_S02_MISSION_CONTROL.md)
 * **Presage Submission Dossier**: [`docs/PRESAGE_SMARTSPECTRA_CHALLENGE_SUBMISSION.md`](docs/PRESAGE_SMARTSPECTRA_CHALLENGE_SUBMISSION.md)
 
@@ -108,6 +110,17 @@ Navigation Tab: `HatBridge` (`hatbridge`) | Deep Links: `?tab=hatbridge` & `#hat
     * **Rovo Agent (`hatbridge-context-navigator`)**: Configured with 4 dedicated action handlers (`getReentryBrief`, `searchAuthorizedDecisions`, `prepareRoleHandoff`, `suggestNextAction`) scoped strictly to verified Forge user accounts (`context.principal.accountId || context.accountId`) while keeping `private_personal` entries isolated from workplace payloads.
     * **Optional Server-Side Gemini Reasoning (`gemini-4-hydrogen`)**: Consent-gated synthesis on `/api/hatbridge/ai/reason` with `18s` timeout protection, key/PII redaction, and deterministic offline fallback when `GEMINI_API_KEY` is unset.
 * **Implementation Disclosure**: All Forge manifests, TypeScript resolvers, Custom UI (`@forge/bridge`), Rovo handlers, and REST endpoints are implemented and pass local validation (`validate-manifest.mjs`, Forge/UI `tsc`, `npm run test:hatbridge`). Live `forge register`, `forge lint`, `forge deploy`, and `forge install` onto an Atlassian Cloud site require `@forge/cli` and developer credentials outside the sandbox.
+
+### 2c. 🩺 Dr. T — CareBridge (Codegeist 2026 | Specialized Industries — Healthcare)
+Navigation Tab: `CareBridge` (`carebridge`) | Deep Links: `?tab=carebridge` & `#carebridge` | Forge App: [`apps/carebridge-forge/`](apps/carebridge-forge/)
+
+* **Track & Mission**: Built for **Codegeist 2026 — Apps for Specialized Industries** as a dedicated, non-diagnostic healthcare care-navigation and follow-up continuity workspace (distinct from HatBridge with its own Forge manifest, storage namespace, and navigation tab).
+* **Submission & Setup Dossiers**: [`docs/CAREBRIDGE_CODEGEIST_SUBMISSION.md`](docs/CAREBRIDGE_CODEGEIST_SUBMISSION.md) · [`docs/CAREBRIDGE_FORGE_SETUP.md`](docs/CAREBRIDGE_FORGE_SETUP.md) · [`docs/CAREBRIDGE_RELEASE_CHECKLIST.md`](docs/CAREBRIDGE_RELEASE_CHECKLIST.md)
+* **8 Web Workspace Sections (iPad Safari, Mobile & Desktop)**:
+  1. **Care Overview** · 2. **Care Coordination** · 3. **Clinical Knowledge Hub** · 4. **Jira Service Management** · 5. **Rovo Healthcare Assistant** · 6. **Care Re-entry Brief** (strict 4-bucket provenance separation) · 7. **Privacy and Consent** · 8. **Activity and Audit History**
+* **CareBridge Atlassian Forge Companion (`apps/carebridge-forge/`, `nodejs22.x`)**:
+  * **Jira Service Management & Jira**: `jiraServiceManagement:portalRequestDetailPanel` (with `unlicensedAccess`), `jira:issuePanel`, and `jira:globalPage`, plus official `/rest/servicedeskapi/*` REST integration (`read:servicedesk-request`, `write:servicedesk-request`) with PHI minimization and explicit confirmation gates.
+  * **Confluence & Rovo (`carebridge-navigator`)**: `confluence:globalPage`, `confluence:contentAction`, and `rovo:agent` backed by 4 dedicated action handlers (`summarize-care-context`, `retrieve-care-knowledge`, `summarize-followup-tasks`, `prepare-care-handoff`) labeled explicitly as unverified until human review.
 
 
 ### 3. 🌟 Gather & Glow — AI-Powered Event Planning Assistant (Final Production Release)

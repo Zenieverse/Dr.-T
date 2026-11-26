@@ -102,6 +102,7 @@ import {
 } from './src/server/populationHealthAuth';
 import { probePopulationFirestorePersistence } from './src/server/populationHealthFirestoreStore';
 import { registerHatBridgeRoutes } from './src/server/hatbridgeService';
+import { registerCareBridgeRoutes } from './src/server/carebridgeService';
 import { GeminiCircuitBreaker } from './src/server/geminiCircuitBreaker';
 import {
   getMultiInstanceSafetyDiagnostics,
@@ -6165,6 +6166,11 @@ app.post('/api/population-health/demo/reset', async (req, res) => {
 // DR. T — HATBRIDGE API ROUTES (Codegeist 2026)
 // ============================================================================
 registerHatBridgeRoutes(app, getGemini);
+
+// ============================================================================
+// DR. T — CAREBRIDGE API ROUTES (Codegeist 2026: Specialized Industries)
+// ============================================================================
+registerCareBridgeRoutes(app, getGemini);
 
 // Setup Vite or Static serving
 async function setupApp() {

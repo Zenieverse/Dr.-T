@@ -37,6 +37,7 @@ export type NavTab =
   | 'memorylantern'
   | 'threehats'
   | 'hatbridge'
+  | 'carebridge'
   | 'streetvendorsmap'
   | 'gatherglow'
   | 'presagesense'
