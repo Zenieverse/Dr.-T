@@ -48,12 +48,12 @@ modules:
 
   rovo:agent:
     - key: carebridge-navigator
-      name: CareBridge Healthcare Navigator
+      name: CareBridge Care Navigator
       description: >-
         Non-diagnostic healthcare care-navigation assistant helping authorized users review
         Jira Service Management follow-up requests, Confluence clinical guidance, and care continuity tasks.
       prompt: >-
-        You are CareBridge Healthcare Navigator for Dr. T — CareBridge.
+        You are CareBridge Care Navigator for Dr. T — CareBridge.
         Your sole scope is non-emergency care navigation, administrative follow-up coordination,
         and retrieving authorized Jira Service Management and Confluence records.
 
@@ -82,7 +82,7 @@ modules:
   action:
     - key: summarize-care-context
       name: Summarize Authorized Care Context
-      function: rovo-summarize-care-context
+      function: rovo-care-context
       actionVerb: GET
       description: >-
         Compiles authorized JSM follow-up request statuses, linked Confluence pages, and
@@ -101,7 +101,7 @@ modules:
 
     - key: retrieve-care-knowledge
       name: Retrieve Confluence Care Knowledge
-      function: rovo-retrieve-care-knowledge
+      function: rovo-care-knowledge
       actionVerb: GET
       description: >-
         Searches user-authorized Confluence spaces and pages using Forge asUser() permissions
@@ -115,7 +115,7 @@ modules:
 
     - key: summarize-followup-tasks
       name: Summarize Follow-Up Tasks
-      function: rovo-summarize-followup-tasks
+      function: rovo-followup-tasks
       actionVerb: GET
       description: >-
         Summarizes open non-emergency CareBridge follow-up tasks, priorities, assignees,
@@ -129,7 +129,7 @@ modules:
 
     - key: prepare-care-handoff
       name: Prepare Care Navigation Handoff
-      function: rovo-prepare-care-handoff
+      function: rovo-care-handoff
       actionVerb: GET
       description: >-
         Prepares a structured 4-bucket Care Re-entry Brief separating Verified Source Information,
@@ -149,13 +149,13 @@ modules:
   function:
     - key: carebridge-resolver
       handler: index.handler
-    - key: rovo-summarize-care-context
+    - key: rovo-care-context
       handler: rovoActions.summarizeCareContext
-    - key: rovo-retrieve-care-knowledge
+    - key: rovo-care-knowledge
       handler: rovoActions.retrieveCareKnowledge
-    - key: rovo-summarize-followup-tasks
+    - key: rovo-followup-tasks
       handler: rovoActions.summarizeFollowupTasks
-    - key: rovo-prepare-care-handoff
+    - key: rovo-care-handoff
       handler: rovoActions.prepareCareHandoff
 
 resources:
