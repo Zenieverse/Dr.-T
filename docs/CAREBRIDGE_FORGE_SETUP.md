@@ -72,11 +72,11 @@ forge lint
 forge deploy -e development
 
 # 7. Install onto Jira Service Management & Confluence on https://zenieverse.atlassian.net
-forge install --product jira-servicedesk -e development --site zenieverse.atlassian.net
+forge install --product jira -e development --site zenieverse.atlassian.net
 forge install --product confluence -e development --site zenieverse.atlassian.net
 ```
 
-To enable Atlassian Rovo testing, ensure `https://zenieverse.atlassian.net` has Rovo activated and verify the `CareBridge Healthcare Navigator` agent (`carebridge-navigator`) appears in Rovo Chat.
+To enable Atlassian Rovo testing, ensure `https://zenieverse.atlassian.net` has Rovo activated and verify the `CareBridge Care Navigator` agent (`carebridge-navigator`) appears in Rovo Chat.
 
 ---
 
@@ -115,7 +115,11 @@ firebase deploy --only firestore:rules --project gen-lang-client-0611153209
 
 The Google AI Studio Build runtime used for recent checks is `/app/applet`, which has no `.git` directory and no `@forge/cli`. Do not attempt Git pushes or Forge lifecycle commands from that container.
 
-The verified remote baseline is `main` at `83a2b3490ea5625c62ce53a71da084776f79c4c5`. The intended branch is `chore/carebridge-post-merge-verification`. For this release handoff, synchronize and review the CareBridge service and documentation changes on that branch, then run Forge authentication, inspect existing registrations/installations, register only if needed, replace only the CareBridge manifest ID, validate/lint, deploy to development, and install on `zenieverse.atlassian.net` for supported Jira Service Management and Confluence products. Preserve HatBridge's separate app ID.
+The verified remote baseline is `main` at `f5c8f132f411aa38800bab6cd549a0d247c7da03` (PR #5 + PR #6 merged). Official `@forge/cli@16.0.0` validation required the 25-character agent name `CareBridge Care Navigator`, four function keys no longer than 23 characters, and the supported install flag `--product jira`.
+
+The seven-file schema/doc patch is prepared for branch `chore/carebridge-forge-schema-fixes`. Review and push it as a focused PR. After merge, authenticate with `forge login`, inspect registrations/installations, register CareBridge only if needed, preserve HatBridge's app ID, validate, lint, deploy to development and install with `--product jira` and `--product confluence`.
+
+Do not claim the patch is pushed or merged until GitHub confirms it.
 
 Production build is blocked until the deployment platform provides explicit `VITE_RUNTIME_ENV=production` and approved non-development `VITE_FIREBASE_PROJECT_ID`, `VITE_FIRESTORE_DATABASE_ID`, `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_APP_ID`, and `VITE_FIREBASE_MESSAGING_SENDER_ID`. Never use the development Firestore database as production configuration or bypass the fail-closed validator.
 

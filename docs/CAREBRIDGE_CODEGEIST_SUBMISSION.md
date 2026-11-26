@@ -70,6 +70,6 @@ Dr. T — CareBridge pairs a responsive iPad- and desktop-ready **8-section Care
 
 ## Release Verification Status — 2026-11-26
 
-The merged baseline PR #5 is verified at `83a2b3490ea5625c62ce53a71da084776f79c4c5`. The project reports passing local CareBridge, HatBridge, Health Alert, Population Health, Presage, Firestore security, lint/typecheck, Forge UI build/typecheck/manifest validation, and development build checks from Google AI Studio Build. Live read-only Atlassian verification reported Connected, and CR2-1 was preserved in To Do status.
+The merged baseline includes PR #5 (`83a2b3490ea5625c62ce53a71da084776f79c4c5`) and PR #6 (`f5c8f132f411aa38800bab6cd549a0d247c7da03`). Reported Google AI Studio Build checks include CareBridge (15/15), HatBridge (12/12), Firestore security (33/33), TypeScript lint, Forge UI build/typecheck, and manifest validation. The live read-only Atlassian verifier reported Connected, and CR2-1 remained To Do.
 
-**Not yet released:** the Forge app remains unregistered/un-deployed/un-installed until the interactive Forge CLI lifecycle is completed from GitHub Codespaces. Production build and signed-in browser walkthrough remain outstanding. Bonus-category eligibility that depends on a live deployed/installed Rovo agent must not be claimed until that deployment is verified.
+**Not yet released:** the seven-file Forge schema/doc patch is prepared but not yet pushed or merged. The Forge app remains unregistered, undeployed and uninstalled until interactive Forge authentication and the CLI lifecycle are completed. Production build and signed-in browser walkthrough remain outstanding. Do not claim bonus eligibility dependent on a live deployed/installed Rovo agent until verified.

@@ -55,6 +55,7 @@ if (!functionBlockMatch) {
 }
 const declaredFunctions = new Map();
 for (const m of functionBlockMatch[1].matchAll(/- key:\s*([a-z0-9-]+)\s*\n\s*handler:\s*([a-zA-Z0-9_.-]+)/g)) {
+  if (m[1].length > 23) fail(`Function key "${m[1]}" exceeds 23 characters (${m[1].length})`);
   declaredFunctions.set(m[1], m[2]);
 }
 if (declaredFunctions.size < 5) {
@@ -89,6 +90,8 @@ const agentBlockMatch = manifestText.match(/\n  rovo:agent:\n([\s\S]*?)\n  actio
 if (!agentBlockMatch) {
   fail('Missing rovo:agent module definition');
 }
+const agentNameMatch = agentBlockMatch[1].match(/\n\s+name:\s*(.+)/);
+if (!agentNameMatch || agentNameMatch[1].trim().length === 0 || agentNameMatch[1].trim().length > 30) fail(`rovo:agent name must be 1–30 characters`);
 for (const m of agentBlockMatch[1].matchAll(/\n\s{8}- ([a-z0-9-]+)/g)) {
   if (!declaredActions.has(m[1])) {
     fail(`Rovo agent references undeclared action "${m[1]}"`);
