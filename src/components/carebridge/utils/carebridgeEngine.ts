@@ -20,13 +20,7 @@ import {
   CareBridgeTaskStatus,
   CareBridgeWorkspaceBundle,
 } from '../../../types/carebridgeTypes';
-
-const BLOCKED_PHI_CHECKS: Array<{ pattern: RegExp; reason: string }> = [
-  { pattern: /\b\d{3}-\d{2}-\d{4}\b/, reason: 'Social Security Number format detected' },
-  { pattern: /\b(?:mrn|medical record number)\s*[:#-]?\s*[a-z0-9-]{3,}/i, reason: 'Medical Record Number (MRN) detected' },
-  { pattern: /\b(?:dob|date of birth|born on)\s*[:#-]?\s*\d{1,4}[/-]\d{1,2}[/-]\d{1,4}/i, reason: 'Date of Birth identifier detected' },
-  { pattern: /\b(?:icd-?10|hba1c|egfr|biopsy|pathology|dosage|mg\/dl)\b/i, reason: 'Clinical lab/diagnostic or medication value detected' },
-];
+import { scanAndRedactCareBridgePhi } from '../../../utils/carebridgePhiGuard';
 
 const DIAGNOSTIC_PHRASE_CHECKS = [
   /\byou have\b.*\b(disease|cancer|diabetes|infection|syndrome)\b/i,
@@ -36,16 +30,23 @@ const DIAGNOSTIC_PHRASE_CHECKS = [
 export function checkCareBridgeDataMinimization(text: string): {
   safe: boolean;
   warnings: string[];
+  redactedText?: string;
+  categories?: string[];
 } {
-  const warnings: string[] = [];
   const val = (text || '').trim();
-  for (const rule of BLOCKED_PHI_CHECKS) {
-    if (rule.pattern.test(val)) warnings.push(rule.reason);
-  }
+  const scan = scanAndRedactCareBridgePhi(val);
+  const warnings = [...scan.warnings];
   for (const diag of DIAGNOSTIC_PHRASE_CHECKS) {
-    if (diag.test(val)) warnings.push('CareBridge records administrative follow-ups only, never clinical diagnoses or prescriptions.');
+    if (diag.test(val)) {
+      warnings.push('CareBridge records administrative follow-ups only, never clinical diagnoses or prescriptions.');
+    }
   }
-  return { safe: warnings.length === 0, warnings };
+  return {
+    safe: warnings.length === 0,
+    warnings,
+    redactedText: scan.redactedText,
+    categories: scan.categories,
+  };
 }
 
 export function createCareTaskRecord(
@@ -163,12 +164,15 @@ export function appendWorkspaceAudit(
   bundle: CareBridgeWorkspaceBundle,
   entry: Omit<CareBridgeAuditEntry, 'id' | 'timestamp' | 'userId' | 'actorUid'>
 ): CareBridgeAuditEntry[] {
+  const redactedSummary = scanAndRedactCareBridgePhi(entry.summary || '').redactedText.slice(0, 260);
   const record: CareBridgeAuditEntry = {
     id: `cb-aud-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`,
     userId: bundle.consents.userId,
     timestamp: new Date().toISOString(),
     actorUid: bundle.consents.userId,
     ...entry,
+    summary: redactedSummary,
+    policyVersion: entry.policyVersion || bundle.consents.consentPolicyVersion || 'cb-jsm-followup-v1',
   };
   return [record, ...bundle.auditLogs].slice(0, 120);
 }

@@ -53,6 +53,11 @@ import {
 } from '../src/server/carebridgeAtlassianService';
 import { registerCareBridgeRoutes } from '../src/server/carebridgeService';
 import {
+  CAREBRIDGE_FOLLOWUP_POLICY_VERSION,
+  CareBridgeFollowupStore,
+} from '../src/server/carebridgeFollowupStore';
+import { scanAndRedactCareBridgePhi } from '../src/utils/carebridgePhiGuard';
+import {
   buildCareReentryBriefInForge,
   CareBridgeForgeAdapters,
   createJsmFollowUpConfirmedInForge,
@@ -185,6 +190,20 @@ async function main() {
         }),
       CareBridgeBoundaryError
     );
+    assert.throws(
+      () =>
+        minimizePayloadForJsm({
+          summary: 'Follow up appointment',
+          minimalNote: 'Medical record number 99812 needs portal link',
+        }),
+      CareBridgeBoundaryError
+    );
+    const syntheticSafe = minimizePayloadForJsm({
+      summary: '[CAREBRIDGE TEST] Synthetic integration verification — no patient data',
+      minimalNote:
+        'This is a controlled CareBridge integration test using entirely synthetic information. It contains no real patient information, diagnosis, medical record number, contact details or clinical measurements.',
+    });
+    assert.ok(syntheticSafe.summary.includes('[CAREBRIDGE TEST]'));
 
     const mockConfig = resolveCareBridgeAtlassianConnection({
       oauthBearerToken: 'test-oauth-token',
@@ -665,6 +684,367 @@ async function main() {
       });
       assert.equal(deniedReport.status, 'Permission Denied');
     } finally {
+      if (mockEnv.ATLASSIAN_SITE_URL === undefined) delete process.env.ATLASSIAN_SITE_URL;
+      else process.env.ATLASSIAN_SITE_URL = mockEnv.ATLASSIAN_SITE_URL;
+      if (mockEnv.ATLASSIAN_EMAIL === undefined) delete process.env.ATLASSIAN_EMAIL;
+      else process.env.ATLASSIAN_EMAIL = mockEnv.ATLASSIAN_EMAIL;
+      if (mockEnv.ATLASSIAN_API_TOKEN === undefined) delete process.env.ATLASSIAN_API_TOKEN;
+      else process.env.ATLASSIAN_API_TOKEN = mockEnv.ATLASSIAN_API_TOKEN;
+    }
+  });
+
+  // 13. Unified Client + Server PHI Detection & Redaction Across All Required Categories
+  await test('Shared PHI guard detects and redacts SSN, MRN, DOB, contacts, diagnoses, labs, and measurements without false-blocking synthetic disclaimer', () => {
+    const samples: Array<{ label: string; text: string; expectedCat: string }> = [
+      { label: 'SSN', text: 'SSN 123-45-6789 on file', expectedCat: 'ssn' },
+      { label: 'MRN labeled', text: 'Patient MRN: AB-90421 needs reschedule', expectedCat: 'mrn' },
+      { label: 'MRN unlabeled compact', text: 'Chart ref MRN99412 pending', expectedCat: 'mrn' },
+      { label: 'DOB', text: 'DOB: 04/19/1982 appointment', expectedCat: 'dob' },
+      { label: 'Email & phone & address', text: 'Call (415) 555-0199 or mail 742 Evergreen Terrace, patient@clinic.org', expectedCat: 'contact_info' },
+      { label: 'Diagnosis', text: 'Patient diagnosed with Type 2 Diabetes Mellitus E11.9', expectedCat: 'diagnosis' },
+      { label: 'Lab result', text: 'HbA1c 7.9 and eGFR 52 mL/min', expectedCat: 'lab_result' },
+      { label: 'Clinical measurement', text: 'BP 148/92 mmHg, SpO2 97%, HR 84 bpm', expectedCat: 'clinical_measurement' },
+    ];
+
+    for (const s of samples) {
+      const scan = scanAndRedactCareBridgePhi(s.text);
+      assert.equal(scan.safe, false, `Expected PHI block for ${s.label}`);
+      assert.ok(scan.categories.includes(s.expectedCat as any), `Expected category ${s.expectedCat} for ${s.label}`);
+      assert.ok(scan.redactedText.includes('[REDACTED_'), `Expected redacted placeholder for ${s.label}`);
+      const clientCheck = checkCareBridgeDataMinimization(s.text);
+      assert.equal(clientCheck.safe, false, `Client check must also block ${s.label}`);
+    }
+
+    const combined = 'MRN 77211 DOB 1980-05-12 HbA1c 8.1 BP 150/95 mmHg john@example.com';
+    const combinedScan = scanAndRedactCareBridgePhi(combined);
+    assert.equal(combinedScan.safe, false);
+    assert.ok(!combinedScan.redactedText.includes('77211'));
+    assert.ok(!combinedScan.redactedText.includes('1980-05-12'));
+    assert.ok(!combinedScan.redactedText.includes('john@example.com'));
+
+    const disclaimer =
+      'This is a controlled CareBridge integration test. It contains no real patient information, diagnosis, medical record number, contact details or clinical measurements.';
+    assert.equal(scanAndRedactCareBridgePhi(disclaimer).safe, true);
+    assert.equal(checkCareBridgeDataMinimization(disclaimer).safe, true);
+  });
+
+  // 14. Timeouts, Safe GET-Only Retries, and Zero Automatic Retries on POST/PUT
+  await test('safeAtlassianFetch enforces timeouts, retries transient 503 on GET once, and never retries POST writes', async () => {
+    let getAttempts = 0;
+    const retriedResp = await safeAtlassianFetch(
+      'https://zenieverse.atlassian.net/rest/servicedeskapi/request/CR2-1',
+      { method: 'GET' },
+      async () => {
+        getAttempts += 1;
+        if (getAttempts === 1) return new Response('bad gateway', { status: 503 });
+        return new Response(JSON.stringify({ issueKey: 'CR2-1', currentStatus: { status: 'To Do' } }), { status: 200 });
+      },
+      { maxGetRetries: 1, timeoutMs: 2000 }
+    );
+    assert.equal(retriedResp.status, 200);
+    assert.equal(getAttempts, 2, 'Idempotent GET should retry once on 503');
+
+    let postAttempts = 0;
+    const postResp = await safeAtlassianFetch(
+      'https://zenieverse.atlassian.net/rest/servicedeskapi/request/CR2-1/comment',
+      { method: 'POST', body: '{}' },
+      async () => {
+        postAttempts += 1;
+        return new Response('upstream busy', { status: 503 });
+      },
+      { maxGetRetries: 1, timeoutMs: 2000 }
+    );
+    assert.equal(postResp.status, 503);
+    assert.equal(postAttempts, 1, 'State-changing POST must NEVER retry automatically');
+
+    await assert.rejects(
+      () =>
+        safeAtlassianFetch(
+          'https://zenieverse.atlassian.net/rest/servicedeskapi/request/CR2-1',
+          { method: 'GET' },
+          (_url, init) =>
+            new Promise<Response>((_resolve, reject) => {
+              init?.signal?.addEventListener('abort', () => reject(new Error('aborted')));
+            }),
+          { maxGetRetries: 0, timeoutMs: 100 }
+        ),
+      (err: any) => err instanceof CareBridgeBoundaryError && err.code === 'ATLASSIAN_TIMEOUT' && err.statusCode === 504
+    );
+  });
+
+  // 15. Server-Enforced Consent, Auth, Ownership Isolation, Preview/Approval Gate, Idempotency & Sanitized Audit
+  await test('Follow-up endpoints enforce auth, default-off/revocable/expiring consent, human approval, duplicate prevention, and privacy audit logs', async () => {
+    const mockEnv = {
+      ATLASSIAN_SITE_URL: process.env.ATLASSIAN_SITE_URL,
+      ATLASSIAN_EMAIL: process.env.ATLASSIAN_EMAIL,
+      ATLASSIAN_API_TOKEN: process.env.ATLASSIAN_API_TOKEN,
+    };
+    process.env.ATLASSIAN_SITE_URL = 'https://zenieverse.atlassian.net';
+    process.env.ATLASSIAN_EMAIL = 'test-ops@zenieverse.test';
+    process.env.ATLASSIAN_API_TOKEN = 'SECRET_TEST_TOKEN_ABC';
+
+    let postCommentCalls = 0;
+    const mockAtlassianFetch: typeof fetch = async (url, init) => {
+      const target = String(url);
+      const method = (init?.method || 'GET').toUpperCase();
+      if (target.endsWith('/rest/servicedeskapi/request/CR2-1') && method === 'GET') {
+        return new Response(
+          JSON.stringify({
+            issueId: '10001',
+            issueKey: 'CR2-1',
+            serviceDeskId: '2',
+            requestTypeId: '5',
+            requestFieldValues: [{ fieldId: 'summary', value: '[CAREBRIDGE TEST] Synthetic integration verification — no patient data' }],
+            currentStatus: { status: 'In Progress' },
+            createdDate: { iso8601: '2026-11-26T06:00:00Z' },
+            _links: { web: 'https://zenieverse.atlassian.net/servicedesk/customer/portal/2/CR2-1' },
+          }),
+          { status: 200 }
+        );
+      }
+      if (target.endsWith('/rest/servicedeskapi/request/CR2-404') && method === 'GET') {
+        return new Response('{}', { status: 404 });
+      }
+      if (target.endsWith('/rest/api/3/issue/CR2-1/transitions') && method === 'GET') {
+        return new Response(JSON.stringify({ transitions: [{ id: '21', name: 'In Progress' }] }), { status: 200 });
+      }
+      if (target.endsWith('/rest/servicedeskapi/request/CR2-1/comment') && method === 'POST') {
+        postCommentCalls += 1;
+        return new Response(JSON.stringify({ id: 'c-1', body: 'Administrative follow-up' }), { status: 201 });
+      }
+      return new Response('{}', { status: 404 });
+    };
+
+    const store = new CareBridgeFollowupStore();
+    const app = express();
+    app.use(express.json());
+    registerCareBridgeRoutes(app, () => null, {
+      store,
+      fetchImpl: mockAtlassianFetch,
+      authVerifier: async (token) => {
+        if (token === 'token-user-1') return { sub: 'uid-user-1' };
+        if (token === 'token-user-2') return { sub: 'uid-user-2' };
+        throw new Error('Bad token');
+      },
+    });
+
+    const server = await new Promise<http.Server>((resolve) => {
+      const s = app.listen(0, () => resolve(s));
+    });
+
+    try {
+      const addr = server.address() as { port: number };
+      const base = `http://127.0.0.1:${addr.port}`;
+
+      // A. Unauthenticated requests strictly rejected (401)
+      const unauthConsent = await fetch(`${base}/api/carebridge/consent/followup`);
+      assert.equal(unauthConsent.status, 401);
+      const unauthStatus = await fetch(`${base}/api/carebridge/followup/requests/CR2-1`);
+      assert.equal(unauthStatus.status, 401);
+      const unauthAudit = await fetch(`${base}/api/carebridge/followup/audit`);
+      assert.equal(unauthAudit.status, 401);
+
+      // B. Default consent is false and blocks follow-up lookup (403 Consent required)
+      const defConsentRes = await fetch(`${base}/api/carebridge/consent/followup`, {
+        headers: { Authorization: 'Bearer token-user-1' },
+      });
+      assert.equal(defConsentRes.status, 200);
+      const defConsentJson = (await defConsentRes.json()) as any;
+      assert.equal(defConsentJson.consent.granted, false);
+      assert.equal(defConsentJson.policyVersion, CAREBRIDGE_FOLLOWUP_POLICY_VERSION);
+
+      const blockedBeforeConsent = await fetch(`${base}/api/carebridge/followup/requests/CR2-1`, {
+        headers: { Authorization: 'Bearer token-user-1' },
+      });
+      assert.equal(blockedBeforeConsent.status, 403);
+      const blockedJson = (await blockedBeforeConsent.json()) as any;
+      assert.equal(blockedJson.uiState, 'Consent required');
+
+      // C. Grant explicit follow-up consent -> CR2-1 read-only status succeeds & compares against 'To Do' baseline
+      const grantRes = await fetch(`${base}/api/carebridge/consent/followup`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer token-user-1' },
+        body: JSON.stringify({ action: 'grant', ttlHours: 24 }),
+      });
+      assert.equal(grantRes.status, 200);
+      const grantJson = (await grantRes.json()) as any;
+      assert.equal(grantJson.consent.granted, true);
+      assert.ok(grantJson.consent.grantedAt);
+      assert.ok(grantJson.consent.expiresAt);
+
+      const okStatusRes = await fetch(`${base}/api/carebridge/followup/requests/CR2-1`, {
+        headers: { Authorization: 'Bearer token-user-1' },
+      });
+      assert.equal(okStatusRes.status, 200);
+      const okStatus = (await okStatusRes.json()) as any;
+      assert.equal(okStatus.uiState, 'Follow-up available');
+      assert.equal(okStatus.requestKey, 'CR2-1');
+      assert.equal(okStatus.lastVerifiedStatus, 'In Progress');
+      assert.equal(okStatus.previousVerifiedStatus, 'To Do');
+      assert.equal(okStatus.statusChanged, true);
+
+      // D. 404 Request not found mapping
+      const notFoundRes = await fetch(`${base}/api/carebridge/followup/requests/CR2-404`, {
+        headers: { Authorization: 'Bearer token-user-1' },
+      });
+      assert.equal(notFoundRes.status, 404);
+      const notFoundJson = (await notFoundRes.json()) as any;
+      assert.equal(notFoundJson.uiState, 'Request not found');
+
+      // E. Preview PHI guard blocks sensitive patient details
+      const phiPreviewRes = await fetch(`${base}/api/carebridge/followup/actions/preview`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer token-user-1' },
+        body: JSON.stringify({
+          requestKey: 'CR2-1',
+          actionType: 'comment',
+          bodyText: 'Patient MRN 994412 DOB 02/14/1988 HbA1c 8.4%',
+        }),
+      });
+      assert.equal(phiPreviewRes.status, 403);
+
+      // F. Clean preview -> missing humanApproved rejected -> approved execution succeeds -> duplicate prevented
+      const cleanPreviewRes = await fetch(`${base}/api/carebridge/followup/actions/preview`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer token-user-1' },
+        body: JSON.stringify({
+          requestKey: 'CR2-1',
+          actionType: 'comment',
+          bodyText: 'Requesting administrative schedule confirmation.',
+        }),
+      });
+      assert.equal(cleanPreviewRes.status, 200);
+      const previewObj = ((await cleanPreviewRes.json()) as any).preview;
+      assert.ok(previewObj.previewId);
+
+      // Unapproved execution must fail cleanly without calling Atlassian
+      const unapprovedExec = await fetch(`${base}/api/carebridge/followup/actions/execute`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer token-user-1' },
+        body: JSON.stringify({
+          previewId: previewObj.previewId,
+          requestKey: 'CR2-1',
+          actionType: 'comment',
+          bodyText: 'Requesting administrative schedule confirmation.',
+          humanApproved: false,
+        }),
+      });
+      assert.equal(unapprovedExec.status, 400);
+      assert.equal(postCommentCalls, 0);
+
+      // Cross-user execution with user 1's preview blocked cleanly (after user 2 grants own consent)
+      await fetch(`${base}/api/carebridge/consent/followup`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer token-user-2' },
+        body: JSON.stringify({ action: 'grant' }),
+      });
+      const crossUserExec = await fetch(`${base}/api/carebridge/followup/actions/execute`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer token-user-2' },
+        body: JSON.stringify({
+          previewId: previewObj.previewId,
+          requestKey: 'CR2-1',
+          actionType: 'comment',
+          bodyText: 'Requesting administrative schedule confirmation.',
+          humanApproved: true,
+        }),
+      });
+      assert.equal(crossUserExec.status, 403);
+
+      // Approved execution succeeds once
+      const approvedExec = await fetch(`${base}/api/carebridge/followup/actions/execute`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer token-user-1' },
+        body: JSON.stringify({
+          previewId: previewObj.previewId,
+          idempotencyKey: 'idem-key-1',
+          requestKey: 'CR2-1',
+          actionType: 'comment',
+          bodyText: 'Requesting administrative schedule confirmation.',
+          humanApproved: true,
+        }),
+      });
+      assert.equal(approvedExec.status, 200);
+      const execJson = ((await approvedExec.json()) as any).result;
+      assert.equal(execJson.executed, true);
+      assert.equal(execJson.duplicatePrevented, false);
+      assert.equal(postCommentCalls, 1);
+
+      // Duplicate submission prevented via idempotency key AND single-use preview guard
+      const dupIdemRes = await fetch(`${base}/api/carebridge/followup/actions/execute`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer token-user-1' },
+        body: JSON.stringify({
+          previewId: previewObj.previewId,
+          idempotencyKey: 'idem-key-1',
+          requestKey: 'CR2-1',
+          actionType: 'comment',
+          bodyText: 'Requesting administrative schedule confirmation.',
+          humanApproved: true,
+        }),
+      });
+      assert.equal(dupIdemRes.status, 200);
+      const dupJson = ((await dupIdemRes.json()) as any).result;
+      assert.equal(dupJson.duplicatePrevented, true);
+      assert.equal(postCommentCalls, 1, 'Atlassian comment endpoint must NOT be called twice');
+
+      // G. AI follow-up draft returns clearly labeled human-review draft even without Gemini key
+      const aiDraftRes = await fetch(`${base}/api/carebridge/followup/ai-summary`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer token-user-1' },
+        body: JSON.stringify({
+          requestKey: 'CR2-1',
+          currentStatus: 'In Progress',
+          summary: 'Scheduling follow-up',
+          geminiConsentGranted: true,
+        }),
+      });
+      assert.equal(aiDraftRes.status, 200);
+      const aiDraft = ((await aiDraftRes.json()) as any).draft;
+      assert.equal(aiDraft.isDraft, true);
+      assert.equal(aiDraft.requiresHumanReview, true);
+      assert.match(aiDraft.unverifiedBanner, /Requires Human Review/);
+
+      // H. Cross-user audit access blocked (403); owner audit contains zero secrets/PHI
+      const crossAuditRes = await fetch(`${base}/api/carebridge/followup/audit?userId=uid-user-1`, {
+        headers: { Authorization: 'Bearer token-user-2' },
+      });
+      assert.equal(crossAuditRes.status, 403);
+
+      const ownerAuditRes = await fetch(`${base}/api/carebridge/followup/audit`, {
+        headers: { Authorization: 'Bearer token-user-1' },
+      });
+      assert.equal(ownerAuditRes.status, 200);
+      const ownerAudit = (await ownerAuditRes.json()) as any;
+      assert.ok(ownerAudit.events.length >= 6);
+      const auditSerialized = JSON.stringify(ownerAudit.events);
+      assert.ok(!auditSerialized.includes('SECRET_TEST_TOKEN_ABC'));
+      assert.ok(!auditSerialized.includes('994412'));
+      assert.ok(!auditSerialized.includes('02/14/1988'));
+
+      // I. Withdraw consent immediately re-blocks follow-up endpoints
+      const withdrawRes = await fetch(`${base}/api/carebridge/consent/followup`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer token-user-1' },
+        body: JSON.stringify({ action: 'withdraw' }),
+      });
+      assert.equal(withdrawRes.status, 200);
+      const afterWithdraw = await fetch(`${base}/api/carebridge/followup/requests/CR2-1`, {
+        headers: { Authorization: 'Bearer token-user-1' },
+      });
+      assert.equal(afterWithdraw.status, 403);
+
+      // J. Expired consent is rejected on follow-up check (no blanket permanent grant)
+      store.grantConsent({
+        userId: 'uid-expired',
+        expiresAtOverride: '2020-01-01T00:00:00.000Z',
+      });
+      assert.throws(
+        () => store.assertActiveFollowUpConsent('uid-expired', 'CR2-1'),
+        (err: any) => err.code === 'FOLLOWUP_CONSENT_REQUIRED'
+      );
+    } finally {
+      await new Promise<void>((resolve) => server.close(() => resolve()));
       if (mockEnv.ATLASSIAN_SITE_URL === undefined) delete process.env.ATLASSIAN_SITE_URL;
       else process.env.ATLASSIAN_SITE_URL = mockEnv.ATLASSIAN_SITE_URL;
       if (mockEnv.ATLASSIAN_EMAIL === undefined) delete process.env.ATLASSIAN_EMAIL;

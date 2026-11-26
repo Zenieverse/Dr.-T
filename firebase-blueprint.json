@@ -420,11 +420,15 @@
       "collection": "carebridge_consents",
       "fields": {
         "userId": { "type": "string", "description": "Owner Firebase UID" },
-        "jsmMinimalSyncConsent": { "type": "boolean", "description": "Consent to create minimized JSM requests" },
+        "jsmMinimalSyncConsent": { "type": "boolean", "description": "Explicit Jira Service Management Follow-Up Consent (default disabled)" },
         "confluenceReadConsent": { "type": "boolean", "description": "Consent to read authorized Confluence pages" },
         "rovoAssistantConsent": { "type": "boolean", "description": "Consent to run Rovo care navigation summaries" },
         "geminiSynthesisConsent": { "type": "boolean", "description": "Consent to run server-side Gemini summaries" },
         "retentionPolicy": { "type": "string", "description": "30_days | 90_days | 365_days | manual_only" },
+        "consentPolicyVersion": { "type": "string", "description": "Policy version recorded when consent was granted or withdrawn" },
+        "consentGrantedAt": { "type": "string", "description": "ISO timestamp of consent grant" },
+        "followUpConsentExpiresAt": { "type": "string", "description": "ISO expiration timestamp for JSM follow-up consent" },
+        "followUpConsentWithdrawnAt": { "type": "string", "description": "ISO timestamp if consent was withdrawn" },
         "updatedAt": { "type": "string", "description": "ISO timestamp" }
       }
     },
@@ -444,6 +448,10 @@
         "category": { "type": "string", "description": "task | jsm | confluence | rovo_ai | privacy | system" },
         "action": { "type": "string", "description": "Action identifier" },
         "outcome": { "type": "string", "description": "allowed | blocked | error" },
+        "requestKey": { "type": "string", "description": "Optional non-sensitive JSM issue key reference" },
+        "operationType": { "type": "string", "description": "Structured audit operation type" },
+        "policyVersion": { "type": "string", "description": "Consent policy version active during event" },
+        "correlationId": { "type": "string", "description": "Trace correlation identifier" },
         "timestamp": { "type": "string", "description": "ISO timestamp" }
       }
     }

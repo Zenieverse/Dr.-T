@@ -13,6 +13,7 @@ import {
   CareBridgeConfluencePage,
   CareBridgeTask,
 } from '../types/carebridgeTypes';
+import { scanAndRedactCareBridgePhi } from '../utils/carebridgePhiGuard';
 
 export const CAREBRIDGE_GEMINI_MODEL = 'gemini-4-hydrogen';
 
@@ -42,7 +43,8 @@ export interface CareBridgeAiAssistRequest {
     | 'summarize-followup-tasks'
     | 'prepare-care-handoff'
     | 'knowledge_page_summary'
-    | 'reentry_brief_suggestion';
+    | 'reentry_brief_suggestion'
+    | 'followup_status_summary';
   prompt: string;
   geminiConsentGranted: boolean;
   rovoConsentGranted?: boolean;
@@ -64,12 +66,7 @@ export interface CareBridgeAiAssistResult {
 }
 
 export function scrubIdentifiableDetailsForExternalAi(raw: string): string {
-  return (raw || '')
-    .replace(/\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi, '[EMAIL_REDACTED]')
-    .replace(/\b\d{3}-\d{2}-\d{4}\b/g, '[SSN_REDACTED]')
-    .replace(/\b(?:\+?1[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}\b/g, '[PHONE_REDACTED]')
-    .replace(/\b(?:mrn|dob)\s*[:#-]?\s*[a-z0-9/-]{3,}/gi, '[ID_REDACTED]')
-    .slice(0, 600);
+  return scanAndRedactCareBridgePhi(raw || '').redactedText.slice(0, 600);
 }
 
 const ASSIST_SCHEMA = {

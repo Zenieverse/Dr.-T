@@ -20308,14 +20308,14 @@ var require_etag = __commonJS({
   "node_modules/etag/index.js"(exports2, module2) {
     "use strict";
     module2.exports = etag;
-    var crypto13 = require("crypto");
+    var crypto14 = require("crypto");
     var Stats = require("fs").Stats;
     var toString2 = Object.prototype.toString;
     function entitytag(entity) {
       if (entity.length === 0) {
         return '"0-2jmj7l5rSw0yVb/vlWAYkK/YBwk"';
       }
-      var hash2 = crypto13.createHash("sha1").update(entity, "utf8").digest("base64").substring(0, 27);
+      var hash2 = crypto14.createHash("sha1").update(entity, "utf8").digest("base64").substring(0, 27);
       var len = typeof entity === "string" ? Buffer.byteLength(entity, "utf8") : entity.length;
       return '"' + len.toString(16) + "-" + hash2 + '"';
     }
@@ -24397,17 +24397,17 @@ var require_content_disposition = __commonJS({
 // node_modules/cookie-signature/index.js
 var require_cookie_signature = __commonJS({
   "node_modules/cookie-signature/index.js"(exports2) {
-    var crypto13 = require("crypto");
+    var crypto14 = require("crypto");
     exports2.sign = function(val, secret) {
       if ("string" != typeof val) throw new TypeError("Cookie value must be provided as a string.");
       if (null == secret) throw new TypeError("Secret key must be provided.");
-      return val + "." + crypto13.createHmac("sha256", secret).update(val).digest("base64").replace(/\=+$/, "");
+      return val + "." + crypto14.createHmac("sha256", secret).update(val).digest("base64").replace(/\=+$/, "");
     };
     exports2.unsign = function(input, secret) {
       if ("string" != typeof input) throw new TypeError("Signed cookie string must be provided.");
       if (null == secret) throw new TypeError("Secret key must be provided.");
       var tentativeValue = input.slice(0, input.lastIndexOf(".")), expectedInput = exports2.sign(tentativeValue, secret), expectedBuffer = Buffer.from(expectedInput), inputBuffer = Buffer.from(input);
-      return expectedBuffer.length === inputBuffer.length && crypto13.timingSafeEqual(expectedBuffer, inputBuffer) ? tentativeValue : false;
+      return expectedBuffer.length === inputBuffer.length && crypto14.timingSafeEqual(expectedBuffer, inputBuffer) ? tentativeValue : false;
     };
   }
 });
@@ -38111,22 +38111,22 @@ var require_crypto2 = __commonJS({
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.NodeCrypto = void 0;
-    var crypto13 = require("crypto");
+    var crypto14 = require("crypto");
     var NodeCrypto = class {
       async sha256DigestBase64(str) {
-        return crypto13.createHash("sha256").update(str).digest("base64");
+        return crypto14.createHash("sha256").update(str).digest("base64");
       }
       randomBytesBase64(count) {
-        return crypto13.randomBytes(count).toString("base64");
+        return crypto14.randomBytes(count).toString("base64");
       }
       async verify(pubkey, data, signature) {
-        const verifier = crypto13.createVerify("RSA-SHA256");
+        const verifier = crypto14.createVerify("RSA-SHA256");
         verifier.update(data);
         verifier.end();
         return verifier.verify(pubkey, signature, "base64");
       }
       async sign(privateKey, data) {
-        const signer = crypto13.createSign("RSA-SHA256");
+        const signer = crypto14.createSign("RSA-SHA256");
         signer.update(data);
         signer.end();
         return signer.sign(privateKey, "base64");
@@ -38144,7 +38144,7 @@ var require_crypto2 = __commonJS({
        *   string in hexadecimal encoding.
        */
       async sha256DigestHex(str) {
-        return crypto13.createHash("sha256").update(str).digest("hex");
+        return crypto14.createHash("sha256").update(str).digest("hex");
       }
       /**
        * Computes the HMAC hash of a message using the provided crypto key and the
@@ -38156,7 +38156,7 @@ var require_crypto2 = __commonJS({
        */
       async signWithHmacSha256(key, msg) {
         const cryptoKey = typeof key === "string" ? key : toBuffer(key);
-        return toArrayBuffer(crypto13.createHmac("sha256", cryptoKey).update(msg).digest());
+        return toArrayBuffer(crypto14.createHmac("sha256", cryptoKey).update(msg).digest());
       }
     };
     exports2.NodeCrypto = NodeCrypto;
@@ -39069,10 +39069,10 @@ var require_oauth2client = __commonJS({
        * https://github.com/googleapis/google-auth-library-nodejs/blob/main/samples/oauth2-codeVerifier.js
        */
       async generateCodeVerifierAsync() {
-        const crypto13 = (0, crypto_1.createCrypto)();
-        const randomString = crypto13.randomBytesBase64(96);
+        const crypto14 = (0, crypto_1.createCrypto)();
+        const randomString = crypto14.randomBytesBase64(96);
         const codeVerifier = randomString.replace(/\+/g, "~").replace(/=/g, "_").replace(/\//g, "-");
-        const unencodedCodeChallenge = await crypto13.sha256DigestBase64(codeVerifier);
+        const unencodedCodeChallenge = await crypto14.sha256DigestBase64(codeVerifier);
         const codeChallenge = unencodedCodeChallenge.split("=")[0].replace(/\+/g, "-").replace(/\//g, "_");
         return { codeVerifier, codeChallenge };
       }
@@ -39513,7 +39513,7 @@ var require_oauth2client = __commonJS({
        * @return Returns a promise resolving to LoginTicket on verification.
        */
       async verifySignedJwtWithCertsAsync(jwt, certs, requiredAudience, issuers, maxExpiry) {
-        const crypto13 = (0, crypto_1.createCrypto)();
+        const crypto14 = (0, crypto_1.createCrypto)();
         if (!maxExpiry) {
           maxExpiry = _OAuth2Client.DEFAULT_MAX_TOKEN_LIFETIME_SECS_;
         }
@@ -39526,7 +39526,7 @@ var require_oauth2client = __commonJS({
         let envelope;
         let payload;
         try {
-          envelope = JSON.parse(crypto13.decodeBase64StringUtf8(segments[0]));
+          envelope = JSON.parse(crypto14.decodeBase64StringUtf8(segments[0]));
         } catch (err) {
           if (err instanceof Error) {
             err.message = `Can't parse token envelope: ${segments[0]}': ${err.message}`;
@@ -39537,7 +39537,7 @@ var require_oauth2client = __commonJS({
           throw new Error("Can't parse token envelope: " + segments[0]);
         }
         try {
-          payload = JSON.parse(crypto13.decodeBase64StringUtf8(segments[1]));
+          payload = JSON.parse(crypto14.decodeBase64StringUtf8(segments[1]));
         } catch (err) {
           if (err instanceof Error) {
             err.message = `Can't parse token payload '${segments[0]}`;
@@ -39554,7 +39554,7 @@ var require_oauth2client = __commonJS({
         if (envelope.alg === "ES256") {
           signature = formatEcdsa.joseToDer(signature, "ES256").toString("base64");
         }
-        const verified = await crypto13.verify(cert, signed, signature);
+        const verified = await crypto14.verify(cert, signed, signature);
         if (!verified) {
           throw new Error("Invalid token signature: " + jwt);
         }
@@ -39929,14 +39929,14 @@ var require_buffer_equal_constant_time = __commonJS({
 var require_jwa = __commonJS({
   "node_modules/jwa/index.js"(exports2, module2) {
     var Buffer5 = require_safe_buffer().Buffer;
-    var crypto13 = require("crypto");
+    var crypto14 = require("crypto");
     var formatEcdsa = require_ecdsa_sig_formatter();
     var util2 = require("util");
     var MSG_INVALID_ALGORITHM = '"%s" is not a valid algorithm.\n  Supported algorithms are:\n  "HS256", "HS384", "HS512", "RS256", "RS384", "RS512", "PS256", "PS384", "PS512", "ES256", "ES384", "ES512" and "none".';
     var MSG_INVALID_SECRET = "secret must be a string or buffer";
     var MSG_INVALID_VERIFIER_KEY = "key must be a string or a buffer";
     var MSG_INVALID_SIGNER_KEY = "key must be a string, a buffer or an object";
-    var supportsKeyObjects = typeof crypto13.createPublicKey === "function";
+    var supportsKeyObjects = typeof crypto14.createPublicKey === "function";
     if (supportsKeyObjects) {
       MSG_INVALID_VERIFIER_KEY += " or a KeyObject";
       MSG_INVALID_SECRET += "or a KeyObject";
@@ -40026,17 +40026,17 @@ var require_jwa = __commonJS({
       return function sign2(thing, secret) {
         checkIsSecretKey(secret);
         thing = normalizeInput(thing);
-        var hmac2 = crypto13.createHmac("sha" + bits, secret);
+        var hmac2 = crypto14.createHmac("sha" + bits, secret);
         var sig = (hmac2.update(thing), hmac2.digest("base64"));
         return fromBase64(sig);
       };
     }
     var bufferEqual;
-    var timingSafeEqual = "timingSafeEqual" in crypto13 ? function timingSafeEqual2(a25, b5) {
+    var timingSafeEqual = "timingSafeEqual" in crypto14 ? function timingSafeEqual2(a25, b5) {
       if (a25.byteLength !== b5.byteLength) {
         return false;
       }
-      return crypto13.timingSafeEqual(a25, b5);
+      return crypto14.timingSafeEqual(a25, b5);
     } : function timingSafeEqual2(a25, b5) {
       if (!bufferEqual) {
         bufferEqual = require_buffer_equal_constant_time();
@@ -40053,7 +40053,7 @@ var require_jwa = __commonJS({
       return function sign2(thing, privateKey) {
         checkIsPrivateKey(privateKey);
         thing = normalizeInput(thing);
-        var signer = crypto13.createSign("RSA-SHA" + bits);
+        var signer = crypto14.createSign("RSA-SHA" + bits);
         var sig = (signer.update(thing), signer.sign(privateKey, "base64"));
         return fromBase64(sig);
       };
@@ -40063,7 +40063,7 @@ var require_jwa = __commonJS({
         checkIsPublicKey(publicKey);
         thing = normalizeInput(thing);
         signature = toBase64(signature);
-        var verifier = crypto13.createVerify("RSA-SHA" + bits);
+        var verifier = crypto14.createVerify("RSA-SHA" + bits);
         verifier.update(thing);
         return verifier.verify(publicKey, signature, "base64");
       };
@@ -40072,11 +40072,11 @@ var require_jwa = __commonJS({
       return function sign2(thing, privateKey) {
         checkIsPrivateKey(privateKey);
         thing = normalizeInput(thing);
-        var signer = crypto13.createSign("RSA-SHA" + bits);
+        var signer = crypto14.createSign("RSA-SHA" + bits);
         var sig = (signer.update(thing), signer.sign({
           key: privateKey,
-          padding: crypto13.constants.RSA_PKCS1_PSS_PADDING,
-          saltLength: crypto13.constants.RSA_PSS_SALTLEN_DIGEST
+          padding: crypto14.constants.RSA_PKCS1_PSS_PADDING,
+          saltLength: crypto14.constants.RSA_PSS_SALTLEN_DIGEST
         }, "base64"));
         return fromBase64(sig);
       };
@@ -40086,12 +40086,12 @@ var require_jwa = __commonJS({
         checkIsPublicKey(publicKey);
         thing = normalizeInput(thing);
         signature = toBase64(signature);
-        var verifier = crypto13.createVerify("RSA-SHA" + bits);
+        var verifier = crypto14.createVerify("RSA-SHA" + bits);
         verifier.update(thing);
         return verifier.verify({
           key: publicKey,
-          padding: crypto13.constants.RSA_PKCS1_PSS_PADDING,
-          saltLength: crypto13.constants.RSA_PSS_SALTLEN_DIGEST
+          padding: crypto14.constants.RSA_PKCS1_PSS_PADDING,
+          saltLength: crypto14.constants.RSA_PSS_SALTLEN_DIGEST
         }, signature, "base64");
       };
     }
@@ -42667,14 +42667,14 @@ var require_awsrequestsigner = __commonJS({
       }
     };
     exports2.AwsRequestSigner = AwsRequestSigner;
-    async function sign2(crypto13, key, msg) {
-      return await crypto13.signWithHmacSha256(key, msg);
+    async function sign2(crypto14, key, msg) {
+      return await crypto14.signWithHmacSha256(key, msg);
     }
-    async function getSigningKey(crypto13, key, dateStamp, region, serviceName) {
-      const kDate = await sign2(crypto13, `AWS4${key}`, dateStamp);
-      const kRegion = await sign2(crypto13, kDate, region);
-      const kService = await sign2(crypto13, kRegion, serviceName);
-      const kSigning = await sign2(crypto13, kService, "aws4_request");
+    async function getSigningKey(crypto14, key, dateStamp, region, serviceName) {
+      const kDate = await sign2(crypto14, `AWS4${key}`, dateStamp);
+      const kRegion = await sign2(crypto14, kDate, region);
+      const kService = await sign2(crypto14, kRegion, serviceName);
+      const kSigning = await sign2(crypto14, kService, "aws4_request");
       return kSigning;
     }
     async function generateAuthenticationHeaderMap(options) {
@@ -43640,7 +43640,7 @@ var require_gdchclient = __commonJS({
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.GdchClient = exports2.GDCH_SERVICE_ACCOUNT_TYPE = void 0;
-    var crypto13 = require("crypto");
+    var crypto14 = require("crypto");
     var fs11 = require("fs");
     var https2 = require("https");
     var oauth2client_1 = require_oauth2client();
@@ -43831,7 +43831,7 @@ var require_gdchclient = __commonJS({
         const encodedHeader = this.base64UrlEncode(JSON.stringify(header));
         const encodedPayload = this.base64UrlEncode(JSON.stringify(payload));
         const signingInput = `${encodedHeader}.${encodedPayload}`;
-        const signature = crypto13.sign("sha256", Buffer.from(signingInput), {
+        const signature = crypto14.sign("sha256", Buffer.from(signingInput), {
           key: this.privateKey,
           dsaEncoding: "ieee-p1363"
         });
@@ -44694,24 +44694,24 @@ var require_googleauth = __commonJS({
           const signed = await client.sign(data);
           return signed.signedBlob;
         }
-        const crypto13 = (0, crypto_1.createCrypto)();
+        const crypto14 = (0, crypto_1.createCrypto)();
         if (client instanceof jwtclient_1.JWT && client.key) {
-          const sign2 = await crypto13.sign(client.key, data);
+          const sign2 = await crypto14.sign(client.key, data);
           return sign2;
         }
         const creds = await this.getCredentials();
         if (!creds.client_email) {
           throw new Error("Cannot sign data without `client_email`.");
         }
-        return this.signBlob(crypto13, creds.client_email, data, endpoint);
+        return this.signBlob(crypto14, creds.client_email, data, endpoint);
       }
-      async signBlob(crypto13, emailOrUniqueId, data, endpoint) {
+      async signBlob(crypto14, emailOrUniqueId, data, endpoint) {
         const url = new URL(endpoint + `${emailOrUniqueId}:signBlob`);
         const res = await this.request({
           method: "POST",
           url: url.href,
           data: {
-            payload: crypto13.encodeBase64StringUtf8(data)
+            payload: crypto14.encodeBase64StringUtf8(data)
           },
           retry: true,
           retryConfig: {
@@ -77065,22 +77065,22 @@ var require_nacl_fast = __commonJS({
         randombytes = fn;
       };
       (function() {
-        var crypto13 = typeof self !== "undefined" ? self.crypto || self.msCrypto : null;
-        if (crypto13 && crypto13.getRandomValues) {
+        var crypto14 = typeof self !== "undefined" ? self.crypto || self.msCrypto : null;
+        if (crypto14 && crypto14.getRandomValues) {
           var QUOTA = 65536;
           nacl5.setPRNG(function(x3, n28) {
             var i19, v3 = new Uint8Array(n28);
             for (i19 = 0; i19 < n28; i19 += QUOTA) {
-              crypto13.getRandomValues(v3.subarray(i19, i19 + Math.min(n28 - i19, QUOTA)));
+              crypto14.getRandomValues(v3.subarray(i19, i19 + Math.min(n28 - i19, QUOTA)));
             }
             for (i19 = 0; i19 < n28; i19++) x3[i19] = v3[i19];
             cleanup(v3);
           });
         } else if (typeof require !== "undefined") {
-          crypto13 = require("crypto");
-          if (crypto13 && crypto13.randomBytes) {
+          crypto14 = require("crypto");
+          if (crypto14 && crypto14.randomBytes) {
             nacl5.setPRNG(function(x3, n28) {
-              var i19, v3 = crypto13.randomBytes(n28);
+              var i19, v3 = crypto14.randomBytes(n28);
               for (i19 = 0; i19 < n28; i19++) x3[i19] = v3[i19];
               cleanup(v3);
             });
@@ -119833,7 +119833,7 @@ var import_cors = __toESM(require_lib3(), 1);
 var import_path7 = __toESM(require("path"), 1);
 var import_fs9 = __toESM(require("fs"), 1);
 var import_dns = __toESM(require("dns"), 1);
-var import_crypto11 = __toESM(require("crypto"), 1);
+var import_crypto12 = __toESM(require("crypto"), 1);
 var import_child_process2 = require("child_process");
 var import_vite = require("vite");
 
@@ -186013,6 +186013,2332 @@ function registerHatBridgeRoutes(app2, getGemini2) {
   });
 }
 
+// src/utils/carebridgePhiGuard.ts
+var PHI_RULES = [
+  {
+    category: "ssn",
+    pattern: /\b(?:\d{3}-\d{2}-\d{4}|(?:ssn|social security(?:\s+number)?)\s*[:#-]?\s*(?:\*{2,3}[-\s]?\*{2}[-\s]?)?\d{4,9})\b/gi,
+    reason: "Social Security Number (SSN) pattern detected",
+    replacement: "[REDACTED_SSN]"
+  },
+  {
+    category: "mrn",
+    pattern: /\b(?:(?:mrn|medical record(?:\s+number|\s+id)?|med\s*rec)\s*[:#-]?\s*(?=[a-z0-9-]*\d)[a-z0-9-]{4,}|(?:mrn|medical record)\s*[:#-]\s*[a-z0-9-]{4,})\b/gi,
+    reason: "Medical Record Number (MRN) detected",
+    replacement: "[REDACTED_MRN]"
+  },
+  {
+    category: "dob",
+    pattern: /\b(?:dob|date of birth|born on|birth\s*date)\s*[:#-]?\s*(?:\d{1,4}[/-]\d{1,2}[/-]\d{1,4}|(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\s+\d{1,2},?\s+\d{4})\b/gi,
+    reason: "Date of Birth (DOB) detected",
+    replacement: "[REDACTED_DOB]"
+  },
+  {
+    category: "contact_info",
+    pattern: /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi,
+    reason: "Personal email address detected",
+    replacement: "[REDACTED_EMAIL]"
+  },
+  {
+    category: "contact_info",
+    pattern: /(?:\b(?:phone|tel|cell|mobile)\s*[:#-]\s*)?(?:\+?1[-.\s]?)?(?:\(\d{3}\)|\b\d{3})[-.\s]\d{3}[-.\s]\d{4}\b/gi,
+    reason: "Personal phone number detected",
+    replacement: "[REDACTED_PHONE]"
+  },
+  {
+    category: "contact_info",
+    pattern: /\b\d{1,5}\s+(?:[A-Za-z0-9.]+\s+){1,3}(?:Street|St|Avenue|Ave|Road|Rd|Boulevard|Blvd|Lane|Ln|Drive|Dr|Court|Ct|Way|Terrace|Ter|Place|Pl|Circle|Cir|Parkway|Pkwy)\b\.?(?:\s*(?:Apt|Unit|#)\s*[A-Za-z0-9-]+)?/gi,
+    reason: "Personal street address detected",
+    replacement: "[REDACTED_ADDRESS]"
+  },
+  {
+    category: "diagnosis",
+    pattern: /\b(?:icd-?10(?:-cm)?\s*[:#-]?\s*[a-z]\d{2}(?:\.[a-z0-9]{1,4})?|diagnosed with\s+[a-z0-9\s-]{3,32}|diagnosis\s*(?:of|:)\s*[a-z0-9\s-]{3,32}|(?:type\s*[12]\s*diabetes|hypertension|malignant|carcinoma|biopsy\s+(?:positive|negative|result|showed)|pathology\s+(?:report|positive)|prescribed\s+[a-z0-9-]+|prescription for\s+[a-z0-9-]+))\b/gi,
+    reason: "Clinical diagnosis or prescription detail detected",
+    replacement: "[REDACTED_CLINICAL_NOTE]"
+  },
+  {
+    category: "lab_result",
+    pattern: /\b(?:hba1c|a1c|ferritin|egfr|creatinine|hemoglobin|wbc|platelet(?:s)?|ldl|hdl|triglycerides|tsh|troponin|d-dimer|bilirubin)\s*(?:is|was|[:#=])?\s*\d+(?:\.\d+)?(?:\s*(?:%|mg\/dl|g\/dl|ng\/ml|u\/l|mmol\/l|miu\/l))?\b/gi,
+    reason: "Laboratory measurement or biomarker value detected",
+    replacement: "[REDACTED_LAB_VALUE]"
+  },
+  {
+    category: "clinical_measurement",
+    pattern: /\b(?:(?:bp|blood pressure)\s*(?:is|was|[:#=])?\s*\d{2,3}\s*\/\s*\d{2,3}(?:\s*mmhg)?|\d{2,3}\s*\/\s*\d{2,3}\s*mmhg|(?:spo2|o2 sat|oxygen saturation|heart rate|hr|pulse|temp|temperature|bmi|glucose)\s*(?:is|was|[:#=])?\s*\d{2,3}(?:\.\d+)?(?:\s*(?:%|bpm|f|c|°f|°c|mg\/dl|mmol\/l))?|\d+(?:\.\d+)?\s*(?:mg\/dl|mmol\/l|ng\/ml|mmhg|bpm))\b/gi,
+    reason: "Clinical vital sign or measurement detected",
+    replacement: "[REDACTED_CLINICAL_MEASUREMENT]"
+  }
+];
+function scanAndRedactCareBridgePhi(rawText) {
+  const input = String(rawText || "");
+  let redacted = input;
+  const categoriesSet = /* @__PURE__ */ new Set();
+  const warningsSet = /* @__PURE__ */ new Set();
+  let matchCount = 0;
+  for (const rule of PHI_RULES) {
+    const regex = new RegExp(rule.pattern.source, rule.pattern.flags);
+    const matches = redacted.match(regex);
+    if (matches && matches.length > 0) {
+      matchCount += matches.length;
+      categoriesSet.add(rule.category);
+      warningsSet.add(rule.reason);
+      redacted = redacted.replace(regex, rule.replacement);
+    }
+  }
+  return {
+    safe: matchCount === 0,
+    categories: Array.from(categoriesSet),
+    warnings: Array.from(warningsSet),
+    redactedText: redacted,
+    matchCount
+  };
+}
+
+// src/server/carebridgeAiService.ts
+var CAREBRIDGE_GEMINI_MODEL = "gemini-4-hydrogen";
+var CareBridgeAiConsentError = class extends Error {
+  statusCode = 403;
+  code = "CONSENT_REQUIRED";
+  constructor(message) {
+    super(message);
+    this.name = "CareBridgeAiConsentError";
+  }
+};
+var CareBridgeAiUnavailableError = class extends Error {
+  statusCode = 503;
+  code;
+  constructor(code, message) {
+    super(message);
+    this.name = "CareBridgeAiUnavailableError";
+    this.code = code;
+  }
+};
+function scrubIdentifiableDetailsForExternalAi(raw) {
+  return scanAndRedactCareBridgePhi(raw || "").redactedText.slice(0, 600);
+}
+var ASSIST_SCHEMA = {
+  type: Type.OBJECT,
+  properties: {
+    verifiedSourceFacts: {
+      type: Type.ARRAY,
+      items: { type: Type.STRING },
+      description: "Only facts directly quoting linked Confluence excerpts or confirmed JSM request metadata."
+    },
+    userRecordedFacts: {
+      type: Type.ARRAY,
+      items: { type: Type.STRING },
+      description: "Only administrative task details recorded by the user in CareBridge."
+    },
+    aiSummaryOrSuggestion: {
+      type: Type.STRING,
+      description: "Administrative summary or next follow-up suggestion clearly written as non-diagnostic and subject to human review."
+    },
+    missingInformation: {
+      type: Type.ARRAY,
+      items: { type: Type.STRING },
+      description: "Missing or unavailable context gaps."
+    }
+  },
+  required: ["verifiedSourceFacts", "userRecordedFacts", "aiSummaryOrSuggestion", "missingInformation"]
+};
+async function runCareBridgeAiAssist(input, geminiClient, options) {
+  if (!input.geminiConsentGranted) {
+    throw new CareBridgeAiConsentError(
+      "Explicit Gemini Synthesis Consent is disabled. Enable consent in CareBridge Privacy and Consent before generating AI summaries."
+    );
+  }
+  if ((input.actionType === "summarize-care-context" || input.actionType === "retrieve-care-knowledge" || input.actionType === "summarize-followup-tasks" || input.actionType === "prepare-care-handoff") && input.rovoConsentGranted === false) {
+    throw new CareBridgeAiConsentError(
+      "Rovo Healthcare Assistant Consent is disabled in CareBridge Privacy and Consent."
+    );
+  }
+  if (!geminiClient) {
+    throw new CareBridgeAiUnavailableError(
+      "GEMINI_KEY_MISSING",
+      "GEMINI_API_KEY is not configured on the server. AI summary generation is unavailable; verified records remain accessible offline."
+    );
+  }
+  const timeoutMs = Math.max(250, Math.min(options?.timeoutMs ?? 18e3, 6e4));
+  const minimizedTasks = input.tasks.slice(0, 25).map((t45) => ({
+    id: t45.id,
+    contextRef: scrubIdentifiableDetailsForExternalAi(t45.contextRef),
+    description: scrubIdentifiableDetailsForExternalAi(t45.description),
+    priority: t45.priority,
+    dueDate: t45.dueDate || "unscheduled",
+    assignee: scrubIdentifiableDetailsForExternalAi(t45.responsibleAssignee),
+    status: t45.status,
+    sourceKind: t45.source.kind,
+    jsmRequestKey: t45.source.jsmRequestKey
+  }));
+  const minimizedPages = input.knowledgePages.slice(0, 10).map((p5) => ({
+    id: p5.id,
+    title: p5.title,
+    spaceKey: p5.spaceKey,
+    excerpt: scrubIdentifiableDetailsForExternalAi(p5.excerpt),
+    url: p5.url,
+    dataOrigin: p5.dataOrigin
+  }));
+  const systemInstruction = `You are CareBridge Healthcare Navigator Assistant inside Dr. T \u2014 CareBridge.
+MANDATORY SAFETY & PROVENANCE RULES:
+1. You assist ONLY with non-emergency care navigation, administrative follow-up scheduling, and authorized Confluence documentation retrieval.
+2. NEVER provide clinical diagnosis, triage decisions, medication dosing, or treatment recommendations.
+3. Strictly separate verified Confluence/JSM source facts from user-recorded tasks and AI suggestions.
+4. NEVER fabricate clinical guidelines, citations, request keys, or deadlines. If context is absent, list the gap in "missingInformation".
+5. All AI output is unverified administrative guidance until reviewed by an authorized human.`;
+  let timer;
+  try {
+    const generatePromise = geminiClient.models.generateContent({
+      model: CAREBRIDGE_GEMINI_MODEL,
+      contents: [
+        {
+          role: "user",
+          parts: [
+            {
+              text: JSON.stringify({
+                actionType: input.actionType,
+                navigationContext: scrubIdentifiableDetailsForExternalAi(input.navigationContext),
+                prompt: scrubIdentifiableDetailsForExternalAi(input.prompt),
+                tasks: minimizedTasks,
+                confluencePages: minimizedPages
+              })
+            }
+          ]
+        }
+      ],
+      config: {
+        systemInstruction,
+        responseMimeType: "application/json",
+        responseSchema: ASSIST_SCHEMA
+      }
+    });
+    const timeoutPromise = new Promise((_2, reject) => {
+      timer = setTimeout(() => {
+        reject(new CareBridgeAiUnavailableError("GEMINI_UPSTREAM_ERROR", "CareBridge Gemini request timed out cleanly."));
+      }, timeoutMs);
+    });
+    const response = await Promise.race([generatePromise, timeoutPromise]);
+    const parsed = JSON.parse(response.text || "{}");
+    return {
+      unverifiedBanner: "AI-Generated Output \u2014 Unverified until reviewed by an authorized human",
+      nonClinicalNotice: "Administrative care-navigation support only. Not a licensed clinician or diagnostic engine.",
+      verifiedSourceFacts: Array.isArray(parsed.verifiedSourceFacts) ? parsed.verifiedSourceFacts : [],
+      userRecordedFacts: Array.isArray(parsed.userRecordedFacts) ? parsed.userRecordedFacts : [],
+      aiSummaryOrSuggestion: typeof parsed.aiSummaryOrSuggestion === "string" && parsed.aiSummaryOrSuggestion.trim() ? parsed.aiSummaryOrSuggestion.trim() : "Review open non-emergency follow-up tasks and authorized Confluence guidance with your care coordinator.",
+      missingInformation: Array.isArray(parsed.missingInformation) ? parsed.missingInformation : [],
+      sourceLinks: minimizedPages.map((p5) => ({ label: p5.title, url: p5.url })),
+      generatedBy: "gemini",
+      model: CAREBRIDGE_GEMINI_MODEL
+    };
+  } catch (err) {
+    if (err instanceof CareBridgeAiUnavailableError) throw err;
+    const sanitized = String(err?.message || "Gemini service error.").replace(/AIza[0-9A-Za-z_-]+/g, "[REDACTED]").slice(0, 220);
+    throw new CareBridgeAiUnavailableError("GEMINI_UPSTREAM_ERROR", sanitized);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+}
+
+// src/server/carebridgeAtlassianService.ts
+var CareBridgeBoundaryError = class extends Error {
+  statusCode;
+  code;
+  constructor(statusCode, code, message) {
+    super(message);
+    this.name = "CareBridgeBoundaryError";
+    this.statusCode = statusCode;
+    this.code = code;
+  }
+};
+var VALID_ATLASSIAN_HOST_REGEX = /^[a-z0-9][a-z0-9-]{0,61}[a-z0-9]\.atlassian\.net$/i;
+var VALID_CLOUD_ID_REGEX2 = /^[a-fA-F0-9-]{8,64}$/;
+function sanitizeCareBridgeErrorText(raw) {
+  let clean = String(raw || "");
+  const envEmail = (process.env.ATLASSIAN_EMAIL || "").trim();
+  const envToken = (process.env.ATLASSIAN_API_TOKEN || "").trim();
+  if (envToken) {
+    clean = clean.split(envToken).join("[REDACTED_TOKEN]");
+  }
+  if (envEmail) {
+    clean = clean.split(envEmail).join("[REDACTED_EMAIL]");
+  }
+  return clean.replace(/Bearer\s+[A-Za-z0-9\-._~+/]+=*/gi, "Bearer [REDACTED]").replace(/Basic\s+[A-Za-z0-9+/=]+/gi, "Basic [REDACTED]").replace(/AIza[0-9A-Za-z_-]+/g, "[REDACTED]").replace(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g, "[REDACTED_EMAIL]").slice(0, 260);
+}
+function validateCareBridgeSiteUrl(rawUrl) {
+  if (!rawUrl || typeof rawUrl !== "string") return null;
+  let cleaned = rawUrl.trim();
+  if (cleaned.startsWith('"') && cleaned.endsWith('"') || cleaned.startsWith("'") && cleaned.endsWith("'")) {
+    cleaned = cleaned.slice(1, -1).trim();
+  }
+  if (!cleaned) return null;
+  if (!/^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//.test(cleaned) && /^[a-z0-9][a-z0-9-]{0,61}[a-z0-9]\.atlassian\.net(?:\/.*)?$/i.test(cleaned)) {
+    cleaned = `https://${cleaned}`;
+  }
+  let parsed;
+  try {
+    parsed = new URL(cleaned);
+  } catch {
+    throw new CareBridgeBoundaryError(
+      400,
+      "INVALID_ATLASSIAN_SITE_URL",
+      "Atlassian site URL must use HTTPS on *.atlassian.net (e.g., https://your-clinic-team.atlassian.net)."
+    );
+  }
+  if (parsed.protocol !== "https:" || Boolean(parsed.username) || Boolean(parsed.password) || !VALID_ATLASSIAN_HOST_REGEX.test(parsed.hostname)) {
+    throw new CareBridgeBoundaryError(
+      400,
+      "INVALID_ATLASSIAN_SITE_URL",
+      "Atlassian site URL must use HTTPS on *.atlassian.net (e.g., https://your-clinic-team.atlassian.net)."
+    );
+  }
+  return parsed.origin.toLowerCase();
+}
+function resolveCareBridgeAtlassianConnection(params) {
+  const bearer2 = params?.oauthBearerToken?.trim();
+  const cloudId = params?.oauthCloudId?.trim();
+  if (bearer2 && cloudId) {
+    if (!VALID_CLOUD_ID_REGEX2.test(cloudId)) {
+      throw new CareBridgeBoundaryError(400, "INVALID_CLOUD_ID", "Invalid Atlassian Cloud ID format.");
+    }
+    const siteUrl = params?.siteUrlHint ? validateCareBridgeSiteUrl(params.siteUrlHint) || "" : "";
+    return {
+      mode: "oauth_bearer",
+      siteUrl: siteUrl || `https://api.atlassian.com/ex/jira/${cloudId}`,
+      cloudId,
+      headers: {
+        Authorization: `Bearer ${bearer2}`,
+        Accept: "application/json",
+        "Content-Type": "application/json"
+      },
+      accountLabel: "Atlassian OAuth Bearer Session"
+    };
+  }
+  const envSite = (process.env.ATLASSIAN_SITE_URL || "").trim();
+  const envEmail = (process.env.ATLASSIAN_EMAIL || "").trim();
+  const envToken = (process.env.ATLASSIAN_API_TOKEN || "").trim();
+  if (envSite && envEmail && envToken) {
+    const validatedSite = validateCareBridgeSiteUrl(envSite);
+    const basic = Buffer.from(`${envEmail}:${envToken}`).toString("base64");
+    return {
+      mode: "live_env",
+      siteUrl: validatedSite,
+      headers: {
+        Authorization: `Basic ${basic}`,
+        Accept: "application/json",
+        "Content-Type": "application/json"
+      },
+      accountLabel: "Configured Atlassian Server Credential"
+    };
+  }
+  return { mode: "disconnected", siteUrl: "", headers: {} };
+}
+function minimizePayloadForJsm(params) {
+  const summary = (params.summary || "").replace(/\s+/g, " ").trim().slice(0, 160);
+  const minimalNote = (params.minimalNote || "").replace(/\s+/g, " ").trim().slice(0, 800);
+  if (!summary) {
+    throw new CareBridgeBoundaryError(400, "INVALID_SUMMARY", "JSM follow-up request summary cannot be empty.");
+  }
+  if (!params.allowClinicalReferenceOverride) {
+    const phiScan = scanAndRedactCareBridgePhi(`${summary} ${minimalNote}`);
+    if (!phiScan.safe) {
+      throw new CareBridgeBoundaryError(
+        403,
+        "PHI_MINIMIZATION_BLOCKED",
+        `CareBridge blocked transmission containing potential sensitive health/identifying details (${phiScan.warnings.join("; ")}). Use minimal administrative coordination wording instead.`
+      );
+    }
+  }
+  return {
+    summary,
+    description: minimalNote || "Administrative non-emergency follow-up coordination request created via Dr. T \u2014 CareBridge (user-confirmed, data-minimized)."
+  };
+}
+function resolveJsmApiBase(config) {
+  return config.mode === "oauth_bearer" && config.cloudId ? `https://api.atlassian.com/ex/jira/${config.cloudId}` : config.siteUrl;
+}
+function resolveConfluenceApiBase(config) {
+  return config.mode === "oauth_bearer" && config.cloudId ? `https://api.atlassian.com/ex/confluence/${config.cloudId}` : config.siteUrl;
+}
+function resolveWebBase(config) {
+  return config.siteUrl.startsWith("https://") && config.siteUrl.includes(".atlassian.net") ? config.siteUrl : "https://home.atlassian.com";
+}
+function assertApprovedAtlassianTarget(urlStr) {
+  let parsed;
+  try {
+    parsed = new URL(urlStr);
+  } catch {
+    throw new CareBridgeBoundaryError(400, "INVALID_ATLASSIAN_SITE_URL", "Malformed outbound Atlassian URL.");
+  }
+  const host2 = parsed.hostname.toLowerCase();
+  const approved = VALID_ATLASSIAN_HOST_REGEX.test(host2) || host2 === "api.atlassian.com";
+  if (parsed.protocol !== "https:" || !approved || parsed.username || parsed.password) {
+    throw new CareBridgeBoundaryError(
+      400,
+      "UNAPPROVED_ATLASSIAN_HOST",
+      "Blocked outbound request to an unapproved host or non-HTTPS scheme."
+    );
+  }
+  return parsed;
+}
+async function safeAtlassianFetch(urlStr, init, fetchImpl, options) {
+  assertApprovedAtlassianTarget(urlStr);
+  const f8 = fetchImpl || fetch;
+  const method = (init.method || "GET").toUpperCase();
+  const isIdempotentGet = method === "GET" || method === "HEAD";
+  const maxAttempts = isIdempotentGet ? 1 + Math.max(0, Math.min(options?.maxGetRetries ?? 1, 2)) : 1;
+  const timeoutMs = Math.max(100, Math.min(options?.timeoutMs ?? 12e3, 3e4));
+  let lastErr = null;
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    const controller = new AbortController();
+    let timedOut = false;
+    let timer;
+    try {
+      const fetchPromise = f8(urlStr, { ...init, redirect: "manual", signal: controller.signal });
+      const timeoutPromise = new Promise((_2, reject) => {
+        timer = setTimeout(() => {
+          timedOut = true;
+          reject(
+            new CareBridgeBoundaryError(
+              504,
+              "ATLASSIAN_TIMEOUT",
+              "Atlassian API request timed out without response."
+            )
+          );
+          controller.abort();
+        }, timeoutMs);
+      });
+      const resp = await Promise.race([fetchPromise, timeoutPromise]);
+      if (resp.status >= 300 && resp.status < 400) {
+        const loc = resp.headers?.get?.("location") || "";
+        throw new CareBridgeBoundaryError(
+          400,
+          "UNAPPROVED_REDIRECT_BLOCKED",
+          `Blocked HTTP ${resp.status} redirect to prevent credential forwarding${loc ? " off-origin" : ""}.`
+        );
+      }
+      if (isIdempotentGet && (resp.status === 502 || resp.status === 503 || resp.status === 504) && attempt < maxAttempts) {
+        continue;
+      }
+      return resp;
+    } catch (err) {
+      if (err instanceof CareBridgeBoundaryError && err.code !== "ATLASSIAN_TIMEOUT") {
+        throw err;
+      }
+      const normalizedErr = timedOut || controller.signal.aborted ? new CareBridgeBoundaryError(
+        504,
+        "ATLASSIAN_TIMEOUT",
+        "Atlassian API request timed out without response."
+      ) : err;
+      lastErr = normalizedErr;
+      if (!isIdempotentGet || attempt >= maxAttempts) {
+        if (normalizedErr instanceof CareBridgeBoundaryError) throw normalizedErr;
+        throw new CareBridgeBoundaryError(
+          503,
+          "ATLASSIAN_NETWORK_ERROR",
+          `Atlassian API request failed: ${sanitizeCareBridgeErrorText(
+            normalizedErr instanceof Error ? normalizedErr.message : "Network error"
+          )}`
+        );
+      }
+    } finally {
+      if (timer) clearTimeout(timer);
+    }
+  }
+  throw lastErr instanceof CareBridgeBoundaryError ? lastErr : new CareBridgeBoundaryError(503, "ATLASSIAN_NETWORK_ERROR", "Atlassian API unreachable.");
+}
+async function fetchJsmServiceDesks(params) {
+  const { config } = params;
+  if (config.mode === "disconnected") {
+    throw new CareBridgeBoundaryError(
+      401,
+      "ATLASSIAN_NOT_CONNECTED",
+      "No live Atlassian Jira Service Management connection is configured."
+    );
+  }
+  const baseUrl = resolveJsmApiBase(config);
+  const desksResp = await safeAtlassianFetch(
+    `${baseUrl}/rest/servicedeskapi/servicedesk?limit=15`,
+    { method: "GET", headers: config.headers },
+    params.fetchImpl
+  );
+  if (!desksResp.ok) {
+    throw new CareBridgeBoundaryError(
+      desksResp.status === 401 || desksResp.status === 403 ? 403 : 502,
+      "JSM_PERMISSION_OR_API_ERROR",
+      `Jira Service Management Service Desk lookup returned HTTP ${desksResp.status}. Verify read:servicedesk-request permission and project access.`
+    );
+  }
+  const desksJson = await desksResp.json();
+  const desks = Array.isArray(desksJson.values) ? desksJson.values : [];
+  const enriched = [];
+  for (const desk of desks.slice(0, 8)) {
+    const deskId = String(desk.id || "");
+    if (!/^\d{1,12}$/.test(deskId)) continue;
+    let requestTypes = [];
+    try {
+      const rtResp = await safeAtlassianFetch(
+        `${baseUrl}/rest/servicedeskapi/servicedesk/${deskId}/requesttype?limit=20`,
+        { method: "GET", headers: config.headers },
+        params.fetchImpl
+      );
+      if (rtResp.ok) {
+        const rtJson = await rtResp.json();
+        requestTypes = (rtJson.values || []).map((rt) => ({
+          id: String(rt.id),
+          name: String(rt.name || "Follow-up Request"),
+          description: rt.description ? String(rt.description).slice(0, 180) : void 0
+        }));
+      }
+    } catch {
+    }
+    enriched.push({
+      id: deskId,
+      projectId: String(desk.projectId || ""),
+      projectKey: String(desk.projectKey || ""),
+      projectName: String(desk.projectName || "Service Desk"),
+      requestTypes
+    });
+  }
+  return enriched;
+}
+async function fetchJsmRequests(params) {
+  const { config } = params;
+  if (config.mode === "disconnected") {
+    throw new CareBridgeBoundaryError(
+      401,
+      "ATLASSIAN_NOT_CONNECTED",
+      "No live Atlassian Jira Service Management connection is configured."
+    );
+  }
+  const baseUrl = resolveJsmApiBase(config);
+  const webBase = resolveWebBase(config);
+  const deskFilter = params.serviceDeskId && /^\d{1,12}$/.test(params.serviceDeskId.trim()) ? `&serviceDeskId=${encodeURIComponent(params.serviceDeskId.trim())}` : "";
+  const resp = await safeAtlassianFetch(
+    `${baseUrl}/rest/servicedeskapi/request?requestOwnership=OWNED_REQUESTS&limit=25${deskFilter}`,
+    { method: "GET", headers: config.headers },
+    params.fetchImpl
+  );
+  if (!resp.ok) {
+    throw new CareBridgeBoundaryError(
+      resp.status === 401 || resp.status === 403 ? 403 : 502,
+      "JSM_API_ERROR",
+      `Jira Service Management returned HTTP ${resp.status}.`
+    );
+  }
+  const data = await resp.json();
+  return (data.values || []).map((reqItem) => {
+    const issueKey = String(reqItem.issueKey || "");
+    const fieldValues = Array.isArray(reqItem.requestFieldValues) ? reqItem.requestFieldValues : [];
+    const summaryEntry = fieldValues.find((fv) => fv.fieldId === "summary");
+    const summaryText = summaryEntry?.value ? String(summaryEntry.value) : `Request ${issueKey}`;
+    const portalWebLink = reqItem._links?.web ? String(reqItem._links.web) : `${webBase}/browse/${encodeURIComponent(issueKey)}`;
+    return {
+      issueId: String(reqItem.issueId || ""),
+      issueKey,
+      serviceDeskId: String(reqItem.serviceDeskId || ""),
+      requestTypeId: String(reqItem.requestTypeId || ""),
+      summary: summaryText,
+      status: String(reqItem.currentStatus?.status || "Open"),
+      statusDate: reqItem.currentStatus?.statusDate?.iso8601 ? String(reqItem.currentStatus.statusDate.iso8601) : void 0,
+      createdDate: String(reqItem.createdDate?.iso8601 || (/* @__PURE__ */ new Date()).toISOString()),
+      reporterName: reqItem.reporter?.displayName ? String(reqItem.reporter.displayName) : void 0,
+      requestUrl: portalWebLink,
+      dataOrigin: "live_jsm"
+    };
+  });
+}
+async function fetchJsmRequestByKey(params) {
+  const { config } = params;
+  if (config.mode === "disconnected") {
+    throw new CareBridgeBoundaryError(
+      401,
+      "ATLASSIAN_NOT_CONNECTED",
+      "No live Atlassian Jira Service Management connection is configured."
+    );
+  }
+  const cleanKey = (params.issueKey || "").trim().toUpperCase();
+  if (!/^[A-Z0-9_]{1,16}-\d{1,10}$/.test(cleanKey)) {
+    throw new CareBridgeBoundaryError(400, "INVALID_ISSUE_KEY", `Invalid JSM request key "${params.issueKey}".`);
+  }
+  const baseUrl = resolveJsmApiBase(config);
+  const webBase = resolveWebBase(config);
+  const resp = await safeAtlassianFetch(
+    `${baseUrl}/rest/servicedeskapi/request/${encodeURIComponent(cleanKey)}`,
+    { method: "GET", headers: config.headers },
+    params.fetchImpl
+  );
+  if (!resp.ok) {
+    if (resp.status === 404) {
+      throw new CareBridgeBoundaryError(
+        404,
+        "JSM_REQUEST_NOT_FOUND",
+        `JSM request ${cleanKey} was not found or is inaccessible.`
+      );
+    }
+    throw new CareBridgeBoundaryError(
+      resp.status === 401 ? 401 : resp.status === 403 ? 403 : 502,
+      "JSM_REQUEST_LOOKUP_FAILED",
+      `JSM request lookup for ${cleanKey} returned HTTP ${resp.status}.`
+    );
+  }
+  const reqItem = await resp.json();
+  const fieldValues = Array.isArray(reqItem.requestFieldValues) ? reqItem.requestFieldValues : [];
+  const summaryEntry = fieldValues.find((fv) => fv.fieldId === "summary");
+  const issueKey = String(reqItem.issueKey || cleanKey);
+  const portalWebLink = reqItem._links?.web ? String(reqItem._links.web) : `${webBase}/browse/${encodeURIComponent(issueKey)}`;
+  return {
+    issueId: String(reqItem.issueId || ""),
+    issueKey,
+    serviceDeskId: String(reqItem.serviceDeskId || ""),
+    requestTypeId: String(reqItem.requestTypeId || ""),
+    summary: summaryEntry?.value ? String(summaryEntry.value) : `Request ${issueKey}`,
+    status: String(reqItem.currentStatus?.status || "Open"),
+    statusDate: reqItem.currentStatus?.statusDate?.iso8601 ? String(reqItem.currentStatus.statusDate.iso8601) : void 0,
+    createdDate: String(reqItem.createdDate?.iso8601 || (/* @__PURE__ */ new Date()).toISOString()),
+    reporterName: reqItem.reporter?.displayName ? String(reqItem.reporter.displayName) : void 0,
+    requestUrl: portalWebLink,
+    dataOrigin: "live_jsm"
+  };
+}
+async function fetchJiraIssueTransitionsReadOnly(params) {
+  const { config } = params;
+  if (config.mode === "disconnected") return [];
+  const cleanKey = (params.issueKey || "").trim().toUpperCase();
+  if (!/^[A-Z0-9_]{1,16}-\d{1,10}$/.test(cleanKey)) return [];
+  const baseUrl = resolveJsmApiBase(config);
+  try {
+    const resp = await safeAtlassianFetch(
+      `${baseUrl}/rest/api/3/issue/${encodeURIComponent(cleanKey)}/transitions`,
+      { method: "GET", headers: config.headers },
+      params.fetchImpl
+    );
+    if (!resp.ok) return [];
+    const data = await resp.json();
+    return (data.transitions || []).filter((t45) => t45.id && t45.name).map((t45) => ({ id: String(t45.id), name: String(t45.name) }));
+  } catch {
+    return [];
+  }
+}
+async function executeJsmFollowUpActionConfirmed(params) {
+  if (!params.jsmFollowUpConsentGranted) {
+    throw new CareBridgeBoundaryError(
+      403,
+      "FOLLOWUP_CONSENT_REQUIRED",
+      "Jira Service Management Follow-Up Consent is disabled or withdrawn."
+    );
+  }
+  if (!params.humanApproved) {
+    throw new CareBridgeBoundaryError(
+      400,
+      "HUMAN_APPROVAL_REQUIRED",
+      "Explicit human approval is mandatory before executing any state-changing Atlassian operation."
+    );
+  }
+  if (params.config.mode === "disconnected") {
+    throw new CareBridgeBoundaryError(
+      401,
+      "ATLASSIAN_NOT_CONNECTED",
+      "Atlassian connection is unavailable."
+    );
+  }
+  const cleanKey = (params.issueKey || "").trim().toUpperCase();
+  if (!/^[A-Z0-9_]{1,16}-\d{1,10}$/.test(cleanKey)) {
+    throw new CareBridgeBoundaryError(400, "INVALID_ISSUE_KEY", `Invalid JSM request key "${params.issueKey}".`);
+  }
+  const baseUrl = resolveJsmApiBase(configFromParams(params.config));
+  const combinedText = `${params.summaryUpdate || ""} ${params.bodyText || ""}`.trim();
+  if (combinedText) {
+    const phiScan = scanAndRedactCareBridgePhi(combinedText);
+    if (!phiScan.safe) {
+      throw new CareBridgeBoundaryError(
+        403,
+        "PHI_MINIMIZATION_BLOCKED",
+        `Blocked follow-up action containing sensitive details (${phiScan.warnings.join("; ")}).`
+      );
+    }
+  }
+  if (params.actionType === "comment" || params.actionType === "notification") {
+    const cleanBody = (params.bodyText || "").replace(/\s+/g, " ").trim().slice(0, 800);
+    if (!cleanBody) {
+      throw new CareBridgeBoundaryError(400, "INVALID_COMMENT_BODY", "Follow-up comment text cannot be empty.");
+    }
+    const resp = await safeAtlassianFetch(
+      `${baseUrl}/rest/servicedeskapi/request/${encodeURIComponent(cleanKey)}/comment`,
+      {
+        method: "POST",
+        headers: params.config.headers,
+        body: JSON.stringify({
+          body: cleanBody,
+          public: params.actionType === "notification"
+        })
+      },
+      params.fetchImpl
+    );
+    if (!resp.ok) {
+      throw new CareBridgeBoundaryError(
+        resp.status === 401 ? 401 : resp.status === 403 ? 403 : 502,
+        "JSM_COMMENT_FAILED",
+        `JSM comment submission returned HTTP ${resp.status}.`
+      );
+    }
+  } else if (params.actionType === "transition") {
+    const tid = (params.transitionId || "").trim();
+    if (!/^\d{1,12}$/.test(tid)) {
+      throw new CareBridgeBoundaryError(400, "INVALID_TRANSITION_ID", "Valid numeric workflow transition ID is required.");
+    }
+    const resp = await safeAtlassianFetch(
+      `${baseUrl}/rest/api/3/issue/${encodeURIComponent(cleanKey)}/transitions`,
+      {
+        method: "POST",
+        headers: params.config.headers,
+        body: JSON.stringify({ transition: { id: tid } })
+      },
+      params.fetchImpl
+    );
+    if (!resp.ok) {
+      throw new CareBridgeBoundaryError(
+        resp.status === 401 ? 401 : resp.status === 403 ? 403 : 502,
+        "JIRA_TRANSITION_FAILED",
+        `Jira transition request returned HTTP ${resp.status}.`
+      );
+    }
+  } else if (params.actionType === "field_update") {
+    const cleanSummary = (params.summaryUpdate || "").replace(/\s+/g, " ").trim().slice(0, 160);
+    if (!cleanSummary) {
+      throw new CareBridgeBoundaryError(400, "INVALID_FIELD_UPDATE", "Summary update text cannot be empty.");
+    }
+    const resp = await safeAtlassianFetch(
+      `${baseUrl}/rest/api/3/issue/${encodeURIComponent(cleanKey)}`,
+      {
+        method: "PUT",
+        headers: params.config.headers,
+        body: JSON.stringify({ fields: { summary: cleanSummary } })
+      },
+      params.fetchImpl
+    );
+    if (!resp.ok) {
+      throw new CareBridgeBoundaryError(
+        resp.status === 401 ? 401 : resp.status === 403 ? 403 : 502,
+        "JIRA_FIELD_UPDATE_FAILED",
+        `Jira issue field update returned HTTP ${resp.status}.`
+      );
+    }
+  }
+  try {
+    const readBack = await fetchJsmRequestByKey({
+      config: params.config,
+      issueKey: cleanKey,
+      fetchImpl: params.fetchImpl
+    });
+    return {
+      requestKey: cleanKey,
+      actionType: params.actionType,
+      verifiedAfterExecution: true,
+      currentStatus: readBack.status,
+      requestUrl: readBack.requestUrl
+    };
+  } catch {
+    return {
+      requestKey: cleanKey,
+      actionType: params.actionType,
+      verifiedAfterExecution: false
+    };
+  }
+}
+function configFromParams(cfg) {
+  return cfg;
+}
+async function createJsmFollowUpRequestConfirmed(params) {
+  if (!params.jsmConsentGranted) {
+    throw new CareBridgeBoundaryError(
+      403,
+      "JSM_CONSENT_REQUIRED",
+      "Explicit JSM follow-up sync consent must be enabled in Privacy and Consent before sending a request to Jira Service Management."
+    );
+  }
+  if (!params.userConfirmed) {
+    throw new CareBridgeBoundaryError(
+      400,
+      "USER_CONFIRMATION_REQUIRED",
+      "Explicit user confirmation is required before creating a Jira Service Management request."
+    );
+  }
+  if (params.config.mode === "disconnected") {
+    throw new CareBridgeBoundaryError(
+      401,
+      "ATLASSIAN_NOT_CONNECTED",
+      "Cannot create JSM request: no live Atlassian Service Desk connection is configured."
+    );
+  }
+  const deskId = (params.serviceDeskId || "").trim();
+  const typeId = (params.requestTypeId || "").trim();
+  if (!/^\d{1,12}$/.test(deskId) || !/^\d{1,12}$/.test(typeId)) {
+    throw new CareBridgeBoundaryError(
+      400,
+      "INVALID_SERVICE_DESK_PARAMS",
+      "Valid numeric serviceDeskId and requestTypeId are required."
+    );
+  }
+  const minimized = minimizePayloadForJsm({
+    summary: params.summary,
+    minimalNote: params.minimalNote,
+    allowClinicalReferenceOverride: params.allowClinicalReferenceOverride
+  });
+  const baseUrl = resolveJsmApiBase(params.config);
+  const webBase = resolveWebBase(params.config);
+  const resp = await safeAtlassianFetch(
+    `${baseUrl}/rest/servicedeskapi/request`,
+    {
+      method: "POST",
+      headers: params.config.headers,
+      body: JSON.stringify({
+        serviceDeskId: deskId,
+        requestTypeId: typeId,
+        requestFieldValues: {
+          summary: minimized.summary,
+          description: minimized.description
+        }
+      })
+    },
+    params.fetchImpl
+  );
+  if (!resp.ok) {
+    throw new CareBridgeBoundaryError(
+      resp.status === 401 || resp.status === 403 ? 403 : 502,
+      "JSM_CREATE_FAILED",
+      `Jira Service Management request creation returned HTTP ${resp.status}. Verify write:servicedesk-request scope and portal permissions.`
+    );
+  }
+  const created = await resp.json();
+  const issueKey = String(created.issueKey || "");
+  const portalUrl = created._links?.web ? String(created._links.web) : `${webBase}/browse/${encodeURIComponent(issueKey)}`;
+  return {
+    issueId: String(created.issueId || ""),
+    issueKey,
+    serviceDeskId: String(created.serviceDeskId || deskId),
+    requestTypeId: String(created.requestTypeId || typeId),
+    summary: minimized.summary,
+    status: String(created.currentStatus?.status || "Waiting for support"),
+    statusDate: created.currentStatus?.statusDate?.iso8601 ? String(created.currentStatus.statusDate.iso8601) : void 0,
+    createdDate: String(created.createdDate?.iso8601 || (/* @__PURE__ */ new Date()).toISOString()),
+    reporterName: created.reporter?.displayName ? String(created.reporter.displayName) : void 0,
+    requestUrl: portalUrl,
+    dataOrigin: "live_jsm"
+  };
+}
+async function searchConfluenceCareKnowledge(params) {
+  if (!params.confluenceReadConsent) {
+    throw new CareBridgeBoundaryError(
+      403,
+      "CONFLUENCE_CONSENT_REQUIRED",
+      "Enable Confluence Clinical Knowledge read consent in Privacy and Consent before querying Confluence."
+    );
+  }
+  if (params.config.mode === "disconnected") {
+    throw new CareBridgeBoundaryError(
+      401,
+      "ATLASSIAN_NOT_CONNECTED",
+      "No live Atlassian Confluence connection is configured."
+    );
+  }
+  const baseUrl = resolveConfluenceApiBase(params.config);
+  const webBase = resolveWebBase(params.config);
+  const qClean = (params.queryText || "").replace(/["\\;{}\[\]]/g, " ").replace(/\s+/g, " ").trim().slice(0, 120);
+  const url = qClean ? `${baseUrl}/wiki/rest/api/content/search?cql=${encodeURIComponent(`type = page AND text ~ "${qClean}"`)}&limit=15&expand=space,version` : `${baseUrl}/wiki/api/v2/pages?limit=15&sort=-modified-date`;
+  const resp = await safeAtlassianFetch(
+    url,
+    { method: "GET", headers: params.config.headers },
+    params.fetchImpl
+  );
+  if (!resp.ok) {
+    throw new CareBridgeBoundaryError(
+      resp.status === 401 || resp.status === 403 ? 403 : 502,
+      "CONFLUENCE_API_ERROR",
+      `Confluence REST API returned HTTP ${resp.status}.`
+    );
+  }
+  const data = await resp.json();
+  return (data.results || []).map((page) => {
+    const id = String(page.id);
+    const title = String(page.title || "Untitled Confluence Page");
+    const spaceKey = String(page.space?.key || page.spaceId || "CARE");
+    const rawWebUi = typeof page._links?.webui === "string" ? page._links.webui : "";
+    const webUi = rawWebUi.startsWith("/wiki/") ? rawWebUi : rawWebUi.startsWith("/") ? `/wiki${rawWebUi}` : `/wiki/pages/${encodeURIComponent(id)}`;
+    return {
+      id,
+      title,
+      spaceKey,
+      spaceName: String(page.space?.name || spaceKey),
+      excerpt: String(page.excerpt || page.body?.storage?.value || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 280) || "Authorized Confluence knowledge article.",
+      lastUpdated: String(page.version?.when || page.createdAt || (/* @__PURE__ */ new Date()).toISOString()),
+      author: page.version?.by?.displayName ? String(page.version.by.displayName) : void 0,
+      url: rawWebUi.startsWith("http") ? rawWebUi : `${webBase}${webUi}`,
+      dataOrigin: "live_confluence"
+    };
+  });
+}
+async function verifyCareBridgeAtlassianConnection(params) {
+  const verifiedAt = (/* @__PURE__ */ new Date()).toISOString();
+  const expectedSiteUrl = (params?.expectedSiteUrl || "https://zenieverse.atlassian.net").trim().toLowerCase();
+  const expectedServiceDeskId = (params?.expectedServiceDeskId || process.env.CAREBRIDGE_DEFAULT_SERVICE_DESK_ID || "2").trim() || "2";
+  const expectedProjectKey = (params?.expectedProjectKey || "CR2").trim().toUpperCase();
+  const expectedProjectName = (params?.expectedProjectName || "CareBridge2").trim();
+  const expectedRequestTypeId = (params?.expectedRequestTypeId || process.env.CAREBRIDGE_DEFAULT_REQUEST_TYPE_ID || "5").trim() || "5";
+  const expectedRequestTypeName = (params?.expectedRequestTypeName || "Submit a request or incident").trim();
+  const checks = [
+    {
+      id: "credentials",
+      label: "Server-side credential isolation",
+      outcome: "NOT TESTED",
+      detail: "Not yet evaluated."
+    },
+    {
+      id: "authentication",
+      label: "Atlassian REST authentication",
+      outcome: "NOT TESTED",
+      detail: "Awaiting credential verification."
+    },
+    {
+      id: "service_desk",
+      label: `Service Desk ${expectedServiceDeskId} (${expectedProjectName} / ${expectedProjectKey})`,
+      outcome: "NOT TESTED",
+      detail: "Awaiting authentication."
+    },
+    {
+      id: "request_type",
+      label: `Request type ${expectedRequestTypeId} ("${expectedRequestTypeName}")`,
+      outcome: "NOT TESTED",
+      detail: "Awaiting Service Desk lookup."
+    },
+    {
+      id: "permissions",
+      label: `Account permissions on ${expectedProjectKey}`,
+      outcome: "NOT TESTED",
+      detail: "Awaiting Service Desk and request type lookup."
+    }
+  ];
+  const setCheck = (id, outcome, detail) => {
+    const idx = checks.findIndex((c21) => c21.id === id);
+    if (idx >= 0) {
+      checks[idx] = { ...checks[idx], outcome, detail: sanitizeCareBridgeErrorText(detail) };
+    }
+  };
+  const buildFailReport = (status, safeError, extra) => ({
+    status,
+    verifiedAt,
+    siteUrl: extra?.siteUrl || expectedSiteUrl,
+    expectedServiceDeskId,
+    expectedProjectKey,
+    expectedProjectName,
+    expectedRequestTypeId,
+    expectedRequestTypeName,
+    allChecksPassed: false,
+    safeError,
+    checks,
+    ...extra
+  });
+  let config;
+  try {
+    config = resolveCareBridgeAtlassianConnection({
+      oauthBearerToken: params?.oauthBearerToken,
+      oauthCloudId: params?.oauthCloudId,
+      siteUrlHint: params?.siteUrlHint
+    });
+  } catch (err) {
+    const rawSite = (process.env.ATLASSIAN_SITE_URL || "").trim();
+    let msg = err instanceof Error ? sanitizeCareBridgeErrorText(err.message) : "Server Atlassian site URL configuration is invalid.";
+    if (rawSite) {
+      if (rawSite.startsWith("ATLASSIAN_SITE_URL=")) {
+        msg = 'ATLASSIAN_SITE_URL includes the "ATLASSIAN_SITE_URL=" key prefix instead of just the URL (https://zenieverse.atlassian.net).';
+      } else if (rawSite.includes("@") && !rawSite.includes("://")) {
+        msg = "ATLASSIAN_SITE_URL contains an email-formatted string instead of an https://*.atlassian.net URL.";
+      } else if (rawSite.startsWith("`") || rawSite.endsWith("`")) {
+        msg = "ATLASSIAN_SITE_URL is wrapped in markdown backticks.";
+      } else if (/^http:\/\//i.test(rawSite)) {
+        msg = "ATLASSIAN_SITE_URL uses http:// instead of https://.";
+      } else if (rawSite.toLowerCase().includes(".atlassian.com")) {
+        msg = 'ATLASSIAN_SITE_URL uses ".atlassian.com" instead of ".atlassian.net". Set it to https://zenieverse.atlassian.net in Secrets.';
+      } else if (/^[a-f0-9-]{32,36}$/i.test(rawSite)) {
+        msg = "ATLASSIAN_SITE_URL looks like a 32/36-char ID or hex string instead of https://zenieverse.atlassian.net.";
+      } else if (!rawSite.toLowerCase().includes(".atlassian.net")) {
+        msg = `ATLASSIAN_SITE_URL is set (${rawSite.length} chars) in server env but does not contain ".atlassian.net". Update it to https://zenieverse.atlassian.net in Settings > Secrets.`;
+      }
+    }
+    setCheck("credentials", "FAILED", msg);
+    return buildFailReport("Unavailable", msg);
+  }
+  if (config.mode === "disconnected") {
+    const missing = [];
+    if (!(process.env.ATLASSIAN_SITE_URL || "").trim()) missing.push("ATLASSIAN_SITE_URL");
+    if (!(process.env.ATLASSIAN_EMAIL || "").trim()) missing.push("ATLASSIAN_EMAIL");
+    if (!(process.env.ATLASSIAN_API_TOKEN || "").trim()) missing.push("ATLASSIAN_API_TOKEN");
+    const detail = `Missing server-side environment variable(s): ${missing.join(", ") || "Atlassian credentials"}.`;
+    setCheck("credentials", "FAILED", detail);
+    return buildFailReport("Unavailable", detail);
+  }
+  const configuredSiteUrl = config.siteUrl || expectedSiteUrl;
+  const siteMatches = config.mode === "oauth_bearer" || configuredSiteUrl.toLowerCase() === expectedSiteUrl;
+  if (!siteMatches) {
+    const msg = `Configured server site (${configuredSiteUrl}) does not match expected site (${expectedSiteUrl}).`;
+    setCheck("credentials", "FAILED", msg);
+    return buildFailReport("Unavailable", msg, { siteUrl: configuredSiteUrl });
+  }
+  setCheck(
+    "credentials",
+    "VERIFIED",
+    `Credentials resolved server-side from process.env for ${configuredSiteUrl} with HTTPS host & redirect lock.`
+  );
+  const baseUrl = resolveJsmApiBase(config);
+  const mapHttpStatus = (code) => code === 401 ? "Unauthorized" : code === 403 ? "Permission Denied" : "Unavailable";
+  try {
+    const meResp = await safeAtlassianFetch(
+      `${baseUrl}/rest/api/3/myself`,
+      { method: "GET", headers: config.headers },
+      params?.fetchImpl
+    );
+    if (!meResp.ok) {
+      const status = mapHttpStatus(meResp.status);
+      const errMsg = `Atlassian authentication check returned HTTP ${meResp.status} (${status}).`;
+      setCheck("authentication", "FAILED", errMsg);
+      return buildFailReport(status, errMsg, { siteUrl: configuredSiteUrl });
+    }
+    const meData = await meResp.json();
+    if (!meData.accountId || meData.active === false) {
+      const errMsg = "Atlassian account record is missing or inactive.";
+      setCheck("authentication", "FAILED", errMsg);
+      return buildFailReport("Unauthorized", errMsg, { siteUrl: configuredSiteUrl });
+    }
+    setCheck(
+      "authentication",
+      "VERIFIED",
+      `Authenticated active Atlassian account (accountType: ${meData.accountType || "atlassian"}).`
+    );
+  } catch (err) {
+    const errMsg = `Atlassian authentication request failed: ${sanitizeCareBridgeErrorText(
+      err instanceof Error ? err.message : "Network error"
+    )}`;
+    setCheck("authentication", "FAILED", errMsg);
+    return buildFailReport("Unavailable", errMsg, { siteUrl: configuredSiteUrl });
+  }
+  let actualProjectKey;
+  let actualServiceDeskName;
+  let accessibleServiceDeskCount;
+  try {
+    const [listResp, deskResp] = await Promise.all([
+      safeAtlassianFetch(
+        `${baseUrl}/rest/servicedeskapi/servicedesk?limit=25`,
+        { method: "GET", headers: config.headers },
+        params?.fetchImpl
+      ),
+      safeAtlassianFetch(
+        `${baseUrl}/rest/servicedeskapi/servicedesk/${encodeURIComponent(expectedServiceDeskId)}`,
+        { method: "GET", headers: config.headers },
+        params?.fetchImpl
+      )
+    ]);
+    if (listResp.ok) {
+      const listJson = await listResp.json();
+      accessibleServiceDeskCount = Array.isArray(listJson.values) ? listJson.values.length : void 0;
+    }
+    if (!deskResp.ok) {
+      const status = mapHttpStatus(deskResp.status);
+      const errMsg = `Service Desk ${expectedServiceDeskId} lookup returned HTTP ${deskResp.status}.`;
+      setCheck("service_desk", "FAILED", errMsg);
+      return buildFailReport(status, errMsg, { siteUrl: configuredSiteUrl, accessibleServiceDeskCount });
+    }
+    const deskData = await deskResp.json();
+    actualProjectKey = deskData.projectKey ? String(deskData.projectKey) : void 0;
+    actualServiceDeskName = deskData.projectName ? String(deskData.projectName).trim() : void 0;
+    if (String(deskData.id || "") !== expectedServiceDeskId || String(actualProjectKey || "").toUpperCase() !== expectedProjectKey || expectedProjectName && actualServiceDeskName && actualServiceDeskName !== expectedProjectName) {
+      const errMsg = `Service Desk ${expectedServiceDeskId} resolved projectKey="${actualProjectKey || "unknown"}", projectName="${actualServiceDeskName || "unknown"}", expected "${expectedProjectKey}" / "${expectedProjectName}".`;
+      setCheck("service_desk", "FAILED", errMsg);
+      return buildFailReport("Unavailable", errMsg, {
+        siteUrl: configuredSiteUrl,
+        actualProjectKey,
+        actualServiceDeskName,
+        accessibleServiceDeskCount
+      });
+    }
+    setCheck(
+      "service_desk",
+      "VERIFIED",
+      `Service Desk ${expectedServiceDeskId} verified (${actualServiceDeskName || expectedProjectName} / ${actualProjectKey}; ${accessibleServiceDeskCount ?? "1+"} accessible desk(s)).`
+    );
+  } catch (err) {
+    const errMsg = `Service Desk lookup failed: ${sanitizeCareBridgeErrorText(
+      err instanceof Error ? err.message : "Network error"
+    )}`;
+    setCheck("service_desk", "FAILED", errMsg);
+    return buildFailReport("Unavailable", errMsg, { siteUrl: configuredSiteUrl });
+  }
+  let actualRequestTypeName;
+  let requestTypeRequiredFields;
+  let requestTypeCreatable = false;
+  try {
+    const rtResp = await safeAtlassianFetch(
+      `${baseUrl}/rest/servicedeskapi/servicedesk/${encodeURIComponent(expectedServiceDeskId)}/requesttype?limit=50`,
+      { method: "GET", headers: config.headers },
+      params?.fetchImpl
+    );
+    if (!rtResp.ok) {
+      const status = mapHttpStatus(rtResp.status);
+      const errMsg = `Request type lookup returned HTTP ${rtResp.status}.`;
+      setCheck("request_type", "FAILED", errMsg);
+      return buildFailReport(status, errMsg, {
+        siteUrl: configuredSiteUrl,
+        actualProjectKey,
+        actualServiceDeskName,
+        accessibleServiceDeskCount
+      });
+    }
+    const rtJson = await rtResp.json();
+    const foundRt = (rtJson.values || []).find((rt) => String(rt.id) === expectedRequestTypeId);
+    actualRequestTypeName = foundRt?.name ? String(foundRt.name).trim() : void 0;
+    if (!foundRt || actualRequestTypeName !== expectedRequestTypeName) {
+      const errMsg = foundRt ? `Request type ${expectedRequestTypeId} has name "${actualRequestTypeName}", expected "${expectedRequestTypeName}".` : `Request type ${expectedRequestTypeId} was not found in Service Desk ${expectedServiceDeskId}.`;
+      setCheck("request_type", "FAILED", errMsg);
+      return buildFailReport("Unavailable", errMsg, {
+        siteUrl: configuredSiteUrl,
+        actualProjectKey,
+        actualServiceDeskName,
+        actualRequestTypeName,
+        accessibleServiceDeskCount
+      });
+    }
+    const fieldsResp = await safeAtlassianFetch(
+      `${baseUrl}/rest/servicedeskapi/servicedesk/${encodeURIComponent(
+        expectedServiceDeskId
+      )}/requesttype/${encodeURIComponent(expectedRequestTypeId)}/field`,
+      { method: "GET", headers: config.headers },
+      params?.fetchImpl
+    );
+    if (fieldsResp.ok) {
+      requestTypeCreatable = true;
+      const fieldsJson = await fieldsResp.json();
+      if (fieldsJson.canCreateRequest === false) {
+        requestTypeCreatable = false;
+      }
+      requestTypeRequiredFields = (fieldsJson.requestTypeFields || []).filter((fld) => fld.required && fld.fieldId).map((fld) => String(fld.fieldId));
+    }
+    if (!requestTypeCreatable) {
+      const errMsg = `Request type ${expectedRequestTypeId} ("${actualRequestTypeName}") is not creatable for this account (fields check HTTP ${fieldsResp.status}).`;
+      setCheck("request_type", "FAILED", errMsg);
+      return buildFailReport(mapHttpStatus(fieldsResp.status), errMsg, {
+        siteUrl: configuredSiteUrl,
+        actualProjectKey,
+        actualServiceDeskName,
+        actualRequestTypeName,
+        accessibleServiceDeskCount,
+        requestTypeCreatable: false
+      });
+    }
+    setCheck(
+      "request_type",
+      "VERIFIED",
+      `Request type ${expectedRequestTypeId} confirmed as "${actualRequestTypeName}" and verified creatable (required fields: ${requestTypeRequiredFields?.join(", ") || "summary"}).`
+    );
+  } catch (err) {
+    const errMsg = `Request type verification failed: ${sanitizeCareBridgeErrorText(
+      err instanceof Error ? err.message : "Network error"
+    )}`;
+    setCheck("request_type", "FAILED", errMsg);
+    return buildFailReport("Unavailable", errMsg, {
+      siteUrl: configuredSiteUrl,
+      actualProjectKey,
+      actualServiceDeskName,
+      accessibleServiceDeskCount
+    });
+  }
+  try {
+    const [permResp, jsmReadResp] = await Promise.all([
+      safeAtlassianFetch(
+        `${baseUrl}/rest/api/3/mypermissions?projectKey=${encodeURIComponent(
+          expectedProjectKey
+        )}&permissions=BROWSE_PROJECTS,CREATE_ISSUES`,
+        { method: "GET", headers: config.headers },
+        params?.fetchImpl
+      ),
+      safeAtlassianFetch(
+        `${baseUrl}/rest/servicedeskapi/request?serviceDeskId=${encodeURIComponent(
+          expectedServiceDeskId
+        )}&limit=1`,
+        { method: "GET", headers: config.headers },
+        params?.fetchImpl
+      )
+    ]);
+    if (permResp.status === 401 || jsmReadResp.status === 401) {
+      const errMsg = "Permission verification returned HTTP 401 Unauthorized.";
+      setCheck("permissions", "FAILED", errMsg);
+      return buildFailReport("Unauthorized", errMsg, {
+        siteUrl: configuredSiteUrl,
+        actualProjectKey,
+        actualServiceDeskName,
+        actualRequestTypeName,
+        accessibleServiceDeskCount,
+        requestTypeCreatable,
+        requestTypeRequiredFields
+      });
+    }
+    if (permResp.status === 403 || jsmReadResp.status === 403) {
+      const errMsg = `Account lacks required Jira/JSM permissions on project ${expectedProjectKey} (HTTP 403).`;
+      setCheck("permissions", "FAILED", errMsg);
+      return buildFailReport("Permission Denied", errMsg, {
+        siteUrl: configuredSiteUrl,
+        actualProjectKey,
+        actualServiceDeskName,
+        actualRequestTypeName,
+        accessibleServiceDeskCount,
+        requestTypeCreatable,
+        requestTypeRequiredFields
+      });
+    }
+    if (!permResp.ok || !jsmReadResp.ok) {
+      const errMsg = `Permission verification failed (mypermissions HTTP ${permResp.status}, servicedesk request HTTP ${jsmReadResp.status}).`;
+      setCheck("permissions", "FAILED", errMsg);
+      return buildFailReport("Unavailable", errMsg, {
+        siteUrl: configuredSiteUrl,
+        actualProjectKey,
+        actualServiceDeskName,
+        actualRequestTypeName,
+        accessibleServiceDeskCount,
+        requestTypeCreatable,
+        requestTypeRequiredFields
+      });
+    }
+    const permJson = await permResp.json();
+    const canBrowse = Boolean(permJson.permissions?.BROWSE_PROJECTS?.havePermission);
+    const canCreate = Boolean(permJson.permissions?.CREATE_ISSUES?.havePermission);
+    if (!canBrowse || !canCreate) {
+      const missingPerms = [];
+      if (!canBrowse) missingPerms.push("BROWSE_PROJECTS");
+      if (!canCreate) missingPerms.push("CREATE_ISSUES");
+      const errMsg = `Missing required permission(s) on ${expectedProjectKey}: ${missingPerms.join(", ")}.`;
+      setCheck("permissions", "FAILED", errMsg);
+      return buildFailReport("Permission Denied", errMsg, {
+        siteUrl: configuredSiteUrl,
+        actualProjectKey,
+        actualServiceDeskName,
+        actualRequestTypeName,
+        accessibleServiceDeskCount,
+        requestTypeCreatable,
+        requestTypeRequiredFields
+      });
+    }
+    setCheck(
+      "permissions",
+      "VERIFIED",
+      `Confirmed BROWSE_PROJECTS, CREATE_ISSUES on ${expectedProjectKey}, and JSM request API access.`
+    );
+  } catch (err) {
+    const errMsg = `Permission verification failed: ${sanitizeCareBridgeErrorText(
+      err instanceof Error ? err.message : "Network error"
+    )}`;
+    setCheck("permissions", "FAILED", errMsg);
+    return buildFailReport("Unavailable", errMsg, {
+      siteUrl: configuredSiteUrl,
+      actualProjectKey,
+      actualServiceDeskName,
+      actualRequestTypeName,
+      accessibleServiceDeskCount,
+      requestTypeCreatable,
+      requestTypeRequiredFields
+    });
+  }
+  return {
+    status: "Connected",
+    verifiedAt,
+    siteUrl: configuredSiteUrl,
+    expectedServiceDeskId,
+    expectedProjectKey,
+    expectedProjectName,
+    expectedRequestTypeId,
+    expectedRequestTypeName,
+    actualProjectKey,
+    actualServiceDeskName,
+    actualRequestTypeName,
+    accessibleServiceDeskCount,
+    requestTypeCreatable,
+    requestTypeRequiredFields,
+    allChecksPassed: true,
+    checks
+  };
+}
+
+// src/server/carebridgeFollowupStore.ts
+var import_crypto11 = __toESM(require("crypto"), 1);
+var CAREBRIDGE_FOLLOWUP_POLICY_VERSION = "cb-jsm-followup-v1";
+var CAREBRIDGE_FOLLOWUP_CONSENT_DISCLOSURE = "When enabled, CareBridge queries Jira Service Management (https://zenieverse.atlassian.net, project CareBridge2 / CR2, Service Desk 2, Request Type 5) to read non-clinical request status and submit explicitly human-approved administrative follow-up updates. Sensitive patient identifiers (SSN, MRN, DOB, personal contacts), diagnoses, lab results, and clinical measurements are blocked before transmission and redacted from audit logs.";
+var CareBridgeFollowUpAuthError = class extends Error {
+  statusCode;
+  code;
+  constructor(statusCode, code, message) {
+    super(message);
+    this.name = "CareBridgeFollowUpAuthError";
+    this.statusCode = statusCode;
+    this.code = code;
+  }
+};
+var CareBridgeFollowupStore = class {
+  consents = /* @__PURE__ */ new Map();
+  auditEvents = [];
+  lastStatusByUserAndKey = /* @__PURE__ */ new Map();
+  authorizedKeysByUser = /* @__PURE__ */ new Map();
+  previews = /* @__PURE__ */ new Map();
+  executedIdempotency = /* @__PURE__ */ new Map();
+  newCorrelationId() {
+    return `cb-corr-${import_crypto11.default.randomBytes(6).toString("hex")}`;
+  }
+  redactAuditSummary(raw) {
+    const tokenSafe = sanitizeCareBridgeErrorText(raw);
+    return scanAndRedactCareBridgePhi(tokenSafe).redactedText.slice(0, 260);
+  }
+  appendAuditEvent(params) {
+    const event = {
+      eventId: `cb-srv-${Date.now().toString(36)}-${import_crypto11.default.randomBytes(4).toString("hex")}`,
+      userId: params.userId,
+      timestamp: (/* @__PURE__ */ new Date()).toISOString(),
+      requestKey: params.requestKey ? params.requestKey.trim().toUpperCase().slice(0, 24) : void 0,
+      operationType: params.operationType,
+      outcome: params.outcome,
+      policyVersion: params.policyVersion || CAREBRIDGE_FOLLOWUP_POLICY_VERSION,
+      correlationId: params.correlationId || this.newCorrelationId(),
+      summary: this.redactAuditSummary(params.summary)
+    };
+    this.auditEvents.unshift(event);
+    if (this.auditEvents.length > 2e3) {
+      this.auditEvents.length = 2e3;
+    }
+    return event;
+  }
+  getAuditEventsForUser(requesterUid, requestedOwnerUid) {
+    if (!requesterUid) {
+      throw new CareBridgeFollowUpAuthError(401, "UNAUTHORIZED", "Authentication is required to access CareBridge audit events.");
+    }
+    if (requestedOwnerUid && requestedOwnerUid !== requesterUid) {
+      throw new CareBridgeFollowUpAuthError(
+        403,
+        "FORBIDDEN_AUDIT_ACCESS",
+        "Cross-user CareBridge audit access is forbidden."
+      );
+    }
+    return this.auditEvents.filter((ev) => ev.userId === requesterUid);
+  }
+  getConsentState(userId, nowMs = Date.now()) {
+    const existing = this.consents.get(userId);
+    if (!existing) {
+      return {
+        userId,
+        granted: false,
+        policyVersion: CAREBRIDGE_FOLLOWUP_POLICY_VERSION,
+        disclosureText: CAREBRIDGE_FOLLOWUP_CONSENT_DISCLOSURE,
+        updatedAt: new Date(nowMs).toISOString()
+      };
+    }
+    const expired = Boolean(existing.expiresAt) && Number.isFinite(Date.parse(existing.expiresAt)) && Date.parse(existing.expiresAt) <= nowMs;
+    if (expired && existing.granted) {
+      const updated = {
+        ...existing,
+        granted: false,
+        updatedAt: new Date(nowMs).toISOString()
+      };
+      this.consents.set(userId, updated);
+      return updated;
+    }
+    return existing;
+  }
+  grantConsent(params) {
+    const now = /* @__PURE__ */ new Date();
+    const ttlHours = Math.max(1, Math.min(params.ttlHours ?? 24, 24 * 30));
+    const expiresAt = params.expiresAtOverride || new Date(now.getTime() + ttlHours * 36e5).toISOString();
+    const record = {
+      userId: params.userId,
+      granted: true,
+      policyVersion: CAREBRIDGE_FOLLOWUP_POLICY_VERSION,
+      disclosureText: CAREBRIDGE_FOLLOWUP_CONSENT_DISCLOSURE,
+      grantedAt: now.toISOString(),
+      expiresAt,
+      withdrawnAt: void 0,
+      updatedAt: now.toISOString()
+    };
+    this.consents.set(params.userId, record);
+    this.appendAuditEvent({
+      userId: params.userId,
+      operationType: "consent_granted",
+      outcome: "allowed",
+      correlationId: params.correlationId,
+      policyVersion: record.policyVersion,
+      summary: `Granted Jira Service Management Follow-Up Consent (${record.policyVersion}, expires ${expiresAt}).`
+    });
+    return record;
+  }
+  withdrawConsent(params) {
+    const now = (/* @__PURE__ */ new Date()).toISOString();
+    const prev = this.consents.get(params.userId);
+    const record = {
+      userId: params.userId,
+      granted: false,
+      policyVersion: CAREBRIDGE_FOLLOWUP_POLICY_VERSION,
+      disclosureText: CAREBRIDGE_FOLLOWUP_CONSENT_DISCLOSURE,
+      grantedAt: prev?.grantedAt,
+      expiresAt: prev?.expiresAt,
+      withdrawnAt: now,
+      updatedAt: now
+    };
+    this.consents.set(params.userId, record);
+    this.appendAuditEvent({
+      userId: params.userId,
+      operationType: "consent_withdrawn",
+      outcome: "allowed",
+      correlationId: params.correlationId,
+      policyVersion: record.policyVersion,
+      summary: `Withdrew Jira Service Management Follow-Up Consent (${record.policyVersion}).`
+    });
+    return record;
+  }
+  assertActiveFollowUpConsent(userId, requestKey, correlationId, nowMs = Date.now()) {
+    if (!userId) {
+      throw new CareBridgeFollowUpAuthError(401, "UNAUTHORIZED", "Authentication is required for CareBridge follow-up operations.");
+    }
+    const state = this.getConsentState(userId, nowMs);
+    if (!state.granted) {
+      const reason = state.withdrawnAt ? "Jira Service Management Follow-Up Consent was withdrawn." : state.expiresAt && Date.parse(state.expiresAt) <= nowMs ? "Jira Service Management Follow-Up Consent has expired." : "Jira Service Management Follow-Up Consent is disabled by default and has not been granted.";
+      this.appendAuditEvent({
+        userId,
+        requestKey,
+        operationType: "followup_status_retrieved",
+        outcome: "blocked",
+        correlationId,
+        policyVersion: state.policyVersion,
+        summary: `Blocked JSM follow-up access: ${reason}`
+      });
+      throw new CareBridgeFollowUpAuthError(403, "FOLLOWUP_CONSENT_REQUIRED", reason);
+    }
+    return state;
+  }
+  getPreviousStatus(userId, requestKey) {
+    const key = `${userId}:${requestKey.toUpperCase()}`;
+    if (this.lastStatusByUserAndKey.has(key)) {
+      return this.lastStatusByUserAndKey.get(key);
+    }
+    if (requestKey.toUpperCase() === "CR2-1") {
+      return { status: "To Do", checkedAt: "2026-11-26T06:10:00.000Z" };
+    }
+    return void 0;
+  }
+  recordVerifiedStatus(userId, requestKey, status, checkedAt) {
+    const cleanKey = requestKey.toUpperCase();
+    this.lastStatusByUserAndKey.set(`${userId}:${cleanKey}`, { status, checkedAt });
+    let set = this.authorizedKeysByUser.get(userId);
+    if (!set) {
+      set = /* @__PURE__ */ new Set(["CR2-1"]);
+      this.authorizedKeysByUser.set(userId, set);
+    }
+    set.add(cleanKey);
+  }
+  assertRequestAuthorizedForUser(userId, requestKey) {
+    const cleanKey = requestKey.trim().toUpperCase();
+    if (!/^CR2-\d{1,10}$/.test(cleanKey) && !/^[A-Z0-9_]{1,12}-\d{1,10}$/.test(cleanKey)) {
+      throw new CareBridgeFollowUpAuthError(400, "INVALID_ISSUE_KEY", `Invalid JSM request key "${requestKey}".`);
+    }
+    const allowedSet = this.authorizedKeysByUser.get(userId);
+    if (cleanKey !== "CR2-1" && (!allowedSet || !allowedSet.has(cleanKey))) {
+      throw new CareBridgeFollowUpAuthError(
+        403,
+        "FOLLOWUP_REQUEST_NOT_OWNED",
+        `Request ${cleanKey} must first be verified via authorized follow-up lookup for your account before proposing state-changing operations.`
+      );
+    }
+  }
+  saveActionPreview(userId, preview) {
+    this.previews.set(preview.previewId, {
+      preview,
+      userId,
+      consumed: false
+    });
+  }
+  consumeApprovedPreview(params) {
+    const entry = this.previews.get(params.previewId);
+    if (!entry) {
+      throw new CareBridgeFollowUpAuthError(
+        400,
+        "PREVIEW_NOT_FOUND",
+        "A valid proposed-action preview is required before human approval and execution."
+      );
+    }
+    if (entry.userId !== params.userId) {
+      throw new CareBridgeFollowUpAuthError(
+        403,
+        "PREVIEW_OWNERSHIP_MISMATCH",
+        "Action preview belongs to a different authenticated user."
+      );
+    }
+    if (entry.consumed) {
+      throw new CareBridgeFollowUpAuthError(
+        409,
+        "DUPLICATE_PREVIEW_EXECUTION",
+        "This action preview was already executed. Generate a new preview before submitting another action."
+      );
+    }
+    if (Date.parse(entry.preview.expiresAt) <= Date.now()) {
+      throw new CareBridgeFollowUpAuthError(
+        400,
+        "PREVIEW_EXPIRED",
+        "Action preview expired. Preview the exact payload again before approving."
+      );
+    }
+    if (entry.preview.requestKey !== params.requestKey.toUpperCase() || entry.preview.actionType !== params.actionType) {
+      throw new CareBridgeFollowUpAuthError(
+        400,
+        "PREVIEW_MISMATCH",
+        "Submitted action parameters do not match the approved preview payload."
+      );
+    }
+    entry.consumed = true;
+    return entry.preview;
+  }
+  getIdempotentResult(userId, idempotencyKey) {
+    if (!idempotencyKey) return void 0;
+    return this.executedIdempotency.get(`${userId}:${idempotencyKey.trim()}`);
+  }
+  saveIdempotentResult(userId, idempotencyKey, result) {
+    if (!idempotencyKey) return;
+    this.executedIdempotency.set(`${userId}:${idempotencyKey.trim()}`, result);
+  }
+};
+var defaultCareBridgeFollowupStore = new CareBridgeFollowupStore();
+
+// src/server/carebridgeService.ts
+async function resolveOptionalUid(req, authVerifier = verifyFirebaseIdToken) {
+  const authHeader = (req.headers.authorization || "").trim();
+  if (!authHeader.startsWith("Bearer ")) {
+    return { uid: null, authMode: "unauthenticated" };
+  }
+  const token = authHeader.slice(7).trim();
+  if (!token) {
+    throw new HttpAuthError(401, "Empty Bearer token.");
+  }
+  const claims = await authVerifier(token);
+  if (!claims?.sub) {
+    throw new HttpAuthError(401, "Invalid authentication token claims.");
+  }
+  return { uid: claims.sub, authMode: "verified_firebase" };
+}
+async function requireAuthenticatedUid(req, authVerifier = verifyFirebaseIdToken) {
+  const auth = await resolveOptionalUid(req, authVerifier);
+  if (!auth.uid) {
+    throw new HttpAuthError(
+      401,
+      "Authenticated Dr. T session (Bearer token) is required for CareBridge follow-up, consent, and audit endpoints."
+    );
+  }
+  return auth.uid;
+}
+function sanitizeCareError(raw) {
+  return sanitizeCareBridgeErrorText(raw);
+}
+function sendCareBridgeError(res, err, extra) {
+  if (err instanceof HttpAuthError || err instanceof CareBridgeAiConsentError || err instanceof CareBridgeAiUnavailableError || err instanceof CareBridgeBoundaryError || err instanceof CareBridgeFollowUpAuthError) {
+    return res.status(err.statusCode).json({
+      error: sanitizeCareError(err.message),
+      code: err.code,
+      ...extra || {}
+    });
+  }
+  if (err instanceof RateLimitError2) {
+    return res.status(429).json({
+      error: sanitizeCareError(err.message),
+      code: "RATE_LIMITED",
+      ...extra || {}
+    });
+  }
+  const msg = err instanceof Error ? sanitizeCareError(err.message) : "Internal CareBridge server error";
+  return res.status(500).json({ error: msg, code: "INTERNAL_ERROR", ...extra || {} });
+}
+function mapFollowUpUiStateFromError(err) {
+  if (err instanceof CareBridgeFollowUpAuthError) {
+    if (err.code === "FOLLOWUP_CONSENT_REQUIRED") return "Consent required";
+    if (err.statusCode === 404) return "Request not found";
+    return "Follow-up blocked";
+  }
+  if (err instanceof CareBridgeBoundaryError) {
+    if (err.statusCode === 404 || err.code === "JSM_REQUEST_NOT_FOUND") return "Request not found";
+    if (err.code === "FOLLOWUP_CONSENT_REQUIRED") return "Consent required";
+    if (err.statusCode === 401 || err.statusCode === 403) return "Follow-up blocked";
+    return "Verification unavailable";
+  }
+  if (err instanceof HttpAuthError) {
+    return "Follow-up blocked";
+  }
+  return "Verification unavailable";
+}
+function isValidFollowUpActionType(val) {
+  return val === "comment" || val === "transition" || val === "field_update" || val === "notification";
+}
+function registerCareBridgeRoutes(app2, getGemini2, options) {
+  const authVerifier = options?.authVerifier || verifyFirebaseIdToken;
+  const store2 = options?.store || defaultCareBridgeFollowupStore;
+  const fetchImpl = options?.fetchImpl;
+  app2.get("/api/carebridge/status", async (req, res) => {
+    try {
+      const auth = await resolveOptionalUid(req, authVerifier);
+      const defaultSiteUrl = "https://zenieverse.atlassian.net";
+      const defaultServiceDeskId = (process.env.CAREBRIDGE_DEFAULT_SERVICE_DESK_ID || "2").trim() || "2";
+      const defaultRequestTypeId = (process.env.CAREBRIDGE_DEFAULT_REQUEST_TYPE_ID || "5").trim() || "5";
+      let cfgMode = "disconnected";
+      let resolvedSite = defaultSiteUrl;
+      let accountLabel = null;
+      let configError = null;
+      try {
+        const cfg = resolveCareBridgeAtlassianConnection({
+          oauthBearerToken: typeof req.headers["x-atlassian-access-token"] === "string" ? req.headers["x-atlassian-access-token"] : void 0,
+          oauthCloudId: typeof req.headers["x-atlassian-cloud-id"] === "string" ? req.headers["x-atlassian-cloud-id"] : void 0
+        });
+        cfgMode = cfg.mode;
+        if (cfg.siteUrl) resolvedSite = cfg.siteUrl;
+        accountLabel = cfg.accountLabel || null;
+      } catch (cfgErr) {
+        configError = cfgErr instanceof Error ? sanitizeCareError(cfgErr.message) : "Atlassian site configuration invalid.";
+      }
+      return res.json({
+        module: "carebridge",
+        authMode: auth.authMode,
+        aiAvailable: Boolean(process.env.GEMINI_API_KEY),
+        aiModel: CAREBRIDGE_GEMINI_MODEL,
+        atlassianConfigured: cfgMode !== "disconnected",
+        connectionStatus: cfgMode !== "disconnected" ? "Configured (Unverified)" : "Unavailable",
+        siteUrl: resolvedSite,
+        defaultSiteUrl,
+        defaultServiceDeskId,
+        defaultRequestTypeId,
+        defaultProjectKey: "CR2",
+        defaultRequestTypeName: "Submit a request or incident",
+        followUpPolicyVersion: CAREBRIDGE_FOLLOWUP_POLICY_VERSION,
+        safeError: configError,
+        atlassian: {
+          mode: cfgMode,
+          connected: cfgMode !== "disconnected",
+          siteUrl: resolvedSite,
+          accountLabel,
+          forgeManifestPath: "apps/carebridge-forge/manifest.yml"
+        },
+        safeguards: {
+          nonDiagnosticOnly: true,
+          phiMinimizedByDefault: true,
+          aiOutputMarkedUnverified: true,
+          explicitConsentRequired: true,
+          humanApprovalRequiredForWrites: true
+        },
+        checkedAt: (/* @__PURE__ */ new Date()).toISOString()
+      });
+    } catch (err) {
+      return sendCareBridgeError(res, err);
+    }
+  });
+  app2.get("/api/carebridge/atlassian/verify", async (req, res) => {
+    try {
+      const auth = await resolveOptionalUid(req, authVerifier);
+      const ipKey = auth.uid || req.ip || "anon";
+      checkRateLimit(`carebridge-verify:${ipKey}`, 20, 6e4);
+      const report = await verifyCareBridgeAtlassianConnection({
+        oauthBearerToken: typeof req.headers["x-atlassian-access-token"] === "string" ? req.headers["x-atlassian-access-token"] : void 0,
+        oauthCloudId: typeof req.headers["x-atlassian-cloud-id"] === "string" ? req.headers["x-atlassian-cloud-id"] : void 0,
+        siteUrlHint: typeof req.query.siteUrl === "string" ? req.query.siteUrl : void 0,
+        expectedSiteUrl: "https://zenieverse.atlassian.net",
+        expectedServiceDeskId: (process.env.CAREBRIDGE_DEFAULT_SERVICE_DESK_ID || "2").trim() || "2",
+        expectedProjectKey: "CR2",
+        expectedProjectName: "CareBridge2",
+        expectedRequestTypeId: (process.env.CAREBRIDGE_DEFAULT_REQUEST_TYPE_ID || "5").trim() || "5",
+        expectedRequestTypeName: "Submit a request or incident",
+        fetchImpl
+      });
+      return res.json(report);
+    } catch (err) {
+      return sendCareBridgeError(res, err);
+    }
+  });
+  app2.get("/api/carebridge/atlassian/jsm/desks", async (req, res) => {
+    try {
+      const auth = await resolveOptionalUid(req, authVerifier);
+      checkRateLimit(`carebridge-jsm-read:${auth.uid || req.ip || "anon"}`, 30, 6e4);
+      const cfg = resolveCareBridgeAtlassianConnection({
+        oauthBearerToken: typeof req.headers["x-atlassian-access-token"] === "string" ? req.headers["x-atlassian-access-token"] : void 0,
+        oauthCloudId: typeof req.headers["x-atlassian-cloud-id"] === "string" ? req.headers["x-atlassian-cloud-id"] : void 0,
+        siteUrlHint: typeof req.query.siteUrl === "string" ? req.query.siteUrl : void 0
+      });
+      const desks = await fetchJsmServiceDesks({ config: cfg, fetchImpl });
+      return res.json({ connected: true, desks, source: cfg.mode, siteUrl: cfg.siteUrl });
+    } catch (err) {
+      return sendCareBridgeError(res, err);
+    }
+  });
+  app2.get("/api/carebridge/atlassian/jsm/requests", async (req, res) => {
+    try {
+      const auth = await resolveOptionalUid(req, authVerifier);
+      checkRateLimit(`carebridge-jsm-read:${auth.uid || req.ip || "anon"}`, 30, 6e4);
+      const cfg = resolveCareBridgeAtlassianConnection({
+        oauthBearerToken: typeof req.headers["x-atlassian-access-token"] === "string" ? req.headers["x-atlassian-access-token"] : void 0,
+        oauthCloudId: typeof req.headers["x-atlassian-cloud-id"] === "string" ? req.headers["x-atlassian-cloud-id"] : void 0,
+        siteUrlHint: typeof req.query.siteUrl === "string" ? req.query.siteUrl : void 0
+      });
+      const requests = await fetchJsmRequests({
+        config: cfg,
+        serviceDeskId: typeof req.query.serviceDeskId === "string" ? req.query.serviceDeskId : void 0,
+        fetchImpl
+      });
+      return res.json({ connected: true, requests, source: cfg.mode, siteUrl: cfg.siteUrl });
+    } catch (err) {
+      return sendCareBridgeError(res, err);
+    }
+  });
+  app2.get("/api/carebridge/atlassian/jsm/requests/:issueKey", async (req, res) => {
+    try {
+      const auth = await resolveOptionalUid(req, authVerifier);
+      checkRateLimit(`carebridge-jsm-read:${auth.uid || req.ip || "anon"}`, 30, 6e4);
+      const cfg = resolveCareBridgeAtlassianConnection({
+        oauthBearerToken: typeof req.headers["x-atlassian-access-token"] === "string" ? req.headers["x-atlassian-access-token"] : void 0,
+        oauthCloudId: typeof req.headers["x-atlassian-cloud-id"] === "string" ? req.headers["x-atlassian-cloud-id"] : void 0,
+        siteUrlHint: typeof req.query.siteUrl === "string" ? req.query.siteUrl : void 0
+      });
+      const requestItem = await fetchJsmRequestByKey({
+        config: cfg,
+        issueKey: String(req.params.issueKey || ""),
+        fetchImpl
+      });
+      return res.json({ request: requestItem, source: cfg.mode });
+    } catch (err) {
+      return sendCareBridgeError(res, err);
+    }
+  });
+  app2.post("/api/carebridge/atlassian/jsm/request", async (req, res) => {
+    try {
+      const auth = await resolveOptionalUid(req, authVerifier);
+      if (!auth.uid && process.env.DRT_RUNTIME_ENV === "production") {
+        throw new HttpAuthError(401, "Verified Dr. T authentication is required in production.");
+      }
+      checkRateLimit(`carebridge-jsm-write:${auth.uid || req.ip || "anon"}`, 10, 6e4);
+      const body = req.body || {};
+      const cfg = resolveCareBridgeAtlassianConnection({
+        oauthBearerToken: typeof req.headers["x-atlassian-access-token"] === "string" ? req.headers["x-atlassian-access-token"] : void 0,
+        oauthCloudId: typeof req.headers["x-atlassian-cloud-id"] === "string" ? req.headers["x-atlassian-cloud-id"] : void 0,
+        siteUrlHint: typeof body.siteUrl === "string" ? body.siteUrl : void 0
+      });
+      const created = await createJsmFollowUpRequestConfirmed({
+        config: cfg,
+        serviceDeskId: String(body.serviceDeskId || process.env.CAREBRIDGE_DEFAULT_SERVICE_DESK_ID || "2"),
+        requestTypeId: String(body.requestTypeId || process.env.CAREBRIDGE_DEFAULT_REQUEST_TYPE_ID || "5"),
+        summary: sanitizeText(body.summary, 160),
+        minimalNote: sanitizeText(body.minimalNote || body.description, 800),
+        jsmConsentGranted: Boolean(body.jsmConsentGranted),
+        userConfirmed: Boolean(body.userConfirmed),
+        allowClinicalReferenceOverride: false,
+        fetchImpl
+      });
+      if (auth.uid && created.issueKey) {
+        store2.recordVerifiedStatus(auth.uid, created.issueKey, created.status, (/* @__PURE__ */ new Date()).toISOString());
+      }
+      return res.status(201).json({ request: created });
+    } catch (err) {
+      return sendCareBridgeError(res, err);
+    }
+  });
+  app2.get("/api/carebridge/atlassian/confluence/pages", async (req, res) => {
+    try {
+      await resolveOptionalUid(req, authVerifier);
+      const cfg = resolveCareBridgeAtlassianConnection({
+        oauthBearerToken: typeof req.headers["x-atlassian-access-token"] === "string" ? req.headers["x-atlassian-access-token"] : void 0,
+        oauthCloudId: typeof req.headers["x-atlassian-cloud-id"] === "string" ? req.headers["x-atlassian-cloud-id"] : void 0,
+        siteUrlHint: typeof req.query.siteUrl === "string" ? req.query.siteUrl : void 0
+      });
+      const consentGranted = String(req.query.consentGranted || "") === "true" || String(req.query.consent || "") === "true";
+      const pages = await searchConfluenceCareKnowledge({
+        config: cfg,
+        queryText: typeof req.query.q === "string" ? req.query.q : void 0,
+        confluenceReadConsent: consentGranted,
+        fetchImpl
+      });
+      return res.json({ connected: true, pages, source: cfg.mode, siteUrl: cfg.siteUrl });
+    } catch (err) {
+      return sendCareBridgeError(res, err);
+    }
+  });
+  app2.post("/api/carebridge/ai/assist", async (req, res) => {
+    try {
+      const auth = await resolveOptionalUid(req, authVerifier);
+      const ipKey = auth.uid || req.ip || "anon";
+      checkRateLimit(`carebridge-ai:${ipKey}`, 20, 6e4);
+      const body = req.body || {};
+      const result = await runCareBridgeAiAssist(
+        {
+          actionType: body.actionType || "summarize-care-context",
+          prompt: sanitizeText(body.prompt, 1e3) || "Prepare an administrative care-navigation summary.",
+          geminiConsentGranted: Boolean(body.geminiConsentGranted),
+          rovoConsentGranted: body.rovoConsentGranted === void 0 ? true : Boolean(body.rovoConsentGranted),
+          navigationContext: sanitizeText(body.navigationContext, 200) || "Non-emergency care coordination",
+          tasks: Array.isArray(body.tasks) ? body.tasks : [],
+          knowledgePages: Array.isArray(body.knowledgePages) ? body.knowledgePages : []
+        },
+        getGemini2()
+      );
+      return res.json({ result });
+    } catch (err) {
+      return sendCareBridgeError(res, err);
+    }
+  });
+  app2.get("/api/carebridge/consent/followup", async (req, res) => {
+    try {
+      const uid = await requireAuthenticatedUid(req, authVerifier);
+      const consent = store2.getConsentState(uid);
+      return res.json({
+        consent,
+        policyVersion: CAREBRIDGE_FOLLOWUP_POLICY_VERSION,
+        disclosureText: CAREBRIDGE_FOLLOWUP_CONSENT_DISCLOSURE
+      });
+    } catch (err) {
+      return sendCareBridgeError(res, err);
+    }
+  });
+  app2.post("/api/carebridge/consent/followup", async (req, res) => {
+    try {
+      const uid = await requireAuthenticatedUid(req, authVerifier);
+      checkRateLimit(`carebridge-followup-consent:${uid}`, 30, 6e4);
+      const body = req.body || {};
+      const correlationId = store2.newCorrelationId();
+      const action = body.action === "withdraw" || body.granted === false ? "withdraw" : body.action === "grant" || body.granted === true ? "grant" : null;
+      if (!action) {
+        throw new CareBridgeFollowUpAuthError(
+          400,
+          "INVALID_CONSENT_ACTION",
+          'Specify action "grant" (or granted: true) or "withdraw" (or granted: false).'
+        );
+      }
+      const consent = action === "grant" ? store2.grantConsent({
+        userId: uid,
+        ttlHours: typeof body.ttlHours === "number" ? body.ttlHours : void 0,
+        correlationId
+      }) : store2.withdrawConsent({
+        userId: uid,
+        correlationId
+      });
+      return res.json({
+        consent,
+        policyVersion: CAREBRIDGE_FOLLOWUP_POLICY_VERSION,
+        disclosureText: CAREBRIDGE_FOLLOWUP_CONSENT_DISCLOSURE,
+        correlationId
+      });
+    } catch (err) {
+      return sendCareBridgeError(res, err);
+    }
+  });
+  app2.get("/api/carebridge/followup/requests/:issueKey", async (req, res) => {
+    const correlationId = store2.newCorrelationId();
+    let uid = "";
+    const issueKey = String(req.params.issueKey || "").trim().toUpperCase();
+    try {
+      uid = await requireAuthenticatedUid(req, authVerifier);
+      checkRateLimit(`carebridge-followup-read:${uid}`, 30, 6e4);
+      const consent = store2.assertActiveFollowUpConsent(uid, issueKey, correlationId);
+      if (!/^[A-Z0-9_]{1,12}-\d{1,10}$/.test(issueKey)) {
+        throw new CareBridgeFollowUpAuthError(400, "INVALID_ISSUE_KEY", `Invalid JSM request key "${issueKey}".`);
+      }
+      const cfg = resolveCareBridgeAtlassianConnection({
+        oauthBearerToken: typeof req.headers["x-atlassian-access-token"] === "string" ? req.headers["x-atlassian-access-token"] : void 0,
+        oauthCloudId: typeof req.headers["x-atlassian-cloud-id"] === "string" ? req.headers["x-atlassian-cloud-id"] : void 0,
+        siteUrlHint: typeof req.query.siteUrl === "string" ? req.query.siteUrl : void 0
+      });
+      const previous = store2.getPreviousStatus(uid, issueKey);
+      const reqItem = await fetchJsmRequestByKey({
+        config: cfg,
+        issueKey,
+        fetchImpl
+      });
+      const availableTransitions = await fetchJiraIssueTransitionsReadOnly({
+        config: cfg,
+        issueKey,
+        fetchImpl
+      });
+      const checkedAt = (/* @__PURE__ */ new Date()).toISOString();
+      store2.recordVerifiedStatus(uid, reqItem.issueKey, reqItem.status, checkedAt);
+      const previousStatus = previous?.status;
+      const statusChanged = Boolean(previousStatus && previousStatus !== reqItem.status);
+      store2.appendAuditEvent({
+        userId: uid,
+        requestKey: reqItem.issueKey,
+        operationType: "followup_status_retrieved",
+        outcome: "allowed",
+        correlationId,
+        policyVersion: consent.policyVersion,
+        summary: `Retrieved live status "${reqItem.status}" for ${reqItem.issueKey}${previousStatus ? ` (previous: "${previousStatus}", changed: ${statusChanged})` : ""}.`
+      });
+      const result = {
+        uiState: "Follow-up available",
+        requestKey: reqItem.issueKey,
+        destinationProjectKey: reqItem.issueKey.split("-")[0] || "CR2",
+        destinationProjectName: "CareBridge2",
+        serviceDeskId: reqItem.serviceDeskId || "2",
+        requestTypeId: reqItem.requestTypeId || "5",
+        requestTypeName: "Submit a request or incident",
+        summary: reqItem.summary,
+        lastVerifiedStatus: reqItem.status,
+        previousVerifiedStatus: previousStatus,
+        statusChanged,
+        lastCheckedAt: checkedAt,
+        consentActive: true,
+        policyVersion: consent.policyVersion,
+        requestUrl: reqItem.requestUrl,
+        availableActions: [
+          {
+            type: "comment",
+            label: "Add Administrative Follow-Up Comment",
+            requiresHumanApproval: true,
+            enabled: true
+          },
+          {
+            type: "transition",
+            label: "Request Workflow Status Transition",
+            requiresHumanApproval: true,
+            enabled: availableTransitions.length > 0
+          },
+          {
+            type: "field_update",
+            label: "Update Administrative Summary Field",
+            requiresHumanApproval: true,
+            enabled: true
+          },
+          {
+            type: "notification",
+            label: "Send Public Follow-Up Notification",
+            requiresHumanApproval: true,
+            enabled: true
+          }
+        ],
+        availableTransitions,
+        correlationId
+      };
+      return res.json(result);
+    } catch (err) {
+      const uiState = mapFollowUpUiStateFromError(err);
+      if (uid && !(err instanceof CareBridgeFollowUpAuthError && err.code === "FOLLOWUP_CONSENT_REQUIRED")) {
+        store2.appendAuditEvent({
+          userId: uid,
+          requestKey: issueKey || void 0,
+          operationType: "followup_status_retrieved",
+          outcome: uiState === "Follow-up blocked" ? "blocked" : "error",
+          correlationId,
+          summary: `Follow-up status check failed (${uiState}): ${sanitizeCareError(
+            err instanceof Error ? err.message : "Unknown error"
+          )}`
+        });
+      }
+      return sendCareBridgeError(res, err, {
+        uiState,
+        requestKey: issueKey,
+        policyVersion: CAREBRIDGE_FOLLOWUP_POLICY_VERSION,
+        correlationId
+      });
+    }
+  });
+  app2.post("/api/carebridge/followup/actions/preview", async (req, res) => {
+    const correlationId = store2.newCorrelationId();
+    let uid = "";
+    let cleanKey = "";
+    try {
+      uid = await requireAuthenticatedUid(req, authVerifier);
+      checkRateLimit(`carebridge-followup-preview:${uid}`, 30, 6e4);
+      const body = req.body || {};
+      cleanKey = String(body.requestKey || "").trim().toUpperCase();
+      const actionType = body.actionType;
+      const consent = store2.assertActiveFollowUpConsent(uid, cleanKey, correlationId);
+      store2.assertRequestAuthorizedForUser(uid, cleanKey);
+      if (!isValidFollowUpActionType(actionType)) {
+        throw new CareBridgeFollowUpAuthError(
+          400,
+          "INVALID_ACTION_TYPE",
+          "Action type must be one of: comment, transition, field_update, notification."
+        );
+      }
+      const rawBodyText = typeof body.bodyText === "string" ? sanitizeText(body.bodyText, 800) : "";
+      const rawSummaryUpdate = typeof body.summaryUpdate === "string" ? sanitizeText(body.summaryUpdate, 160) : "";
+      const transitionId = typeof body.transitionId === "string" ? body.transitionId.trim() : "";
+      let proposedPayload;
+      let textToScan = "";
+      if (actionType === "comment" || actionType === "notification") {
+        if (!rawBodyText) {
+          throw new CareBridgeFollowUpAuthError(
+            400,
+            "INVALID_COMMENT_BODY",
+            "Administrative follow-up message text is required before previewing."
+          );
+        }
+        textToScan = rawBodyText;
+        proposedPayload = {
+          endpoint: `/rest/servicedeskapi/request/${cleanKey}/comment`,
+          method: "POST",
+          body: rawBodyText,
+          public: actionType === "notification"
+        };
+      } else if (actionType === "transition") {
+        if (!/^\d{1,12}$/.test(transitionId)) {
+          throw new CareBridgeFollowUpAuthError(
+            400,
+            "INVALID_TRANSITION_ID",
+            "Valid numeric workflow transition ID is required before previewing."
+          );
+        }
+        textToScan = "";
+        proposedPayload = {
+          endpoint: `/rest/api/3/issue/${cleanKey}/transitions`,
+          method: "POST",
+          transition: { id: transitionId }
+        };
+      } else {
+        if (!rawSummaryUpdate) {
+          throw new CareBridgeFollowUpAuthError(
+            400,
+            "INVALID_FIELD_UPDATE",
+            "Updated administrative summary text is required before previewing."
+          );
+        }
+        textToScan = rawSummaryUpdate;
+        proposedPayload = {
+          endpoint: `/rest/api/3/issue/${cleanKey}`,
+          method: "PUT",
+          fields: { summary: rawSummaryUpdate }
+        };
+      }
+      const phiScan = scanAndRedactCareBridgePhi(textToScan);
+      if (!phiScan.safe) {
+        store2.appendAuditEvent({
+          userId: uid,
+          requestKey: cleanKey,
+          operationType: "phi_scan_blocked",
+          outcome: "blocked",
+          correlationId,
+          policyVersion: consent.policyVersion,
+          summary: `Blocked ${actionType} preview for ${cleanKey}: detected sensitive category (${phiScan.categories.join(", ")}).`
+        });
+        return res.status(403).json({
+          error: `CareBridge PHI Guard blocked sensitive details (${phiScan.warnings.join("; ")}). Redact PHI and clinical values before continuing.`,
+          code: "PHI_MINIMIZATION_BLOCKED",
+          correlationId,
+          phiScan: {
+            safe: false,
+            warnings: phiScan.warnings,
+            categories: phiScan.categories,
+            matchCount: phiScan.matchCount,
+            redactedSuggestion: phiScan.redactedText
+          }
+        });
+      }
+      store2.appendAuditEvent({
+        userId: uid,
+        requestKey: cleanKey,
+        operationType: "phi_scan_passed",
+        outcome: "allowed",
+        correlationId,
+        policyVersion: consent.policyVersion,
+        summary: `PHI scan passed (${actionType}) for ${cleanKey}.`
+      });
+      const now = Date.now();
+      const preview = {
+        previewId: `cb-prev-${now.toString(36)}-${correlationId.slice(-6)}`,
+        requestKey: cleanKey,
+        actionType,
+        destinationProjectKey: cleanKey.split("-")[0] || "CR2",
+        policyVersion: consent.policyVersion,
+        correlationId,
+        phiScan: {
+          safe: true,
+          warnings: [],
+          categories: [],
+          matchCount: 0
+        },
+        proposedPayload,
+        requiresHumanApproval: true,
+        createdAt: new Date(now).toISOString(),
+        expiresAt: new Date(now + 10 * 6e4).toISOString()
+      };
+      store2.saveActionPreview(uid, preview);
+      store2.appendAuditEvent({
+        userId: uid,
+        requestKey: cleanKey,
+        operationType: "proposed_action_previewed",
+        outcome: "allowed",
+        correlationId,
+        policyVersion: consent.policyVersion,
+        summary: `Prepared single-use action preview (${actionType}) for ${cleanKey}; awaiting explicit human approval.`
+      });
+      return res.json({ preview });
+    } catch (err) {
+      return sendCareBridgeError(res, err, { correlationId, requestKey: cleanKey || void 0 });
+    }
+  });
+  app2.post("/api/carebridge/followup/actions/execute", async (req, res) => {
+    const correlationId = store2.newCorrelationId();
+    let uid = "";
+    let cleanKey = "";
+    try {
+      uid = await requireAuthenticatedUid(req, authVerifier);
+      checkRateLimit(`carebridge-followup-exec:${uid}`, 15, 6e4);
+      const body = req.body || {};
+      cleanKey = String(body.requestKey || "").trim().toUpperCase();
+      const actionType = body.actionType;
+      const previewId = String(body.previewId || "").trim();
+      const idempotencyKey = typeof body.idempotencyKey === "string" && body.idempotencyKey.trim() ? body.idempotencyKey.trim().slice(0, 80) : previewId;
+      if (!isValidFollowUpActionType(actionType)) {
+        throw new CareBridgeFollowUpAuthError(400, "INVALID_ACTION_TYPE", "Invalid follow-up action type.");
+      }
+      const consent = store2.assertActiveFollowUpConsent(uid, cleanKey, correlationId);
+      store2.assertRequestAuthorizedForUser(uid, cleanKey);
+      const cachedIdempotent = store2.getIdempotentResult(uid, idempotencyKey);
+      if (cachedIdempotent) {
+        return res.json({
+          result: {
+            ...cachedIdempotent,
+            duplicatePrevented: true
+          }
+        });
+      }
+      if (body.humanApproved !== true) {
+        store2.appendAuditEvent({
+          userId: uid,
+          requestKey: cleanKey,
+          operationType: "human_approval_rejected",
+          outcome: "blocked",
+          correlationId,
+          policyVersion: consent.policyVersion,
+          summary: `Blocked ${actionType} execution on ${cleanKey}: explicit human approval was missing or false.`
+        });
+        throw new CareBridgeFollowUpAuthError(
+          400,
+          "HUMAN_APPROVAL_REQUIRED",
+          "Explicit human approval (humanApproved: true) is required before submitting any state-changing follow-up action."
+        );
+      }
+      const preview = store2.consumeApprovedPreview({
+        userId: uid,
+        previewId,
+        requestKey: cleanKey,
+        actionType
+      });
+      const bodyText = typeof body.bodyText === "string" ? sanitizeText(body.bodyText, 800) : "";
+      const summaryUpdate = typeof body.summaryUpdate === "string" ? sanitizeText(body.summaryUpdate, 160) : "";
+      const transitionId = typeof body.transitionId === "string" ? body.transitionId.trim() : "";
+      if ((actionType === "comment" || actionType === "notification") && bodyText !== preview.proposedPayload.body) {
+        throw new CareBridgeFollowUpAuthError(
+          400,
+          "PREVIEW_MISMATCH",
+          "Submitted message text differs from the approved preview."
+        );
+      }
+      if (actionType === "transition" && transitionId !== String(preview.proposedPayload.transition?.id || "")) {
+        throw new CareBridgeFollowUpAuthError(
+          400,
+          "PREVIEW_MISMATCH",
+          "Submitted transition ID differs from the approved preview."
+        );
+      }
+      if (actionType === "field_update" && summaryUpdate !== String(preview.proposedPayload.fields?.summary || "")) {
+        throw new CareBridgeFollowUpAuthError(
+          400,
+          "PREVIEW_MISMATCH",
+          "Submitted summary text differs from the approved preview."
+        );
+      }
+      store2.appendAuditEvent({
+        userId: uid,
+        requestKey: cleanKey,
+        operationType: "human_approval_granted",
+        outcome: "allowed",
+        correlationId,
+        policyVersion: consent.policyVersion,
+        summary: `Authorized user approved ${actionType} on ${cleanKey} (preview ${preview.previewId}).`
+      });
+      const cfg = resolveCareBridgeAtlassianConnection({
+        oauthBearerToken: typeof req.headers["x-atlassian-access-token"] === "string" ? req.headers["x-atlassian-access-token"] : void 0,
+        oauthCloudId: typeof req.headers["x-atlassian-cloud-id"] === "string" ? req.headers["x-atlassian-cloud-id"] : void 0,
+        siteUrlHint: typeof body.siteUrl === "string" ? body.siteUrl : void 0
+      });
+      store2.appendAuditEvent({
+        userId: uid,
+        requestKey: cleanKey,
+        operationType: "operation_submitted",
+        outcome: "allowed",
+        correlationId,
+        policyVersion: consent.policyVersion,
+        summary: `Submitted human-approved ${actionType} to Atlassian for ${cleanKey}.`
+      });
+      try {
+        const execOut = await executeJsmFollowUpActionConfirmed({
+          config: cfg,
+          issueKey: cleanKey,
+          actionType,
+          bodyText,
+          transitionId,
+          summaryUpdate,
+          jsmFollowUpConsentGranted: true,
+          humanApproved: true,
+          fetchImpl
+        });
+        const completedAt = (/* @__PURE__ */ new Date()).toISOString();
+        if (execOut.currentStatus) {
+          store2.recordVerifiedStatus(uid, cleanKey, execOut.currentStatus, completedAt);
+        }
+        store2.appendAuditEvent({
+          userId: uid,
+          requestKey: cleanKey,
+          operationType: "operation_succeeded",
+          outcome: "allowed",
+          correlationId,
+          policyVersion: consent.policyVersion,
+          summary: `Completed ${actionType} on ${cleanKey} (verified: ${execOut.verifiedAfterExecution}, status: ${execOut.currentStatus || "unknown"}).`
+        });
+        const result = {
+          requestKey: cleanKey,
+          actionType,
+          executed: true,
+          duplicatePrevented: false,
+          verifiedAfterExecution: execOut.verifiedAfterExecution,
+          currentStatus: execOut.currentStatus,
+          requestUrl: execOut.requestUrl,
+          correlationId,
+          policyVersion: consent.policyVersion,
+          message: `Completed ${actionType} on ${cleanKey}${execOut.verifiedAfterExecution ? ` and verified status (${execOut.currentStatus}).` : "."}`,
+          completedAt
+        };
+        store2.saveIdempotentResult(uid, idempotencyKey, result);
+        return res.json({ result });
+      } catch (execErr) {
+        store2.appendAuditEvent({
+          userId: uid,
+          requestKey: cleanKey,
+          operationType: "operation_failed",
+          outcome: "error",
+          correlationId,
+          policyVersion: consent.policyVersion,
+          summary: `Failed ${actionType} on ${cleanKey}: ${sanitizeCareError(
+            execErr instanceof Error ? execErr.message : "Upstream error"
+          )}`
+        });
+        throw execErr;
+      }
+    } catch (err) {
+      return sendCareBridgeError(res, err, { correlationId, requestKey: cleanKey || void 0 });
+    }
+  });
+  app2.post("/api/carebridge/followup/ai-summary", async (req, res) => {
+    const correlationId = store2.newCorrelationId();
+    try {
+      const uid = await requireAuthenticatedUid(req, authVerifier);
+      checkRateLimit(`carebridge-followup-ai:${uid}`, 20, 6e4);
+      const body = req.body || {};
+      const requestKey = String(body.requestKey || "CR2-1").trim().toUpperCase();
+      const consent = store2.assertActiveFollowUpConsent(uid, requestKey, correlationId);
+      const currentStatus = sanitizeText(body.currentStatus, 60) || "Unknown";
+      const sanitizedSummary = scanAndRedactCareBridgePhi(sanitizeText(body.summary, 240)).redactedText;
+      const geminiConsent = Boolean(body.geminiConsentGranted);
+      const geminiClient = getGemini2();
+      if (geminiConsent && geminiClient) {
+        try {
+          const aiOut = await runCareBridgeAiAssist(
+            {
+              actionType: "followup_status_summary",
+              prompt: sanitizeText(
+                body.prompt || `Summarize the current administrative status (${currentStatus}) for JSM request ${requestKey} ("${sanitizedSummary}"), list any missing admin details, and draft a concise human-reviewed administrative follow-up note.`,
+                800
+              ),
+              geminiConsentGranted: true,
+              rovoConsentGranted: true,
+              navigationContext: `JSM Follow-Up ${requestKey} (CR2)`,
+              tasks: Array.isArray(body.tasks) ? body.tasks : [],
+              knowledgePages: []
+            },
+            geminiClient
+          );
+          store2.appendAuditEvent({
+            userId: uid,
+            requestKey,
+            operationType: "ai_summary_drafted",
+            outcome: "allowed",
+            correlationId,
+            policyVersion: consent.policyVersion,
+            summary: `Generated sanitized Gemini follow-up draft for ${requestKey} (requires human review).`
+          });
+          return res.json({
+            draft: {
+              requestKey,
+              isDraft: true,
+              requiresHumanReview: true,
+              unverifiedBanner: "AI-Generated Draft \u2014 Requires Human Review",
+              nonClinicalNotice: aiOut.nonClinicalNotice,
+              statusExplanation: aiOut.aiSummaryOrSuggestion,
+              draftFollowUpMessage: aiOut.aiSummaryOrSuggestion,
+              missingAdminInfo: aiOut.missingInformation,
+              generatedBy: "gemini",
+              model: aiOut.model,
+              correlationId
+            }
+          });
+        } catch {
+        }
+      }
+      const fallbackExplanation = `JSM request ${requestKey} in CareBridge2 (CR2) is currently "${currentStatus}". Confirm whether scheduling dates or coordinator assignee details need an administrative update before sending any reply.`;
+      const fallbackMessage = `Administrative follow-up check on ${requestKey}: please confirm the current coordination window and next administrative step. No patient identifiers or clinical data included.`;
+      store2.appendAuditEvent({
+        userId: uid,
+        requestKey,
+        operationType: "ai_summary_drafted",
+        outcome: "allowed",
+        correlationId,
+        policyVersion: consent.policyVersion,
+        summary: `Prepared sanitized local follow-up draft for ${requestKey} (Gemini unavailable or consent off).`
+      });
+      return res.json({
+        draft: {
+          requestKey,
+          isDraft: true,
+          requiresHumanReview: true,
+          unverifiedBanner: "AI-Generated Draft \u2014 Requires Human Review",
+          nonClinicalNotice: "Administrative follow-up helper draft only. Never sends updates to Jira without explicit human preview and approval.",
+          statusExplanation: fallbackExplanation,
+          draftFollowUpMessage: fallbackMessage,
+          missingAdminInfo: [
+            !geminiConsent ? "External Gemini synthesis consent is currently disabled; using sanitized local template draft." : "Live Gemini response unavailable; using sanitized local template draft."
+          ],
+          generatedBy: "sanitized_local_fallback",
+          correlationId
+        }
+      });
+    } catch (err) {
+      return sendCareBridgeError(res, err, { correlationId });
+    }
+  });
+  app2.get("/api/carebridge/followup/audit", async (req, res) => {
+    try {
+      const uid = await requireAuthenticatedUid(req, authVerifier);
+      const requestedOwnerUid = typeof req.query.userId === "string" && req.query.userId.trim() ? req.query.userId.trim() : void 0;
+      const events = store2.getAuditEventsForUser(uid, requestedOwnerUid);
+      return res.json({
+        events,
+        policyVersion: CAREBRIDGE_FOLLOWUP_POLICY_VERSION,
+        count: events.length
+      });
+    } catch (err) {
+      return sendCareBridgeError(res, err);
+    }
+  });
+  app2.post("/api/carebridge/privacy/phi-scan", (req, res) => {
+    const text = typeof req.body?.text === "string" ? req.body.text.slice(0, 4e3) : "";
+    const scan = scanAndRedactCareBridgePhi(text);
+    return res.json({
+      safe: scan.safe,
+      warnings: scan.warnings,
+      categories: scan.categories,
+      matchCount: scan.matchCount,
+      redactedText: scan.redactedText
+    });
+  });
+}
+
 // server.impl.ts
 try {
   const envPath = import_path7.default.join(process.cwd(), ".env");
@@ -187704,7 +190030,7 @@ app.post("/api/readit/fetch-url", async (req, res) => {
         securityGate: "SIZE_LIMIT"
       });
     }
-    const hash2 = import_crypto11.default.createHash("sha256").update(Buffer.from(arrayBuffer)).digest("hex");
+    const hash2 = import_crypto12.default.createHash("sha256").update(Buffer.from(arrayBuffer)).digest("hex");
     let filename = "remote_document.pdf";
     const disposition = response.headers.get("content-disposition");
     if (disposition && disposition.includes("filename=")) {
@@ -191352,6 +193678,7 @@ app.post("/api/population-health/demo/reset", async (req, res) => {
   }
 });
 registerHatBridgeRoutes(app, getGemini);
+registerCareBridgeRoutes(app, getGemini);
 async function setupApp() {
   let startupDiagnostics;
   try {

@@ -20,6 +20,12 @@ import {
 import {
   CareBridgeConfluencePage,
   CareBridgeConnectionDisplayStatus,
+  CareBridgeFollowUpActionPreview,
+  CareBridgeFollowUpActionResult,
+  CareBridgeFollowUpActionType,
+  CareBridgeFollowUpConsentRecord,
+  CareBridgeFollowUpStatusResult,
+  CareBridgeFollowUpUiState,
   CareBridgeJsmRequest,
   CareBridgeJsmServiceDesk,
   CareBridgeKnowledgeSummary,
@@ -27,6 +33,7 @@ import {
   CareBridgeVerificationReport,
   CareBridgeWorkspaceBundle,
 } from '../../../types/carebridgeTypes';
+import { getFirebaseIdToken } from '../../../services/firebase';
 import {
   buildLocalGroundedRovoOutput,
   checkCareBridgeDataMinimization,
@@ -254,6 +261,8 @@ export const ClinicalKnowledgeHubSection: React.FC<KnowledgeHubProps> = ({
 // ----------------------------------------------------------------------------
 interface JsmSectionProps {
   bundle: CareBridgeWorkspaceBundle;
+  isAuthenticated?: boolean;
+  serverFollowUpConsent?: CareBridgeFollowUpConsentRecord | null;
   defaultSiteUrl?: string;
   defaultServiceDeskId?: string;
   defaultRequestTypeId?: string;
@@ -261,6 +270,8 @@ interface JsmSectionProps {
   verificationReport?: CareBridgeVerificationReport | null;
   verifyingConnection?: boolean;
   onVerifyConnection?: () => Promise<CareBridgeVerificationReport | null>;
+  onFollowUpConsentAction?: (action: 'grant' | 'withdraw') => Promise<void>;
+  onRefreshServerAudit?: () => Promise<void>;
   onSyncJsmRequests: (requests: CareBridgeJsmRequest[], connected: boolean, statusMsg: string) => void;
   onCreateJsmSuccess: (request: CareBridgeJsmRequest, linkedTaskId?: string) => void;
   onLinkExistingToTask: (request: CareBridgeJsmRequest, taskId: string) => void;
@@ -269,6 +280,8 @@ interface JsmSectionProps {
 
 export const JiraServiceManagementSection: React.FC<JsmSectionProps> = ({
   bundle,
+  isAuthenticated = false,
+  serverFollowUpConsent = null,
   defaultSiteUrl = 'https://zenieverse.atlassian.net',
   defaultServiceDeskId = '2',
   defaultRequestTypeId = '5',
@@ -276,6 +289,8 @@ export const JiraServiceManagementSection: React.FC<JsmSectionProps> = ({
   verificationReport = null,
   verifyingConnection = false,
   onVerifyConnection,
+  onFollowUpConsentAction,
+  onRefreshServerAudit,
   onSyncJsmRequests,
   onCreateJsmSuccess,
   onLinkExistingToTask,
@@ -291,13 +306,242 @@ export const JiraServiceManagementSection: React.FC<JsmSectionProps> = ({
   const [testRequestConfirmed, setTestRequestConfirmed] = useState(false);
   const [sendingTestRequest, setSendingTestRequest] = useState(false);
   const [createdTestRequest, setCreatedTestRequest] = useState<CareBridgeJsmRequest | null>(null);
+  const [readBackTestRequest, setReadBackTestRequest] = useState<CareBridgeJsmRequest | null>(null);
   const [lookupKey, setLookupKey] = useState('');
   const [loadingDesks, setLoadingDesks] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<{ kind: 'ok' | 'warn'; text: string } | null>(null);
   const [linkSelectByIssue, setLinkSelectByIssue] = useState<Record<string, string>>({});
 
+  // Post-Submission Follow-Up Workspace state (defaults to verified baseline request CR2-1)
+  const [followUpKey, setFollowUpKey] = useState('CR2-1');
+  const [followUpStatusResult, setFollowUpStatusResult] = useState<CareBridgeFollowUpStatusResult | null>(null);
+  const [followUpUiState, setFollowUpUiState] = useState<CareBridgeFollowUpUiState>(
+    connectionDisplayStatus === 'Connected' ? 'Connected' : 'Verification unavailable'
+  );
+  const [followUpBusy, setFollowUpBusy] = useState(false);
+  const [followUpFeedback, setFollowUpFeedback] = useState<{ kind: 'ok' | 'warn'; text: string } | null>(null);
+  const [followUpActionType, setFollowUpActionType] = useState<CareBridgeFollowUpActionType>('comment');
+  const [followUpBodyText, setFollowUpBodyText] = useState('');
+  const [followUpSummaryUpdate, setFollowUpSummaryUpdate] = useState('');
+  const [followUpTransitionId, setFollowUpTransitionId] = useState('');
+  const [followUpPreview, setFollowUpPreview] = useState<CareBridgeFollowUpActionPreview | null>(null);
+  const [followUpApproved, setFollowUpApproved] = useState(false);
+  const [followUpExecResult, setFollowUpExecResult] = useState<CareBridgeFollowUpActionResult | null>(null);
+  const [followUpAiDraft, setFollowUpAiDraft] = useState<{
+    unverifiedBanner: string;
+    nonClinicalNotice: string;
+    statusExplanation: string;
+    draftFollowUpMessage: string;
+    missingAdminInfo: string[];
+    generatedBy: string;
+  } | null>(null);
+  const [loadingFollowUpAi, setLoadingFollowUpAi] = useState(false);
+
   const minimization = checkCareBridgeDataMinimization(`${summary} ${description}`);
+  const followUpConsentGranted = serverFollowUpConsent
+    ? serverFollowUpConsent.granted
+    : bundle.consents.jsmMinimalSyncConsent;
+  const followUpPhiPreviewCheck = checkCareBridgeDataMinimization(
+    followUpActionType === 'field_update' ? followUpSummaryUpdate : followUpBodyText
+  );
+
+  const authHeaders = async (): Promise<Record<string, string> | null> => {
+    const token = await getFirebaseIdToken();
+    if (!token) return null;
+    return {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    };
+  };
+
+  const handleRefreshFollowUpStatus = async () => {
+    setFollowUpFeedback(null);
+    const cleanKey = followUpKey.trim().toUpperCase() || 'CR2-1';
+    const headers = await authHeaders();
+    if (!headers) {
+      setFollowUpUiState('Follow-up blocked');
+      setFollowUpFeedback({
+        kind: 'warn',
+        text: 'Sign in with your Dr. T account so the server can enforce per-user follow-up consent and audit logging.',
+      });
+      return;
+    }
+    setFollowUpBusy(true);
+    try {
+      const resp = await fetch(`/api/carebridge/followup/requests/${encodeURIComponent(cleanKey)}`, {
+        headers: { Authorization: headers.Authorization },
+      });
+      const data = await resp.json();
+      if (!resp.ok) {
+        const nextState: CareBridgeFollowUpUiState =
+          data.uiState ||
+          (resp.status === 404
+            ? 'Request not found'
+            : data.code === 'FOLLOWUP_CONSENT_REQUIRED'
+              ? 'Consent required'
+              : resp.status === 401 || resp.status === 403
+                ? 'Follow-up blocked'
+                : 'Verification unavailable');
+        setFollowUpUiState(nextState);
+        setFollowUpFeedback({
+          kind: 'warn',
+          text: `${nextState}: ${data.error || `HTTP ${resp.status}`}`,
+        });
+        onLogAudit('jsm', 'followup_status_check_blocked', resp.status === 403 ? 'blocked' : 'error', `${cleanKey}: ${nextState}`);
+        if (onRefreshServerAudit) void onRefreshServerAudit();
+        return;
+      }
+      const res = data as CareBridgeFollowUpStatusResult;
+      setFollowUpStatusResult(res);
+      setFollowUpUiState(res.uiState);
+      if (res.availableTransitions && res.availableTransitions.length > 0 && !followUpTransitionId) {
+        setFollowUpTransitionId(res.availableTransitions[0].id);
+      }
+      setFollowUpFeedback({
+        kind: 'ok',
+        text: `Verified ${res.requestKey} (${res.lastVerifiedStatus}) via read-only JSM check.`,
+      });
+      onLogAudit('jsm', 'followup_status_refreshed', 'allowed', `Checked ${res.requestKey}: ${res.lastVerifiedStatus}`);
+      if (onRefreshServerAudit) void onRefreshServerAudit();
+    } catch {
+      setFollowUpUiState('Verification unavailable');
+      setFollowUpFeedback({
+        kind: 'warn',
+        text: 'Verification unavailable — could not reach CareBridge follow-up endpoint.',
+      });
+    } finally {
+      setFollowUpBusy(false);
+    }
+  };
+
+  const handlePreviewFollowUpAction = async () => {
+    setFollowUpFeedback(null);
+    setFollowUpPreview(null);
+    setFollowUpApproved(false);
+    setFollowUpExecResult(null);
+    const cleanKey = followUpKey.trim().toUpperCase() || 'CR2-1';
+    const headers = await authHeaders();
+    if (!headers) {
+      setFollowUpFeedback({ kind: 'warn', text: 'Sign in with your Dr. T account before previewing a follow-up action.' });
+      return;
+    }
+    setFollowUpBusy(true);
+    try {
+      const resp = await fetch('/api/carebridge/followup/actions/preview', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          requestKey: cleanKey,
+          actionType: followUpActionType,
+          bodyText: followUpActionType === 'comment' || followUpActionType === 'notification' ? followUpBodyText : undefined,
+          summaryUpdate: followUpActionType === 'field_update' ? followUpSummaryUpdate : undefined,
+          transitionId: followUpActionType === 'transition' ? followUpTransitionId : undefined,
+        }),
+      });
+      const data = await resp.json();
+      if (!resp.ok || !data.preview) {
+        if (data.code === 'FOLLOWUP_CONSENT_REQUIRED') setFollowUpUiState('Consent required');
+        setFollowUpFeedback({
+          kind: 'warn',
+          text: data.error || `Preview blocked (HTTP ${resp.status}).`,
+        });
+        if (onRefreshServerAudit) void onRefreshServerAudit();
+        return;
+      }
+      setFollowUpPreview(data.preview as CareBridgeFollowUpActionPreview);
+      setFollowUpFeedback({
+        kind: 'ok',
+        text: `Preview ${data.preview.previewId} passed PHI scan. Inspect exact payload and confirm human approval to submit.`,
+      });
+      if (onRefreshServerAudit) void onRefreshServerAudit();
+    } catch {
+      setFollowUpFeedback({ kind: 'warn', text: 'Failed to generate follow-up action preview.' });
+    } finally {
+      setFollowUpBusy(false);
+    }
+  };
+
+  const handleExecuteFollowUpAction = async () => {
+    if (!followUpPreview || !followUpApproved) return;
+    setFollowUpFeedback(null);
+    const headers = await authHeaders();
+    if (!headers) {
+      setFollowUpFeedback({ kind: 'warn', text: 'Sign in with your Dr. T account to execute approved actions.' });
+      return;
+    }
+    setFollowUpBusy(true);
+    try {
+      const resp = await fetch('/api/carebridge/followup/actions/execute', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          previewId: followUpPreview.previewId,
+          idempotencyKey: followUpPreview.previewId,
+          requestKey: followUpPreview.requestKey,
+          actionType: followUpPreview.actionType,
+          bodyText: followUpActionType === 'comment' || followUpActionType === 'notification' ? followUpBodyText : undefined,
+          summaryUpdate: followUpActionType === 'field_update' ? followUpSummaryUpdate : undefined,
+          transitionId: followUpActionType === 'transition' ? followUpTransitionId : undefined,
+          humanApproved: true,
+        }),
+      });
+      const data = await resp.json();
+      if (!resp.ok || !data.result) {
+        setFollowUpFeedback({ kind: 'warn', text: data.error || `Follow-up execution failed (HTTP ${resp.status}).` });
+        if (onRefreshServerAudit) void onRefreshServerAudit();
+        return;
+      }
+      const res = data.result as CareBridgeFollowUpActionResult;
+      setFollowUpExecResult(res);
+      setFollowUpApproved(false);
+      setFollowUpPreview(null);
+      setFollowUpFeedback({
+        kind: 'ok',
+        text: res.duplicatePrevented ? `Duplicate prevented: ${res.message}` : res.message,
+      });
+      if (onRefreshServerAudit) void onRefreshServerAudit();
+    } catch {
+      setFollowUpFeedback({ kind: 'warn', text: 'Follow-up execution request failed safely.' });
+    } finally {
+      setFollowUpBusy(false);
+    }
+  };
+
+  const handleDraftFollowUpAi = async () => {
+    setFollowUpFeedback(null);
+    const headers = await authHeaders();
+    if (!headers) {
+      setFollowUpFeedback({ kind: 'warn', text: 'Sign in with your Dr. T account to prepare a server-logged sanitized AI draft.' });
+      return;
+    }
+    setLoadingFollowUpAi(true);
+    try {
+      const resp = await fetch('/api/carebridge/followup/ai-summary', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          requestKey: followUpKey.trim().toUpperCase() || 'CR2-1',
+          currentStatus: followUpStatusResult?.lastVerifiedStatus || 'To Do',
+          summary: followUpStatusResult?.summary || '[CAREBRIDGE TEST] Synthetic integration verification — no patient data',
+          geminiConsentGranted: bundle.consents.geminiSynthesisConsent,
+          tasks: bundle.tasks,
+        }),
+      });
+      const data = await resp.json();
+      if (!resp.ok || !data.draft) {
+        setFollowUpFeedback({ kind: 'warn', text: data.error || `AI draft unavailable (HTTP ${resp.status}).` });
+        if (onRefreshServerAudit) void onRefreshServerAudit();
+        return;
+      }
+      setFollowUpAiDraft(data.draft);
+      if (onRefreshServerAudit) void onRefreshServerAudit();
+    } catch {
+      setFollowUpFeedback({ kind: 'warn', text: 'Could not prepare sanitized follow-up draft.' });
+    } finally {
+      setLoadingFollowUpAi(false);
+    }
+  };
 
   const handleLoadDesksAndRequests = async () => {
     setFeedback(null);
@@ -455,8 +699,30 @@ export const JiraServiceManagementSection: React.FC<JsmSectionProps> = ({
     }
   };
 
+  const syntheticSummary = '[CAREBRIDGE TEST] Synthetic integration verification — no patient data';
+  const syntheticDescription =
+    'This is a controlled CareBridge integration test using entirely synthetic information. It contains no real patient information, diagnosis, medical record number, contact details or clinical measurements. The purpose is to verify that CareBridge can submit a request to Jira Service Management and retrieve its confirmation. Please do not treat this as a genuine patient support request.';
+  const syntheticServiceDeskId = verificationReport?.expectedServiceDeskId || defaultServiceDeskId || '2';
+  const syntheticRequestTypeId = verificationReport?.expectedRequestTypeId || defaultRequestTypeId || '5';
+  const syntheticPayloadPreview = {
+    serviceDeskId: syntheticServiceDeskId,
+    requestTypeId: syntheticRequestTypeId,
+    requestFieldValues: {
+      summary: syntheticSummary,
+      description: syntheticDescription,
+    },
+  };
+  const syntheticPhiCheck = checkCareBridgeDataMinimization(`${syntheticSummary} ${syntheticDescription}`);
+
   const handleSendAuthorizedTestRequest = async () => {
     setFeedback(null);
+    if (createdTestRequest || sendingTestRequest) {
+      setFeedback({
+        kind: 'warn',
+        text: `Duplicate test submission prevented (${createdTestRequest?.issueKey || 'request in flight'}).`,
+      });
+      return;
+    }
     if (!verificationReport?.allChecksPassed) {
       setFeedback({
         kind: 'warn',
@@ -464,8 +730,8 @@ export const JiraServiceManagementSection: React.FC<JsmSectionProps> = ({
       });
       return;
     }
-    if (!bundle.consents.jsmMinimalSyncConsent || !testRequestConfirmed) {
-      const msg = 'Enable JSM consent in Privacy and Consent and check explicit test-request confirmation first.';
+    if (!bundle.consents.jsmMinimalSyncConsent || !testRequestConfirmed || !syntheticPhiCheck.safe) {
+      const msg = 'Enable JSM consent in Privacy and Consent, pass PHI scan, and check explicit confirmation first.';
       setFeedback({ kind: 'warn', text: msg });
       onLogAudit('jsm', 'jsm_authorized_test_blocked', 'blocked', msg);
       return;
@@ -477,11 +743,11 @@ export const JiraServiceManagementSection: React.FC<JsmSectionProps> = ({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           siteUrl: defaultSiteUrl,
-          serviceDeskId: verificationReport.expectedServiceDeskId || defaultServiceDeskId,
-          requestTypeId: verificationReport.expectedRequestTypeId || defaultRequestTypeId,
-          summary: 'CareBridge Authorized Integration Verification Request (Non-Clinical)',
-          minimalNote:
-            'Explicitly user-confirmed administrative connectivity test from Dr. T CareBridge. Contains no patient or clinical data.',
+          serviceDeskId: syntheticServiceDeskId,
+          requestTypeId: syntheticRequestTypeId,
+          summary: syntheticSummary,
+          minimalNote: syntheticDescription,
+          description: syntheticDescription,
           jsmConsentGranted: true,
           userConfirmed: true,
         }),
@@ -497,15 +763,31 @@ export const JiraServiceManagementSection: React.FC<JsmSectionProps> = ({
       setCreatedTestRequest(created);
       onCreateJsmSuccess(created);
       setTestRequestConfirmed(false);
+
+      // Single read-back check (no retry POSTs)
+      let verifiedStatus = created.status;
+      try {
+        const readResp = await fetch(
+          `/api/carebridge/atlassian/jsm/requests/${encodeURIComponent(created.issueKey)}`
+        );
+        const readData = await readResp.json();
+        if (readResp.ok && readData.request) {
+          setReadBackTestRequest(readData.request as CareBridgeJsmRequest);
+          verifiedStatus = readData.request.status || created.status;
+        }
+      } catch {
+        // Keep created record if read-back lookup encounters a transient error
+      }
+
       onLogAudit(
         'jsm',
         'jsm_authorized_test_created',
         'allowed',
-        `Created explicitly confirmed test request ${created.issueKey} on Desk ${created.serviceDeskId} (Type ${created.requestTypeId}).`
+        `Created explicitly confirmed synthetic test request ${created.issueKey} on Desk ${created.serviceDeskId} (Type ${created.requestTypeId}, status: ${verifiedStatus}).`
       );
       setFeedback({
         kind: 'ok',
-        text: `Authorized test request ${created.issueKey} created (${created.status}).`,
+        text: `Synthetic test request ${created.issueKey} created and read back (${verifiedStatus}).`,
       });
     } catch (err: any) {
       const msg = err?.message || 'Unable to submit authorized test request.';
@@ -589,67 +871,432 @@ export const JiraServiceManagementSection: React.FC<JsmSectionProps> = ({
         )}
       </div>
 
+      {/* Post-Submission Follow-Up Workspace (CR2-1 Tracker & Human-Controlled Actions) */}
+      <div className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+          <div>
+            <div className="flex flex-wrap items-center gap-2">
+              <h3 className="text-base font-bold text-slate-900">
+                Post-Submission Follow-Up Workspace
+              </h3>
+              <span
+                className={`px-2.5 py-0.5 rounded-md text-xs font-semibold border ${
+                  followUpUiState === 'Follow-up available' || followUpUiState === 'Connected'
+                    ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                    : followUpUiState === 'Consent required'
+                      ? 'bg-amber-50 border-amber-200 text-amber-900'
+                      : followUpUiState === 'Request not found' || followUpUiState === 'Follow-up blocked'
+                        ? 'bg-rose-50 border-rose-200 text-rose-800'
+                        : 'bg-slate-100 border-slate-200 text-slate-700'
+                }`}
+              >
+                {followUpUiState}
+              </span>
+            </div>
+            <p className="text-xs text-slate-600 mt-1">
+              Tracks verified request <span className="font-mono font-semibold">{followUpKey}</span> in{' '}
+              <span className="font-mono">CR2</span> (CareBridge2, Desk 2, Type 5). Read-only status checks stay strictly separate from human-approved actions.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            {onFollowUpConsentAction && (
+              <button
+                type="button"
+                onClick={() => void onFollowUpConsentAction(followUpConsentGranted ? 'withdraw' : 'grant')}
+                className={`min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-semibold border cursor-pointer ${
+                  followUpConsentGranted
+                    ? 'border-amber-300 bg-amber-50 text-amber-950 hover:bg-amber-100'
+                    : 'border-teal-600 bg-teal-700 text-white hover:bg-teal-800'
+                }`}
+              >
+                {followUpConsentGranted ? 'Withdraw Follow-Up Consent' : 'Grant Follow-Up Consent'}
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Tracked Request Summary Strip */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs">
+          <div>
+            <div className="text-slate-500 font-medium">Request Key &amp; Destination</div>
+            <div className="mt-1 font-semibold text-slate-900 font-mono">
+              {followUpStatusResult?.requestKey || followUpKey} ·{' '}
+              {followUpStatusResult?.destinationProjectKey || 'CR2'} (Desk{' '}
+              {followUpStatusResult?.serviceDeskId || defaultServiceDeskId})
+            </div>
+            <a
+              href={
+                followUpStatusResult?.requestUrl ||
+                `${defaultSiteUrl}/servicedesk/customer/portal/${defaultServiceDeskId}/${encodeURIComponent(
+                  followUpKey || 'CR2-1'
+                )}`
+              }
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-teal-700 font-semibold hover:underline mt-0.5"
+            >
+              <span>Open in JSM Portal</span>
+              <ExternalLink className="w-3 h-3" />
+            </a>
+          </div>
+          <div>
+            <div className="text-slate-500 font-medium">Request Type &amp; Verified Status</div>
+            <div className="mt-1 font-semibold text-slate-900">
+              {followUpStatusResult?.requestTypeName || 'Submit a request or incident'} (ID{' '}
+              {followUpStatusResult?.requestTypeId || defaultRequestTypeId})
+            </div>
+            <div className="mt-0.5 text-slate-700">
+              Status:{' '}
+              <span className="font-mono font-bold text-slate-900">
+                {followUpStatusResult?.lastVerifiedStatus || 'To Do (Verified Baseline)'}
+              </span>
+              {followUpStatusResult?.statusChanged && followUpStatusResult.previousVerifiedStatus && (
+                <span className="ml-1.5 text-teal-800 font-semibold">
+                  (Updated from {followUpStatusResult.previousVerifiedStatus})
+                </span>
+              )}
+            </div>
+          </div>
+          <div>
+            <div className="text-slate-500 font-medium">Consent &amp; Last Checked</div>
+            <div className="mt-1 font-semibold text-slate-900">
+              Consent:{' '}
+              {followUpConsentGranted ? 'Granted (cb-jsm-followup-v1)' : 'Disabled / Required'}
+            </div>
+            <div className="mt-0.5 font-mono text-[11px] text-slate-600 tabular-nums">
+              {followUpStatusResult?.lastCheckedAt || 'Baseline verified (To Do)'}
+            </div>
+          </div>
+        </div>
+
+        {/* Read-Only Lookup + Status Refresh & AI Draft (Zero writes) */}
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2.5">
+          <input
+            type="text"
+            aria-label="Tracked follow-up request key"
+            value={followUpKey}
+            onChange={(e) => setFollowUpKey(e.target.value.toUpperCase())}
+            placeholder="CR2-1"
+            className="sm:w-40 min-h-[44px] px-3 py-2 rounded-xl border border-slate-300 text-sm font-mono text-slate-900"
+          />
+          <button
+            type="button"
+            disabled={followUpBusy}
+            onClick={() => void handleRefreshFollowUpStatus()}
+            className="min-h-[44px] px-4 py-2 rounded-xl bg-teal-700 hover:bg-teal-800 disabled:opacity-50 text-white text-xs font-semibold inline-flex items-center gap-2 cursor-pointer"
+          >
+            <RefreshCw className={`w-4 h-4 ${followUpBusy ? 'animate-spin' : ''}`} />
+            <span>{followUpBusy ? 'Checking Status...' : 'Refresh Request Status (Read-Only)'}</span>
+          </button>
+          <button
+            type="button"
+            disabled={loadingFollowUpAi}
+            onClick={() => void handleDraftFollowUpAi()}
+            className="min-h-[44px] px-4 py-2 rounded-xl border border-slate-300 hover:bg-slate-50 disabled:opacity-50 text-xs font-semibold text-slate-800 inline-flex items-center gap-2 cursor-pointer"
+          >
+            <Bot className="w-4 h-4 text-teal-700" />
+            <span>{loadingFollowUpAi ? 'Drafting...' : 'Prepare Sanitized AI Draft'}</span>
+          </button>
+        </div>
+
+        {followUpAiDraft && (
+          <div className="p-4 rounded-xl bg-amber-50/70 border border-amber-200 space-y-2 text-xs">
+            <div className="font-bold text-amber-950">{followUpAiDraft.unverifiedBanner}</div>
+            <div className="text-slate-700">{followUpAiDraft.nonClinicalNotice}</div>
+            <div className="p-3 rounded-lg bg-white border border-amber-200 space-y-1">
+              <div className="font-semibold text-slate-900">Status Explanation:</div>
+              <p className="text-slate-700">{followUpAiDraft.statusExplanation}</p>
+              <div className="font-semibold text-slate-900 pt-1">Draft Administrative Note (Requires Human Review):</div>
+              <p className="text-slate-700 font-mono text-[11px]">{followUpAiDraft.draftFollowUpMessage}</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setFollowUpActionType('comment');
+                setFollowUpBodyText(followUpAiDraft.draftFollowUpMessage);
+                setFollowUpPreview(null);
+                setFollowUpApproved(false);
+              }}
+              className="min-h-[44px] px-3 py-1.5 rounded-lg border border-amber-300 bg-white hover:bg-amber-50 text-xs font-semibold text-amber-950 cursor-pointer"
+            >
+              Copy Draft into Human-Reviewed Comment Field
+            </button>
+          </div>
+        )}
+
+        {/* Separated State-Changing Follow-Up Actions (Preview + PHI Scan -> Human Approval -> Execute) */}
+        <div className="border-t border-slate-200 pt-4 space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="text-xs font-bold uppercase tracking-wider text-slate-700">
+              Human-Controlled Follow-Up Action (Preview &amp; Explicit Approval Required)
+            </div>
+            <span className="text-xs text-slate-500">
+              {isAuthenticated ? 'Authenticated session' : 'Sign in required for server writes'}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <label className="block space-y-1">
+              <span className="text-xs font-semibold text-slate-700">Authorized Action Type</span>
+              <select
+                value={followUpActionType}
+                onChange={(e) => {
+                  setFollowUpActionType(e.target.value as CareBridgeFollowUpActionType);
+                  setFollowUpPreview(null);
+                  setFollowUpApproved(false);
+                }}
+                className="w-full min-h-[44px] px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white"
+              >
+                <option value="comment">Add Internal Follow-Up Comment</option>
+                <option value="notification">Send Public Request Notification</option>
+                <option value="transition">Transition Request Workflow Status</option>
+                <option value="field_update">Update Administrative Summary Field</option>
+              </select>
+            </label>
+
+            <div className="sm:col-span-2">
+              {(followUpActionType === 'comment' || followUpActionType === 'notification') && (
+                <label className="block space-y-1">
+                  <span className="text-xs font-semibold text-slate-700">Administrative Follow-Up Text (No PHI)</span>
+                  <input
+                    type="text"
+                    value={followUpBodyText}
+                    onChange={(e) => {
+                      setFollowUpBodyText(e.target.value);
+                      setFollowUpPreview(null);
+                      setFollowUpApproved(false);
+                    }}
+                    placeholder="e.g. Requesting administrative update on scheduling window."
+                    className="w-full min-h-[44px] px-3 py-2 rounded-xl border border-slate-300 text-sm"
+                  />
+                </label>
+              )}
+              {followUpActionType === 'field_update' && (
+                <label className="block space-y-1">
+                  <span className="text-xs font-semibold text-slate-700">Updated Administrative Summary</span>
+                  <input
+                    type="text"
+                    value={followUpSummaryUpdate}
+                    onChange={(e) => {
+                      setFollowUpSummaryUpdate(e.target.value);
+                      setFollowUpPreview(null);
+                      setFollowUpApproved(false);
+                    }}
+                    placeholder="Updated non-clinical request summary"
+                    className="w-full min-h-[44px] px-3 py-2 rounded-xl border border-slate-300 text-sm"
+                  />
+                </label>
+              )}
+              {followUpActionType === 'transition' && (
+                <label className="block space-y-1">
+                  <span className="text-xs font-semibold text-slate-700">Available Jira Workflow Transition</span>
+                  {followUpStatusResult?.availableTransitions && followUpStatusResult.availableTransitions.length > 0 ? (
+                    <select
+                      value={followUpTransitionId}
+                      onChange={(e) => {
+                        setFollowUpTransitionId(e.target.value);
+                        setFollowUpPreview(null);
+                        setFollowUpApproved(false);
+                      }}
+                      className="w-full min-h-[44px] px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white"
+                    >
+                      {followUpStatusResult.availableTransitions.map((t) => (
+                        <option key={t.id} value={t.id}>
+                          {t.id} · {t.name}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <input
+                      type="text"
+                      value={followUpTransitionId}
+                      onChange={(e) => setFollowUpTransitionId(e.target.value)}
+                      placeholder="Numeric Transition ID (refresh status first)"
+                      className="w-full min-h-[44px] px-3 py-2 rounded-xl border border-slate-300 text-sm font-mono"
+                    />
+                  )}
+                </label>
+              )}
+            </div>
+          </div>
+
+          {!followUpPhiPreviewCheck.safe && (
+            <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-900">
+              <strong>Client PHI Guard Block:</strong> {followUpPhiPreviewCheck.warnings.join(' ')}
+            </div>
+          )}
+
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              disabled={followUpBusy || !followUpConsentGranted}
+              onClick={() => void handlePreviewFollowUpAction()}
+              className="min-h-[44px] px-4 py-2 rounded-xl border border-slate-300 hover:bg-slate-50 disabled:opacity-50 text-xs font-semibold text-slate-900 cursor-pointer"
+            >
+              Step 1 · Run Server PHI Scan &amp; Preview Payload
+            </button>
+          </div>
+
+          {followUpPreview && (
+            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3 text-xs">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <span className="font-bold uppercase tracking-wider text-slate-700">
+                  Exact Payload Preview ({followUpPreview.previewId})
+                </span>
+                <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-semibold">
+                  Server PHI Scan: PASSED
+                </span>
+              </div>
+              <pre className="p-3 rounded-lg bg-white border border-slate-200 text-[11px] font-mono text-slate-800 overflow-x-auto whitespace-pre-wrap break-words">
+                {JSON.stringify(followUpPreview.proposedPayload, null, 2)}
+              </pre>
+              <label className="flex items-start gap-2.5 text-xs text-slate-800 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={followUpApproved}
+                  onChange={(e) => setFollowUpApproved(e.target.checked)}
+                  className="mt-0.5 w-4 h-4 accent-teal-700"
+                />
+                <span>
+                  I have reviewed the exact payload above and explicitly approve executing this single{' '}
+                  <span className="font-mono">{followUpPreview.actionType}</span> action on{' '}
+                  <span className="font-mono font-semibold">{followUpPreview.requestKey}</span>.
+                </span>
+              </label>
+              <button
+                type="button"
+                disabled={followUpBusy || !followUpApproved}
+                onClick={() => void handleExecuteFollowUpAction()}
+                className="min-h-[44px] px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 disabled:opacity-50 text-white text-xs font-semibold inline-flex items-center gap-2 cursor-pointer"
+              >
+                <Send className="w-4 h-4" />
+                <span>Step 2 · Approve &amp; Execute Single Follow-Up Action</span>
+              </button>
+            </div>
+          )}
+
+          {followUpExecResult && (
+            <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-950">
+              {followUpExecResult.message} (Correlation: <span className="font-mono">{followUpExecResult.correlationId}</span>)
+            </div>
+          )}
+
+          {followUpFeedback && (
+            <div
+              className={`p-3 rounded-xl text-xs font-medium border ${
+                followUpFeedback.kind === 'ok'
+                  ? 'bg-teal-50 border-teal-200 text-teal-900'
+                  : 'bg-amber-50 border-amber-200 text-amber-900'
+              }`}
+            >
+              {followUpFeedback.text}
+            </div>
+          )}
+        </div>
+      </div>
+
       {/* Explicitly Authorized Test-Request Workflow (Gated until all read-only checks pass) */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 space-y-3">
+      <div className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div>
-            <h3 className="text-base font-bold text-slate-900">Authorized Test-Request Workflow</h3>
+            <h3 className="text-base font-bold text-slate-900">Controlled Synthetic JSM Test Request</h3>
             <p className="text-xs text-slate-600">
-              Unlocked only after all read-only checks report Connected. Creates a single non-clinical administrative request only upon explicit confirmation.
+              Destination: <span className="font-mono font-semibold">CR2</span> (CareBridge2, Service Desk {syntheticServiceDeskId}) · Request type:{' '}
+              <span className="font-semibold">Submit a request or incident</span> (ID {syntheticRequestTypeId})
             </p>
           </div>
           <span
             className={`px-2.5 py-1 rounded-md text-xs font-semibold shrink-0 ${
-              verificationReport?.allChecksPassed
+              createdTestRequest
                 ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
-                : 'bg-slate-100 text-slate-600 border border-slate-200'
+                : verificationReport?.allChecksPassed
+                  ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                  : 'bg-slate-100 text-slate-600 border border-slate-200'
             }`}
           >
-            {verificationReport?.allChecksPassed ? 'Ready for Confirmation' : 'Locked Until Connected'}
+            {createdTestRequest
+              ? `Submitted (${createdTestRequest.issueKey})`
+              : verificationReport?.allChecksPassed
+                ? 'Ready for Human Approval'
+                : 'Locked Until Connected'}
           </span>
+        </div>
+
+        <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2 text-xs">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <span className="font-bold uppercase tracking-wider text-slate-700">Exact JSON Payload Preview</span>
+            <span
+              className={`px-2 py-0.5 rounded font-semibold ${
+                syntheticPhiCheck.safe
+                  ? 'bg-emerald-100 text-emerald-800'
+                  : 'bg-rose-100 text-rose-800'
+              }`}
+            >
+              PHI Scan: {syntheticPhiCheck.safe ? 'PASSED (No PHI/Clinical Patterns)' : 'BLOCKED'}
+            </span>
+          </div>
+          <pre className="p-3 rounded-lg bg-white border border-slate-200 text-[11px] font-mono text-slate-800 overflow-x-auto whitespace-pre-wrap break-words">
+            {JSON.stringify(syntheticPayloadPreview, null, 2)}
+          </pre>
         </div>
 
         <label className="flex items-start gap-2.5 text-xs text-slate-700 cursor-pointer">
           <input
             type="checkbox"
             checked={testRequestConfirmed}
-            disabled={!verificationReport?.allChecksPassed}
+            disabled={!verificationReport?.allChecksPassed || Boolean(createdTestRequest)}
             onChange={(e) => setTestRequestConfirmed(e.target.checked)}
             className="mt-0.5 w-4 h-4 accent-teal-700"
           />
           <span>
-            I explicitly authorize sending one minimal, non-clinical verification test request to{' '}
-            <span className="font-mono">{defaultSiteUrl}</span> (Desk {defaultServiceDeskId} / CR2, Type {defaultRequestTypeId}: Submit a request or incident).
+            I approve sending this exact single synthetic test request to <span className="font-mono">CR2</span> ({defaultSiteUrl}, Request Type{' '}
+            {syntheticRequestTypeId}: Submit a request or incident).
           </span>
         </label>
 
         <div className="flex flex-wrap items-center justify-between gap-3">
           {createdTestRequest ? (
-            <a
-              href={createdTestRequest.requestUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs font-semibold text-teal-700 hover:underline inline-flex items-center gap-1"
-            >
-              <span>Created {createdTestRequest.issueKey} ({createdTestRequest.status})</span>
-              <ExternalLink className="w-3.5 h-3.5" />
-            </a>
+            <div className="text-xs space-y-0.5">
+              <a
+                href={(readBackTestRequest || createdTestRequest).requestUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold text-teal-700 hover:underline inline-flex items-center gap-1"
+              >
+                <span>
+                  Open {createdTestRequest.issueKey} in JSM ({(readBackTestRequest || createdTestRequest).status})
+                </span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </a>
+              <div className="text-slate-600">
+                Read-back verified: {readBackTestRequest ? `${readBackTestRequest.issueKey} (${readBackTestRequest.status})` : 'Initial create response confirmed'}
+              </div>
+            </div>
           ) : (
-            <span className="text-xs text-slate-500">No test request sent in this session.</span>
+            <span className="text-xs text-slate-500">Awaiting explicit human approval (no automatic submission).</span>
           )}
           <button
             type="button"
             onClick={handleSendAuthorizedTestRequest}
             disabled={
               sendingTestRequest ||
+              Boolean(createdTestRequest) ||
               !verificationReport?.allChecksPassed ||
               !testRequestConfirmed ||
+              !syntheticPhiCheck.safe ||
               !bundle.consents.jsmMinimalSyncConsent
             }
             className="min-h-[44px] px-4 py-2 rounded-xl bg-teal-700 hover:bg-teal-800 disabled:opacity-50 text-white text-xs font-semibold inline-flex items-center gap-2 cursor-pointer"
           >
             <Send className="w-4 h-4" />
-            <span>{sendingTestRequest ? 'Sending Test Request...' : 'Confirm & Send Authorized Test Request'}</span>
+            <span>
+              {sendingTestRequest
+                ? 'Submitting Test Request...'
+                : createdTestRequest
+                  ? `Submitted (${createdTestRequest.issueKey})`
+                  : 'Approve and Submit One Synthetic Test Request'}
+            </span>
           </button>
         </div>
       </div>

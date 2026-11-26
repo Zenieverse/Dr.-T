@@ -8,16 +8,18 @@
 import {
   CareBridgeConfluencePage,
   CareBridgeConnectionDisplayStatus,
+  CareBridgeFollowUpActionType,
   CareBridgeJsmRequest,
   CareBridgeJsmServiceDesk,
   CareBridgeVerificationCheckItem,
   CareBridgeVerificationReport,
 } from '../types/carebridgeTypes';
+import { scanAndRedactCareBridgePhi } from '../utils/carebridgePhiGuard';
 
 export class CareBridgeBoundaryError extends Error {
-  public readonly statusCode: 400 | 401 | 403 | 502 | 503;
+  public readonly statusCode: 400 | 401 | 403 | 404 | 502 | 503 | 504;
   public readonly code: string;
-  constructor(statusCode: 400 | 401 | 403 | 502 | 503, code: string, message: string) {
+  constructor(statusCode: 400 | 401 | 403 | 404 | 502 | 503 | 504, code: string, message: string) {
     super(message);
     this.name = 'CareBridgeBoundaryError';
     this.statusCode = statusCode;
@@ -54,13 +56,10 @@ export function sanitizeCareBridgeErrorText(raw: string): string {
     .slice(0, 260);
 }
 
-// Detects overt sensitive clinical/PHI patterns before transmitting to JSM by default
-const SENSITIVE_PHI_PATTERNS: Array<{ pattern: RegExp; reason: string }> = [
-  { pattern: /\b\d{3}-\d{2}-\d{4}\b/, reason: 'SSN-formatted identifier' },
-  { pattern: /\b(?:mrn|medical record(?: number)?)\s*[:#-]?\s*[a-z0-9-]{4,}/i, reason: 'Medical Record Number (MRN)' },
-  { pattern: /\b(?:dob|date of birth)\s*[:#-]?\s*\d{1,4}[/-]\d{1,2}[/-]\d{1,4}/i, reason: 'Date of Birth (DOB)' },
-  { pattern: /\b(?:diagnosed with|diagnosis of|prescription for|dosage|mg\/dl|hba1c\s*\d|ferritin\s*\d|bp\s*\d{2,3}\/\d{2,3})\b/i, reason: 'Clinical lab/diagnosis detail' },
-];
+// Shared deterministic PHI detection before transmitting to JSM by default
+export function checkCareBridgeServerPhi(rawText: string) {
+  return scanAndRedactCareBridgePhi(rawText);
+}
 
 export function validateCareBridgeSiteUrl(rawUrl?: string | null): string | null {
   if (!rawUrl || typeof rawUrl !== 'string') return null;
@@ -161,15 +160,13 @@ export function minimizePayloadForJsm(params: {
   }
 
   if (!params.allowClinicalReferenceOverride) {
-    const combined = `${summary} ${minimalNote}`;
-    for (const check of SENSITIVE_PHI_PATTERNS) {
-      if (check.pattern.test(combined)) {
-        throw new CareBridgeBoundaryError(
-          403,
-          'PHI_MINIMIZATION_BLOCKED',
-          `CareBridge blocked transmission containing potential sensitive health/identifying details (${check.reason}). Use minimal administrative coordination wording instead.`
-        );
-      }
+    const phiScan = scanAndRedactCareBridgePhi(`${summary} ${minimalNote}`);
+    if (!phiScan.safe) {
+      throw new CareBridgeBoundaryError(
+        403,
+        'PHI_MINIMIZATION_BLOCKED',
+        `CareBridge blocked transmission containing potential sensitive health/identifying details (${phiScan.warnings.join('; ')}). Use minimal administrative coordination wording instead.`
+      );
     }
   }
 
@@ -221,20 +218,82 @@ function assertApprovedAtlassianTarget(urlStr: string): URL {
 export async function safeAtlassianFetch(
   urlStr: string,
   init: RequestInit,
-  fetchImpl?: typeof fetch
+  fetchImpl?: typeof fetch,
+  options?: { timeoutMs?: number; maxGetRetries?: number }
 ): Promise<Response> {
   assertApprovedAtlassianTarget(urlStr);
   const f = fetchImpl || fetch;
-  const resp = await f(urlStr, { ...init, redirect: 'manual' });
-  if (resp.status >= 300 && resp.status < 400) {
-    const loc = resp.headers?.get?.('location') || '';
-    throw new CareBridgeBoundaryError(
-      400,
-      'UNAPPROVED_REDIRECT_BLOCKED',
-      `Blocked HTTP ${resp.status} redirect to prevent credential forwarding${loc ? ' off-origin' : ''}.`
-    );
+  const method = (init.method || 'GET').toUpperCase();
+  const isIdempotentGet = method === 'GET' || method === 'HEAD';
+  // NEVER retry state-changing writes automatically (prevents duplicate requests/comments on ambiguous upstream errors)
+  const maxAttempts = isIdempotentGet ? 1 + Math.max(0, Math.min(options?.maxGetRetries ?? 1, 2)) : 1;
+  const timeoutMs = Math.max(100, Math.min(options?.timeoutMs ?? 12_000, 30_000));
+
+  let lastErr: unknown = null;
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    const controller = new AbortController();
+    let timedOut = false;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    try {
+      const fetchPromise = f(urlStr, { ...init, redirect: 'manual', signal: controller.signal });
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        timer = setTimeout(() => {
+          timedOut = true;
+          reject(
+            new CareBridgeBoundaryError(
+              504,
+              'ATLASSIAN_TIMEOUT',
+              'Atlassian API request timed out without response.'
+            )
+          );
+          controller.abort();
+        }, timeoutMs);
+      });
+
+      const resp = await Promise.race([fetchPromise, timeoutPromise]);
+      if (resp.status >= 300 && resp.status < 400) {
+        const loc = resp.headers?.get?.('location') || '';
+        throw new CareBridgeBoundaryError(
+          400,
+          'UNAPPROVED_REDIRECT_BLOCKED',
+          `Blocked HTTP ${resp.status} redirect to prevent credential forwarding${loc ? ' off-origin' : ''}.`
+        );
+      }
+      if (isIdempotentGet && (resp.status === 502 || resp.status === 503 || resp.status === 504) && attempt < maxAttempts) {
+        continue;
+      }
+      return resp;
+    } catch (err) {
+      if (err instanceof CareBridgeBoundaryError && err.code !== 'ATLASSIAN_TIMEOUT') {
+        throw err;
+      }
+      const normalizedErr =
+        timedOut || controller.signal.aborted
+          ? new CareBridgeBoundaryError(
+              504,
+              'ATLASSIAN_TIMEOUT',
+              'Atlassian API request timed out without response.'
+            )
+          : err;
+      lastErr = normalizedErr;
+      if (!isIdempotentGet || attempt >= maxAttempts) {
+        if (normalizedErr instanceof CareBridgeBoundaryError) throw normalizedErr;
+        throw new CareBridgeBoundaryError(
+          503,
+          'ATLASSIAN_NETWORK_ERROR',
+          `Atlassian API request failed: ${sanitizeCareBridgeErrorText(
+            normalizedErr instanceof Error ? normalizedErr.message : 'Network error'
+          )}`
+        );
+      }
+    } finally {
+      if (timer) clearTimeout(timer);
+    }
   }
-  return resp;
+
+  throw lastErr instanceof CareBridgeBoundaryError
+    ? lastErr
+    : new CareBridgeBoundaryError(503, 'ATLASSIAN_NETWORK_ERROR', 'Atlassian API unreachable.');
 }
 
 export async function fetchJsmServiceDesks(params: {
@@ -390,8 +449,15 @@ export async function fetchJsmRequestByKey(params: {
   );
 
   if (!resp.ok) {
+    if (resp.status === 404) {
+      throw new CareBridgeBoundaryError(
+        404,
+        'JSM_REQUEST_NOT_FOUND',
+        `JSM request ${cleanKey} was not found or is inaccessible.`
+      );
+    }
     throw new CareBridgeBoundaryError(
-      resp.status === 401 || resp.status === 403 ? 403 : 502,
+      resp.status === 401 ? 401 : resp.status === 403 ? 403 : 502,
       'JSM_REQUEST_LOOKUP_FAILED',
       `JSM request lookup for ${cleanKey} returned HTTP ${resp.status}.`
     );
@@ -416,6 +482,184 @@ export async function fetchJsmRequestByKey(params: {
     requestUrl: portalWebLink,
     dataOrigin: 'live_jsm',
   };
+}
+
+export async function fetchJiraIssueTransitionsReadOnly(params: {
+  config: CareBridgeAtlassianConfig;
+  issueKey: string;
+  fetchImpl?: typeof fetch;
+}): Promise<Array<{ id: string; name: string }>> {
+  const { config } = params;
+  if (config.mode === 'disconnected') return [];
+  const cleanKey = (params.issueKey || '').trim().toUpperCase();
+  if (!/^[A-Z0-9_]{1,16}-\d{1,10}$/.test(cleanKey)) return [];
+  const baseUrl = resolveJsmApiBase(config);
+  try {
+    const resp = await safeAtlassianFetch(
+      `${baseUrl}/rest/api/3/issue/${encodeURIComponent(cleanKey)}/transitions`,
+      { method: 'GET', headers: config.headers },
+      params.fetchImpl
+    );
+    if (!resp.ok) return [];
+    const data = (await resp.json()) as { transitions?: Array<{ id?: string; name?: string }> };
+    return (data.transitions || [])
+      .filter((t) => t.id && t.name)
+      .map((t) => ({ id: String(t.id), name: String(t.name) }));
+  } catch {
+    return [];
+  }
+}
+
+export async function executeJsmFollowUpActionConfirmed(params: {
+  config: CareBridgeAtlassianConfig;
+  issueKey: string;
+  actionType: CareBridgeFollowUpActionType;
+  bodyText?: string;
+  transitionId?: string;
+  summaryUpdate?: string;
+  jsmFollowUpConsentGranted: boolean;
+  humanApproved: boolean;
+  fetchImpl?: typeof fetch;
+}): Promise<{
+  requestKey: string;
+  actionType: CareBridgeFollowUpActionType;
+  verifiedAfterExecution: boolean;
+  currentStatus?: string;
+  requestUrl?: string;
+}> {
+  if (!params.jsmFollowUpConsentGranted) {
+    throw new CareBridgeBoundaryError(
+      403,
+      'FOLLOWUP_CONSENT_REQUIRED',
+      'Jira Service Management Follow-Up Consent is disabled or withdrawn.'
+    );
+  }
+  if (!params.humanApproved) {
+    throw new CareBridgeBoundaryError(
+      400,
+      'HUMAN_APPROVAL_REQUIRED',
+      'Explicit human approval is mandatory before executing any state-changing Atlassian operation.'
+    );
+  }
+  if (params.config.mode === 'disconnected') {
+    throw new CareBridgeBoundaryError(
+      401,
+      'ATLASSIAN_NOT_CONNECTED',
+      'Atlassian connection is unavailable.'
+    );
+  }
+
+  const cleanKey = (params.issueKey || '').trim().toUpperCase();
+  if (!/^[A-Z0-9_]{1,16}-\d{1,10}$/.test(cleanKey)) {
+    throw new CareBridgeBoundaryError(400, 'INVALID_ISSUE_KEY', `Invalid JSM request key "${params.issueKey}".`);
+  }
+
+  const baseUrl = resolveJsmApiBase(configFromParams(params.config));
+  const combinedText = `${params.summaryUpdate || ''} ${params.bodyText || ''}`.trim();
+  if (combinedText) {
+    const phiScan = scanAndRedactCareBridgePhi(combinedText);
+    if (!phiScan.safe) {
+      throw new CareBridgeBoundaryError(
+        403,
+        'PHI_MINIMIZATION_BLOCKED',
+        `Blocked follow-up action containing sensitive details (${phiScan.warnings.join('; ')}).`
+      );
+    }
+  }
+
+  if (params.actionType === 'comment' || params.actionType === 'notification') {
+    const cleanBody = (params.bodyText || '').replace(/\s+/g, ' ').trim().slice(0, 800);
+    if (!cleanBody) {
+      throw new CareBridgeBoundaryError(400, 'INVALID_COMMENT_BODY', 'Follow-up comment text cannot be empty.');
+    }
+    const resp = await safeAtlassianFetch(
+      `${baseUrl}/rest/servicedeskapi/request/${encodeURIComponent(cleanKey)}/comment`,
+      {
+        method: 'POST',
+        headers: params.config.headers,
+        body: JSON.stringify({
+          body: cleanBody,
+          public: params.actionType === 'notification',
+        }),
+      },
+      params.fetchImpl
+    );
+    if (!resp.ok) {
+      throw new CareBridgeBoundaryError(
+        resp.status === 401 ? 401 : resp.status === 403 ? 403 : 502,
+        'JSM_COMMENT_FAILED',
+        `JSM comment submission returned HTTP ${resp.status}.`
+      );
+    }
+  } else if (params.actionType === 'transition') {
+    const tid = (params.transitionId || '').trim();
+    if (!/^\d{1,12}$/.test(tid)) {
+      throw new CareBridgeBoundaryError(400, 'INVALID_TRANSITION_ID', 'Valid numeric workflow transition ID is required.');
+    }
+    const resp = await safeAtlassianFetch(
+      `${baseUrl}/rest/api/3/issue/${encodeURIComponent(cleanKey)}/transitions`,
+      {
+        method: 'POST',
+        headers: params.config.headers,
+        body: JSON.stringify({ transition: { id: tid } }),
+      },
+      params.fetchImpl
+    );
+    if (!resp.ok) {
+      throw new CareBridgeBoundaryError(
+        resp.status === 401 ? 401 : resp.status === 403 ? 403 : 502,
+        'JIRA_TRANSITION_FAILED',
+        `Jira transition request returned HTTP ${resp.status}.`
+      );
+    }
+  } else if (params.actionType === 'field_update') {
+    const cleanSummary = (params.summaryUpdate || '').replace(/\s+/g, ' ').trim().slice(0, 160);
+    if (!cleanSummary) {
+      throw new CareBridgeBoundaryError(400, 'INVALID_FIELD_UPDATE', 'Summary update text cannot be empty.');
+    }
+    const resp = await safeAtlassianFetch(
+      `${baseUrl}/rest/api/3/issue/${encodeURIComponent(cleanKey)}`,
+      {
+        method: 'PUT',
+        headers: params.config.headers,
+        body: JSON.stringify({ fields: { summary: cleanSummary } }),
+      },
+      params.fetchImpl
+    );
+    if (!resp.ok) {
+      throw new CareBridgeBoundaryError(
+        resp.status === 401 ? 401 : resp.status === 403 ? 403 : 502,
+        'JIRA_FIELD_UPDATE_FAILED',
+        `Jira issue field update returned HTTP ${resp.status}.`
+      );
+    }
+  }
+
+  // Verify returned result via single read-only read-back
+  try {
+    const readBack = await fetchJsmRequestByKey({
+      config: params.config,
+      issueKey: cleanKey,
+      fetchImpl: params.fetchImpl,
+    });
+    return {
+      requestKey: cleanKey,
+      actionType: params.actionType,
+      verifiedAfterExecution: true,
+      currentStatus: readBack.status,
+      requestUrl: readBack.requestUrl,
+    };
+  } catch {
+    return {
+      requestKey: cleanKey,
+      actionType: params.actionType,
+      verifiedAfterExecution: false,
+    };
+  }
+}
+
+function configFromParams(cfg: CareBridgeAtlassianConfig): CareBridgeAtlassianConfig {
+  return cfg;
 }
 
 export async function createJsmFollowUpRequestConfirmed(params: {

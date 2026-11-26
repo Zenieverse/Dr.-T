@@ -132,6 +132,8 @@ export async function loadCareBridgeWorkspace(): Promise<{
   }
 }
 
+const persistedAuditLogIds = new Set<string>();
+
 export async function saveCareBridgeWorkspace(bundle: CareBridgeWorkspaceBundle): Promise<'firestore' | 'local'> {
   const { userId, isAuthenticated } = getCareBridgeStorageOwner();
   if (typeof window !== 'undefined') {
@@ -161,14 +163,21 @@ export async function saveCareBridgeWorkspace(bundle: CareBridgeWorkspaceBundle)
       ...bundle.integration,
       userId,
     });
-    // Audit logs are append-only/immutable per security rules; write newest entry only if missing
-    if (bundle.auditLogs[0]) {
-      batch.set(doc(db, CAREBRIDGE_COLLECTIONS.auditLogs, bundle.auditLogs[0].id), {
-        ...bundle.auditLogs[0],
-        userId,
-      });
-    }
     await batch.commit();
+
+    // Audit logs are append-only/immutable per security rules; create newest entry only once outside mutable batch
+    const newestAudit = bundle.auditLogs[0];
+    if (newestAudit && !persistedAuditLogIds.has(newestAudit.id)) {
+      persistedAuditLogIds.add(newestAudit.id);
+      try {
+        await setDoc(doc(db, CAREBRIDGE_COLLECTIONS.auditLogs, newestAudit.id), {
+          ...newestAudit,
+          userId,
+        });
+      } catch {
+        // Already exists or immutable update prevented; workspace batch already committed safely
+      }
+    }
     return 'firestore';
   } catch (err) {
     handleCareBridgeFirestoreError(err, 'write', 'carebridge_*');

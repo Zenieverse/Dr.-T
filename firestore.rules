@@ -638,17 +638,24 @@ service cloud.firestore {
     }
 
     match /carebridge_consents/{userId} {
-      allow read: if isOwner(userId);
+      allow get: if isOwner(userId);
+      allow list: if isAuthenticated() && resource.data.userId == request.auth.uid;
       allow create, update: if isOwner(userId)
         && request.resource.data.userId == userId
+        && request.resource.data.jsmMinimalSyncConsent is bool
+        && request.resource.data.confluenceReadConsent is bool
+        && request.resource.data.rovoAssistantConsent is bool
+        && request.resource.data.geminiSynthesisConsent is bool
         && request.resource.data.retentionPolicy in ['30_days', '90_days', '365_days', 'manual_only'];
       allow delete: if isOwner(userId);
     }
 
     match /carebridge_integrations/{userId} {
-      allow read: if isOwner(userId);
+      allow get: if isOwner(userId);
+      allow list: if isAuthenticated() && resource.data.userId == request.auth.uid;
       allow create, update: if isOwner(userId)
-        && request.resource.data.userId == userId;
+        && request.resource.data.userId == userId
+        && request.resource.data.connectionMode in ['disconnected', 'live_atlassian_configured', 'forge_app_linked', 'sample_sandbox'];
       allow delete: if isOwner(userId);
     }
 
@@ -656,7 +663,9 @@ service cloud.firestore {
       allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
       allow create: if isAuthenticated()
         && request.resource.data.userId == request.auth.uid
-        && request.resource.data.keys().hasAll(['id', 'userId', 'category', 'action', 'outcome', 'timestamp']);
+        && request.resource.data.keys().hasAll(['id', 'userId', 'category', 'action', 'outcome', 'timestamp'])
+        && request.resource.data.category in ['task', 'jsm', 'confluence', 'rovo_ai', 'privacy', 'system']
+        && request.resource.data.outcome in ['allowed', 'blocked', 'error'];
       allow update, delete: if false; // Immutable CareBridge compliance audit trail
     }
   }

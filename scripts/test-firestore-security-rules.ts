@@ -191,6 +191,40 @@ function runFirestoreSecurityTests() {
     'Population audit logs enforce staff-only read, field validation, and immutable append-only history'
   );
 
+  // TEST 18: CareBridge collections enforce strict owner isolation, list query checks, and immutable audit logs
+  const cbTasksBlock = rules.match(/match\s+\/carebridge_tasks\/\{taskId\}\s*\{([\s\S]*?)\}/)?.[1] || '';
+  const cbBriefsBlock = rules.match(/match\s+\/carebridge_briefs\/\{briefId\}\s*\{([\s\S]*?)\}/)?.[1] || '';
+  const cbConsentsBlock = rules.match(/match\s+\/carebridge_consents\/\{userId\}\s*\{([\s\S]*?)\}/)?.[1] || '';
+  const cbIntegrationsBlock = rules.match(/match\s+\/carebridge_integrations\/\{userId\}\s*\{([\s\S]*?)\}/)?.[1] || '';
+  const cbAuditBlock = rules.match(/match\s+\/carebridge_audit_logs\/\{logId\}\s*\{([\s\S]*?)\}/)?.[1] || '';
+
+  assert(
+    cbTasksBlock.includes('resource.data.userId == request.auth.uid') &&
+      cbTasksBlock.includes('request.resource.data.userId == resource.data.userId'),
+    'CareBridge tasks enforce strict owner isolation and immutable userId'
+  );
+  assert(
+    cbBriefsBlock.includes('resource.data.userId == request.auth.uid') &&
+      cbBriefsBlock.includes('request.resource.data.userId == resource.data.userId'),
+    'CareBridge briefs enforce strict owner isolation and immutable userId'
+  );
+  assert(
+    cbConsentsBlock.includes('allow get: if isOwner(userId)') &&
+      cbConsentsBlock.includes('allow list: if isAuthenticated() && resource.data.userId == request.auth.uid') &&
+      cbConsentsBlock.includes("retentionPolicy in ['30_days', '90_days', '365_days', 'manual_only']"),
+    'CareBridge consents enforce owner get/list isolation and validated retention policy'
+  );
+  assert(
+    cbIntegrationsBlock.includes('allow get: if isOwner(userId)') &&
+      cbIntegrationsBlock.includes('allow list: if isAuthenticated() && resource.data.userId == request.auth.uid'),
+    'CareBridge integrations enforce owner get/list isolation'
+  );
+  assert(
+    cbAuditBlock.includes('resource.data.userId == request.auth.uid') &&
+      cbAuditBlock.includes('allow update, delete: if false'),
+    'CareBridge audit logs enforce owner-only reads and immutable append-only records'
+  );
+
   console.log('\n----------------------------------------------------');
   console.log(`SUMMARY: ${passed} PASSED, ${failed} FAILED`);
   console.log('----------------------------------------------------');

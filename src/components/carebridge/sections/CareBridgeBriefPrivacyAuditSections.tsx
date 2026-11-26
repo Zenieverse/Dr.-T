@@ -1,8 +1,8 @@
 // ============================================================================
 // DR. T — CAREBRIDGE SECTIONS 6, 7 & 8
 // 6. Care Re-entry Brief (8 concise elements + 4 strict provenance buckets)
-// 7. Privacy and Consent (toggles, minimization, retention, export & delete)
-// 8. Activity and Audit History (immutable chronological ledger)
+// 7. Privacy and Consent (server-synced JSM Follow-Up consent, minimization, retention, export & delete)
+// 8. Activity and Audit History (immutable client + server chronological ledger)
 // ============================================================================
 
 import React, { useState } from 'react';
@@ -19,7 +19,9 @@ import {
 } from 'lucide-react';
 import {
   CareBridgeConsentState,
+  CareBridgeFollowUpConsentRecord,
   CareBridgeRetentionPolicy,
+  CareBridgeServerAuditEvent,
   CareBridgeWorkspaceBundle,
 } from '../../../types/carebridgeTypes';
 
@@ -198,6 +200,10 @@ interface PrivacyConsentProps {
   bundle: CareBridgeWorkspaceBundle;
   storageMode: 'firestore' | 'local';
   isAuthenticated: boolean;
+  serverFollowUpConsent?: CareBridgeFollowUpConsentRecord | null;
+  followUpConsentBusy?: boolean;
+  followUpConsentMessage?: string | null;
+  onFollowUpConsentAction?: (action: 'grant' | 'withdraw') => Promise<void>;
   onUpdateConsents: (patch: Partial<CareBridgeConsentState>) => void;
   onExportJson: () => void;
   onDeleteAllUserData: () => void;
@@ -207,6 +213,10 @@ export const PrivacyAndConsentSection: React.FC<PrivacyConsentProps> = ({
   bundle,
   storageMode,
   isAuthenticated,
+  serverFollowUpConsent,
+  followUpConsentBusy = false,
+  followUpConsentMessage = null,
+  onFollowUpConsentAction,
   onUpdateConsents,
   onExportJson,
   onDeleteAllUserData,
@@ -214,14 +224,103 @@ export const PrivacyAndConsentSection: React.FC<PrivacyConsentProps> = ({
   const [confirmPurge, setConfirmPurge] = useState(false);
 
   const consents = bundle.consents;
+  const followUpActive = serverFollowUpConsent
+    ? serverFollowUpConsent.granted
+    : consents.jsmMinimalSyncConsent;
+  const policyVersion =
+    serverFollowUpConsent?.policyVersion || consents.consentPolicyVersion || 'cb-jsm-followup-v1';
 
   return (
     <div className="space-y-6">
+      {/* Dedicated Server-Enforced Jira Service Management Follow-Up Consent Card */}
+      <div className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+          <div>
+            <div className="flex flex-wrap items-center gap-2">
+              <h2 className="text-lg font-bold text-slate-900">
+                Jira Service Management Follow-Up Consent
+              </h2>
+              <span
+                className={`px-2.5 py-0.5 rounded-md text-xs font-semibold border ${
+                  followUpActive
+                    ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                    : serverFollowUpConsent?.withdrawnAt
+                      ? 'bg-amber-50 border-amber-200 text-amber-900'
+                      : 'bg-slate-100 border-slate-200 text-slate-700'
+                }`}
+              >
+                {followUpActive
+                  ? 'Granted (Active)'
+                  : serverFollowUpConsent?.withdrawnAt
+                    ? 'Withdrawn'
+                    : 'Disabled by Default'}
+              </span>
+            </div>
+            <p className="text-xs text-slate-600 mt-1">
+              Policy version: <span className="font-mono font-semibold">{policyVersion}</span> · Prior JSM
+              submissions never grant blanket follow-up permission.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap gap-2 shrink-0">
+            <button
+              type="button"
+              disabled={followUpConsentBusy || followUpActive}
+              onClick={() =>
+                onFollowUpConsentAction
+                  ? void onFollowUpConsentAction('grant')
+                  : onUpdateConsents({ jsmMinimalSyncConsent: true })
+              }
+              className="min-h-[44px] px-4 py-2 rounded-xl bg-teal-700 hover:bg-teal-800 disabled:opacity-50 text-white text-xs font-semibold cursor-pointer"
+            >
+              {followUpConsentBusy ? 'Updating...' : 'Grant Follow-Up Consent (24h)'}
+            </button>
+            <button
+              type="button"
+              disabled={followUpConsentBusy || !followUpActive}
+              onClick={() =>
+                onFollowUpConsentAction
+                  ? void onFollowUpConsentAction('withdraw')
+                  : onUpdateConsents({ jsmMinimalSyncConsent: false })
+              }
+              className="min-h-[44px] px-4 py-2 rounded-xl border border-slate-300 hover:bg-slate-50 disabled:opacity-50 text-xs font-semibold text-slate-800 cursor-pointer"
+            >
+              Withdraw Consent
+            </button>
+          </div>
+        </div>
+
+        <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700 space-y-1.5">
+          <div className="font-semibold text-slate-900">Disclosure: What Is Shared &amp; Why</div>
+          <p>
+            {serverFollowUpConsent?.disclosureText ||
+              'When enabled, CareBridge queries Jira Service Management (https://zenieverse.atlassian.net, project CareBridge2 / CR2, Service Desk 2, Request Type 5) to read non-clinical request status and submit explicitly human-approved administrative follow-up updates. Sensitive patient identifiers (SSN, MRN, DOB, personal contacts), diagnoses, lab results, and clinical measurements are blocked before transmission and redacted from audit logs.'}
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1 font-mono text-[11px] text-slate-600">
+            <div>Account: {isAuthenticated ? consents.userId : 'Guest (Sign in for server enforcement)'}</div>
+            <div>
+              Granted: {serverFollowUpConsent?.grantedAt || consents.consentGrantedAt || 'Not granted'}
+            </div>
+            <div>
+              {serverFollowUpConsent?.withdrawnAt
+                ? `Withdrawn: ${serverFollowUpConsent.withdrawnAt}`
+                : `Expires: ${serverFollowUpConsent?.expiresAt || consents.followUpConsentExpiresAt || '—'}`}
+            </div>
+          </div>
+        </div>
+
+        {followUpConsentMessage && (
+          <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900">
+            {followUpConsentMessage}
+          </div>
+        )}
+      </div>
+
       <div className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 space-y-5">
         <div>
           <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
             <ShieldCheck className="w-5 h-5 text-teal-700" />
-            <span>Privacy, Consent &amp; Data Minimization Controls</span>
+            <span>Additional Module Permissions &amp; Data Minimization</span>
           </h2>
           <p className="text-xs text-slate-600 mt-0.5">
             Outbound JSM, Confluence, and AI features stay disabled by default until explicitly enabled.
@@ -231,11 +330,6 @@ export const PrivacyAndConsentSection: React.FC<PrivacyConsentProps> = ({
 
         <div className="divide-y divide-slate-100">
           {[
-            {
-              key: 'jsmMinimalSyncConsent' as const,
-              title: 'Jira Service Management Follow-Up Consent',
-              desc: 'Allow reading JSM Service Desks and creating explicitly confirmed, data-minimized follow-up tickets.',
-            },
             {
               key: 'confluenceReadConsent' as const,
               title: 'Authorized Confluence Knowledge Read',
@@ -354,9 +448,19 @@ export const PrivacyAndConsentSection: React.FC<PrivacyConsentProps> = ({
 // ----------------------------------------------------------------------------
 interface AuditHistoryProps {
   bundle: CareBridgeWorkspaceBundle;
+  serverAuditEvents?: CareBridgeServerAuditEvent[];
+  loadingServerAudit?: boolean;
+  isAuthenticated?: boolean;
+  onRefreshServerAudit?: () => Promise<void>;
 }
 
-export const ActivityAndAuditSection: React.FC<AuditHistoryProps> = ({ bundle }) => {
+export const ActivityAndAuditSection: React.FC<AuditHistoryProps> = ({
+  bundle,
+  serverAuditEvents = [],
+  loadingServerAudit = false,
+  isAuthenticated = false,
+  onRefreshServerAudit,
+}) => {
   const [categoryFilter, setCategoryFilter] = useState<'all' | 'task' | 'jsm' | 'confluence' | 'rovo_ai' | 'privacy' | 'system'>('all');
 
   const logs =
@@ -365,63 +469,129 @@ export const ActivityAndAuditSection: React.FC<AuditHistoryProps> = ({ bundle })
       : bundle.auditLogs.filter((l) => l.category === categoryFilter);
 
   return (
-    <div className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 space-y-4">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-          <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-            <History className="w-5 h-5 text-teal-700" />
-            <span>Activity and Audit History ({logs.length})</span>
-          </h2>
-          <p className="text-xs text-slate-600 mt-0.5">
-            Chronological append-only ledger tracking task changes, JSM/Confluence requests, consent checks, and AI runs.
-          </p>
+    <div className="space-y-6">
+      {/* Server-enforced immutable follow-up & consent audit ledger */}
+      <div className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+              <ShieldCheck className="w-5 h-5 text-teal-700" />
+              <span>Server-Verified Follow-Up &amp; Consent Audit Ledger ({serverAuditEvents.length})</span>
+            </h2>
+            <p className="text-xs text-slate-600 mt-0.5">
+              Append-only, owner-isolated server audit events tracking consent, PHI scans, previews, human approvals, and follow-up lookups without tokens or raw PHI.
+            </p>
+          </div>
+          {onRefreshServerAudit && (
+            <button
+              type="button"
+              onClick={() => void onRefreshServerAudit()}
+              disabled={loadingServerAudit || !isAuthenticated}
+              className="min-h-[44px] px-4 py-2 rounded-xl border border-slate-300 hover:bg-slate-50 disabled:opacity-50 text-xs font-semibold text-slate-800 inline-flex items-center gap-2 cursor-pointer"
+            >
+              <RefreshCw className={`w-4 h-4 ${loadingServerAudit ? 'animate-spin' : ''}`} />
+              <span>{loadingServerAudit ? 'Refreshing...' : 'Refresh Server Audit'}</span>
+            </button>
+          )}
         </div>
 
-        <select
-          aria-label="Filter audit category"
-          value={categoryFilter}
-          onChange={(e) => setCategoryFilter(e.target.value as any)}
-          className="min-h-[44px] px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white"
-        >
-          <option value="all">All categories</option>
-          <option value="task">Care Tasks</option>
-          <option value="jsm">Jira Service Management</option>
-          <option value="confluence">Confluence Knowledge</option>
-          <option value="rovo_ai">Rovo &amp; Gemini AI</option>
-          <option value="privacy">Privacy &amp; Consent</option>
-          <option value="system">System</option>
-        </select>
+        {!isAuthenticated ? (
+          <div className="py-5 px-4 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600">
+            Sign in with your Dr. T account to load owner-isolated server audit events.
+          </div>
+        ) : serverAuditEvents.length === 0 ? (
+          <div className="py-6 text-center text-xs text-slate-500">
+            No server follow-up or consent events recorded in the current session yet.
+          </div>
+        ) : (
+          <div className="divide-y divide-slate-100">
+            {serverAuditEvents.map((ev) => (
+              <div key={ev.eventId} className="py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs">
+                <div className="space-y-0.5">
+                  <div className="font-mono text-slate-500 tabular-nums">
+                    {ev.timestamp.slice(0, 19).replace('T', ' ')} · {ev.operationType}
+                    {ev.requestKey ? ` · ${ev.requestKey}` : ''} · {ev.policyVersion} · {ev.correlationId}
+                  </div>
+                  <div className="text-sm text-slate-900">{ev.summary}</div>
+                </div>
+                <span
+                  className={`text-xs font-semibold uppercase tracking-wide shrink-0 ${
+                    ev.outcome === 'allowed'
+                      ? 'text-teal-700'
+                      : ev.outcome === 'blocked'
+                        ? 'text-amber-700'
+                        : 'text-rose-700'
+                  }`}
+                >
+                  {ev.outcome}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
-      {logs.length === 0 ? (
-        <div className="py-10 text-center text-sm text-slate-500">
-          No audit entries recorded for this filter.
+      {/* Workspace client ledger */}
+      <div className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+              <History className="w-5 h-5 text-teal-700" />
+              <span>Workspace Activity History ({logs.length})</span>
+            </h2>
+            <p className="text-xs text-slate-600 mt-0.5">
+              Chronological append-only workspace ledger tracking task changes, JSM/Confluence requests, consent checks, and AI runs (PHI redacted).
+            </p>
+          </div>
+
+          <select
+            aria-label="Filter audit category"
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value as any)}
+            className="min-h-[44px] px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white"
+          >
+            <option value="all">All categories</option>
+            <option value="task">Care Tasks</option>
+            <option value="jsm">Jira Service Management</option>
+            <option value="confluence">Confluence Knowledge</option>
+            <option value="rovo_ai">Rovo &amp; Gemini AI</option>
+            <option value="privacy">Privacy &amp; Consent</option>
+            <option value="system">System</option>
+          </select>
         </div>
-      ) : (
-        <div className="divide-y divide-slate-100">
-          {logs.map((entry) => (
-            <div key={entry.id} className="py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs sm:text-sm">
-              <div className="space-y-0.5">
-                <div className="font-mono text-xs text-slate-500 tabular-nums">
-                  {entry.timestamp.slice(0, 19).replace('T', ' ')} · {entry.category.toUpperCase()} · {entry.action}
+
+        {logs.length === 0 ? (
+          <div className="py-10 text-center text-sm text-slate-500">
+            No audit entries recorded for this filter.
+          </div>
+        ) : (
+          <div className="divide-y divide-slate-100">
+            {logs.map((entry) => (
+              <div key={entry.id} className="py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs sm:text-sm">
+                <div className="space-y-0.5">
+                  <div className="font-mono text-xs text-slate-500 tabular-nums">
+                    {entry.timestamp.slice(0, 19).replace('T', ' ')} · {entry.category.toUpperCase()} · {entry.action}
+                    {entry.requestKey ? ` · ${entry.requestKey}` : ''}
+                    {entry.policyVersion ? ` · ${entry.policyVersion}` : ''}
+                  </div>
+                  <div className="text-slate-900">{entry.summary}</div>
                 </div>
-                <div className="text-slate-900">{entry.summary}</div>
+                <span
+                  className={`text-xs font-semibold uppercase tracking-wide shrink-0 ${
+                    entry.outcome === 'allowed'
+                      ? 'text-teal-700'
+                      : entry.outcome === 'blocked'
+                        ? 'text-amber-700'
+                        : 'text-rose-700'
+                  }`}
+                >
+                  {entry.outcome}
+                </span>
               </div>
-              <span
-                className={`text-xs font-semibold uppercase tracking-wide shrink-0 ${
-                  entry.outcome === 'allowed'
-                    ? 'text-teal-700'
-                    : entry.outcome === 'blocked'
-                      ? 'text-amber-700'
-                      : 'text-rose-700'
-                }`}
-              >
-                {entry.outcome}
-              </span>
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

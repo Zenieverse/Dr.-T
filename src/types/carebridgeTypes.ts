@@ -178,7 +178,10 @@ export interface CareBridgeConsentState {
   geminiSynthesisConsent: boolean;
   wellnessReferenceOptIn: boolean;
   retentionPolicy: CareBridgeRetentionPolicy;
+  consentPolicyVersion?: string;
   consentGrantedAt?: string;
+  followUpConsentExpiresAt?: string;
+  followUpConsentWithdrawnAt?: string;
   updatedAt: string;
 }
 
@@ -203,6 +206,10 @@ export interface CareBridgeAuditEntry {
   outcome: 'allowed' | 'blocked' | 'error';
   summary: string;
   actorUid: string;
+  requestKey?: string;
+  operationType?: string;
+  policyVersion?: string;
+  correlationId?: string;
 }
 
 export interface CareBridgeWorkspaceBundle {
@@ -255,3 +262,113 @@ export interface CareBridgeVerificationReport {
   checks: CareBridgeVerificationCheckItem[];
   requestTypeRequiredFields?: string[];
 }
+
+export type CareBridgeFollowUpUiState =
+  | 'Connected'
+  | 'Consent required'
+  | 'Follow-up available'
+  | 'Follow-up blocked'
+  | 'Request not found'
+  | 'Verification unavailable';
+
+export type CareBridgeFollowUpActionType =
+  | 'comment'
+  | 'transition'
+  | 'field_update'
+  | 'notification';
+
+export interface CareBridgeFollowUpConsentRecord {
+  userId: string;
+  granted: boolean;
+  policyVersion: string;
+  disclosureText: string;
+  grantedAt?: string;
+  expiresAt?: string;
+  withdrawnAt?: string;
+  updatedAt: string;
+}
+
+export interface CareBridgeFollowUpStatusResult {
+  uiState: CareBridgeFollowUpUiState;
+  requestKey: string;
+  destinationProjectKey: string;
+  destinationProjectName: string;
+  serviceDeskId: string;
+  requestTypeId: string;
+  requestTypeName: string;
+  summary: string;
+  lastVerifiedStatus: string;
+  previousVerifiedStatus?: string;
+  statusChanged: boolean;
+  lastCheckedAt: string;
+  consentActive: boolean;
+  policyVersion: string;
+  requestUrl: string;
+  availableActions: Array<{
+    type: CareBridgeFollowUpActionType;
+    label: string;
+    requiresHumanApproval: true;
+    enabled: boolean;
+  }>;
+  availableTransitions?: Array<{ id: string; name: string }>;
+  correlationId: string;
+  safeDiagnostic?: string;
+}
+
+export interface CareBridgeFollowUpActionPreview {
+  previewId: string;
+  requestKey: string;
+  actionType: CareBridgeFollowUpActionType;
+  destinationProjectKey: string;
+  policyVersion: string;
+  correlationId: string;
+  phiScan: {
+    safe: boolean;
+    warnings: string[];
+    categories: string[];
+    matchCount: number;
+  };
+  proposedPayload: Record<string, unknown>;
+  requiresHumanApproval: true;
+  createdAt: string;
+  expiresAt: string;
+}
+
+export interface CareBridgeFollowUpActionResult {
+  requestKey: string;
+  actionType: CareBridgeFollowUpActionType;
+  executed: boolean;
+  duplicatePrevented: boolean;
+  verifiedAfterExecution: boolean;
+  currentStatus?: string;
+  requestUrl?: string;
+  correlationId: string;
+  policyVersion: string;
+  message: string;
+  completedAt: string;
+}
+
+export interface CareBridgeServerAuditEvent {
+  eventId: string;
+  userId: string;
+  timestamp: string;
+  requestKey?: string;
+  operationType:
+    | 'consent_granted'
+    | 'consent_withdrawn'
+    | 'followup_status_retrieved'
+    | 'phi_scan_passed'
+    | 'phi_scan_blocked'
+    | 'proposed_action_previewed'
+    | 'human_approval_granted'
+    | 'human_approval_rejected'
+    | 'operation_submitted'
+    | 'operation_succeeded'
+    | 'operation_failed'
+    | 'ai_summary_drafted';
+  outcome: 'allowed' | 'blocked' | 'error';
+  policyVersion: string;
+  correlationId: string;
+  summary: string;
+}
+

@@ -20,13 +20,16 @@ import { NavTab } from '../../types';
 import {
   CareBridgeConnectionDisplayStatus,
   CareBridgeConsentState,
+  CareBridgeFollowUpConsentRecord,
   CareBridgeJsmRequest,
   CareBridgePriority,
   CareBridgeSectionId,
+  CareBridgeServerAuditEvent,
   CareBridgeTaskStatus,
   CareBridgeVerificationReport,
   CareBridgeWorkspaceBundle,
 } from '../../types/carebridgeTypes';
+import { getFirebaseIdToken, subscribeAuthState } from '../../services/firebase';
 import { createEmptyCareWorkspace, createSamplePreviewBundle } from './data/carebridgeStarters';
 import {
   deleteCareBridgeTaskFromStorage,
@@ -95,6 +98,56 @@ export const CareBridgeModule: React.FC<CareBridgeModuleProps> = ({ setActiveTab
     useState<CareBridgeConnectionDisplayStatus>('Unavailable');
   const [verificationReport, setVerificationReport] = useState<CareBridgeVerificationReport | null>(null);
   const [verifyingConnection, setVerifyingConnection] = useState<boolean>(false);
+  const [serverFollowUpConsent, setServerFollowUpConsent] = useState<CareBridgeFollowUpConsentRecord | null>(null);
+  const [followUpConsentBusy, setFollowUpConsentBusy] = useState<boolean>(false);
+  const [followUpConsentMessage, setFollowUpConsentMessage] = useState<string | null>(null);
+  const [serverAuditEvents, setServerAuditEvents] = useState<CareBridgeServerAuditEvent[]>([]);
+  const [loadingServerAudit, setLoadingServerAudit] = useState<boolean>(false);
+
+  const loadServerFollowUpState = async () => {
+    const token = await getFirebaseIdToken();
+    if (!token) {
+      setServerFollowUpConsent(null);
+      setServerAuditEvents([]);
+      return;
+    }
+    try {
+      setLoadingServerAudit(true);
+      const [consentResp, auditResp] = await Promise.all([
+        fetch('/api/carebridge/consent/followup', { headers: { Authorization: `Bearer ${token}` } }),
+        fetch('/api/carebridge/followup/audit', { headers: { Authorization: `Bearer ${token}` } }),
+      ]);
+      if (consentResp.ok) {
+        const cData = await consentResp.json();
+        if (cData.consent) setServerFollowUpConsent(cData.consent as CareBridgeFollowUpConsentRecord);
+      }
+      if (auditResp.ok) {
+        const aData = await auditResp.json();
+        if (Array.isArray(aData.events)) setServerAuditEvents(aData.events as CareBridgeServerAuditEvent[]);
+      }
+    } catch {
+      // Preserve local workspace when server unreachable
+    } finally {
+      setLoadingServerAudit(false);
+    }
+  };
+
+  const refreshServerAuditEvents = async () => {
+    const token = await getFirebaseIdToken();
+    if (!token) return;
+    setLoadingServerAudit(true);
+    try {
+      const resp = await fetch('/api/carebridge/followup/audit', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (resp.ok) {
+        const data = await resp.json();
+        if (Array.isArray(data.events)) setServerAuditEvents(data.events as CareBridgeServerAuditEvent[]);
+      }
+    } finally {
+      setLoadingServerAudit(false);
+    }
+  };
 
   const runReadOnlyConnectionVerification = async (): Promise<CareBridgeVerificationReport | null> => {
     setVerifyingConnection(true);
@@ -162,9 +215,23 @@ export const CareBridgeModule: React.FC<CareBridgeModuleProps> = ({ setActiveTab
           setServerReadyNote('Server integration status unavailable — running in local CareBridge workspace.');
         }
       }
+      if (owner.isAuthenticated) {
+        void loadServerFollowUpState();
+      }
     })();
+    const unsubscribeAuth = subscribeAuthState((user) => {
+      if (!mounted) return;
+      setIsAuthenticated(Boolean(user));
+      if (user) {
+        void loadServerFollowUpState();
+      } else {
+        setServerFollowUpConsent(null);
+        setServerAuditEvents([]);
+      }
+    });
     return () => {
       mounted = false;
+      unsubscribeAuth();
     };
   }, []);
 
@@ -289,6 +356,76 @@ export const CareBridgeModule: React.FC<CareBridgeModuleProps> = ({ setActiveTab
       nextBundle = applyRetentionPolicyCutoff(nextBundle, patch.retentionPolicy);
     }
     persistBundle({ ...nextBundle, latestBrief: buildCareReentryBrief(nextBundle) });
+  };
+
+  const handleFollowUpConsentAction = async (action: 'grant' | 'withdraw') => {
+    setFollowUpConsentMessage(null);
+    setFollowUpConsentBusy(true);
+    try {
+      const token = await getFirebaseIdToken();
+      if (!token) {
+        handleUpdateConsents({
+          jsmMinimalSyncConsent: action === 'grant',
+          consentPolicyVersion: 'cb-jsm-followup-v1',
+          followUpConsentWithdrawnAt: action === 'withdraw' ? new Date().toISOString() : undefined,
+        });
+        setFollowUpConsentMessage(
+          action === 'grant'
+            ? 'Updated local session consent only. Sign in with Dr. T to activate server-enforced JSM follow-up consent.'
+            : 'Withdrew local JSM follow-up consent.'
+        );
+        return;
+      }
+
+      const resp = await fetch('/api/carebridge/consent/followup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ action, ttlHours: 24 }),
+      });
+      const data = await resp.json();
+      if (!resp.ok || !data.consent) {
+        setFollowUpConsentMessage(data.error || `Could not update follow-up consent (HTTP ${resp.status}).`);
+        return;
+      }
+      const record = data.consent as CareBridgeFollowUpConsentRecord;
+      setServerFollowUpConsent(record);
+      const nextBundle: CareBridgeWorkspaceBundle = {
+        ...bundle,
+        consents: {
+          ...bundle.consents,
+          jsmMinimalSyncConsent: record.granted,
+          consentPolicyVersion: record.policyVersion,
+          consentGrantedAt: record.grantedAt || bundle.consents.consentGrantedAt,
+          followUpConsentExpiresAt: record.expiresAt,
+          followUpConsentWithdrawnAt: record.withdrawnAt,
+          updatedAt: record.updatedAt,
+        },
+        auditLogs: appendWorkspaceAudit(bundle, {
+          category: 'privacy',
+          action: record.granted ? 'consent_granted' : 'consent_withdrawn',
+          outcome: 'allowed',
+          policyVersion: record.policyVersion,
+          correlationId: data.correlationId,
+          summary: record.granted
+            ? `Granted Jira Service Management Follow-Up Consent (${record.policyVersion}).`
+            : `Withdrew Jira Service Management Follow-Up Consent (${record.policyVersion}).`,
+        }),
+      };
+      persistBundle({ ...nextBundle, latestBrief: buildCareReentryBrief(nextBundle) });
+      setFollowUpConsentMessage(
+        record.granted
+          ? `Server-verified follow-up consent granted (${record.policyVersion}, expires ${record.expiresAt}).`
+          : `Server-verified follow-up consent withdrawn (${record.policyVersion}).`
+      );
+      void refreshServerAuditEvents();
+    } catch {
+      setFollowUpConsentMessage('Unable to update server follow-up consent right now.');
+    } finally {
+      setFollowUpConsentBusy(false);
+    }
   };
 
   const handleExportJson = () => {
@@ -419,6 +556,8 @@ export const CareBridgeModule: React.FC<CareBridgeModuleProps> = ({ setActiveTab
       {activeSection === 'jsm' && (
         <JiraServiceManagementSection
           bundle={bundle}
+          isAuthenticated={isAuthenticated}
+          serverFollowUpConsent={serverFollowUpConsent}
           defaultSiteUrl={defaultSiteUrl}
           defaultServiceDeskId={defaultServiceDeskId}
           defaultRequestTypeId={defaultRequestTypeId}
@@ -426,6 +565,8 @@ export const CareBridgeModule: React.FC<CareBridgeModuleProps> = ({ setActiveTab
           verificationReport={verificationReport}
           verifyingConnection={verifyingConnection}
           onVerifyConnection={runReadOnlyConnectionVerification}
+          onFollowUpConsentAction={handleFollowUpConsentAction}
+          onRefreshServerAudit={refreshServerAuditEvents}
           onSyncJsmRequests={(requests, connected, msg) => {
             const nextBase: CareBridgeWorkspaceBundle = {
               ...bundle,
@@ -530,13 +671,25 @@ export const CareBridgeModule: React.FC<CareBridgeModuleProps> = ({ setActiveTab
           bundle={bundle}
           storageMode={storageMode}
           isAuthenticated={isAuthenticated}
+          serverFollowUpConsent={serverFollowUpConsent}
+          followUpConsentBusy={followUpConsentBusy}
+          followUpConsentMessage={followUpConsentMessage}
+          onFollowUpConsentAction={handleFollowUpConsentAction}
           onUpdateConsents={handleUpdateConsents}
           onExportJson={handleExportJson}
           onDeleteAllUserData={handleDeleteAllUserData}
         />
       )}
 
-      {activeSection === 'audit' && <ActivityAndAuditSection bundle={bundle} />}
+      {activeSection === 'audit' && (
+        <ActivityAndAuditSection
+          bundle={bundle}
+          serverAuditEvents={serverAuditEvents}
+          loadingServerAudit={loadingServerAudit}
+          isAuthenticated={isAuthenticated}
+          onRefreshServerAudit={refreshServerAuditEvents}
+        />
+      )}
     </div>
   );
 };
