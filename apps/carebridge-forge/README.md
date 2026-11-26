@@ -35,4 +35,4 @@ npm run validate:manifest
 3. `forge register` (creates a distinct Forge App ID; never reuse HatBridge's app ID)
 4. `npm run build:ui && forge lint`
 5. `forge deploy -e development`
-6. `forge install --product jira-servicedesk` and `forge install --product confluence`
+6. `forge install --product jira -e development --site zenieverse.atlassian.net` and `forge install --product confluence -e development --site zenieverse.atlassian.net`
