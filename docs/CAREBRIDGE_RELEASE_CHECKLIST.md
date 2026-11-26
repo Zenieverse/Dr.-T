@@ -20,3 +20,12 @@
 | 14. GitHub Synchronization (`Zenieverse/Dr.-T`) | `docs/CAREBRIDGE_FORGE_SETUP.md` (Section 2) | `BLOCKED BY EXTERNAL DEPENDENCY` | Sandbox workspace has no `.git` directory or `gh` CLI auth; requires GitHub Codespaces / local git commit & push (`git push origin HEAD`). |
 | 15. Live `forge register` / `deploy` / `install` | `docs/CAREBRIDGE_FORGE_SETUP.md` (Section 3) | `BLOCKED BY EXTERNAL DEPENDENCY` | Forge CLI not installed in AI Studio sandbox; must be run in GitHub Codespaces (`forge register`, `forge deploy -e development`, `forge install`). |
 | 16. Demo Video, Screenshots & Devpost Submission | `docs/CAREBRIDGE_DEMO_SCRIPT.md`, `docs/CAREBRIDGE_CODEGEIST_SUBMISSION.md` | `READY FOR REVIEW` | 9-step demo script & submission docs updated with verified evidence; screenshots/video (<5m) & Devpost submit follow live Forge install & signed-in browser check. |
+
+
+## Post-Merge Verification Addendum — 2026-11-26
+
+**GitHub baseline:** PR #5 is merged. Verified remote `main` HEAD: `83a2b3490ea5625c62ce53a71da084776f79c4c5`. The merged PR changed only `.env.example` and `src/server/carebridgeService.ts`; no HatBridge files were changed.
+
+**Reported in Google AI Studio Build (/app/applet):** CareBridge 15/15; HatBridge 12/12; Health Alert 46/46; Population Health 62/62; Presage 5/5; Firestore security 33/33; lint/typecheck, Forge UI build, Forge typecheck, manifest validation, development build, and applet compilation passed. Atlassian read-only verifier reported Connected (5/5), and synthetic request CR2-1 remained To Do. Consent/authentication and PHI-redaction probes passed as documented in the session report. These results are environment-specific and are not Codespaces or Forge deployment evidence.
+
+**Release gates still open:** AI Studio has no Git checkout or Forge CLI. The post-merge verification branch and commit must be created remotely/in Codespaces; Forge registration, lint, development deployment, and site installations remain pending. Production build remains intentionally fail-closed until approved non-development Firebase configuration is supplied. Do not mark the Forge app deployed or installed based on local manifest checks.

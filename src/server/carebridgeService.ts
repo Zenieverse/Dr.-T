@@ -186,7 +186,7 @@ export function registerCareBridgeRoutes(
         module: 'carebridge',
         authMode: auth.authMode,
         aiAvailable: Boolean(process.env.GEMINI_API_KEY),
-        githubTokenConfigured: Boolean(process.env.GITHUB_TOKEN),
+        githubTokenConfigured: Boolean(process.env.GITHUB_TOKEN && process.env.GITHUB_TOKEN.trim()),
         aiModel: CAREBRIDGE_GEMINI_MODEL,
         atlassianConfigured: cfgMode !== 'disconnected',
         connectionStatus: cfgMode !== 'disconnected' ? 'Configured (Unverified)' : 'Unavailable',
