@@ -37,7 +37,7 @@
 │  │  • JSM Portal Panel (carebridge-jsm-portal-panel)                   │  │
 │  │  • Jira Issue Panel + Jira/Confluence Global Hubs                   │  │
 │  │  • Rovo Agent: carebridge-navigator + 4 Action Modules              │  │
-│  │  • Forge KVS (cb:<accountId>:*) with @forge/api asUser()            │  │
+│  │  • Forge KVS (carebridge:v1:user:<accountId>:workspace) + asUser()            │  │
 │  └─────────────────────────────────────────────────────────────────────┘  │
 └───────────────────────────────────────────────────────────────────────────┘
 ```
