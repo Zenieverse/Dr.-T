@@ -41,7 +41,8 @@ import {
   Users,
   UserCheck,
   Flower2,
-  Layers
+  Layers,
+  Glasses
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -112,6 +113,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: 'threehats', label: 'Three Hats', icon: <Compass className="w-4 h-4 text-violet-400" />, badge: 'Roles' },
     { id: 'hatbridge', label: 'HatBridge', icon: <Layers className="w-4 h-4 text-teal-700" />, badge: 'Mission Control' },
     { id: 'carebridge', label: 'CareBridge', icon: <Stethoscope className="w-4 h-4 text-teal-700" />, badge: 'Codegeist 2026' },
+    { id: 'carecue-g2', label: 'CareCue G2', icon: <Glasses className="w-4 h-4 text-emerald-600" />, badge: 'Even G2' },
     { id: 'streetvendorsmap', label: 'StreetVendorsMap', icon: <MapPin className="w-4 h-4 text-amber-500" />, badge: 'Gánh Mưu Sinh' },
     { id: 'gatherglow', label: 'Gather & Glow', icon: <Sparkles className="w-4 h-4 text-rose-500" />, badge: 'AI Events' },
     { id: 'deck', label: 'Executive Deck', icon: <Presentation className="w-4 h-4 text-purple-600" />, badge: 'MVP Brief' },
@@ -339,6 +341,8 @@ export const Navbar: React.FC<NavbarProps> = ({
                   return 'bg-slate-900 text-white shadow-md shadow-slate-900/25 ring-1 ring-teal-400/50';
                 case 'carebridge':
                   return 'bg-teal-700 text-white shadow-md shadow-teal-700/25 ring-1 ring-teal-400/50';
+                case 'carecue-g2':
+                  return 'bg-emerald-700 text-white shadow-md shadow-emerald-700/25 ring-1 ring-emerald-400/50';
                 case 'settings':
                   return 'bg-gradient-to-r from-slate-600 to-slate-700 text-white shadow-md shadow-slate-500/20';
                 default:

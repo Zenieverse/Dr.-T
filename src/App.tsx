@@ -81,6 +81,7 @@ import { PopulationHealthModule } from './components/populationhealth/Population
 import { LivingSoundGardenModule } from './components/pianist/soundgarden/LivingSoundGardenModule';
 import { HatBridgeModule } from './components/hatbridge/HatBridgeModule';
 import { CareBridgeModule } from './components/carebridge/CareBridgeModule';
+import { CareCueG2Module } from '../even-g2-carecue/CareCueG2Module';
 import { SettingsPage } from './components/settings/SettingsPage';
 
 export function App() {
@@ -97,6 +98,7 @@ export function App() {
           if (['living-sound-garden', 'sound-garden', 'soundgarden', 'livingsoundgarden'].includes(queryTab)) return 'living-sound-garden';
           if (['hatbridge', 'hat-bridge', 'hatbridge-mission-control'].includes(queryTab)) return 'hatbridge';
           if (['carebridge', 'care-bridge', 'carebridge-navigator'].includes(queryTab)) return 'carebridge';
+          if (['carecue-g2', 'carecue', 'eveng2', 'even-g2', 'g2'].includes(queryTab)) return 'carecue-g2';
           return queryTab as NavTab;
         }
 
@@ -112,6 +114,7 @@ export function App() {
           if (['living-sound-garden', 'sound-garden', 'soundgarden', 'livingsoundgarden'].includes(raw)) return 'living-sound-garden';
           if (['hatbridge', 'hat-bridge', 'hatbridge-mission-control'].includes(raw)) return 'hatbridge';
           if (['carebridge', 'care-bridge', 'carebridge-navigator'].includes(raw)) return 'carebridge';
+          if (['carecue-g2', 'carecue', 'eveng2', 'even-g2', 'g2'].includes(raw)) return 'carecue-g2';
           return raw as NavTab;
         }
       }
@@ -123,6 +126,13 @@ export function App() {
 
   const [activeTab, setActiveTab] = useState<NavTab>(getInitialTab);
   if (typeof window !== 'undefined' && window.location.pathname === '/chatquest-overlay') return <ChatQuestOverlay />;
+  if (
+    typeof window !== 'undefined' &&
+    (window.location.pathname === '/carecue-g2' ||
+      new URLSearchParams(window.location.search).get('wearable') === '1')
+  ) {
+    return <CareCueG2Module wearableOnly />;
+  }
   const [currentLanguage, setCurrentLanguage] = useState<LanguageCode>('en');
   const [personality, setPersonality] = useState<PersonalityMode>('Empathetic');
   const [patient, setPatient] = useState<PatientProfile>(MOCK_PATIENT);
@@ -176,6 +186,8 @@ export function App() {
         targetTab = 'hatbridge';
       } else if (['carebridge', 'care-bridge', 'carebridge-navigator'].includes(raw)) {
         targetTab = 'carebridge';
+      } else if (['carecue-g2', 'carecue', 'eveng2', 'even-g2', 'g2'].includes(raw)) {
+        targetTab = 'carecue-g2';
       }
       if (targetTab && targetTab !== activeTab) {
         setActiveTab(targetTab);
@@ -660,6 +672,10 @@ export function App() {
 
         {activeTab === 'carebridge' && (
           <CareBridgeModule setActiveTab={setActiveTab} />
+        )}
+
+        {activeTab === 'carecue-g2' && (
+          <CareCueG2Module />
         )}
 
         {activeTab === 'streetvendorsmap' && (

@@ -1,0 +1,16 @@
+{
+  "name": "Dr. T CareCue G2",
+  "id": "dr-t-carecue-g2",
+  "version": "0.1.0",
+  "target": "even_g2",
+  "display": {
+    "width": 576,
+    "height": 288,
+    "palette": "monochrome_4bit"
+  },
+  "entry": "/carecue-g2",
+  "description": "Glanceable Telegram triage, server-side AI reply drafts, and wearer-confirmed replies for Even Realities G2 smart glasses.",
+  "permissions": [
+    "network"
+  ]
+}

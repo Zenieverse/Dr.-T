@@ -38,6 +38,7 @@ export type NavTab =
   | 'threehats'
   | 'hatbridge'
   | 'carebridge'
+  | 'carecue-g2'
   | 'streetvendorsmap'
   | 'gatherglow'
   | 'presagesense'

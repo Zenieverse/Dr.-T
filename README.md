@@ -15,7 +15,12 @@
 [![PayPal AI Hackathon](https://img.shields.io/badge/PayPal%20AI%20Hackathon-MicroBiz%20PayFlow%20%2B%20DebtFree-003087.svg?logo=paypal)](docs/PAYPAL_AI_HACKATHON_SUBMISSION.md)
 [![Presage SmartSpectra Challenge 2026](https://img.shields.io/badge/Presage%20SmartSpectra%20Challenge%202026-Camera%20rPPG%20Wellness-06B6D4.svg)](docs/PRESAGE_SMARTSPECTRA_CHALLENGE_SUBMISSION.md)
 [![BuildArena S02](https://img.shields.io/badge/BuildArena%20S02-Deliver.%20Separate.%20Return.-7C3AED.svg?logo=kaggle)](docs/BUILDARENA_S02_MISSION_CONTROL.md)
+[![Even Realities G2 Hackathon 2026](https://img.shields.io/badge/Even%20Realities%20G2%20Hackathon%202026-CareCue%20G2-10B981.svg)](even-g2-carecue/README.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
+> **Even Realities G2 Hackathon 2026 Submission (`feat/even-g2-carecue`) — Dr. T CareCue G2:**  
+> See [`even-g2-carecue/README.md`](even-g2-carecue/README.md) for the complete hackathon submission dossier, architecture diagram, setup guide, simulator & QR pairing instructions, 3-minute demo script, screenshot checklist, and test report.  
+> **Transparent Pre-Existing Code & Build-Period Disclosure:** Built by a **solo developer** (`Zenieverse`). All new CareCue G2 code, Even Hub SDK protocol handlers, Telegram Bot API backend routes, Gemini `gemini-4-hydrogen` summarizer/drafter, tests, and hackathon docs in `even-g2-carecue/` were created during **November 23–29, 2026**. All surrounding Dr. T modules (`src/`, `server.impl.ts`, CareBridge, HatBridge, etc.) are pre-existing platform code predating the hackathon and remain preserved on `main`.
 
 > **Dr. T** is a multi-dimensional platform unifying clinical informatics, population health intelligence, Socratic health AI, contactless wellness sensing (**Presage Sense**), multi-role Atlassian context continuity (**HatBridge** + Forge/Jira/Confluence/Rovo), aerospace simulation engineering (**BuildArena S02**), grassroots economic empowerment (**MicroBiz** & **StreetVendorsMap**), personal role architecture (**Three Hats**), AI event architecture (**Gather & Glow**), interactive spatial music (**Living Sound Garden**), and permission-governed memory intelligence (**Lantern Keeper**).
 

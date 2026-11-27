@@ -1,0 +1,189 @@
+diff --git a/apps/carebridge-forge/README.md b/apps/carebridge-forge/README.md
+index e472212..a8c8ac0 100644
+--- a/apps/carebridge-forge/README.md
++++ b/apps/carebridge-forge/README.md
+@@ -35,4 +35,4 @@ npm run validate:manifest
+ 3. `forge register` (creates a distinct Forge App ID; never reuse HatBridge's app ID)
+ 4. `npm run build:ui && forge lint`
+ 5. `forge deploy -e development`
+-6. `forge install --product jira-servicedesk` and `forge install --product confluence`
++6. `forge install --product jira -e development --site zenieverse.atlassian.net` and `forge install --product confluence -e development --site zenieverse.atlassian.net`
+diff --git a/apps/carebridge-forge/manifest.yml b/apps/carebridge-forge/manifest.yml
+index 83df388..85421cb 100644
+--- a/apps/carebridge-forge/manifest.yml
++++ b/apps/carebridge-forge/manifest.yml
+@@ -48,12 +48,12 @@ modules:
+ 
+   rovo:agent:
+     - key: carebridge-navigator
+-      name: CareBridge Healthcare Navigator
++      name: CareBridge Care Navigator
+       description: >-
+         Non-diagnostic healthcare care-navigation assistant helping authorized users review
+         Jira Service Management follow-up requests, Confluence clinical guidance, and care continuity tasks.
+       prompt: >-
+-        You are CareBridge Healthcare Navigator for Dr. T — CareBridge.
++        You are CareBridge Care Navigator for Dr. T — CareBridge.
+         Your sole scope is non-emergency care navigation, administrative follow-up coordination,
+         and retrieving authorized Jira Service Management and Confluence records.
+ 
+@@ -82,7 +82,7 @@ modules:
+   action:
+     - key: summarize-care-context
+       name: Summarize Authorized Care Context
+-      function: rovo-summarize-care-context
++      function: rovo-care-context
+       actionVerb: GET
+       description: >-
+         Compiles authorized JSM follow-up request statuses, linked Confluence pages, and
+@@ -101,7 +101,7 @@ modules:
+ 
+     - key: retrieve-care-knowledge
+       name: Retrieve Confluence Care Knowledge
+-      function: rovo-retrieve-care-knowledge
++      function: rovo-care-knowledge
+       actionVerb: GET
+       description: >-
+         Searches user-authorized Confluence spaces and pages using Forge asUser() permissions
+@@ -115,7 +115,7 @@ modules:
+ 
+     - key: summarize-followup-tasks
+       name: Summarize Follow-Up Tasks
+-      function: rovo-summarize-followup-tasks
++      function: rovo-followup-tasks
+       actionVerb: GET
+       description: >-
+         Summarizes open non-emergency CareBridge follow-up tasks, priorities, assignees,
+@@ -129,7 +129,7 @@ modules:
+ 
+     - key: prepare-care-handoff
+       name: Prepare Care Navigation Handoff
+-      function: rovo-prepare-care-handoff
++      function: rovo-care-handoff
+       actionVerb: GET
+       description: >-
+         Prepares a structured 4-bucket Care Re-entry Brief separating Verified Source Information,
+@@ -149,13 +149,13 @@ modules:
+   function:
+     - key: carebridge-resolver
+       handler: index.handler
+-    - key: rovo-summarize-care-context
++    - key: rovo-care-context
+       handler: rovoActions.summarizeCareContext
+-    - key: rovo-retrieve-care-knowledge
++    - key: rovo-care-knowledge
+       handler: rovoActions.retrieveCareKnowledge
+-    - key: rovo-summarize-followup-tasks
++    - key: rovo-followup-tasks
+       handler: rovoActions.summarizeFollowupTasks
+-    - key: rovo-prepare-care-handoff
++    - key: rovo-care-handoff
+       handler: rovoActions.prepareCareHandoff
+ 
+ resources:
+diff --git a/apps/carebridge-forge/scripts/validate-manifest.mjs b/apps/carebridge-forge/scripts/validate-manifest.mjs
+index 45b4ded..c5d799e 100644
+--- a/apps/carebridge-forge/scripts/validate-manifest.mjs
++++ b/apps/carebridge-forge/scripts/validate-manifest.mjs
+@@ -55,6 +55,9 @@ if (!functionBlockMatch) {
+ }
+ const declaredFunctions = new Map();
+ for (const m of functionBlockMatch[1].matchAll(/- key:\s*([a-z0-9-]+)\s*\n\s*handler:\s*([a-zA-Z0-9_.-]+)/g)) {
++  if (m[1].length > 23) {
++    fail(`Function key "${m[1]}" exceeds Atlassian Forge's 23-character maximum (${m[1].length} chars)`);
++  }
+   declaredFunctions.set(m[1], m[2]);
+ }
+ if (declaredFunctions.size < 5) {
+@@ -89,6 +92,12 @@ const agentBlockMatch = manifestText.match(/\n  rovo:agent:\n([\s\S]*?)\n  actio
+ if (!agentBlockMatch) {
+   fail('Missing rovo:agent module definition');
+ }
++const agentNameMatch = agentBlockMatch[1].match(/\n\s+name:\s*(.+)/);
++if (!agentNameMatch || agentNameMatch[1].trim().length === 0 || agentNameMatch[1].trim().length > 30) {
++  fail(
++    `rovo:agent name must be 1–30 characters (got ${agentNameMatch ? agentNameMatch[1].trim().length : 0})`
++  );
++}
+ for (const m of agentBlockMatch[1].matchAll(/\n\s{8}- ([a-z0-9-]+)/g)) {
+   if (!declaredActions.has(m[1])) {
+     fail(`Rovo agent references undeclared action "${m[1]}"`);
+diff --git a/docs/CAREBRIDGE_CODEGEIST_SUBMISSION.md b/docs/CAREBRIDGE_CODEGEIST_SUBMISSION.md
+index 4f3182b..61bfcb8 100644
+--- a/docs/CAREBRIDGE_CODEGEIST_SUBMISSION.md
++++ b/docs/CAREBRIDGE_CODEGEIST_SUBMISSION.md
+@@ -70,6 +70,6 @@ Dr. T — CareBridge pairs a responsive iPad- and desktop-ready **8-section Care
+ 
+ ## Release Verification Status — 2026-11-26
+ 
+-The merged baseline PR #5 is verified at `83a2b3490ea5625c62ce53a71da084776f79c4c5`. The project reports passing local CareBridge, HatBridge, Health Alert, Population Health, Presage, Firestore security, lint/typecheck, Forge UI build/typecheck/manifest validation, and development build checks from Google AI Studio Build. Live read-only Atlassian verification reported Connected, and CR2-1 was preserved in To Do status.
++The merged baseline covers PR #5 (`83a2b3490ea5625c62ce53a71da084776f79c4c5`) and PR #6 (`f5c8f132f411aa38800bab6cd549a0d247c7da03`). CareBridge (`15/15`), HatBridge (`12/12`), Health Alert (`46/46`), Population Health (`62/62`), Presage (`5/5`), Firestore security (`33/33`), TypeScript lint, Forge UI build/typecheck/manifest validation (updated for Atlassian's 30-char Rovo name & 23-char function-key limits), and development build checks pass in Google AI Studio Build. Live read-only Atlassian verification reported Connected, and CR2-1 was preserved in To Do status.
+ 
+-**Not yet released:** the Forge app remains unregistered/un-deployed/un-installed until the interactive Forge CLI lifecycle is completed from GitHub Codespaces. Production build and signed-in browser walkthrough remain outstanding. Bonus-category eligibility that depends on a live deployed/installed Rovo agent must not be claimed until that deployment is verified.
++**Not yet released:** the Forge app remains unregistered/un-deployed/un-installed until the interactive Forge CLI lifecycle (`forge login`, `forge register`, `forge lint`, `forge deploy -e development`, `forge install`) is completed from GitHub Codespaces, and the Forge manifest/doc delta is pushed via a new PR. Production build (pending non-development Firebase env config), Cloud Run production deployment, and signed-in browser walkthrough remain outstanding. Bonus-category eligibility that depends on a live deployed/installed Rovo agent must not be claimed until that deployment is verified.
+diff --git a/docs/CAREBRIDGE_DEMO_SCRIPT.md b/docs/CAREBRIDGE_DEMO_SCRIPT.md
+index 1209a40..820827a 100644
+--- a/docs/CAREBRIDGE_DEMO_SCRIPT.md
++++ b/docs/CAREBRIDGE_DEMO_SCRIPT.md
+@@ -37,7 +37,7 @@
+ │  │  • JSM Portal Panel (carebridge-jsm-portal-panel)                   │  │
+ │  │  • Jira Issue Panel + Jira/Confluence Global Hubs                   │  │
+ │  │  • Rovo Agent: carebridge-navigator + 4 Action Modules              │  │
+-│  │  • Forge KVS (cb:<accountId>:*) with @forge/api asUser()            │  │
++│  │  • Forge KVS (carebridge:v1:user:<accountId>:workspace) + asUser()  │  │
+ │  └─────────────────────────────────────────────────────────────────────┘  │
+ └───────────────────────────────────────────────────────────────────────────┘
+ ```
+diff --git a/docs/CAREBRIDGE_FORGE_SETUP.md b/docs/CAREBRIDGE_FORGE_SETUP.md
+index 620d573..4265408 100644
+--- a/docs/CAREBRIDGE_FORGE_SETUP.md
++++ b/docs/CAREBRIDGE_FORGE_SETUP.md
+@@ -71,12 +71,13 @@ forge lint
+ # 6. Deploy to Atlassian Forge development environment
+ forge deploy -e development
+ 
+-# 7. Install onto Jira Service Management & Confluence on https://zenieverse.atlassian.net
+-forge install --product jira-servicedesk -e development --site zenieverse.atlassian.net
++# 7. Install onto Jira (includes Jira Service Management) & Confluence on https://zenieverse.atlassian.net
++# Supported @forge/cli@16.0.0 sited products: jira, confluence, compass, teamwork-graph
++forge install --product jira -e development --site zenieverse.atlassian.net
+ forge install --product confluence -e development --site zenieverse.atlassian.net
+ ```
+ 
+-To enable Atlassian Rovo testing, ensure `https://zenieverse.atlassian.net` has Rovo activated and verify the `CareBridge Healthcare Navigator` agent (`carebridge-navigator`) appears in Rovo Chat.
++To enable Atlassian Rovo testing, ensure `https://zenieverse.atlassian.net` has Rovo activated and verify the `CareBridge Care Navigator` agent (`carebridge-navigator`) appears in Rovo Chat.
+ 
+ ---
+ 
+@@ -113,10 +114,12 @@ firebase deploy --only firestore:rules --project gen-lang-client-0611153209
+ 
+ ## Post-Merge Codespaces Handoff — 2026-11-26
+ 
+-The Google AI Studio Build runtime used for recent checks is `/app/applet`, which has no `.git` directory and no `@forge/cli`. Do not attempt Git pushes or Forge lifecycle commands from that container.
++The Google AI Studio Build runtime used for recent checks is `/app/applet`, which has no `.git` directory and cannot execute interactive Atlassian Forge authentication. Do not attempt Git pushes from that container.
+ 
+-The verified remote baseline is `main` at `83a2b3490ea5625c62ce53a71da084776f79c4c5`. The intended branch is `chore/carebridge-post-merge-verification`. For this release handoff, synchronize and review the CareBridge service and documentation changes on that branch, then run Forge authentication, inspect existing registrations/installations, register only if needed, replace only the CareBridge manifest ID, validate/lint, deploy to development, and install on `zenieverse.atlassian.net` for supported Jira Service Management and Confluence products. Preserve HatBridge's separate app ID.
++The verified remote baseline is `main` at `f5c8f132f411aa38800bab6cd549a0d247c7da03` (PR `#5` + PR `#6` merged). Validation against `@forge/cli@16.0.0` (`@forge/manifest` `FullValidationProcessor`) identified and fixed 5 manifest schema/module issues (`rovo:agent` `name` trimmed to 25 chars `CareBridge Care Navigator` and the 4 Rovo `function` keys shortened to `<= 23` chars), and corrected the CLI install flag from `--product jira-servicedesk` to `--product jira`.
+ 
+-Production build is blocked until the deployment platform provides explicit `VITE_RUNTIME_ENV=production` and approved non-development `VITE_FIREBASE_PROJECT_ID`, `VITE_FIRESTORE_DATABASE_ID`, `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_APP_ID`, and `VITE_FIREBASE_MESSAGING_SENDER_ID`. Never use the development Firestore database as production configuration or bypass the fail-closed validator.
++For the remaining release steps in GitHub Codespaces, stage and push these Forge manifest/doc fixes on a new focused branch, run interactive `forge login` / `forge whoami`, inspect existing registrations/installations, run `forge register` (CareBridge app only, preserving HatBridge's separate app ID), run `npm run build:ui`, `npm run typecheck`, `npm run validate:manifest`, and `forge lint`, then deploy (`forge deploy -e development`) and install on `zenieverse.atlassian.net` (`--product jira` and `--product confluence`).
++
++Production build remains **BLOCKED** until the deployment platform provides explicit `VITE_RUNTIME_ENV=production` and approved non-development `VITE_FIREBASE_PROJECT_ID`, `VITE_FIRESTORE_DATABASE_ID`, `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_APP_ID`, and `VITE_FIREBASE_MESSAGING_SENDER_ID`. Never use the development Firestore database as production configuration or bypass the fail-closed validator.
+ 
+ The server status field `githubTokenConfigured` is a boolean readiness indicator only. The real `GITHUB_TOKEN`, if used, must be injected through the server runtime's supported secret mechanism; a readiness flag alone does not establish that authenticated GitHub operations have been tested.
+diff --git a/docs/CAREBRIDGE_RELEASE_CHECKLIST.md b/docs/CAREBRIDGE_RELEASE_CHECKLIST.md
+index 6ee270c..09e6c04 100644
+--- a/docs/CAREBRIDGE_RELEASE_CHECKLIST.md
++++ b/docs/CAREBRIDGE_RELEASE_CHECKLIST.md
+@@ -24,8 +24,8 @@
+ 
+ ## Post-Merge Verification Addendum — 2026-11-26
+ 
+-**GitHub baseline:** PR #5 is merged. Verified remote `main` HEAD: `83a2b3490ea5625c62ce53a71da084776f79c4c5`. The merged PR changed only `.env.example` and `src/server/carebridgeService.ts`; no HatBridge files were changed.
++**GitHub baseline:** PR #5 (`83a2b3490ea5625c62ce53a71da084776f79c4c5`) and PR #6 (`f5c8f132f411aa38800bab6cd549a0d247c7da03`) are merged on `main`. After reconciling local `/app/applet` with `f5c8f132`, official `@forge/manifest` schema verification (`@forge/cli@16.0.0`) caught and resolved 5 manifest constraints (`rovo:agent` `name` trimmed to `<= 30` chars as `CareBridge Care Navigator`, 4 `function` keys shortened to `<= 23` chars, and `--product jira` documented instead of `--product jira-servicedesk`).
+ 
+-**Reported in Google AI Studio Build (/app/applet):** CareBridge 15/15; HatBridge 12/12; Health Alert 46/46; Population Health 62/62; Presage 5/5; Firestore security 33/33; lint/typecheck, Forge UI build, Forge typecheck, manifest validation, development build, and applet compilation passed. Atlassian read-only verifier reported Connected (5/5), and synthetic request CR2-1 remained To Do. Consent/authentication and PHI-redaction probes passed as documented in the session report. These results are environment-specific and are not Codespaces or Forge deployment evidence.
++**Reported in Google AI Studio Build (/app/applet):** CareBridge 15/15; HatBridge 12/12; Health Alert 46/46; Population Health 62/62; Presage 5/5; Firestore security 33/33; lint/typecheck, Forge `npm ci`, UI build (`232.9kb`), Forge typecheck, manifest validation, development build, and applet compilation passed. Atlassian read-only verifier reported Connected (5/5), and synthetic request CR2-1 remained To Do. Consent/authentication and PHI-redaction probes passed. These results are environment-specific and are not Codespaces or live Forge deployment evidence.
+ 
+-**Release gates still open:** AI Studio has no Git checkout or Forge CLI. The post-merge verification branch and commit must be created remotely/in Codespaces; Forge registration, lint, development deployment, and site installations remain pending. Production build remains intentionally fail-closed until approved non-development Firebase configuration is supplied. Do not mark the Forge app deployed or installed based on local manifest checks.
++**Release gates still open:** AI Studio has no `.git` checkout and no interactive Forge CLI session (`forge lint --verbose` stops at `Not logged in`). The Forge manifest/doc fixes must be pushed from GitHub Codespaces on a focused branch; live `forge login`, `forge register`, `forge lint`, `forge deploy -e development`, and `forge install` remain pending. Production build remains intentionally fail-closed until approved non-development Firebase configuration is supplied. Do not mark the Forge app registered, deployed, or installed based on local manifest checks.

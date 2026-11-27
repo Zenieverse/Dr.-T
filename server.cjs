@@ -119828,7 +119828,7 @@ __export(server_impl_exports, {
   app: () => app
 });
 module.exports = __toCommonJS(server_impl_exports);
-var import_express2 = __toESM(require_express2(), 1);
+var import_express3 = __toESM(require_express2(), 1);
 var import_cors = __toESM(require_lib3(), 1);
 var import_path7 = __toESM(require("path"), 1);
 var import_fs9 = __toESM(require("fs"), 1);
@@ -187603,6 +187603,7 @@ function registerCareBridgeRoutes(app2, getGemini2, options) {
         module: "carebridge",
         authMode: auth.authMode,
         aiAvailable: Boolean(process.env.GEMINI_API_KEY),
+        githubTokenConfigured: Boolean(process.env.GITHUB_TOKEN && process.env.GITHUB_TOKEN.trim()),
         aiModel: CAREBRIDGE_GEMINI_MODEL,
         atlassianConfigured: cfgMode !== "disconnected",
         connectionStatus: cfgMode !== "disconnected" ? "Configured (Unverified)" : "Unavailable",
@@ -188339,6 +188340,750 @@ function registerCareBridgeRoutes(app2, getGemini2, options) {
   });
 }
 
+// even-g2-carecue/server.ts
+var import_express2 = __toESM(require_express2(), 1);
+
+// even-g2-carecue/syntheticData.ts
+function createSyntheticDemoMessages() {
+  const now = Date.now();
+  return [
+    {
+      id: "demo-tg-1",
+      telegramChatId: "synthetic-chat-101",
+      senderName: "Maya Lin (Ops)",
+      senderHandle: "@maya_ops",
+      chatType: "group_supergroup",
+      receivedAt: new Date(now - 4 * 6e4).toISOString(),
+      rawText: "Quick check before the 3:30 PM clinic standup: did the shipment of portable pulse oximeters arrive at Building B reception, or should I reroute courier pickup for tomorrow morning?",
+      source: "synthetic_demo",
+      status: "UNREAD"
+    },
+    {
+      id: "demo-tg-2",
+      telegramChatId: "synthetic-chat-102",
+      senderName: "David Park",
+      senderHandle: "@dpark_eng",
+      chatType: "private_bot_chat",
+      receivedAt: new Date(now - 14 * 6e4).toISOString(),
+      rawText: "Battery telemetry on demo headset #4 stayed above 82% after two hours of BLE testing. Can we lock firmware build 0.16 for tonight?",
+      source: "synthetic_demo",
+      status: "UNREAD"
+    },
+    {
+      id: "demo-tg-3",
+      telegramChatId: "synthetic-chat-103",
+      senderName: "Elena Alvarez",
+      senderHandle: "@elena_care",
+      chatType: "private_bot_chat",
+      receivedAt: new Date(now - 37 * 6e4).toISOString(),
+      rawText: "Running 10 minutes late from physical therapy. Please keep my 4:00 PM check-in slot open if possible.",
+      source: "synthetic_demo",
+      status: "UNREAD"
+    }
+  ];
+}
+
+// even-g2-carecue/telegramClient.ts
+var TELEGRAM_API_HOST = "https://api.telegram.org";
+var REQUEST_TIMEOUT_MS = 1e4;
+var TELEGRAM_PERMISSION_BOUNDARY = "Telegram Bot API only receives messages sent directly to your bot (/start) or messages in groups/channels where your bot is added. Bots cannot read unrelated private user-to-user DMs.";
+function sanitizeTelegramError(raw) {
+  const msg = raw instanceof Error ? raw.message : String(raw || "Unknown Telegram error");
+  return msg.replace(/bot\d+:[A-Za-z0-9_-]+/g, "bot[REDACTED]");
+}
+function assertTelegramApiUrl(endpointMethod, token) {
+  if (!token || !token.includes(":")) {
+    throw new Error("TELEGRAM_BOT_TOKEN is missing or malformed.");
+  }
+  const cleanMethod = endpointMethod.replace(/[^a-zA-Z0-9_]/g, "");
+  const url = new URL(`${TELEGRAM_API_HOST}/bot${token.trim()}/${cleanMethod}`);
+  if (url.origin !== TELEGRAM_API_HOST) {
+    throw new Error("Blocked outbound request outside https://api.telegram.org");
+  }
+  return url.toString();
+}
+async function callTelegramApi(methodName, token, options) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  try {
+    const baseUrl = new URL(assertTelegramApiUrl(methodName, token));
+    if (options.query) {
+      for (const [k3, v3] of Object.entries(options.query)) {
+        baseUrl.searchParams.set(k3, v3);
+      }
+    }
+    const res = await fetch(baseUrl.toString(), {
+      method: options.method,
+      redirect: "manual",
+      signal: controller.signal,
+      headers: options.body ? { "Content-Type": "application/json" } : void 0,
+      body: options.body ? JSON.stringify(options.body) : void 0
+    });
+    if (res.status >= 300 && res.status < 400) {
+      throw new Error(`Unexpected redirect (${res.status}) from Telegram API.`);
+    }
+    const payload = await res.json();
+    if (!res.ok || !payload.ok) {
+      throw new Error(payload.description || `Telegram HTTP ${res.status}`);
+    }
+    return payload.result;
+  } catch (err) {
+    throw new Error(sanitizeTelegramError(err));
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+async function getTelegramBotInfo(token) {
+  const me = await callTelegramApi(
+    "getMe",
+    token,
+    { method: "GET" }
+  );
+  return {
+    id: me.id,
+    username: me.username || "telegram_bot",
+    firstName: me.first_name || "CareCue Bot"
+  };
+}
+async function pollTelegramUpdates(token, offset) {
+  try {
+    const bot = await getTelegramBotInfo(token);
+    const query = { limit: "15", timeout: "0" };
+    if (typeof offset === "number" && Number.isFinite(offset) && offset > 0) {
+      query.offset = String(offset);
+    }
+    const updates = await callTelegramApi("getUpdates", token, {
+      method: "GET",
+      query
+    });
+    let highestUpdateId = offset ? offset - 1 : 0;
+    const messages = [];
+    for (const upd of updates) {
+      if (upd.update_id > highestUpdateId) {
+        highestUpdateId = upd.update_id;
+      }
+      const msg = upd.message;
+      const textBody = (msg?.text || msg?.caption || "").trim();
+      if (!msg || !textBody) continue;
+      const fullName = [msg.from?.first_name, msg.from?.last_name].filter(Boolean).join(" ").trim();
+      const senderName = fullName || msg.chat.title || msg.chat.first_name || `Chat ${msg.chat.id}`;
+      const senderHandle = msg.from?.username ? `@${msg.from.username}` : msg.chat.username ? `@${msg.chat.username}` : `chat:${msg.chat.id}`;
+      const chatType = msg.chat.type === "group" || msg.chat.type === "supergroup" ? "group_supergroup" : "private_bot_chat";
+      messages.push({
+        id: `tg-${msg.chat.id}-${msg.message_id}`,
+        telegramChatId: String(msg.chat.id),
+        telegramMessageId: msg.message_id,
+        senderName,
+        senderHandle,
+        chatType,
+        receivedAt: new Date(msg.date * 1e3).toISOString(),
+        rawText: textBody,
+        source: "telegram_bot_api",
+        status: "UNREAD"
+      });
+    }
+    return {
+      ok: true,
+      bot,
+      messages,
+      nextOffset: highestUpdateId > 0 ? highestUpdateId + 1 : offset
+    };
+  } catch (err) {
+    return {
+      ok: false,
+      messages: [],
+      error: sanitizeTelegramError(err)
+    };
+  }
+}
+async function sendTelegramMessage(token, chatId, text, replyToMessageId) {
+  try {
+    const body = {
+      chat_id: chatId,
+      text: text.trim()
+    };
+    if (typeof replyToMessageId === "number" && Number.isFinite(replyToMessageId)) {
+      body.reply_parameters = { message_id: replyToMessageId };
+    }
+    const result = await callTelegramApi("sendMessage", token, {
+      method: "POST",
+      body
+    });
+    return {
+      ok: true,
+      telegramMessageId: result.message_id,
+      sentAt: (/* @__PURE__ */ new Date()).toISOString()
+    };
+  } catch (err) {
+    return {
+      ok: false,
+      sentAt: (/* @__PURE__ */ new Date()).toISOString(),
+      error: sanitizeTelegramError(err)
+    };
+  }
+}
+
+// even-g2-carecue/aiService.ts
+function truncate(text, maxLen) {
+  const clean = text.replace(/\s+/g, " ").trim();
+  if (clean.length <= maxLen) return clean;
+  return `${clean.slice(0, Math.max(1, maxLen - 3))}...`;
+}
+function buildDeterministicFallback(message, fallbackReason) {
+  const textLower = message.rawText.toLowerCase();
+  const urgency = /urgent|asap|immediately|emergency|late|reroute|standup/.test(textLower) ? "HIGH" : /\?/.test(message.rawText) ? "MEDIUM" : "LOW";
+  const words = message.rawText.replace(/\s+/g, " ").trim();
+  const firstClause = words.split(/[.!?]/)[0] || words;
+  const drafts = [
+    {
+      id: `draft-${message.id}-1`,
+      tone: "Direct",
+      text: truncate("Got it \u2014 checking now and will confirm shortly.", 90),
+      unverifiedUntilConfirmed: true
+    },
+    {
+      id: `draft-${message.id}-2`,
+      tone: "Warm",
+      text: truncate(`Thanks ${message.senderName.split(" ")[0]}, seen on glasses \u2014 following up right away.`, 90),
+      unverifiedUntilConfirmed: true
+    },
+    {
+      id: `draft-${message.id}-3`,
+      tone: "Defer",
+      text: truncate("Saw your note \u2014 let me get back to you in 15 mins.", 90),
+      unverifiedUntilConfirmed: true
+    }
+  ];
+  return {
+    glanceHeadline: truncate(`${message.senderName}: ${firstClause}`, 44),
+    bulletPoints: [
+      truncate(firstClause, 50),
+      message.rawText.length > 52 ? truncate(message.rawText.slice(firstClause.length).trim() || "Reply requested", 50) : "Tap R1 to choose a short reply draft"
+    ].filter(Boolean),
+    urgency,
+    recommendedAction: "Review drafts on G2 and explicitly confirm before sending.",
+    drafts,
+    generatedAt: (/* @__PURE__ */ new Date()).toISOString(),
+    modelProvider: "deterministic_fallback",
+    fallbackReason
+  };
+}
+async function summarizeMessageForG2(message, geminiClient) {
+  if (!geminiClient) {
+    return buildDeterministicFallback(
+      message,
+      "GEMINI_API_KEY is not configured on the server; using deterministic G2 glance formatter."
+    );
+  }
+  try {
+    const response = await geminiClient.models.generateContent({
+      model: "gemini-4-hydrogen",
+      contents: `Summarize this incoming Telegram message for an Even Realities G2 smart-glasses monochrome 576x288 HUD and propose 3 short reply drafts.
+
+Sender: ${message.senderName} (${message.senderHandle})
+Chat type: ${message.chatType}
+Message: "${message.rawText}"`,
+      config: {
+        systemInstruction: "You format Telegram messages for tiny smart-glasses micro-LED screens. Be concise, accurate to the sender text only, never invent facts, and NEVER fabricate medical urgency or clinical triage claims. Base urgency strictly on explicit operational/time cues in the message text. Keep glanceHeadline <= 42 chars, bulletPoints <= 3 items each <= 48 chars, and drafts strictly 3 items each <= 88 chars ready for wearer confirmation.",
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            glanceHeadline: { type: Type.STRING },
+            bulletPoints: {
+              type: Type.ARRAY,
+              items: { type: Type.STRING }
+            },
+            urgency: { type: Type.STRING },
+            recommendedAction: { type: Type.STRING },
+            drafts: {
+              type: Type.ARRAY,
+              items: {
+                type: Type.OBJECT,
+                properties: {
+                  tone: { type: Type.STRING },
+                  text: { type: Type.STRING }
+                },
+                required: ["tone", "text"]
+              }
+            }
+          },
+          required: ["glanceHeadline", "bulletPoints", "urgency", "recommendedAction", "drafts"]
+        }
+      }
+    });
+    const parsed = JSON.parse((response.text ?? "{}").trim());
+    const urgency = parsed.urgency === "HIGH" || parsed.urgency === "MEDIUM" || parsed.urgency === "LOW" ? parsed.urgency : "MEDIUM";
+    const bullets = Array.isArray(parsed.bulletPoints) ? parsed.bulletPoints.map((b5) => truncate(String(b5 || ""), 50)).filter(Boolean).slice(0, 3) : [];
+    const rawDrafts = Array.isArray(parsed.drafts) ? parsed.drafts.slice(0, 3) : [];
+    const tones = ["Direct", "Warm", "Defer"];
+    const drafts = tones.map((fallbackTone, idx) => {
+      const candidate = rawDrafts[idx];
+      const tone = candidate?.tone === "Direct" || candidate?.tone === "Warm" || candidate?.tone === "Defer" ? candidate.tone : fallbackTone;
+      const text = truncate(
+        String(candidate?.text || "Received \u2014 checking now and will reply shortly."),
+        92
+      );
+      return {
+        id: `draft-${message.id}-${idx + 1}`,
+        tone,
+        text,
+        unverifiedUntilConfirmed: true
+      };
+    });
+    return {
+      glanceHeadline: truncate(
+        parsed.glanceHeadline || `${message.senderName}: Telegram Note`,
+        44
+      ),
+      bulletPoints: bullets.length > 0 ? bullets : [truncate(message.rawText, 50)],
+      urgency,
+      recommendedAction: truncate(
+        parsed.recommendedAction || "Select draft on G2 and confirm before sending.",
+        90
+      ),
+      drafts,
+      generatedAt: (/* @__PURE__ */ new Date()).toISOString(),
+      modelProvider: "gemini-4-hydrogen"
+    };
+  } catch (err) {
+    const reason = err instanceof Error ? err.message : "Gemini request failed";
+    return buildDeterministicFallback(
+      message,
+      `Gemini unavailable (${truncate(reason, 90)}); fell back to deterministic formatter.`
+    );
+  }
+}
+
+// even-g2-carecue/server.ts
+function maskChatId(chatId) {
+  const clean = chatId.trim();
+  if (!clean) return "***";
+  if (clean.length <= 4) return `***${clean}`;
+  return `***${clean.slice(-4)}`;
+}
+function createCareCueRouter(getGemini2) {
+  const router = import_express2.default.Router();
+  const inFlightMessageIds = /* @__PURE__ */ new Set();
+  const state = {
+    messages: createSyntheticDemoMessages(),
+    audit: [],
+    sessionPaused: false,
+    cachedBot: null,
+    lastDeliveryVerification: null
+  };
+  function appendAudit(eventType, detail, sourceMode, messageId) {
+    const entry = {
+      id: `audit-${Date.now()}-${state.audit.length + 1}`,
+      timestamp: (/* @__PURE__ */ new Date()).toISOString(),
+      eventType,
+      messageId,
+      detail: sanitizeTelegramError(detail),
+      sourceMode
+    };
+    state.audit.unshift(entry);
+    if (state.audit.length > 100) {
+      state.audit.length = 100;
+    }
+    return entry;
+  }
+  function buildStatusPayload(botError = null) {
+    const botToken = (process.env.TELEGRAM_BOT_TOKEN || "").trim();
+    const defaultChatId = (process.env.TELEGRAM_DEFAULT_CHAT_ID || "").trim();
+    const geminiConfigured = Boolean((process.env.GEMINI_API_KEY || "").trim());
+    return {
+      telegramConfigured: Boolean(botToken),
+      defaultChatIdConfigured: Boolean(defaultChatId),
+      defaultChatIdHint: defaultChatId ? maskChatId(defaultChatId) : null,
+      sessionPaused: state.sessionPaused,
+      botVerified: Boolean(botToken && state.cachedBot),
+      botId: state.cachedBot?.id ?? null,
+      botUsername: state.cachedBot?.username ?? null,
+      botFirstName: state.cachedBot?.firstName ?? null,
+      botError,
+      telegramHost: "https://api.telegram.org",
+      geminiConfigured,
+      permissionBoundary: TELEGRAM_PERMISSION_BOUNDARY,
+      messageCount: state.messages.length,
+      auditCount: state.audit.length,
+      lastDeliveryVerification: state.lastDeliveryVerification
+    };
+  }
+  router.get("/status", async (_req, res) => {
+    const botToken = (process.env.TELEGRAM_BOT_TOKEN || "").trim();
+    let botError = null;
+    if (botToken && !state.cachedBot && !state.sessionPaused) {
+      try {
+        const me = await getTelegramBotInfo(botToken);
+        state.cachedBot = { id: me.id, username: me.username, firstName: me.firstName };
+      } catch (err) {
+        botError = sanitizeTelegramError(err);
+      }
+    }
+    res.json(buildStatusPayload(botError));
+  });
+  router.post("/telegram/session", (req, res) => {
+    if (typeof req.body?.paused !== "boolean") {
+      return res.status(400).json({
+        code: "VALIDATION_ERROR",
+        error: 'Boolean field "paused" is required.'
+      });
+    }
+    state.sessionPaused = req.body.paused;
+    appendAudit(
+      "TELEGRAM_SESSION_TOGGLED",
+      state.sessionPaused ? "Wearer paused/disconnected active Telegram session from CareCue Settings." : "Wearer reconnected Telegram session from CareCue Settings.",
+      "system"
+    );
+    return res.json({
+      ok: true,
+      sessionPaused: state.sessionPaused,
+      status: buildStatusPayload(null)
+    });
+  });
+  router.post("/telegram/verify-bot", async (_req, res) => {
+    const botToken = (process.env.TELEGRAM_BOT_TOKEN || "").trim();
+    if (!botToken) {
+      return res.status(400).json({
+        code: "BOT_NOT_CONFIGURED",
+        error: "TELEGRAM_BOT_TOKEN is not configured on the backend."
+      });
+    }
+    if (state.sessionPaused) {
+      return res.status(409).json({
+        code: "SESSION_PAUSED",
+        error: "Telegram session is paused in CareCue Settings. Reconnect first to verify the bot."
+      });
+    }
+    try {
+      const me = await getTelegramBotInfo(botToken);
+      state.cachedBot = { id: me.id, username: me.username, firstName: me.firstName };
+      appendAudit(
+        "TELEGRAM_BOT_VERIFIED",
+        `Verified Telegram bot @${me.username} (ID ${me.id}) via getMe.`,
+        "telegram_bot_api"
+      );
+      return res.json({
+        ok: true,
+        bot: me,
+        status: buildStatusPayload(null)
+      });
+    } catch (err) {
+      const sanitized = sanitizeTelegramError(err);
+      return res.status(502).json({
+        code: "TELEGRAM_VERIFY_FAILED",
+        error: sanitized
+      });
+    }
+  });
+  router.post("/telegram/test-send", async (req, res) => {
+    const botToken = (process.env.TELEGRAM_BOT_TOKEN || "").trim();
+    const defaultChatId = (process.env.TELEGRAM_DEFAULT_CHAT_ID || "").trim();
+    const wearerConfirmed = req.body?.wearerConfirmed === true;
+    const text = String(req.body?.text || "").trim().slice(0, 400) || "Dr. T CareCue G2 verification check: live Telegram Bot API delivery confirmed.";
+    if (!wearerConfirmed) {
+      appendAudit(
+        "REPLY_BLOCKED_UNCONFIRMED",
+        "Blocked outbound Telegram test send: explicit wearer confirmation was not true.",
+        "system"
+      );
+      return res.status(403).json({
+        code: "CONFIRMATION_REQUIRED",
+        error: "Explicit user confirmation is required before sending any Telegram message."
+      });
+    }
+    if (state.sessionPaused) {
+      return res.status(409).json({
+        code: "SESSION_PAUSED",
+        error: "Telegram session is paused in CareCue Settings. Reconnect before sending."
+      });
+    }
+    if (!botToken) {
+      return res.status(400).json({
+        code: "BOT_NOT_CONFIGURED",
+        error: "TELEGRAM_BOT_TOKEN is not configured on the backend."
+      });
+    }
+    if (!defaultChatId) {
+      return res.status(400).json({
+        code: "DEFAULT_CHAT_ID_NOT_CONFIGURED",
+        error: "TELEGRAM_DEFAULT_CHAT_ID is not configured on the backend."
+      });
+    }
+    const result = await sendTelegramMessage(botToken, defaultChatId, text);
+    if (!result.ok) {
+      const failedVerification = {
+        ok: false,
+        sentAt: result.sentAt,
+        maskedChatId: maskChatId(defaultChatId),
+        previewText: text,
+        error: result.error || "Telegram sendMessage failed."
+      };
+      state.lastDeliveryVerification = failedVerification;
+      return res.status(502).json({
+        code: "TELEGRAM_SEND_FAILED",
+        error: failedVerification.error,
+        deliveryVerification: failedVerification
+      });
+    }
+    const verification = {
+      ok: true,
+      telegramMessageId: result.telegramMessageId,
+      sentAt: result.sentAt,
+      maskedChatId: maskChatId(defaultChatId),
+      previewText: text
+    };
+    state.lastDeliveryVerification = verification;
+    appendAudit(
+      "TEST_MESSAGE_SENT",
+      `Sent confirmed test message (msg_id=${result.telegramMessageId}) to configured chat ${verification.maskedChatId}.`,
+      "telegram_bot_api"
+    );
+    return res.json({
+      ok: true,
+      deliveryVerification: verification,
+      status: buildStatusPayload(null)
+    });
+  });
+  router.get("/messages", (_req, res) => {
+    const sorted = [...state.messages].sort(
+      (a25, b5) => new Date(b5.receivedAt).getTime() - new Date(a25.receivedAt).getTime()
+    );
+    res.json({ messages: sorted });
+  });
+  router.post("/telegram/poll", async (_req, res) => {
+    if (state.sessionPaused) {
+      return res.status(409).json({
+        code: "SESSION_PAUSED",
+        error: "Telegram session is paused in CareCue Settings. Reconnect before polling updates."
+      });
+    }
+    const botToken = (process.env.TELEGRAM_BOT_TOKEN || "").trim();
+    if (!botToken) {
+      return res.status(400).json({
+        code: "BOT_NOT_CONFIGURED",
+        error: "TELEGRAM_BOT_TOKEN is not configured on the server. Set it in server environment variables or use Simulate Incoming Message to test the full G2 flow."
+      });
+    }
+    const poll = await pollTelegramUpdates(botToken, state.telegramOffset);
+    if (!poll.ok) {
+      return res.status(502).json({
+        code: "TELEGRAM_UPSTREAM_ERROR",
+        error: poll.error || "Failed to poll Telegram Bot API."
+      });
+    }
+    if (poll.bot) {
+      state.cachedBot = {
+        id: poll.bot.id,
+        username: poll.bot.username,
+        firstName: poll.bot.firstName
+      };
+    }
+    if (poll.nextOffset) {
+      state.telegramOffset = poll.nextOffset;
+    }
+    let added = 0;
+    const existingIds = new Set(state.messages.map((m9) => m9.id));
+    for (const incoming of poll.messages) {
+      if (!existingIds.has(incoming.id)) {
+        state.messages.unshift(incoming);
+        existingIds.add(incoming.id);
+        added += 1;
+      }
+    }
+    appendAudit(
+      "TELEGRAM_POLLED",
+      `Polled @${poll.bot?.username || "bot"}: ${poll.messages.length} updates inspected, ${added} new messages queued.`,
+      "telegram_bot_api"
+    );
+    return res.json({
+      ok: true,
+      bot: poll.bot,
+      added,
+      messages: [...state.messages].sort(
+        (a25, b5) => new Date(b5.receivedAt).getTime() - new Date(a25.receivedAt).getTime()
+      )
+    });
+  });
+  router.post("/telegram/simulate", (req, res) => {
+    const senderName = String(req.body?.senderName || "").trim().slice(0, 60);
+    const senderHandle = String(req.body?.senderHandle || "").trim().slice(0, 40);
+    const rawText = String(req.body?.rawText || "").trim().slice(0, 600);
+    const chatType = req.body?.chatType === "group_supergroup" ? "group_supergroup" : "private_bot_chat";
+    if (!senderName || !rawText) {
+      return res.status(400).json({
+        code: "VALIDATION_ERROR",
+        error: "Both senderName and rawText are required to simulate an incoming Telegram message."
+      });
+    }
+    const item = {
+      id: `sim-tg-${Date.now()}-${Math.floor(Math.random() * 1e3)}`,
+      telegramChatId: (process.env.TELEGRAM_DEFAULT_CHAT_ID || "").trim() || `sim-chat-${Date.now()}`,
+      senderName,
+      senderHandle: senderHandle || `@${senderName.toLowerCase().replace(/[^a-z0-9]/g, "_")}`,
+      chatType,
+      receivedAt: (/* @__PURE__ */ new Date()).toISOString(),
+      rawText,
+      source: "simulated_webhook",
+      status: "UNREAD"
+    };
+    state.messages.unshift(item);
+    appendAudit(
+      "MESSAGE_SIMULATED",
+      `Simulated incoming Telegram note from ${item.senderName} (${item.senderHandle}).`,
+      "simulated_webhook",
+      item.id
+    );
+    return res.status(201).json({ message: item });
+  });
+  router.post("/ai/summarize", async (req, res) => {
+    const messageId = String(req.body?.messageId || "").trim();
+    const target = state.messages.find((m9) => m9.id === messageId);
+    if (!target) {
+      return res.status(404).json({
+        code: "MESSAGE_NOT_FOUND",
+        error: `Message "${messageId}" was not found in the active queue.`
+      });
+    }
+    const summary = await summarizeMessageForG2(target, getGemini2());
+    target.summary = summary;
+    if (target.status === "UNREAD") {
+      target.status = "SUMMARIZED";
+    }
+    appendAudit(
+      "AI_SUMMARIZED",
+      `Generated G2 glance summary (${summary.modelProvider}, urgency=${summary.urgency}) with ${summary.drafts.length} unverified drafts.`,
+      target.source,
+      target.id
+    );
+    return res.json({ message: target, summary });
+  });
+  router.post("/telegram/send", async (req, res) => {
+    const messageId = String(req.body?.messageId || "").trim();
+    const replyText = String(req.body?.replyText || "").trim().slice(0, 500);
+    const wearerConfirmed = req.body?.wearerConfirmed === true;
+    if (!messageId || !replyText) {
+      return res.status(400).json({
+        code: "VALIDATION_ERROR",
+        error: "messageId and non-empty replyText are required."
+      });
+    }
+    if (!wearerConfirmed) {
+      appendAudit(
+        "REPLY_BLOCKED_UNCONFIRMED",
+        "Blocked outbound Telegram send: explicit wearer confirmation was not true.",
+        "system",
+        messageId
+      );
+      return res.status(403).json({
+        code: "CONFIRMATION_REQUIRED",
+        error: "Wearer confirmation is required before sending any Telegram reply from CareCue G2."
+      });
+    }
+    if (state.sessionPaused) {
+      return res.status(409).json({
+        code: "SESSION_PAUSED",
+        error: "Telegram session is paused in CareCue Settings. Reconnect before sending."
+      });
+    }
+    const target = state.messages.find((m9) => m9.id === messageId);
+    if (!target) {
+      return res.status(404).json({
+        code: "MESSAGE_NOT_FOUND",
+        error: `Message "${messageId}" was not found.`
+      });
+    }
+    if (inFlightMessageIds.has(messageId) || target.status === "REPLIED") {
+      appendAudit(
+        "REPLY_BLOCKED_DUPLICATE",
+        `Blocked duplicate reply attempt for message ${messageId} (${target.senderName}).`,
+        target.source,
+        target.id
+      );
+      return res.status(409).json({
+        code: "DUPLICATE_SEND_PREVENTED",
+        error: "A reply has already been sent for this message; duplicate sends are blocked."
+      });
+    }
+    inFlightMessageIds.add(messageId);
+    try {
+      const botToken = (process.env.TELEGRAM_BOT_TOKEN || "").trim();
+      const shouldSendLive = target.source === "telegram_bot_api" && Boolean(botToken);
+      if (shouldSendLive) {
+        const result = await sendTelegramMessage(
+          botToken,
+          target.telegramChatId,
+          replyText,
+          target.telegramMessageId
+        );
+        if (!result.ok) {
+          return res.status(502).json({
+            code: "TELEGRAM_SEND_FAILED",
+            error: result.error || "Telegram sendMessage failed."
+          });
+        }
+        target.status = "REPLIED";
+        target.sentReply = {
+          text: replyText,
+          sentAt: result.sentAt,
+          deliveryMode: "telegram_bot_api",
+          telegramResultMessageId: result.telegramMessageId
+        };
+        state.lastDeliveryVerification = {
+          ok: true,
+          telegramMessageId: result.telegramMessageId,
+          sentAt: result.sentAt,
+          maskedChatId: maskChatId(target.telegramChatId),
+          previewText: replyText
+        };
+      } else {
+        target.status = "REPLIED";
+        target.sentReply = {
+          text: replyText,
+          sentAt: (/* @__PURE__ */ new Date()).toISOString(),
+          deliveryMode: "simulated_local"
+        };
+      }
+      appendAudit(
+        "REPLY_CONFIRMED_AND_SENT",
+        `Wearer confirmed and dispatched reply to ${target.senderName} via ${target.sentReply.deliveryMode}.`,
+        target.source,
+        target.id
+      );
+      return res.json({
+        ok: true,
+        message: target,
+        deliveryMode: target.sentReply.deliveryMode
+      });
+    } finally {
+      inFlightMessageIds.delete(messageId);
+    }
+  });
+  router.get("/audit", (_req, res) => {
+    res.json({ entries: state.audit });
+  });
+  router.post("/demo/reset", (_req, res) => {
+    state.messages = createSyntheticDemoMessages();
+    state.audit = [];
+    state.sessionPaused = false;
+    appendAudit(
+      "DEMO_RESET",
+      "Reset CareCue G2 queue to 3 synthetic demo Telegram threads.",
+      "synthetic_demo"
+    );
+    return res.json({
+      ok: true,
+      messages: state.messages,
+      audit: state.audit,
+      status: buildStatusPayload(null)
+    });
+  });
+  return router;
+}
+function registerCareCueRoutes(app2, getGemini2) {
+  app2.use("/api/carecue", createCareCueRouter(getGemini2));
+}
+
 // server.impl.ts
 try {
   const envPath = import_path7.default.join(process.cwd(), ".env");
@@ -188377,10 +189122,10 @@ function resolveListenPort() {
   }
   return Number(process.env.PORT) || 3e3;
 }
-var app = (0, import_express2.default)();
+var app = (0, import_express3.default)();
 var PORT = resolveListenPort();
 app.use((0, import_cors.default)());
-app.use(import_express2.default.json({ limit: "20mb" }));
+app.use(import_express3.default.json({ limit: "20mb" }));
 var aiClient = null;
 function getGemini() {
   if (!aiClient && process.env.GEMINI_API_KEY) {
@@ -193679,6 +194424,7 @@ app.post("/api/population-health/demo/reset", async (req, res) => {
 });
 registerHatBridgeRoutes(app, getGemini);
 registerCareBridgeRoutes(app, getGemini);
+registerCareCueRoutes(app, getGemini);
 async function setupApp() {
   let startupDiagnostics;
   try {
@@ -193705,7 +194451,7 @@ async function setupApp() {
     });
     app.use(vite.middlewares);
   } else {
-    app.use(import_express2.default.static(distPath));
+    app.use(import_express3.default.static(distPath));
     app.get("*all", (req, res) => {
       if (req.path.startsWith("/api/")) {
         return res.status(404).json({ error: "Endpoint not found" });
