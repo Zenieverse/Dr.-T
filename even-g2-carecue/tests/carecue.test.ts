@@ -136,7 +136,54 @@ async function runTests() {
       ),
       'TEMPLE_BACK'
     );
-    console.log('PASS [2/8] R1 ring / temple hardware 7-screen state reducer & SDK event mapping passed.');
+    assert.equal(
+      mapEvenHubEventToGesture({ menuItemClickEvent: { itemID: 4 } }, 'INCOMING_MESSAGE'),
+      'OPEN_SETTINGS'
+    );
+    state = reduceCareCueGesture(state, 'OPEN_SETTINGS', msgs);
+    assert.equal(state.screen, 'SETTINGS');
+
+    // Unavailable/failing bridge methods must resolve safely without throwing
+    const { pushFrameToEvenBridge, subscribeEvenHubLifecycle, upgradeTextBrightnessOnBridge } =
+      await import('../g2Protocol');
+    const brokenFrame = buildG2HudFrame(state, msgs, true, false);
+    const brokenPush = await pushFrameToEvenBridge(
+      {
+        createStartUpPageContainer: async () => {
+          throw new Error('Host bridge disconnected');
+        },
+      } as never,
+      brokenFrame,
+      false
+    );
+    assert.equal(brokenPush.ok, false);
+    assert.ok(brokenPush.detail.includes('disconnected'));
+
+    const brokenUpgrade = await upgradeTextBrightnessOnBridge({} as never, 1, 'test', 4);
+    assert.equal(brokenUpgrade, false);
+
+    let cleanedUp = 0;
+    const unsub = subscribeEvenHubLifecycle(
+      {
+        onDeviceStatusChanged: () => () => {
+          cleanedUp += 1;
+        },
+        onLaunchSource: () => () => {
+          cleanedUp += 1;
+        },
+        onEvenHubEvent: () => () => {
+          cleanedUp += 1;
+        },
+      } as never,
+      {
+        onDeviceStatus: () => {},
+        onLaunchSource: () => {},
+        onEvenHubEvent: () => {},
+      }
+    );
+    unsub();
+    assert.equal(cleanedUp, 3);
+    console.log('PASS [2/8] R1 ring / temple hardware 7-screen state reducer, SDK mapping & failure guards passed.');
   }
 
   // Test 3: Telegram token redaction & explicit permission boundary

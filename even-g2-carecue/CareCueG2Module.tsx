@@ -222,10 +222,13 @@ export const CareCueG2Module: React.FC<CareCueG2ModuleProps> = ({ wearableOnly =
       if (probe.available && probe.bridge) {
         unsubscribeLifecycle = subscribeEvenHubLifecycle(probe.bridge, {
           onDeviceStatus: (deviceStatus) => {
+            const isActiveDevice = deviceStatus.connectType === DeviceConnectType.Connected;
             setBridgeProbe((prev) =>
               prev
                 ? {
                     ...prev,
+                    available: isActiveDevice,
+                    mode: isActiveDevice ? 'live_device' : 'simulator',
                     connectType: deviceStatus.connectType,
                     batteryLevel: deviceStatus.batteryLevel ?? null,
                     isWearing: deviceStatus.isWearing ?? null,
@@ -233,7 +236,7 @@ export const CareCueG2Module: React.FC<CareCueG2ModuleProps> = ({ wearableOnly =
                       deviceStatus.connectType === DeviceConnectType.ConnectionFailed
                         ? 'Even G2 connection failed — falling back to browser simulator preview.'
                         : deviceStatus.connectType === DeviceConnectType.Disconnected
-                          ? 'Even G2 glasses disconnected.'
+                          ? 'Even G2 glasses disconnected — browser simulator fallback active.'
                           : `Even G2 ${formatConnectType(deviceStatus.connectType)}${
                               deviceStatus.batteryLevel !== undefined
                                 ? ` (Battery ${deviceStatus.batteryLevel}%)`
@@ -254,6 +257,7 @@ export const CareCueG2Module: React.FC<CareCueG2ModuleProps> = ({ wearableOnly =
                 telegramConnected: Boolean(statusRef.current?.telegramConfigured),
                 sessionPaused: Boolean(statusRef.current?.sessionPaused),
                 customStagedText: customDraftRef.current,
+                selectedListIndex: event.listEvent?.currentSelectItemIndex,
               });
             });
           },
@@ -283,9 +287,18 @@ export const CareCueG2Module: React.FC<CareCueG2ModuleProps> = ({ wearableOnly =
     };
   }, [bridgeProbe, g2Frame, hasCreatedStartupPage]);
 
-  // Apply brightness upgrade via SDK TextContainerUpgrade when running inside live host
+  // Apply brightness upgrade via SDK TextContainerUpgrade only on actual TextContainerProperty targets
   useEffect(() => {
     if (!bridgeProbe?.available || !bridgeProbe.bridge || !hasCreatedStartupPage) return;
+    if (g2Frame.listItems && g2Frame.listItems.length > 0) {
+      void upgradeTextBrightnessOnBridge(
+        bridgeProbe.bridge,
+        1,
+        `${g2Frame.headerLeft} · ${g2Frame.screenTitle} [${g2Frame.headerRight}]`,
+        Math.max(1, hudState.displayPrefs.brightnessLevel - 1)
+      );
+      return;
+    }
     void upgradeTextBrightnessOnBridge(
       bridgeProbe.bridge,
       2,
@@ -296,6 +309,10 @@ export const CareCueG2Module: React.FC<CareCueG2ModuleProps> = ({ wearableOnly =
     bridgeProbe,
     hasCreatedStartupPage,
     hudState.displayPrefs.brightnessLevel,
+    g2Frame.headerLeft,
+    g2Frame.screenTitle,
+    g2Frame.headerRight,
+    g2Frame.listItems,
     g2Frame.bodyLines,
   ]);
 

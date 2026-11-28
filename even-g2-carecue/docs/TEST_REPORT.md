@@ -29,6 +29,16 @@ All automated suites and live server E2E checks below were executed on **2026-11
 
 ## 3. Build, Lint & Secret Isolation
 
-- **Dev Build (`npm run build:dev`):** Passed (`dist/index.html`, `dist/server.cjs`, multi-target artifacts populated).
-- **Secret Leak Scan:** `grep -rnE "TELEGRAM_BOT_TOKEN|9159192015:" src/ even-g2-carecue/CareCueG2Module.tsx dist/assets/` returned zero matches (`CLEAN_NO_SECRET_MATCHES`).
-- **Environment Disclosure:** `@evenrealities/evenhub-cli` and physical G2 glasses hardware are not attached inside this cloud sandbox (`SIMULATOR MODE`); browser `576 × 288` optical simulator and SDK container payload validation verified all 7 screens, while physical G2 QR pairing is documented in `docs/SIMULATOR_AND_PAIRING.md`.
+- **TypeScript Typecheck (`npx tsc --noEmit` & `npm run lint`):** Passed (`exit 0`, 0 errors). Note: `package.json` maps `"lint"` directly to `tsc --noEmit`; no separate ESLint config/script exists in the repository.
+- **Development Build (`npm run build:dev`):** Passed (`exit 0`; populated `dist/index.html` and `dist/server.cjs`).
+- **Production Build (`npm run build`):** Exited `1` (`[Dr. T Frontend Config BLOCKED]`) in this sandbox because `vite.config.ts` enforces fail-closed `VITE_RUNTIME_ENV` and `VITE_FIREBASE_*` env vars for production builds without falling back to `firebase-applet-config.json`.
+- **Secret Leak Scan:** `grep -rcE "TELEGRAM_BOT_TOKEN|9159192015:|(?:ghp_|github_pat_)[0-9A-Za-z_]{20,}" src/ even-g2-carecue/CareCueG2Module.tsx dist/assets/` returned zero matches (`CLEAN_CARECUE_SCAN`).
+
+## 4. Verification Breakdown by Environment
+
+- **Automated-Test Verified:** `test:carecue` (8/8), `test:carebridge` (15/15), `test:hatbridge` (12/12), SDK `validateEvenHubPageContainer`, unavailable bridge error handling, lifecycle cleanup, and `403`/`409` server guards.
+- **Simulator-Tested:** Built-in `576 × 288` 4-bit monochrome optical preview and keyboard/button R1+temple controls (`SIMULATOR MODE`).
+- **Server / Dev Runtime Verified:** Express `/api/carecue/*` routes on `http://localhost:3000` with `TELEGRAM_BOT_TOKEN` (`@DrTCareCueBot`), `TELEGRAM_DEFAULT_CHAT_ID` (`***1396`), and `GEMINI_API_KEY`.
+- **Not Yet Verified (`NOT RUN`):**
+  - Physical Even Realities G2 waveguide rendering, physical R1 ring gesture input, and BLE disconnect/reconnect via [`PHYSICAL_DEVICE_TEST_CHECKLIST.md`](PHYSICAL_DEVICE_TEST_CHECKLIST.md).
+  - Standalone production build (`npm run build`) with production `VITE_FIREBASE_*` variables and unauthenticated public endpoint verification against an external deployment (`ais-pre-*` enforces Google AI Studio session cookie auth `HTTP 302`).

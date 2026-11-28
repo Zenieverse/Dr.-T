@@ -16,7 +16,8 @@ export type CareCueHardwareGesture =
   | 'R1_PREV'
   | 'R1_SELECT'
   | 'TEMPLE_BACK'
-  | 'TEMPLE_HOLD_HOME';
+  | 'TEMPLE_HOLD_HOME'
+  | 'OPEN_SETTINGS';
 
 export interface CareCueDisplayPrefs {
   brightnessLevel: 1 | 2 | 3 | 4;
