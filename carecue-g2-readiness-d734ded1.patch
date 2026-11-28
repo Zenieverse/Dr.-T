@@ -1,0 +1,534 @@
+diff --git a/even-g2-carecue/CareCueG2Module.tsx b/even-g2-carecue/CareCueG2Module.tsx
+index 50ead82..0b7b987 100644
+--- a/even-g2-carecue/CareCueG2Module.tsx
++++ b/even-g2-carecue/CareCueG2Module.tsx
+@@ -222,10 +222,13 @@ export const CareCueG2Module: React.FC<CareCueG2ModuleProps> = ({ wearableOnly =
+       if (probe.available && probe.bridge) {
+         unsubscribeLifecycle = subscribeEvenHubLifecycle(probe.bridge, {
+           onDeviceStatus: (deviceStatus) => {
++            const isActiveDevice = deviceStatus.connectType === DeviceConnectType.Connected;
+             setBridgeProbe((prev) =>
+               prev
+                 ? {
+                     ...prev,
++                    available: isActiveDevice,
++                    mode: isActiveDevice ? 'live_device' : 'simulator',
+                     connectType: deviceStatus.connectType,
+                     batteryLevel: deviceStatus.batteryLevel ?? null,
+                     isWearing: deviceStatus.isWearing ?? null,
+@@ -233,7 +236,7 @@ export const CareCueG2Module: React.FC<CareCueG2ModuleProps> = ({ wearableOnly =
+                       deviceStatus.connectType === DeviceConnectType.ConnectionFailed
+                         ? 'Even G2 connection failed — falling back to browser simulator preview.'
+                         : deviceStatus.connectType === DeviceConnectType.Disconnected
+-                          ? 'Even G2 glasses disconnected.'
++                          ? 'Even G2 glasses disconnected — browser simulator fallback active.'
+                           : `Even G2 ${formatConnectType(deviceStatus.connectType)}${
+                               deviceStatus.batteryLevel !== undefined
+                                 ? ` (Battery ${deviceStatus.batteryLevel}%)`
+@@ -254,6 +257,7 @@ export const CareCueG2Module: React.FC<CareCueG2ModuleProps> = ({ wearableOnly =
+                 telegramConnected: Boolean(statusRef.current?.telegramConfigured),
+                 sessionPaused: Boolean(statusRef.current?.sessionPaused),
+                 customStagedText: customDraftRef.current,
++                selectedListIndex: event.listEvent?.currentSelectItemIndex,
+               });
+             });
+           },
+@@ -283,9 +287,18 @@ export const CareCueG2Module: React.FC<CareCueG2ModuleProps> = ({ wearableOnly =
+     };
+   }, [bridgeProbe, g2Frame, hasCreatedStartupPage]);
+ 
+-  // Apply brightness upgrade via SDK TextContainerUpgrade when running inside live host
++  // Apply brightness upgrade via SDK TextContainerUpgrade only on actual TextContainerProperty targets
+   useEffect(() => {
+     if (!bridgeProbe?.available || !bridgeProbe.bridge || !hasCreatedStartupPage) return;
++    if (g2Frame.listItems && g2Frame.listItems.length > 0) {
++      void upgradeTextBrightnessOnBridge(
++        bridgeProbe.bridge,
++        1,
++        `${g2Frame.headerLeft} · ${g2Frame.screenTitle} [${g2Frame.headerRight}]`,
++        Math.max(1, hudState.displayPrefs.brightnessLevel - 1)
++      );
++      return;
++    }
+     void upgradeTextBrightnessOnBridge(
+       bridgeProbe.bridge,
+       2,
+@@ -296,6 +309,10 @@ export const CareCueG2Module: React.FC<CareCueG2ModuleProps> = ({ wearableOnly =
+     bridgeProbe,
+     hasCreatedStartupPage,
+     hudState.displayPrefs.brightnessLevel,
++    g2Frame.headerLeft,
++    g2Frame.screenTitle,
++    g2Frame.headerRight,
++    g2Frame.listItems,
+     g2Frame.bodyLines,
+   ]);
+ 
+diff --git a/even-g2-carecue/README.md b/even-g2-carecue/README.md
+index 2be5a21..8665d40 100644
+--- a/even-g2-carecue/README.md
++++ b/even-g2-carecue/README.md
+@@ -82,11 +82,22 @@ npm run dev            # Starts Express + Vite on http://localhost:3000
+ - **Standalone Even Hub Wearable Entry:** `http://localhost:3000/carecue-g2`
+ - **Verify All Suites:** `npm run test:carecue && npm run test:carebridge && npm run test:hatbridge && npm run lint && npm run build:dev`
+ 
++## Verification Status Matrix
++
++| Scope | Status | Details |
++| :--- | :--- | :--- |
++| **Automated Tests** | **Verified** | `npm run test:carecue` (8/8), `npm run test:carebridge` (15/15), `npm run test:hatbridge` (12/12), `npx tsc --noEmit` & `npm run lint` (0 errors), and `npm run build:dev` (exit 0). Plain `npm run build` fails closed (`exit 1`) without explicit production `VITE_RUNTIME_ENV` + `VITE_FIREBASE_*` env vars. |
++| **Optical Browser Simulator** | **Verified** | Built-in `576 × 288` 4-bit monochrome HUD simulator, R1/temple reducer, and `@evenrealities/even_hub_sdk@0.0.16` `validateEvenHubPageContainer` checks across all 7 screens. |
++| **Server & Telegram/Gemini Runtime** | **Verified (Local Dev Server)** | `/api/carecue/status` confirmed live `TELEGRAM_BOT_TOKEN` (`@DrTCareCueBot`), `TELEGRAM_DEFAULT_CHAT_ID` (`***1396`), and `GEMINI_API_KEY` on port `3000`; confirmation (`403`), duplicate-send (`409`), and session-pause (`409`) gates verified. |
++| **Public Shared Preview / Production Cloud Deploy** | **Not Yet Verified** | Hosted preview URL requires session authentication (`302` cookie gate); standalone production deployment verification awaits authorized deploy. |
++| **Physical Even Realities G2 & R1 Hardware** | **Not Yet Verified (`NOT RUN`)** | No physical G2/R1 hardware attached in sandbox. Follow [`docs/PHYSICAL_DEVICE_TEST_CHECKLIST.md`](docs/PHYSICAL_DEVICE_TEST_CHECKLIST.md) on paired hardware. |
++
+ ## Documentation Index
+ 
+ - [Installation & Setup](docs/INSTALLATION.md)
+ - [Environment Variables](docs/ENVIRONMENT.md)
+ - [Simulator & Physical G2 QR Pairing Guide](docs/SIMULATOR_AND_PAIRING.md)
++- [Physical G2 & R1 Device Test Checklist](docs/PHYSICAL_DEVICE_TEST_CHECKLIST.md)
+ - [3-Minute Hackathon Demo Script](docs/DEMO_SCRIPT_3MIN.md)
+ - [Screenshot & Visual Capture Checklist](docs/SCREENSHOTS.md)
+ - [DoraHacks Submission Copy](docs/DORAHACKS_SUBMISSION.md)
+diff --git a/even-g2-carecue/docs/PHYSICAL_DEVICE_TEST_CHECKLIST.md b/even-g2-carecue/docs/PHYSICAL_DEVICE_TEST_CHECKLIST.md
+new file mode 100644
+index 0000000..96d5a51
+--- /dev/null
++++ b/even-g2-carecue/docs/PHYSICAL_DEVICE_TEST_CHECKLIST.md
+@@ -0,0 +1,93 @@
++# Physical Even Realities G2 & R1 Test Checklist — Dr. T CareCue G2
++
++> **Current Verification Status:** **NOT RUN** on physical Even Realities G2 glasses or physical R1 ring hardware (cloud sandbox has no Bluetooth/USB hardware bridge). Complete each step on physical hardware before marking a build physical-device verified.
++
++---
++
++## 1. Prerequisites & Pairing
++
++- [ ] **Hardware:** Even Realities G2 glasses (charged > 25%) + Even R1 ring paired in the official **Even** mobile app.
++- [ ] **Hosted HTTPS Entry:** Express + Vite server running behind a reachable HTTPS origin (no mixed HTTP content) or packaged via `@evenrealities/evenhub-cli`.
++- [ ] **Server Environment (no `VITE_` prefix):**
++  - `TELEGRAM_BOT_TOKEN` configured with dedicated test bot (`@DrTCareCueBot` or your hackathon `@BotFather` bot).
++  - `TELEGRAM_DEFAULT_CHAT_ID` configured if running `Send Test Message`.
++  - `GEMINI_API_KEY` configured (or omit to verify deterministic fallback mode).
++- [ ] **QR Pairing:**
++  1. Start server (`npm run dev` or production `npm start`) behind HTTPS URL `https://<host>/carecue-g2`.
++  2. Generate developer QR code with `evenhub qr --url "https://<host>/carecue-g2"`.
++  3. Open **Even** mobile app -> **Even Hub** -> **QR Scanner / Dev Prototype** -> scan QR.
++  4. Verify top-left HUD indicator transitions from `SIMULATOR MODE` to **`LIVE EVEN G2 DEVICE`** and `Host Probe` shows connected device model + battery percentage (`DeviceInfo.status.batteryLevel`).
++
++---
++
++## 2. Launching CareCue G2
++
++- [ ] Launch via **App Menu** (`launchSource = "appMenu"`) and confirm `createStartUpPageContainer()` returns `0` (`StartUpPageCreateResult.success`).
++- [ ] Optionally launch via **Glasses Menu** (`launchSource = "glassesMenu"`) and confirm `HOME` renders cleanly at `576 × 288` 4-bit monochrome without clipped borders.
++- [ ] Confirm Telegram bot connection status in HUD header (`TG LIVE` when active, `TG DEMO` if token unset).
++
++---
++
++## 3. Expected Seven-Screen Flow (`576 × 288` Waveguide)
++
++Verify each screen renders cleanly on the physical G2 waveguide without truncation defects or SDK container rejection (`SDK: VALID`):
++
++1. **`HOME`** — Header (`CARECUE · TG LIVE`), open thread count, `> INBOX` / `> SETTINGS & CONNECTION` list selector, footer hint.
++2. **`INCOMING_MESSAGE`** — Selected message index (`1/N`), sender name, handle, clock time, wrapped body lines, source badge.
++3. **`AI_SUMMARY`** — Concise `glanceHeadline`, urgency (`LOW`/`MEDIUM`/`HIGH`), max 2–3 bullets, `ASK:` action line.
++4. **`REPLY_DRAFT`** — Explicitly labeled **`DRAFT · UNCONFIRMED`**, 3 selectable options (`[DIRECT]`, `[WARM]`, `[DEFER]`).
++5. **`CONFIRM_SEND`** — Displays recipient (`TO:`), exact reply text (`OUT:`), `[DELIBERATE CONFIRM] OR [TEMPLE: CANCEL]`, and **`GATE ACTIVE`** (or **`SENT LOCKED`** if already replied).
++6. **`SENT`** — Displays recipient and Telegram `TELEGRAM MSG ID: #<id> (CONFIRMED)` (or local receipt in demo mode).
++7. **`SETTINGS`** — 3 rows: connection status (`STATUS: TG LIVE`), brightness (`1/4`–`4/4`), typography (`STANDARD` / `COMPACT`).
++
++---
++
++## 4. Gesture-by-Gesture Physical Checks
++
++| Physical Input | SDK Event Expected | Expected CareCue G2 Action | Status |
++| :--- | :--- | :--- | :--- |
++| R1 Swipe Up | `SCROLL_TOP_EVENT` (`1`) | Moves selection up (`HOME`, `INCOMING_MESSAGE`, `REPLY_DRAFT`, `SETTINGS`) | [ ] NOT RUN |
++| R1 Swipe Down | `SCROLL_BOTTOM_EVENT` (`2`) | Moves selection down | [ ] NOT RUN |
++| R1 Tap / Right-Temple Tap | `CLICK_EVENT` (`0`) | Advances (`HOME` -> `INCOMING_MESSAGE` -> `AI_SUMMARY` -> `REPLY_DRAFT` -> `CONFIRM_SEND`); cycles brightness/typography in `SETTINGS` | [ ] NOT RUN |
++| Left-Temple Tap | `CLICK_EVENT` + `TOUCH_EVENT_FROM_GLASSES_L` (`3`) | Navigates back (`CONFIRM_SEND` -> `REPLY_DRAFT`, etc.; opens `SETTINGS` from `HOME`) | [ ] NOT RUN |
++| Right-Temple Tap on `CONFIRM_SEND` | `CLICK_EVENT` + `TOUCH_EVENT_FROM_GLASSES_R` (`1`) | **Safety cancel guard:** returns to `REPLY_DRAFT` instead of auto-sending | [ ] NOT RUN |
++| Double-Click | `DOUBLE_CLICK_EVENT` (`3`) | Navigates back (`TEMPLE_BACK`) | [ ] NOT RUN |
++| Long Press | `LONG_PRESS_EVENT` (`9`) | Returns directly to `HOME` (`TEMPLE_HOLD_HOME`) and clears staged draft | [ ] NOT RUN |
++| Glasses Action Menu | `menuItemClickEvent.itemID` (`1`–`4`) | `1`=Select, `2`=Back, `3`=Home, `4`=Settings | [ ] NOT RUN |
++| Brightness Toggle (`SETTINGS` row 2) | `textContainerUpgrade` (`textColor` 1–4) | Visible waveguide brightness steps across levels `1/4` through `4/4` | [ ] NOT RUN |
++
++---
++
++## 5. Telegram Confirmation & Duplicate-Send Test
++
++- [ ] Send `/start` and a short test message from a secondary Telegram test account to `@DrTCareCueBot` (synthetic test text only — no personal/patient info).
++- [ ] Poll incoming message on console (`Poll Telegram Bot`) and verify it appears on Screen 2 (`INCOMING_MESSAGE`).
++- [ ] Summarize (`AI Summarize Active`) and verify Screen 3 (`AI_SUMMARY`) + Screen 4 (`REPLY_DRAFT` badged `DRAFT · UNCONFIRMED`).
++- [ ] Stage Screen 5 (`CONFIRM_SEND`): verify **no Telegram message is sent** simply by reaching Screen 5 or tapping Left/Right temple cancel.
++- [ ] Execute deliberate wearer confirmation (`Confirm & Send Telegram Reply`): verify Screen 6 (`SENT`) displays returned Telegram `message_id` and recipient chat receives the reply.
++- [ ] Re-attempt send on the same thread: verify `CONFIRM_SEND` shows **`SENT LOCKED`** / `ALREADY REPLIED — DUPLICATE SEND PREVENTED` (`409 DUPLICATE_SEND_PREVENTED`).
++
++---
++
++## 6. Disconnect / Reconnect & Device Status Test
++
++- [ ] **Telegram Session Pause:** In `SETTINGS` / console, click `Disconnect Session` -> HUD header switches to **`TG PAUSED`**; verify `Poll Telegram Bot` and `Confirm & Send` are blocked with `409 SESSION_PAUSED`.
++- [ ] **Telegram Session Reconnect:** Click `Reconnect Session` -> HUD header returns to **`TG LIVE`** and polling resumes.
++- [ ] **Physical BLE Disconnect:** Power off / place G2 glasses into charging case -> verify `onDeviceStatusChanged` transitions `connectType` to `disconnected`, HUD banner safely falls back to `SIMULATOR MODE`, and zero uncaught errors occur.
++- [ ] **Physical BLE Reconnect:** Remove G2 from case / reconnect in Even app -> verify `onDeviceStatusChanged` (`connected`) restores `LIVE EVEN G2 DEVICE` and updates HUD containers cleanly.
++
++---
++
++## 7. Failure Recovery Checks
++
++- [ ] **Bridge Timeout / Desktop Browser:** Load `/carecue-g2` without Even App WebView -> verify timeout (~600ms) cleanly falls back to interactive `SIMULATOR MODE`.
++- [ ] **Network Loss During Poll/Send:** Disable Wi-Fi briefly and trigger poll/send -> verify clear error banner appears without wiping local HUD state or crashing WebView.
++- [ ] **Gemini Upstream Timeout/503:** Verify `aiService.ts` degrades cleanly to `deterministic_fallback` with 3 still-unconfirmed reply drafts.
++
++---
++
++## 8. Evidence to Capture for Hackathon Demonstration
++
++- [ ] Photo/video through the G2 waveguide lens showing `HOME`, `AI_SUMMARY`, `CONFIRM_SEND` (`GATE ACTIVE`), and `SENT` (`TELEGRAM MSG ID: #...`).
++- [ ] Side-by-side recording of R1 ring scroll/tap advancing the G2 screen + Telegram client receiving the confirmed reply.
++- [ ] Screenshot of the CareCue Event & Safety Audit Log showing `TELEGRAM_BOT_VERIFIED`, `AI_SUMMARIZED`, and `REPLY_CONFIRMED_AND_SENT` (with zero raw tokens visible).
+diff --git a/even-g2-carecue/docs/TEST_REPORT.md b/even-g2-carecue/docs/TEST_REPORT.md
+index 648da01..50d0fef 100644
+--- a/even-g2-carecue/docs/TEST_REPORT.md
++++ b/even-g2-carecue/docs/TEST_REPORT.md
+@@ -29,6 +29,16 @@ All automated suites and live server E2E checks below were executed on **2026-11
+ 
+ ## 3. Build, Lint & Secret Isolation
+ 
+-- **Dev Build (`npm run build:dev`):** Passed (`dist/index.html`, `dist/server.cjs`, multi-target artifacts populated).
+-- **Secret Leak Scan:** `grep -rnE "TELEGRAM_BOT_TOKEN|9159192015:" src/ even-g2-carecue/CareCueG2Module.tsx dist/assets/` returned zero matches (`CLEAN_NO_SECRET_MATCHES`).
+-- **Environment Disclosure:** `@evenrealities/evenhub-cli` and physical G2 glasses hardware are not attached inside this cloud sandbox (`SIMULATOR MODE`); browser `576 × 288` optical simulator and SDK container payload validation verified all 7 screens, while physical G2 QR pairing is documented in `docs/SIMULATOR_AND_PAIRING.md`.
++- **TypeScript Typecheck (`npx tsc --noEmit` & `npm run lint`):** Passed (`exit 0`, 0 errors). Note: `package.json` maps `"lint"` directly to `tsc --noEmit`; no separate ESLint config/script exists in the repository.
++- **Development Build (`npm run build:dev`):** Passed (`exit 0`; populated `dist/index.html` and `dist/server.cjs`).
++- **Production Build (`npm run build`):** Exited `1` (`[Dr. T Frontend Config BLOCKED]`) in this sandbox because `vite.config.ts` enforces fail-closed `VITE_RUNTIME_ENV` and `VITE_FIREBASE_*` env vars for production builds without falling back to `firebase-applet-config.json`.
++- **Secret Leak Scan:** `grep -rcE "TELEGRAM_BOT_TOKEN|9159192015:|(?:ghp_|github_pat_)[0-9A-Za-z_]{20,}" src/ even-g2-carecue/CareCueG2Module.tsx dist/assets/` returned zero matches (`CLEAN_CARECUE_SCAN`).
++
++## 4. Verification Breakdown by Environment
++
++- **Automated-Test Verified:** `test:carecue` (8/8), `test:carebridge` (15/15), `test:hatbridge` (12/12), SDK `validateEvenHubPageContainer`, unavailable bridge error handling, lifecycle cleanup, and `403`/`409` server guards.
++- **Simulator-Tested:** Built-in `576 × 288` 4-bit monochrome optical preview and keyboard/button R1+temple controls (`SIMULATOR MODE`).
++- **Server / Dev Runtime Verified:** Express `/api/carecue/*` routes on `http://localhost:3000` with `TELEGRAM_BOT_TOKEN` (`@DrTCareCueBot`), `TELEGRAM_DEFAULT_CHAT_ID` (`***1396`), and `GEMINI_API_KEY`.
++- **Not Yet Verified (`NOT RUN`):**
++  - Physical Even Realities G2 waveguide rendering, physical R1 ring gesture input, and BLE disconnect/reconnect via [`PHYSICAL_DEVICE_TEST_CHECKLIST.md`](PHYSICAL_DEVICE_TEST_CHECKLIST.md).
++  - Standalone production build (`npm run build`) with production `VITE_FIREBASE_*` variables and unauthenticated public endpoint verification against an external deployment (`ais-pre-*` enforces Google AI Studio session cookie auth `HTTP 302`).
+diff --git a/even-g2-carecue/g2Protocol.ts b/even-g2-carecue/g2Protocol.ts
+index 57de060..ec59d0a 100644
+--- a/even-g2-carecue/g2Protocol.ts
++++ b/even-g2-carecue/g2Protocol.ts
+@@ -57,6 +57,7 @@ export interface CareCueReducerContext {
+   telegramConnected: boolean;
+   sessionPaused: boolean;
+   customStagedText?: string;
++  selectedListIndex?: number;
+ }
+ 
+ export function createInitialCareCueState(): CareCueG2ScreenState {
+@@ -131,6 +132,15 @@ export function reduceCareCueGesture(
+     };
+   }
+ 
++  if (gesture === 'OPEN_SETTINGS') {
++    return {
++      ...state,
++      screen: 'SETTINGS',
++      settingsRowIndex: 0,
++      lastGesture: 'Glasses menu: opened Settings',
++    };
++  }
++
+   switch (state.screen) {
+     case 'HOME': {
+       if (gesture === 'R1_NEXT') {
+@@ -150,10 +160,15 @@ export function reduceCareCueGesture(
+         };
+       }
+       if (gesture === 'R1_SELECT') {
+-        if (state.homeRowIndex === 1) {
++        const effectiveHomeRow =
++          typeof ctx.selectedListIndex === 'number' && ctx.selectedListIndex >= 0 && ctx.selectedListIndex < 2
++            ? ctx.selectedListIndex
++            : state.homeRowIndex;
++        if (effectiveHomeRow === 1) {
+           return {
+             ...state,
+             screen: 'SETTINGS',
++            homeRowIndex: 1,
+             settingsRowIndex: 0,
+             lastGesture: 'R1 tap: opened Settings',
+           };
+@@ -161,6 +176,7 @@ export function reduceCareCueGesture(
+         return {
+           ...state,
+           screen: 'INCOMING_MESSAGE',
++          homeRowIndex: 0,
+           selectedMessageIndex: clampedMsgIdx,
+           selectedDraftIndex: 0,
+           lastGesture: safeCount > 0 ? `R1 tap: opened Inbox (${safeCount} threads)` : 'R1 tap: opened Inbox (empty)',
+@@ -300,14 +316,22 @@ export function reduceCareCueGesture(
+         };
+       }
+       if (gesture === 'R1_SELECT') {
++        const effectiveDraftIdx =
++          typeof ctx.selectedListIndex === 'number' &&
++          ctx.selectedListIndex >= 0 &&
++          ctx.selectedListIndex < draftCount
++            ? ctx.selectedListIndex
++            : state.selectedDraftIndex;
+         const chosen =
++          (typeof ctx.selectedListIndex === 'number' && drafts[effectiveDraftIdx]?.text) ||
+           (ctx.customStagedText && ctx.customStagedText.trim()) ||
+           state.stagedReplyText ||
+-          drafts[state.selectedDraftIndex]?.text ||
++          drafts[effectiveDraftIdx]?.text ||
+           '';
+         return {
+           ...state,
+           screen: 'CONFIRM_SEND',
++          selectedDraftIndex: effectiveDraftIdx,
+           stagedReplyText: chosen,
+           lastGesture: 'R1 tap: review Confirm Send screen',
+         };
+@@ -370,24 +394,33 @@ export function reduceCareCueGesture(
+         };
+       }
+       if (gesture === 'R1_SELECT') {
+-        if (state.settingsRowIndex === 1) {
++        const effectiveSettingsRow =
++          typeof ctx.selectedListIndex === 'number' &&
++          ctx.selectedListIndex >= 0 &&
++          ctx.selectedListIndex < 3
++            ? ctx.selectedListIndex
++            : state.settingsRowIndex;
++        if (effectiveSettingsRow === 1) {
+           const nextBrightness = ((state.displayPrefs.brightnessLevel % 4) + 1) as 1 | 2 | 3 | 4;
+           return {
+             ...state,
++            settingsRowIndex: 1,
+             displayPrefs: { ...state.displayPrefs, brightnessLevel: nextBrightness },
+             lastGesture: `G2 Brightness set to ${nextBrightness}/4`,
+           };
+         }
+-        if (state.settingsRowIndex === 2) {
++        if (effectiveSettingsRow === 2) {
+           const nextCompact = !state.displayPrefs.compactMode;
+           return {
+             ...state,
++            settingsRowIndex: 2,
+             displayPrefs: { ...state.displayPrefs, compactMode: nextCompact },
+             lastGesture: nextCompact ? 'Compact typography enabled' : 'Standard typography enabled',
+           };
+         }
+         return {
+           ...state,
++          settingsRowIndex: 0,
+           lastGesture: ctx.sessionPaused
+             ? 'Use Reconnect Bot Session control below'
+             : 'Use Disconnect Bot Session control below',
+@@ -666,6 +699,7 @@ export function mapEvenHubEventToGesture(
+   if (event.menuItemClickEvent?.itemID === 1) return 'R1_SELECT';
+   if (event.menuItemClickEvent?.itemID === 2) return 'TEMPLE_BACK';
+   if (event.menuItemClickEvent?.itemID === 3) return 'TEMPLE_HOLD_HOME';
++  if (event.menuItemClickEvent?.itemID === 4) return 'OPEN_SETTINGS';
+ 
+   const eventType =
+     event.listEvent?.eventType ?? event.textEvent?.eventType ?? event.sysEvent?.eventType;
+@@ -780,13 +814,34 @@ export function subscribeEvenHubLifecycle(
+     onEvenHubEvent: (event: EvenHubEvent) => void;
+   }
+ ): () => void {
+-  const unsubStatus = bridge.onDeviceStatusChanged(handlers.onDeviceStatus);
+-  const unsubLaunch = bridge.onLaunchSource(handlers.onLaunchSource);
+-  const unsubEvents = bridge.onEvenHubEvent(handlers.onEvenHubEvent);
++  const unsubStatus =
++    typeof bridge?.onDeviceStatusChanged === 'function'
++      ? bridge.onDeviceStatusChanged(handlers.onDeviceStatus)
++      : undefined;
++  const unsubLaunch =
++    typeof bridge?.onLaunchSource === 'function'
++      ? bridge.onLaunchSource(handlers.onLaunchSource)
++      : undefined;
++  const unsubEvents =
++    typeof bridge?.onEvenHubEvent === 'function'
++      ? bridge.onEvenHubEvent(handlers.onEvenHubEvent)
++      : undefined;
+   return () => {
+-    unsubStatus();
+-    unsubLaunch();
+-    unsubEvents();
++    try {
++      unsubStatus?.();
++    } catch {
++      // Ignore cleanup errors during host teardown
++    }
++    try {
++      unsubLaunch?.();
++    } catch {
++      // Ignore cleanup errors during host teardown
++    }
++    try {
++      unsubEvents?.();
++    } catch {
++      // Ignore cleanup errors during host teardown
++    }
+   };
+ }
+ 
+@@ -802,26 +857,40 @@ export async function pushFrameToEvenBridge(
+     };
+   }
+ 
+-  if (!hasCreatedStartupPage) {
+-    const code = await bridge.createStartUpPageContainer(frame.containerPayload);
++  try {
++    if (!hasCreatedStartupPage) {
++      if (typeof bridge?.createStartUpPageContainer !== 'function') {
++        return { ok: false, detail: 'createStartUpPageContainer unavailable on host bridge.' };
++      }
++      const code = await bridge.createStartUpPageContainer(frame.containerPayload);
++      return {
++        ok: code === 0,
++        detail: `createStartUpPageContainer returned ${String(code)}`,
++      };
++    }
++
++    if (typeof bridge?.rebuildPageContainer !== 'function') {
++      return { ok: false, detail: 'rebuildPageContainer unavailable on host bridge.' };
++    }
++
++    const rebuild = new RebuildPageContainer({
++      containerTotalNum: frame.containerPayload.containerTotalNum,
++      textObject: frame.containerPayload.textObject,
++      listObject: frame.containerPayload.listObject,
++      menuObject: frame.containerPayload.menuObject,
++    });
++
++    const ok = await bridge.rebuildPageContainer(rebuild);
+     return {
+-      ok: code === 0,
+-      detail: `createStartUpPageContainer returned ${String(code)}`,
++      ok,
++      detail: ok ? 'rebuildPageContainer ok' : 'rebuildPageContainer rejected by host',
++    };
++  } catch (err) {
++    return {
++      ok: false,
++      detail: err instanceof Error ? err.message : 'EvenAppBridge page push failed.',
+     };
+   }
+-
+-  const rebuild = new RebuildPageContainer({
+-    containerTotalNum: frame.containerPayload.containerTotalNum,
+-    textObject: frame.containerPayload.textObject,
+-    listObject: frame.containerPayload.listObject,
+-    menuObject: frame.containerPayload.menuObject,
+-  });
+-
+-  const ok = await bridge.rebuildPageContainer(rebuild);
+-  return {
+-    ok,
+-    detail: ok ? 'rebuildPageContainer ok' : 'rebuildPageContainer rejected by host',
+-  };
+ }
+ 
+ export async function upgradeTextBrightnessOnBridge(
+@@ -831,11 +900,16 @@ export async function upgradeTextBrightnessOnBridge(
+   brightness: number
+ ): Promise<boolean> {
+   if (!isValidTextBrightness(brightness)) return false;
+-  return bridge.textContainerUpgrade(
+-    new TextContainerUpgrade({
+-      containerID,
+-      content,
+-      textColor: brightness,
+-    })
+-  );
++  if (typeof bridge?.textContainerUpgrade !== 'function') return false;
++  try {
++    return await bridge.textContainerUpgrade(
++      new TextContainerUpgrade({
++        containerID,
++        content,
++        textColor: brightness,
++      })
++    );
++  } catch {
++    return false;
++  }
+ }
+diff --git a/even-g2-carecue/tests/carecue.test.ts b/even-g2-carecue/tests/carecue.test.ts
+index a54ee57..ad6b4c6 100644
+--- a/even-g2-carecue/tests/carecue.test.ts
++++ b/even-g2-carecue/tests/carecue.test.ts
+@@ -136,7 +136,54 @@ async function runTests() {
+       ),
+       'TEMPLE_BACK'
+     );
+-    console.log('PASS [2/8] R1 ring / temple hardware 7-screen state reducer & SDK event mapping passed.');
++    assert.equal(
++      mapEvenHubEventToGesture({ menuItemClickEvent: { itemID: 4 } }, 'INCOMING_MESSAGE'),
++      'OPEN_SETTINGS'
++    );
++    state = reduceCareCueGesture(state, 'OPEN_SETTINGS', msgs);
++    assert.equal(state.screen, 'SETTINGS');
++
++    // Unavailable/failing bridge methods must resolve safely without throwing
++    const { pushFrameToEvenBridge, subscribeEvenHubLifecycle, upgradeTextBrightnessOnBridge } =
++      await import('../g2Protocol');
++    const brokenFrame = buildG2HudFrame(state, msgs, true, false);
++    const brokenPush = await pushFrameToEvenBridge(
++      {
++        createStartUpPageContainer: async () => {
++          throw new Error('Host bridge disconnected');
++        },
++      } as never,
++      brokenFrame,
++      false
++    );
++    assert.equal(brokenPush.ok, false);
++    assert.ok(brokenPush.detail.includes('disconnected'));
++
++    const brokenUpgrade = await upgradeTextBrightnessOnBridge({} as never, 1, 'test', 4);
++    assert.equal(brokenUpgrade, false);
++
++    let cleanedUp = 0;
++    const unsub = subscribeEvenHubLifecycle(
++      {
++        onDeviceStatusChanged: () => () => {
++          cleanedUp += 1;
++        },
++        onLaunchSource: () => () => {
++          cleanedUp += 1;
++        },
++        onEvenHubEvent: () => () => {
++          cleanedUp += 1;
++        },
++      } as never,
++      {
++        onDeviceStatus: () => {},
++        onLaunchSource: () => {},
++        onEvenHubEvent: () => {},
++      }
++    );
++    unsub();
++    assert.equal(cleanedUp, 3);
++    console.log('PASS [2/8] R1 ring / temple hardware 7-screen state reducer, SDK mapping & failure guards passed.');
+   }
+ 
+   // Test 3: Telegram token redaction & explicit permission boundary
+diff --git a/even-g2-carecue/types.ts b/even-g2-carecue/types.ts
+index 6cfef4c..769723d 100644
+--- a/even-g2-carecue/types.ts
++++ b/even-g2-carecue/types.ts
+@@ -16,7 +16,8 @@ export type CareCueHardwareGesture =
+   | 'R1_PREV'
+   | 'R1_SELECT'
+   | 'TEMPLE_BACK'
+-  | 'TEMPLE_HOLD_HOME';
++  | 'TEMPLE_HOLD_HOME'
++  | 'OPEN_SETTINGS';
+ 
+ export interface CareCueDisplayPrefs {
+   brightnessLevel: 1 | 2 | 3 | 4;

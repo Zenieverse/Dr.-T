@@ -82,11 +82,22 @@ npm run dev            # Starts Express + Vite on http://localhost:3000
 - **Standalone Even Hub Wearable Entry:** `http://localhost:3000/carecue-g2`
 - **Verify All Suites:** `npm run test:carecue && npm run test:carebridge && npm run test:hatbridge && npm run lint && npm run build:dev`
 
+## Verification Status Matrix
+
+| Scope | Status | Details |
+| :--- | :--- | :--- |
+| **Automated Tests** | **Verified** | `npm run test:carecue` (8/8), `npm run test:carebridge` (15/15), `npm run test:hatbridge` (12/12), `npx tsc --noEmit` & `npm run lint` (0 errors), and `npm run build:dev` (exit 0). Plain `npm run build` fails closed (`exit 1`) without explicit production `VITE_RUNTIME_ENV` + `VITE_FIREBASE_*` env vars. |
+| **Optical Browser Simulator** | **Verified** | Built-in `576 × 288` 4-bit monochrome HUD simulator, R1/temple reducer, and `@evenrealities/even_hub_sdk@0.0.16` `validateEvenHubPageContainer` checks across all 7 screens. |
+| **Server & Telegram/Gemini Runtime** | **Verified (Local Dev Server)** | `/api/carecue/status` confirmed live `TELEGRAM_BOT_TOKEN` (`@DrTCareCueBot`), `TELEGRAM_DEFAULT_CHAT_ID` (`***1396`), and `GEMINI_API_KEY` on port `3000`; confirmation (`403`), duplicate-send (`409`), and session-pause (`409`) gates verified. |
+| **Public Shared Preview / Production Cloud Deploy** | **Not Yet Verified** | Hosted preview URL requires session authentication (`302` cookie gate); standalone production deployment verification awaits authorized deploy. |
+| **Physical Even Realities G2 & R1 Hardware** | **Not Yet Verified (`NOT RUN`)** | No physical G2/R1 hardware attached in sandbox. Follow [`docs/PHYSICAL_DEVICE_TEST_CHECKLIST.md`](docs/PHYSICAL_DEVICE_TEST_CHECKLIST.md) on paired hardware. |
+
 ## Documentation Index
 
 - [Installation & Setup](docs/INSTALLATION.md)
 - [Environment Variables](docs/ENVIRONMENT.md)
 - [Simulator & Physical G2 QR Pairing Guide](docs/SIMULATOR_AND_PAIRING.md)
+- [Physical G2 & R1 Device Test Checklist](docs/PHYSICAL_DEVICE_TEST_CHECKLIST.md)
 - [3-Minute Hackathon Demo Script](docs/DEMO_SCRIPT_3MIN.md)
 - [Screenshot & Visual Capture Checklist](docs/SCREENSHOTS.md)
 - [DoraHacks Submission Copy](docs/DORAHACKS_SUBMISSION.md)

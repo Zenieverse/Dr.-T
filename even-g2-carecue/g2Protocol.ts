@@ -57,6 +57,7 @@ export interface CareCueReducerContext {
   telegramConnected: boolean;
   sessionPaused: boolean;
   customStagedText?: string;
+  selectedListIndex?: number;
 }
 
 export function createInitialCareCueState(): CareCueG2ScreenState {
@@ -131,6 +132,15 @@ export function reduceCareCueGesture(
     };
   }
 
+  if (gesture === 'OPEN_SETTINGS') {
+    return {
+      ...state,
+      screen: 'SETTINGS',
+      settingsRowIndex: 0,
+      lastGesture: 'Glasses menu: opened Settings',
+    };
+  }
+
   switch (state.screen) {
     case 'HOME': {
       if (gesture === 'R1_NEXT') {
@@ -150,10 +160,15 @@ export function reduceCareCueGesture(
         };
       }
       if (gesture === 'R1_SELECT') {
-        if (state.homeRowIndex === 1) {
+        const effectiveHomeRow =
+          typeof ctx.selectedListIndex === 'number' && ctx.selectedListIndex >= 0 && ctx.selectedListIndex < 2
+            ? ctx.selectedListIndex
+            : state.homeRowIndex;
+        if (effectiveHomeRow === 1) {
           return {
             ...state,
             screen: 'SETTINGS',
+            homeRowIndex: 1,
             settingsRowIndex: 0,
             lastGesture: 'R1 tap: opened Settings',
           };
@@ -161,6 +176,7 @@ export function reduceCareCueGesture(
         return {
           ...state,
           screen: 'INCOMING_MESSAGE',
+          homeRowIndex: 0,
           selectedMessageIndex: clampedMsgIdx,
           selectedDraftIndex: 0,
           lastGesture: safeCount > 0 ? `R1 tap: opened Inbox (${safeCount} threads)` : 'R1 tap: opened Inbox (empty)',
@@ -300,14 +316,22 @@ export function reduceCareCueGesture(
         };
       }
       if (gesture === 'R1_SELECT') {
+        const effectiveDraftIdx =
+          typeof ctx.selectedListIndex === 'number' &&
+          ctx.selectedListIndex >= 0 &&
+          ctx.selectedListIndex < draftCount
+            ? ctx.selectedListIndex
+            : state.selectedDraftIndex;
         const chosen =
+          (typeof ctx.selectedListIndex === 'number' && drafts[effectiveDraftIdx]?.text) ||
           (ctx.customStagedText && ctx.customStagedText.trim()) ||
           state.stagedReplyText ||
-          drafts[state.selectedDraftIndex]?.text ||
+          drafts[effectiveDraftIdx]?.text ||
           '';
         return {
           ...state,
           screen: 'CONFIRM_SEND',
+          selectedDraftIndex: effectiveDraftIdx,
           stagedReplyText: chosen,
           lastGesture: 'R1 tap: review Confirm Send screen',
         };
@@ -370,24 +394,33 @@ export function reduceCareCueGesture(
         };
       }
       if (gesture === 'R1_SELECT') {
-        if (state.settingsRowIndex === 1) {
+        const effectiveSettingsRow =
+          typeof ctx.selectedListIndex === 'number' &&
+          ctx.selectedListIndex >= 0 &&
+          ctx.selectedListIndex < 3
+            ? ctx.selectedListIndex
+            : state.settingsRowIndex;
+        if (effectiveSettingsRow === 1) {
           const nextBrightness = ((state.displayPrefs.brightnessLevel % 4) + 1) as 1 | 2 | 3 | 4;
           return {
             ...state,
+            settingsRowIndex: 1,
             displayPrefs: { ...state.displayPrefs, brightnessLevel: nextBrightness },
             lastGesture: `G2 Brightness set to ${nextBrightness}/4`,
           };
         }
-        if (state.settingsRowIndex === 2) {
+        if (effectiveSettingsRow === 2) {
           const nextCompact = !state.displayPrefs.compactMode;
           return {
             ...state,
+            settingsRowIndex: 2,
             displayPrefs: { ...state.displayPrefs, compactMode: nextCompact },
             lastGesture: nextCompact ? 'Compact typography enabled' : 'Standard typography enabled',
           };
         }
         return {
           ...state,
+          settingsRowIndex: 0,
           lastGesture: ctx.sessionPaused
             ? 'Use Reconnect Bot Session control below'
             : 'Use Disconnect Bot Session control below',
@@ -666,6 +699,7 @@ export function mapEvenHubEventToGesture(
   if (event.menuItemClickEvent?.itemID === 1) return 'R1_SELECT';
   if (event.menuItemClickEvent?.itemID === 2) return 'TEMPLE_BACK';
   if (event.menuItemClickEvent?.itemID === 3) return 'TEMPLE_HOLD_HOME';
+  if (event.menuItemClickEvent?.itemID === 4) return 'OPEN_SETTINGS';
 
   const eventType =
     event.listEvent?.eventType ?? event.textEvent?.eventType ?? event.sysEvent?.eventType;
@@ -780,13 +814,34 @@ export function subscribeEvenHubLifecycle(
     onEvenHubEvent: (event: EvenHubEvent) => void;
   }
 ): () => void {
-  const unsubStatus = bridge.onDeviceStatusChanged(handlers.onDeviceStatus);
-  const unsubLaunch = bridge.onLaunchSource(handlers.onLaunchSource);
-  const unsubEvents = bridge.onEvenHubEvent(handlers.onEvenHubEvent);
+  const unsubStatus =
+    typeof bridge?.onDeviceStatusChanged === 'function'
+      ? bridge.onDeviceStatusChanged(handlers.onDeviceStatus)
+      : undefined;
+  const unsubLaunch =
+    typeof bridge?.onLaunchSource === 'function'
+      ? bridge.onLaunchSource(handlers.onLaunchSource)
+      : undefined;
+  const unsubEvents =
+    typeof bridge?.onEvenHubEvent === 'function'
+      ? bridge.onEvenHubEvent(handlers.onEvenHubEvent)
+      : undefined;
   return () => {
-    unsubStatus();
-    unsubLaunch();
-    unsubEvents();
+    try {
+      unsubStatus?.();
+    } catch {
+      // Ignore cleanup errors during host teardown
+    }
+    try {
+      unsubLaunch?.();
+    } catch {
+      // Ignore cleanup errors during host teardown
+    }
+    try {
+      unsubEvents?.();
+    } catch {
+      // Ignore cleanup errors during host teardown
+    }
   };
 }
 
@@ -802,26 +857,40 @@ export async function pushFrameToEvenBridge(
     };
   }
 
-  if (!hasCreatedStartupPage) {
-    const code = await bridge.createStartUpPageContainer(frame.containerPayload);
+  try {
+    if (!hasCreatedStartupPage) {
+      if (typeof bridge?.createStartUpPageContainer !== 'function') {
+        return { ok: false, detail: 'createStartUpPageContainer unavailable on host bridge.' };
+      }
+      const code = await bridge.createStartUpPageContainer(frame.containerPayload);
+      return {
+        ok: code === 0,
+        detail: `createStartUpPageContainer returned ${String(code)}`,
+      };
+    }
+
+    if (typeof bridge?.rebuildPageContainer !== 'function') {
+      return { ok: false, detail: 'rebuildPageContainer unavailable on host bridge.' };
+    }
+
+    const rebuild = new RebuildPageContainer({
+      containerTotalNum: frame.containerPayload.containerTotalNum,
+      textObject: frame.containerPayload.textObject,
+      listObject: frame.containerPayload.listObject,
+      menuObject: frame.containerPayload.menuObject,
+    });
+
+    const ok = await bridge.rebuildPageContainer(rebuild);
     return {
-      ok: code === 0,
-      detail: `createStartUpPageContainer returned ${String(code)}`,
+      ok,
+      detail: ok ? 'rebuildPageContainer ok' : 'rebuildPageContainer rejected by host',
+    };
+  } catch (err) {
+    return {
+      ok: false,
+      detail: err instanceof Error ? err.message : 'EvenAppBridge page push failed.',
     };
   }
-
-  const rebuild = new RebuildPageContainer({
-    containerTotalNum: frame.containerPayload.containerTotalNum,
-    textObject: frame.containerPayload.textObject,
-    listObject: frame.containerPayload.listObject,
-    menuObject: frame.containerPayload.menuObject,
-  });
-
-  const ok = await bridge.rebuildPageContainer(rebuild);
-  return {
-    ok,
-    detail: ok ? 'rebuildPageContainer ok' : 'rebuildPageContainer rejected by host',
-  };
 }
 
 export async function upgradeTextBrightnessOnBridge(
@@ -831,11 +900,16 @@ export async function upgradeTextBrightnessOnBridge(
   brightness: number
 ): Promise<boolean> {
   if (!isValidTextBrightness(brightness)) return false;
-  return bridge.textContainerUpgrade(
-    new TextContainerUpgrade({
-      containerID,
-      content,
-      textColor: brightness,
-    })
-  );
+  if (typeof bridge?.textContainerUpgrade !== 'function') return false;
+  try {
+    return await bridge.textContainerUpgrade(
+      new TextContainerUpgrade({
+        containerID,
+        content,
+        textColor: brightness,
+      })
+    );
+  } catch {
+    return false;
+  }
 }
