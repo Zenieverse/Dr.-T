@@ -103,6 +103,7 @@ import {
 import { probePopulationFirestorePersistence } from './src/server/populationHealthFirestoreStore';
 import { registerHatBridgeRoutes } from './src/server/hatbridgeService';
 import { registerCareBridgeRoutes } from './src/server/carebridgeService';
+import { registerCareCueRoutes } from './even-g2-carecue/server';
 import { GeminiCircuitBreaker } from './src/server/geminiCircuitBreaker';
 import {
   getMultiInstanceSafetyDiagnostics,
@@ -6171,6 +6172,11 @@ registerHatBridgeRoutes(app, getGemini);
 // DR. T — CAREBRIDGE API ROUTES (Codegeist 2026: Specialized Industries)
 // ============================================================================
 registerCareBridgeRoutes(app, getGemini);
+
+// ============================================================================
+// DR. T — CARECUE G2 API ROUTES (Even Realities G2 Hackathon 2026)
+// ============================================================================
+registerCareCueRoutes(app, getGemini);
 
 // Setup Vite or Static serving
 async function setupApp() {

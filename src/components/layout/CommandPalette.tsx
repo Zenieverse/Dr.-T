@@ -51,7 +51,8 @@ import {
   Sun,
   Rocket,
   Layers,
-  GitBranch
+  GitBranch,
+  Glasses
 } from 'lucide-react';
 
 interface CommandPaletteProps {
@@ -268,6 +269,19 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
           icon: <Bot className="w-4 h-4 text-slate-700" />,
           action: () => {
             setActiveTab('carebridge');
+            onClose();
+          }
+        }
+      ]
+    },
+    {
+      category: '👓 Dr. T CareCue G2 — Even Realities G2 & Telegram (Hackathon 2026)',
+      items: [
+        {
+          label: 'CareCue G2 — 576×288 Waveguide HUD Simulator, AI Drafts & Wearer Confirmation',
+          icon: <Glasses className="w-4 h-4 text-emerald-600" />,
+          action: () => {
+            setActiveTab('carecue-g2');
             onClose();
           }
         }
